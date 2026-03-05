@@ -1,10 +1,3 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
-});
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -18,25 +11,24 @@ api.interceptors.response.use(
     const isRefreshCall = originalRequest.url?.includes("/refresh/");
     const isMeCall = originalRequest.url?.includes("/me/");
 
-    // 🚫 If simply not logged in, do NOT attempt refresh
+    // If /me/ fails, just reject — let AuthProvider handle it
     if (isUnauthorized && isMeCall) {
       return Promise.reject(error);
     }
 
-    // 🔄 Attempt refresh only once and not for refresh endpoint
+    // Try refresh once
     if (isUnauthorized && !originalRequest._retry && !isRefreshCall) {
       originalRequest._retry = true;
 
       try {
         await api.post("/refresh/");
         return api(originalRequest);
-      } catch {
-        window.location.href = "https://www.shikshacom.com/login";
+      } catch (refreshError) {
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
   }
 );
-
-export default api;
