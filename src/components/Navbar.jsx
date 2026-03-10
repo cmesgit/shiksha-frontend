@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import "../css/Navbar.css";
 
@@ -73,84 +73,67 @@ const Navbar = () => {
         </div>
 
         <div className="header-right">
-          <a href="https://www.facebook.com" className="social-icon" target="_blank" rel="noopener noreferrer">
-            <FaFacebookF />
-          </a>
-          <a href="https://www.instagram.com" className="social-icon" target="_blank" rel="noopener noreferrer">
-            <FaInstagram />
-          </a>
-          <a href="https://www.youtube.com" className="social-icon" target="_blank" rel="noopener noreferrer">
-            <FaYoutube />
-          </a>
+          <div className="header-social">
+            <a href="https://www.facebook.com" className="social-icon" target="_blank" rel="noopener noreferrer">
+              <FaFacebookF />
+            </a>
+            <a href="https://www.instagram.com" className="social-icon" target="_blank" rel="noopener noreferrer">
+              <FaInstagram />
+            </a>
+            <a href="https://www.youtube.com" className="social-icon" target="_blank" rel="noopener noreferrer">
+              <FaYoutube />
+            </a>
+          </div>
+          <div className="header-auth">
+            <Link to="/login"  className="header-login-btn">Login</Link>
+            <Link to="/signup" className="header-signup-btn">Signup</Link>
+          </div>
         </div>
       </header>
 
       {/* ===== NAV ===== */}
       <nav className="navbar navbar-pc">
         <ul className="nav-menu">
-          <li><Link to="/">{t("home")}</Link></li>
+          <li><NavLink to="/" end>{t("home")}</NavLink></li>
 
           <li className="nav-item dropdown">
-            <Link to="/about">{t("about")}</Link>
+            <NavLink to="/about">{t("about")}</NavLink>
             <ul className="dropdown-menu">
-              <li><Link to="/vision">{t("vision")}</Link></li>
-              <li><Link to="/mission">{t("mission")}</Link></li>
-              <li><Link to="/values">{t("values")}</Link></li>
-              <li><Link to="/why-shiksha">{t("whyShiksha")}</Link></li>
+              <li><NavLink to="/vision">{t("vision")}</NavLink></li>
+              <li><NavLink to="/mission">{t("mission")}</NavLink></li>
+              <li><NavLink to="/values">{t("values")}</NavLink></li>
+              <li><NavLink to="/why-shiksha">{t("whyShiksha")}</NavLink></li>
             </ul>
           </li>
 
           <li className="nav-item dropdown">
-            <Link to="/upcoming">{t("registration")}</Link>
+            <NavLink to="/courses">{t("courses")}</NavLink>
+          </li>
+
+          <li><NavLink to="/placements">Placements</NavLink></li>
+          <li><NavLink to="/general-studies">{t("generalStudies")}</NavLink></li>
+          <li><NavLink to="/forum">{t("forum")}</NavLink></li>
+
+          <li className="nav-item dropdown">
+            <NavLink to="/counselling">{t("counselling")}</NavLink>
             <ul className="dropdown-menu">
-              <li><Link to="/upcoming">{t("students")}</Link></li>
-              <li><Link to="/upcoming">{t("teachers")}</Link></li>
-              <li><Link to="/upcoming">{t("experts")}</Link></li>
+              <li><NavLink to="/counselling">{t("Career")}</NavLink></li>
+              <li><NavLink to="/counselling">{t("Admission in India")}</NavLink></li>
+              <li><NavLink to="/counselling">{t("Admission in Abroad")}</NavLink></li>
             </ul>
           </li>
 
           <li className="nav-item dropdown">
-            <Link to="/courses">{t("services")}</Link>
+            <NavLink to="/training">{t("training")}</NavLink>
             <ul className="dropdown-menu">
-              <li><Link to="/courses">{t("online")}</Link></li>
-              <li><Link to="/upcoming">{t("classroom")}</Link></li>
-              <li><Link to="/upcoming">{t("softwareDev")}</Link></li>
+              <li><NavLink to="/training">{t("industrial")}</NavLink></li>
+              <li><NavLink to="/training">{t("specialized")}</NavLink></li>
             </ul>
           </li>
 
-          <li><Link to="/placements">Placements</Link></li>
-          <li><Link to="/general-studies">{t("generalStudies")}</Link></li>
-          <li><Link to="/forum">{t("forum")}</Link></li>
+          <li><NavLink to="/insight">{t("insight")}</NavLink></li>
+          <li><NavLink to="/contact">{t("contact")}</NavLink></li>
 
-          <li className="nav-item dropdown">
-            <Link to="/counselling">{t("counselling")}</Link>
-            <ul className="dropdown-menu">
-              <li><Link to="/counselling">{t("Career")}</Link></li>
-              <li><Link to="/counselling">{t("Admission in India")}</Link></li>
-              <li><Link to="/counselling">{t("Admission in Abroad")}</Link></li>
-            </ul>
-          </li>
-
-          <li className="nav-item dropdown">
-            <Link to="/training">{t("training")}</Link>
-            <ul className="dropdown-menu">
-              <li><Link to="/training">{t("industrial")}</Link></li>
-              <li><Link to="/training">{t("specialized")}</Link></li>
-            </ul>
-          </li>
-
-          <li><Link to="/insight">{t("insight")}</Link></li>
-          <li><Link to="/contact">{t("contact")}</Link></li>
-
-          {/* ===== AUTH (LOGOUT ONLY) ===== */}
-          {isAuthenticated && user && (
-            <li className="nav-user">
-              <span className="nav-email">{user.email}</span>
-              <button onClick={handleLogout} className="logout-btn">
-                Logout
-              </button>
-            </li>
-          )}
         </ul>
       </nav>
     </>

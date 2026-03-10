@@ -100,6 +100,24 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+.demo-btn {
+  background-color:#004A33;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 32px;
+  font-size: 15px;
+  font-weight: 300;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.demo-btn:hover {
+  background-color: #2e5c3e;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .landing-header {

@@ -1,199 +1,181 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/Courses.css';
 
-import { useNavigate } from "react-router-dom";
+const SUBJECT_DESC = 'Description: The details of the course like the type of board, syllabus covered, etc';
 
+export const courseCards = [
+  {
+    id: 'class8', title: 'Class 8',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Mathematics', desc: SUBJECT_DESC },
+      { name: 'English',     desc: SUBJECT_DESC },
+      { name: 'Mizo',        desc: SUBJECT_DESC },
+      { name: 'Science',     desc: SUBJECT_DESC },
+      { name: 'Social Science', desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class9', title: 'Class 9',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Mathematics', desc: SUBJECT_DESC },
+      { name: 'English',     desc: SUBJECT_DESC },
+      { name: 'Mizo',        desc: SUBJECT_DESC },
+      { name: 'Science',     desc: SUBJECT_DESC },
+      { name: 'Social Science', desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class10', title: 'Class 10',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Mathematics', desc: SUBJECT_DESC },
+      { name: 'English',     desc: SUBJECT_DESC },
+      { name: 'Mizo',        desc: SUBJECT_DESC },
+      { name: 'Science',     desc: SUBJECT_DESC },
+      { name: 'Social Science', desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class11arts', title: 'Class 11 (Arts)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'History',           desc: SUBJECT_DESC },
+      { name: 'Geography',         desc: SUBJECT_DESC },
+      { name: 'Political Science', desc: SUBJECT_DESC },
+      { name: 'English',           desc: SUBJECT_DESC },
+      { name: 'Mizo',              desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class11commerce', title: 'Class 11 (Commerce)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Accountancy',      desc: SUBJECT_DESC },
+      { name: 'Business Studies', desc: SUBJECT_DESC },
+      { name: 'Economics',        desc: SUBJECT_DESC },
+      { name: 'Mathematics',      desc: SUBJECT_DESC },
+      { name: 'English',          desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class11science', title: 'Class 11 (Science)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Physics',    desc: SUBJECT_DESC },
+      { name: 'Chemistry',  desc: SUBJECT_DESC },
+      { name: 'Biology',    desc: SUBJECT_DESC },
+      { name: 'Mathematics',desc: SUBJECT_DESC },
+      { name: 'English',    desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class12arts', title: 'Class 12 (Arts)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'History',           desc: SUBJECT_DESC },
+      { name: 'Geography',         desc: SUBJECT_DESC },
+      { name: 'Political Science', desc: SUBJECT_DESC },
+      { name: 'English',           desc: SUBJECT_DESC },
+      { name: 'Mizo',              desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class12commerce', title: 'Class 12 (Commerce)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Accountancy',      desc: SUBJECT_DESC },
+      { name: 'Business Studies', desc: SUBJECT_DESC },
+      { name: 'Economics',        desc: SUBJECT_DESC },
+      { name: 'Mathematics',      desc: SUBJECT_DESC },
+      { name: 'English',          desc: SUBJECT_DESC },
+    ],
+  },
+  {
+    id: 'class12science', title: 'Class 12 (Science)',
+    desc: 'All Subjects included in the MBSC Academic syllabus', price: '₹1,500',
+    subjects: [
+      { name: 'Physics',    desc: SUBJECT_DESC },
+      { name: 'Chemistry',  desc: SUBJECT_DESC },
+      { name: 'Biology',    desc: SUBJECT_DESC },
+      { name: 'Mathematics',desc: SUBJECT_DESC },
+      { name: 'English',    desc: SUBJECT_DESC },
+    ],
+  },
+];
 
-
+/* Reusable card used by both Courses page and CoursePreview */
+export const CourseCard = ({ course, onArrowClick }) => (
+  <div className="course-card">
+    <div className="course-card-img" />
+    <div className="course-card-body">
+      <h3 className="course-card-title">{course.title}</h3>
+      <p className="course-card-desc">{course.desc}</p>
+      <div className="course-card-footer">
+        <span className="course-card-price">{course.price}</span>
+        <button className="course-arrow-btn" onClick={() => onArrowClick(course)}>→</button>
+      </div>
+    </div>
+  </div>
+);
 
 const Courses = () => {
-  const [selectedClass, setSelectedClass] = useState('Class 8');
-  const [selectedStream, setSelectedStream] = useState(null);
-
-
   const navigate = useNavigate();
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
-  const subjectsData = {
-    'Class 8': [
-      { name: 'Science', icon: '🧪' },
-      { name: 'Social Science', icon: '🌍' },
-      { name: 'Maths', icon: '🔢' },
-      { name: 'English', icon: '📚' },
-      { name: 'GK', icon: '🧠' },
-      { name: 'IT', icon: '💻' },
-      { name: 'MIL', icon: '🗣️' }
-    ],
-    'Class 9': [
-      { name: 'Science', icon: '🧪' },
-      { name: 'Social Science', icon: '🌍' },
-      { name: 'Maths', icon: '🔢' },
-      { name: 'English', icon: '📚' },
-      { name: 'GK', icon: '🧠' },
-      { name: 'MIL', icon: '🗣️' }
-    ],
-    'Class 10': [
-      { name: 'Science', icon: '🧪' },
-      { name: 'Social Science', icon: '🌍' },
-      { name: 'Maths', icon: '🔢' },
-      { name: 'English', icon: '📚' },
-      { name: 'MIL', icon: '🗣️' }
-    ],
-    'Class 11': {
-      'Science': [
-        { name: 'Physics', icon: '⚛️' },
-        { name: 'Chemistry', icon: '🧪' },
-        { name: 'Biology', icon: '🧬' },
-        { name: 'Maths', icon: '🔢' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ],
-      'Arts': [
-        { name: 'History', icon: '📜' },
-        { name: 'Geography', icon: '🌍' },
-        { name: 'Political Science', icon: '🏛️' },
-        { name: 'Sociology', icon: '👥' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ],
-      'Commerce': [
-        { name: 'Accountancy', icon: '📊' },
-        { name: 'Business Studies', icon: '💼' },
-        { name: 'Economics', icon: '💰' },
-        { name: 'Maths', icon: '🔢' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ]
-    },
-    'Class 12': {
-      'Science': [
-        { name: 'Physics', icon: '⚛️' },
-        { name: 'Chemistry', icon: '🧪' },
-        { name: 'Biology', icon: '🧬' },
-        { name: 'Maths', icon: '🔢' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ],
-      'Arts': [
-        { name: 'History', icon: '📜' },
-        { name: 'Geography', icon: '🌍' },
-        { name: 'Political Science', icon: '🏛️' },
-        { name: 'Sociology', icon: '👥' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ],
-      'Commerce': [
-        { name: 'Accountancy', icon: '📊' },
-        { name: 'Business Studies', icon: '💼' },
-        { name: 'Economics', icon: '💰' },
-        { name: 'Maths', icon: '🔢' },
-        { name: 'English', icon: '📚' },
-        { name: 'MIL', icon: '🗣️' }
-      ]
-    }
-  };
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  const handleClassClick = (className) => {
-    setSelectedClass(className);
-    setSelectedStream(null);
-  };
+  if (selectedCourse) {
+    return (
+      <div className="courses-page">
+        <div className="course-detail">
+          <h2 className="detail-title">{selectedCourse.title}</h2>
+          <p className="detail-subtitle">
+            Explore the subjects included in the {selectedCourse.title} Courses
+          </p>
 
-  const handleStreamClick = (stream) => {
-    setSelectedStream(stream);
-  };
-
-  const handleBackClick = () => {
-    setSelectedStream(null);
-  };
-const handleSubjectClick = (subjectName) => {
-  navigate("/payment", {
-    state: {
-      className: selectedClass,
-      stream: selectedStream,
-      subject: subjectName,
-      price: 1200,
-    },
-  });
-};
-
-  const renderContent = () => {
-    if (selectedStream) {
-      // Show subjects for the selected stream
-      return (
-        <div className="courses-content-area">
-          <h3>{selectedClass} - {selectedStream}</h3>
-          <div className="courses-subjects-grid">
-            {subjectsData[selectedClass][selectedStream].map((subject, index) => (
-              <div className="courses-subject-card" key={index}>
-                <div className="card-icon">{subject.icon}</div>
-                <h4>{subject.name}</h4>
+          <div className="subject-list">
+            {selectedCourse.subjects.map((subj, i) => (
+              <div className="subject-card" key={i}>
+                <p className="subject-name">{subj.name}</p>
+                <p className="subject-desc">{subj.desc}</p>
               </div>
             ))}
           </div>
-          <button className="courses-back-button" onClick={handleBackClick}>Back to Streams</button>
-        </div>
-      );
-    } else if (!Array.isArray(subjectsData[selectedClass]) && typeof subjectsData[selectedClass] === 'object') {
-      // Show streams for Class 11 or 12
-      return (
-        <div className="courses-content-area">
-          <h3>{selectedClass}</h3>
-          <div className="courses-streams-grid">
-            {Object.keys(subjectsData[selectedClass]).map((stream, index) => (
-             <div
-  className="courses-subject-card"
-  key={index}
-  onClick={() => handleSubjectClick(subject.name)}>
 
-              onClick={() => handleStreamClick(stream)}
-                <h4>{stream}</h4>
-                <p>Click to view subjects</p>
-              </div>
-            ))}
+          <div className="detail-footer">
+            <span className="detail-price">{selectedCourse.price}</span>
+            <button
+              className="buy-btn"
+              onClick={() =>
+                navigate('/payment', {
+                  state: { className: selectedCourse.title, price: selectedCourse.price },
+                })
+              }
+            >
+              Buy
+            </button>
           </div>
         </div>
-      );
-    } else {
-      // Show subjects for Class 8-10
-      return (
-        <div className="courses-content-area">
-          <h3>{selectedClass}</h3>
-          <div className="courses-subjects-grid">
-            {subjectsData[selectedClass].map((subject, index) => (
-              <div
-  className="courses-subject-card"
-  key={index}
-  onClick={() => handleSubjectClick(subject.name)}
->
-
-                <div className="card-icon">{subject.icon}</div>
-                <h4>{subject.name}</h4>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-  };
+      </div>
+    );
+  }
 
   return (
-    <div className="courses-container">
-      <div className="courses-canvas">
-        <h1 className="courses-title">Our Online Courses</h1>
-        <p className="courses-subtitle">Explore subjects for classes 8 to 12, including specialized streams for classes 11 and 12.</p>
+    <div className="courses-page">
+      <div className="courses-full-header">
+        <h1 className="courses-full-title">Online Courses</h1>
+        <p className="courses-full-subtitle">Explore the Courses we provide in our website</p>
+      </div>
 
-        <div className="courses-class-tabs">
-          {Object.keys(subjectsData).map((className) => (
-            <button
-              key={className}
-              className={`courses-class-tab ${selectedClass === className ? 'selected' : ''}`}
-              onClick={() => handleClassClick(className)}
-            >
-              {className}
-            </button>
+      <div className="courses-grid-wrap">
+        <div className="courses-grid">
+          {courseCards.map((course) => (
+            <CourseCard key={course.id} course={course} onArrowClick={setSelectedCourse} />
           ))}
         </div>
-
-        {renderContent()}
       </div>
     </div>
   );

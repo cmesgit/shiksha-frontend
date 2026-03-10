@@ -10,11 +10,9 @@
    STATS SECTION
 ======================== */
 .stats-section {
-  background: #efe3d1;
-  padding: 25px 0;
+  background: #1f3d1f;
+  padding: 28px 0;
   margin: 40px 0;
-  border-top: 1px solid #dcccb4;
-  border-bottom: 1px solid #dcccb4;
   display: flex;
   justify-content: space-evenly;
 }
@@ -26,11 +24,12 @@
 .stat .number {
   font-size: 45px;
   font-weight: 700;
+  color: #fff;
 }
 
 .stat .label {
   font-size: 20px;
-  color: #666;
+  color: #c8dfc8;
 }
 
 /* ========================

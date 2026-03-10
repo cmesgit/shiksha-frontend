@@ -57,7 +57,88 @@
 
 .header-right {
   display: flex;
-  gap: 15px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Social icons row */
+.header-social {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.social-icon {
+  color: #1f3d1f;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.social-icon:hover {
+  color: #2d5a2d;
+}
+
+/* Auth buttons row */
+.header-auth {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Login – plain text style */
+.header-login-btn {
+  padding: 3px 8px;
+  background: transparent;
+  border: none;
+  color: #1f3d1f;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.header-login-btn:hover {
+  background: rgba(31,61,31,0.08);
+}
+
+/* Signup – plain text style */
+.header-signup-btn {
+  padding: 3px 8px;
+  background: transparent;
+  border: none;
+  color: #1f3d1f;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.header-signup-btn:hover {
+  background: rgba(31,61,31,0.08);
+}
+
+/* Logout (in header) */
+.header-logout-btn {
+  padding: 6px 18px;
+  background: transparent;
+  border: 1px solid #c00;
+  color: #c00;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.header-logout-btn:hover {
+  background: #fff0f0;
 }
 
 /* ===== NAVBAR ===== */
@@ -96,8 +177,9 @@
   white-space: nowrap;
 }
 
-.nav-menu > li a:hover {
-  background: #e6f0ff;
+.nav-menu > li a:hover,
+.nav-menu > li a.active {
+  background: #cedaed;
   border-radius: 4px;
 }
 

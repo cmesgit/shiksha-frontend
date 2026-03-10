@@ -16,10 +16,6 @@
 
 /* Branding Section */
 .footer-branding {
-  position: relative;
-  top: -30px;
-  left: -20px;
-  /* move left */
   text-align: left;
 }
 
@@ -72,10 +68,9 @@
 .footer-footer-nav {
   display: flex;
   gap: 10px;
-  flex: 2;
-  position: relative;
-  left: 150px;
-  /* move right */
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-right: 20px;
 }
 
 .footer-nav-group {
@@ -198,6 +193,7 @@ align-items: stretch;  }
  justify-content: space-around;
   }
     .footer-footer-nav {
-left: 0px;
+      margin-left: 0;
+      padding-right: 0;
   }
 }

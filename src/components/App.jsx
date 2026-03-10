@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import Dashboard from './Dashboard';
 import ProtectedRoute from '../routes/ProtectedRoute';
+import HomePage from './HomePage';
 
 import Navbar from './Navbar';
 import LandingHeader from './LandingHeader';
@@ -63,20 +64,7 @@ function App() {
 
         {/* ===== HOME ===== */}
        {/* ===== ROOT DOMAIN CONTROL ===== */}
-<Route
-  path="/"
-  element={
-    isAuthenticated ? (
-      user?.role === "student" ? (
-        <Navigate to="/dashboard" />
-      ) : (
-        <Navigate to="/login" />
-      )
-    ) : (
-      <Navigate to="/login" />
-    )
-  }
-/>
+<Route path="/" element={<HomePage />} />
 
         {/* ===== DASHBOARD (PROTECTED) ===== */}
         <Route
