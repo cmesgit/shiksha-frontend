@@ -142,34 +142,40 @@ const Navbar = () => {
                 onClick={() => setProfileOpen((prev) => !prev)}
                 aria-label="Open profile menu"
               >
-                <FiUser size={34} />
+                <FiUser size={26} />
               </button>
 
               {profileOpen && (
-                <div className="header-profile-menu">
-                  <button
-                    type="button"
-                    className="header-profile-menu-item"
-                    onClick={handleDashboard}
-                  >
-                    <span>Go to Dashboard</span>
-                    <span className="header-profile-menu-icon">
-                      <FiArrowUpRight size={22} />
-                    </span>
-                  </button>
+  <div className="header-profile-menu">
 
-                  <button
-                    type="button"
-                    className="header-profile-menu-item"
-                    onClick={handleLogout}
-                  >
-                    <span>Logout</span>
-                    <span className="header-profile-menu-icon">
-                      <FiLogOut size={22} />
-                    </span>
-                  </button>
-                </div>
-              )}
+    <div className="header-profile-top">
+      <FiUser size={35}/>
+    </div>
+
+    <div className="header-profile-divider"></div>
+
+    <button
+      type="button"
+      className="header-profile-menu-item"
+      onClick={handleDashboard}
+    >
+      <span>Go to Dashboard</span>
+
+      <FiArrowUpRight className="header-profile-menu-icon"/>
+    </button>
+
+    <button
+      type="button"
+      className="header-profile-menu-item"
+      onClick={handleLogout}
+    >
+      <span>Logout</span>
+
+      <FiLogOut className="header-profile-menu-icon"/>
+    </button>
+
+  </div>
+)}
             </div>
           ) : (
             <div className="header-auth">

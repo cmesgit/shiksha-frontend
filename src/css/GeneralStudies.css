@@ -25,19 +25,14 @@
   margin-bottom: 20px;
   font-size: 32px;
   font-weight: bold;
-  border-bottom: 3px solid #4a90e2;
   padding-bottom: 10px;
 }
 
 .section-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
-  background-color: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8e6df;
 }
 
 .section-tabs button {
@@ -67,11 +62,6 @@
 .date-picker {
   text-align: center;
   margin-bottom: 30px;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8e6df;
 }
 
 .date-picker label {
@@ -549,4 +539,22 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #b8a085;
+}
+
+.ai-explanation {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+
+  width: 100%;
+  height: auto;           /* auto expand */
+}
+
+.ai-explanation pre {
+  white-space: pre-wrap;      /* line break allow karega */
+  word-break: break-word;     /* long words tod dega */
+  overflow-wrap: break-word;  /* extra safety */
+
+  margin: 0;
+  font-family: inherit;       /* normal text jaisa dikhe */
 }

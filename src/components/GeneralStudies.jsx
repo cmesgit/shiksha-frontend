@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import '../css/GeneralStudies.css';
 import { useLanguage } from '../contexts/LanguageContext';
 
-
 const sampleCurrentAffairs = {
   '2024-10-01': [
     {
@@ -346,6 +345,7 @@ const sampleDailyTopics = {
 
 // OpenAI instance is created inside the callOpenAI function to avoid top-level execution issues
 const GeneralStudies = () => {
+  const [selectedAnswers, setSelectedAnswers] = useState({});
   const { language } = useLanguage();
   const [selectedSection, setSelectedSection] = useState('current-affairs');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -575,7 +575,7 @@ B) Oxygen
 C) Silver
 D) Iron
 Correct: B`;
-    } else if (prompt.includes('detailed explanation')) {
+    } else if (prompt.toLowerCase().includes('explain')) { 
       return 'This is a detailed explanation of the topic. It provides comprehensive information covering definitions, historical context, examples, and key facts related to the subject in General Studies.';
     } else {
       return 'This is a sample response from the AI assistant.';
@@ -643,7 +643,17 @@ Correct: B`;
     setShowAiAnswers({});
     setShowTriviaAnswers({});
     try {
-      const prompt = `Provide a detailed explanation of the following topic in General Studies: ${topic}`;
+const prompt = `
+Explain this term in a simple dictionary style:
+
+Word: ${topic}
+
+Give:
+1. Meaning
+2. Simple explanation
+3. Example
+4. Related concept
+`;
       const explanation = await callOpenAI(prompt);
       setAiExplanation(explanation);
     } catch (err) {
@@ -780,40 +790,59 @@ Correct: B`;
                   {aiSummary && (
                     <div className="ai-result">
                       <h4>AI Summary</h4>
-                      <p>{aiSummary}</p>
-                    </div>
-                  )}
-                  {aiMCQs.length > 0 && (
-                    <div className="ai-result">
-                      <h4>AI Generated MCQs</h4>
-                      {aiMCQs.map((q, index) => (
-                        <div key={index} className="quiz-question">
-                          <h5>{q.question}</h5>
-                          <div className="quiz-options">
-                            {q.options.map((option, oIndex) => (
-                              <button
-                                key={oIndex}
-                                className={`quiz-option ${showAiAnswers[index]
-                                    ? oIndex === q.correct
-                                      ? 'correct'
-                                      : ''
-                                    : ''
-                                  }`}
-                                onClick={() => setShowAiAnswers(prev => ({ ...prev, [index]: true }))}
-                                disabled={showAiAnswers[index]}
-                              >
-                                {option}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                      <div className="ai-summary">
+                             <ul>
+                                 {aiSummary.split('\n').map((point, i) => (
+                             <li key={i}>{point}</li>
                       ))}
+                             </ul>
+                         </div>
                     </div>
                   )}
+               {aiMCQs.map((q, index) => (
+  <div key={index} className="quiz-question">
+    <h5>Q{index + 1}. {q.question}</h5>
+
+    <div className="quiz-options">
+      {q.options.map((option, oIndex) => (
+        <button
+          key={oIndex}
+          className={`quiz-option ${
+  showAiAnswers[index]
+    ? oIndex === q.correct
+      ? 'correct'
+      : oIndex === selectedAnswers[index]
+      ? 'wrong'
+      : ''
+    : ''
+}`}
+          onClick={() => {
+  setSelectedAnswers(prev => ({ ...prev, [index]: oIndex }));
+  setShowAiAnswers(prev => ({ ...prev, [index]: true }));
+}}
+          disabled={showAiAnswers[index]}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+
+    {showAiAnswers[index] && (
+  <p className="answer-text">
+    {selectedAnswers[index] === q.correct
+      ? "✅ Correct!"
+      : `❌ Wrong! Correct Answer: ${q.options[q.correct]}`}
+  </p>
+)}
+  </div>
+))}
+                   
                   {aiExplanation && (
                     <div className="ai-result">
                       <h4>AI Explanation</h4>
-                      <p>{aiExplanation}</p>
+                      <div className="ai-explanation">
+  <pre>{aiExplanation}</pre>
+</div>
                     </div>
                   )}
                   {triviaQuestions.length > 0 && (
