@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoNotificationsOutline } from "react-icons/io5";
-import { getThreads } from '../mock/api/threads';
+import { getThreads } from '../api/forum';
 import ThreadCard from './ThreadCard';
 import SearchBar from './SearchBar';
 import SortSelector from './SortSelector';

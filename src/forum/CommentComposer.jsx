@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { postComment } from '../mock/api/comments';
+import { postComment } from '../api/forum';
 
 const CommentComposer = ({ threadId, onPosted }) => {
   const [content, setContent] = useState('');

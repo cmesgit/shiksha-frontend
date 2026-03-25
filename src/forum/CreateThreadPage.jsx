@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createThread } from '../api/forum';
 import '../css/forum.css';
 
 const CreateThreadPage = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!title.trim()) return;
-    // Navigate back to forum
-    navigate('/forum');
+    try {
+      setLoading(true);
+      await createThread({ title, body, tags: [] });
+      navigate('/forum');
+    } catch (err) {
+      console.error('Failed to create thread:', err);
+      alert('Failed to create thread. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,8 +44,8 @@ const CreateThreadPage = () => {
         />
 
         <div className="ct-footer">
-          <button className="ct-post-btn" onClick={handlePost}>
-            Post
+          <button className="ct-post-btn" onClick={handlePost} disabled={loading}>
+            {loading ? 'Posting...' : 'Post'}
           </button>
         </div>
       </div>

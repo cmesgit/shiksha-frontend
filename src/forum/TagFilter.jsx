@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTags } from '../mock/api/tags';
+import { getTags } from '../api/forum';
 
 const TagFilter = ({ value = '', onChange }) => {
   const [tags, setTags] = useState([]);

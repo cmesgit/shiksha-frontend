@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getThread } from '../mock/api/threads';
-import { getComments } from '../mock/api/comments';
+import { getThread, getComments } from '../api/forum';
 import CommentList from './CommentList';
 import CommentComposer from './CommentComposer';
 import SortSelector from './SortSelector';
