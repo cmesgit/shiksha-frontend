@@ -31,6 +31,7 @@ const ThreadDetailPage = () => {
 
         setThread(t);
         setUpvotes(t.upvote_count ?? 0);
+        setUpvoted(t.user_has_upvoted ?? false);
 
         const c = await getComments(threadId, { sort });
         if (!mounted) return;

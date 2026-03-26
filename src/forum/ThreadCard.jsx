@@ -20,7 +20,7 @@ const ThreadCard = ({ thread, isLoggedIn }) => {
 
   const replies = thread.reply_count ?? 0;
 
-  const [upvoted, setUpvoted] = useState(false);
+  const [upvoted, setUpvoted] = useState(thread.user_has_upvoted ?? false);
   const [upvotes, setUpvotes] = useState(thread.upvote_count ?? 0);
 
   const toggleUpvote = async (e) => {
