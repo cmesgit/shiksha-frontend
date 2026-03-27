@@ -18,9 +18,10 @@ export default function NotificationsPage() {
     const fetchNotifications = async () => {
         setLoading(true);
         try {
-            const res = await getNotifications({page, page_size: pageSize });
-            setNotifications(res.data.results || res.data);
-            const total = res.data.count || res.data.length;
+            const data = await getNotifications({page, page_size: pageSize });
+            const items = data.results || data;
+            setNotifications(Array.isArray(items) ? items : []);
+            const total = data.count || items.length || 0;
             setTotalPages(Math.ceil(total / pageSize));
         } catch (error) {
             console.error("Failed to fetch notifications:", error);
