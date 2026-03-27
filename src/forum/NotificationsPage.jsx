@@ -52,15 +52,18 @@ export default function NotificationsPage() {
         return date.toLocaleDateString();
     };
 
-    const handleClick = (notifications) => {
-        if (notifications.thread) {
-            navigate(`/forum/${notifications.thread}`);
+    const handleClick = (notification) => {
+        if (notification.thread_id) {
+            navigate(`/forum/${notification.thread_id}`);
         }
     };
 
     return (
         <div className="notifications-page">
             <div className="notifications-header">
+                <button className="back-btn" onClick={() => navigate("/forum")}>
+                    &larr; Back to Forum
+                </button>
                 <h2>Notifications</h2>
                 <button className="mark-read-btn" onClick={handleMarkAllRead}>
                     Mark all as read
@@ -89,6 +92,13 @@ export default function NotificationsPage() {
 
     {totalPages > 1 && (
         <div className="notifications-pagination">
+            <button
+                className="page-btn"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+            >
+                &larr;
+            </button>
             <span>Page {page} of {totalPages}</span>
             {Array.from({length : totalPages}, (_, i) => i+1).map((p) => (
                 <button
@@ -99,6 +109,13 @@ export default function NotificationsPage() {
                     {p}
                 </button>
             ))}
+            <button
+                className="page-btn"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+            >
+                &rarr;
+            </button>
         </div>
     )}      
     </div>
