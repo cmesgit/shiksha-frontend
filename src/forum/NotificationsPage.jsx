@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {getNotifications, markNotificationAsRead} from "../api/forum";
+import {getNotifications, markAllNotificationsRead} from "../api/forum";
 import "../css/NotificationsPage.css";
 
 export default function NotificationsPage() {
@@ -32,7 +32,7 @@ export default function NotificationsPage() {
 
     const handleMarkAllRead = async () => {
         try {
-            await markNotificationAsRead();
+            await markAllNotificationsRead();
             setNotifications((prev) =>
                 prev.map((n) => ({ ...n, is_read: true}))
             );
