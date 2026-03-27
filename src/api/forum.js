@@ -63,3 +63,21 @@ export async function toggleCommentUpvote(commentId) {
   const res = await api.post(`/forum/comments/${commentId}/upvote/`);
   return res.data; // { upvoted: true/false, upvote_count: N }
 }
+
+// =====================================================
+// Notifications
+// =====================================================
+export async function getNotifications() {
+  const res = await api.get("/forum/notifications/");
+  return res.data;
+}
+
+export async function markAllNotificationsRead() {
+  const res = await api.post("/forum/notifications/read/");
+  return res.data;
+}
+
+export async function markNotificationRead(notificationId) {
+  const res = await api.post(`/forum/notifications/${notificationId}/read/`);
+  return res.data;
+}

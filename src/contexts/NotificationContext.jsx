@@ -1,35 +1,61 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { getNotifications, markAllNotificationsRead, markNotificationRead } from "../api/forum";
 
 const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const data = await getNotifications();
+      setNotifications(data);
+    } catch {
+      // Not logged in or API error — ignore
+    }
+  }, []);
+
+  // Fetch notifications on mount and every 30 seconds
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
   const addNotification = (notification) => {
     const newNotification = {
       id: notification.id || Date.now(),
-      type: notification.type || "general",
+      notification_type: notification.type || "general",
       message: notification.message || "New notification",
-      createdAt: notification.createdAt || new Date().toISOString(),
-      isRead: false,
+      created_at: notification.createdAt || new Date().toISOString(),
+      is_read: false,
       ...notification,
     };
-
     setNotifications((prev) => [newNotification, ...prev]);
   };
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isRead: true } : item
-      )
-    );
+  const markAsRead = async (id) => {
+    try {
+      await markNotificationRead(id);
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, is_read: true } : item
+        )
+      );
+    } catch {
+      // ignore
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((item) => ({ ...item, isRead: true }))
-    );
+  const markAllAsRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications((prev) =>
+        prev.map((item) => ({ ...item, is_read: true }))
+      );
+    } catch {
+      // ignore
+    }
   };
 
   const removeNotification = (id) => {
@@ -41,7 +67,7 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const unreadCount = useMemo(
-    () => notifications.filter((item) => !item.isRead).length,
+    () => notifications.filter((item) => !item.is_read).length,
     [notifications]
   );
 
@@ -55,6 +81,7 @@ export const NotificationProvider = ({ children }) => {
         markAllAsRead,
         removeNotification,
         clearNotifications,
+        fetchNotifications,
       }}
     >
       {children}

@@ -125,14 +125,14 @@ const ThreadListPage = () => {
                         <button
                           key={item.id}
                           type="button"
-                          className={`tl-notification-item ${item.isRead ? "" : "unread"}`}
+                          className={`tl-notification-item ${item.is_read ? "" : "unread"}`}
                           onClick={() => markAsRead(item.id)}
                         >
                           <div className="tl-notification-message">
                             {item.message}
                           </div>
                           <div className="tl-notification-time">
-                            {new Date(item.createdAt).toLocaleString()}
+                            {new Date(item.created_at).toLocaleString()}
                           </div>
                         </button>
                       ))}
