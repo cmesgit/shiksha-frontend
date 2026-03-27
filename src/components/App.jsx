@@ -43,6 +43,7 @@ import Payment from "./Payment";
 import ThreadListPage from '../forum/ThreadListPage';
 import ThreadDetailPage from '../forum/ThreadDetailPage';
 import CreateThreadPage from '../forum/CreateThreadPage';
+import NotificationsPage from '../forum/NotificationsPage';
 import { useAuth } from "../contexts/AuthContext";
 
 function Page({ children }) {
@@ -128,6 +129,7 @@ function App() {
         {/* ===== FORUM ===== */}
         <Route path="/forum" element={<Page><ThreadListPage /></Page>} />
         <Route path="/forum/create" element={<Page><CreateThreadPage /></Page>} />
+        <Route path="/forum/notifications" element={<Page><NotificationsPage /></Page>} />
         <Route path="/forum/:threadId" element={<Page><ThreadDetailPage /></Page>} />
 
       </Routes>
