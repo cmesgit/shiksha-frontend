@@ -11,7 +11,19 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!user;
 
   /**
-   * Bootstraps user session using HttpOnly cookie
+   * Refresh access token using refresh cookie
+   */
+  const refreshToken = async () => {
+    try {
+      await api.post("/accounts/refresh/");
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  /**
+   * Bootstrap user session
    */
   const bootstrap = useCallback(async () => {
     try {
@@ -19,7 +31,21 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data);
       return res.data;
     } catch (err) {
-      setUser(null);
+      // 🔥 Try refresh once
+      const refreshed = await refreshToken();
+
+      if (refreshed) {
+        try {
+          const res = await api.get("/accounts/me/");
+          setUser(res.data);
+          return res.data;
+        } catch {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+
       return null;
     } finally {
       setLoading(false);
@@ -27,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Run bootstrap on first load
+   * Initial bootstrap
    */
   useEffect(() => {
     bootstrap();
@@ -35,7 +61,6 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login
-   * Backend sets HttpOnly cookies
    */
   const login = async (email, password) => {
     try {
@@ -46,7 +71,13 @@ export const AuthProvider = ({ children }) => {
       return me;
     } catch (err) {
       setLoading(false);
-      return Promise.reject(extractError(err));
+
+      const cleanError = extractError(err);
+
+      return Promise.reject({
+        message: cleanError,
+        raw: err,
+      });
     }
   };
 
@@ -57,43 +88,47 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post("/accounts/signup/", payload);
     } catch (err) {
-      return Promise.reject(extractError(err));
+      return Promise.reject({
+        message: extractError(err),
+        raw: err,
+      });
     }
   };
 
   /**
    * Logout
-   * Calls backend to clear cookies
    */
   const logout = async () => {
     try {
       await api.post("/accounts/logout/");
     } catch {
-      // ignore network failure
+      // ignore
     }
 
     setUser(null);
   };
 
   /**
-   * Check if user has a specific role
-   * Supports both:
-   * - user.role = "teacher"
-   * - user.roles = ["teacher"]
+   * Role checker
    */
   const hasRole = (role) => {
     if (!user) return false;
 
-    const targetRole = String(role).toLowerCase();
+    const target = String(role).toLowerCase();
 
-    const roleFromSingleField = String(user.role || "").toLowerCase();
-    if (roleFromSingleField === targetRole) return true;
+    // single role
+    if (String(user.role || "").toLowerCase() === target) {
+      return true;
+    }
 
-    const rolesFromArray = Array.isArray(user.roles)
-      ? user.roles.map((r) => String(r).toLowerCase())
-      : [];
+    // multiple roles
+    if (Array.isArray(user.roles)) {
+      return user.roles.some(
+        (r) => String(r).toLowerCase() === target
+      );
+    }
 
-    return rolesFromArray.includes(targetRole);
+    return false;
   };
 
   return (
