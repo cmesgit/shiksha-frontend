@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
 import "./Login.css";
@@ -20,6 +20,7 @@ const EyeOffIcon = () => (
 const Login = () => {
   const { login } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,18 +52,10 @@ const Login = () => {
       const isTeacher = roles.some((r) => String(r).toLowerCase() === "teacher");
 
       setIsRedirecting(true);
-      setStatusMessage(
-        isTeacher
-          ? "Redirecting to teacher dashboard..."
-          : "Redirecting to student dashboard..."
-      );
-
-      const targetUrl = isTeacher
-        ? "https://teacher.shikshacom.com"
-        : "https://app.shikshacom.com";
+      setStatusMessage("Redirecting to homepage...");
 
       setTimeout(() => {
-        window.location.replace(targetUrl);
+        navigate("/");
       }, 500);
 
     } catch (err) {
@@ -140,6 +133,7 @@ const Login = () => {
               />
               <button
                 type="button"
+                className="toggle-password"
                 onClick={() => setShowPassword((p) => !p)}
               >
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -165,7 +159,7 @@ const Login = () => {
             <p className="login-status">{statusMessage}</p>
           )}
 
-          <button type="submit" disabled={submitting}>
+          <button type="submit" className="login-submit-btn" disabled={submitting}>
             {submitting ? "Please wait..." : "Login"}
           </button>
         </form>
