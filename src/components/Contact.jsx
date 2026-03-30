@@ -56,8 +56,8 @@ const Contact = () => {
           <img src={phone_icon} alt="" />
           <h2>Phone</h2>
           <p>
-             +91 3893570403 <br/>
-              0389-2300225
+             +91 3893570403 (Haryana)<br/>
+               +0389-2300225 (Mizoram)
           </p>
         </div>
       </section>
