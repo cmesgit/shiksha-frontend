@@ -1,0 +1,94 @@
+.ev-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(180deg, #f8f4df 0%, #f5f5dc 100%);
+}
+
+.ev-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  animation: loginCardEnter 0.45s ease;
+}
+
+.ev-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.ev-card h2 {
+  color: #222;
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.ev-desc {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.ev-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 0.82rem;
+  background: linear-gradient(135deg, #3fad4e 0%, #2f9d42 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.22s ease;
+  box-shadow: 0 10px 22px rgba(63, 173, 78, 0.2);
+}
+
+.ev-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(63, 173, 78, 0.24);
+  color: #fff;
+}
+
+.ev-btn-secondary {
+  background: #f3f4f6;
+  color: #333;
+  box-shadow: none;
+}
+
+.ev-btn-secondary:hover {
+  background: #e5e7eb;
+  color: #333;
+  box-shadow: none;
+}
+
+@keyframes loginCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .ev-card {
+    padding: 1.5rem;
+  }
+
+  .ev-card h2 {
+    font-size: 1.4rem;
+  }
+}

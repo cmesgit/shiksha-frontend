@@ -30,6 +30,8 @@ import TermsCondition from './TermsCondition';
 
 import Login from '../auth/Login';
 import Signup from '../auth/Signup';
+import VerifyEmail from '../auth/VerifyEmail';
+import EmailVerified from '../auth/EmailVerified';
 
 import Insight from './Insight';
 import Training from './Training';
@@ -39,10 +41,14 @@ import Counselling from './Counselling';
 
 import Placements from './Placements';
 import Payment from "./Payment";
+import FormFillup from './FormFillup';
+
+import RequireProfileComplete from '../routes/RequireProfileComplete';
 
 import ThreadListPage from '../forum/ThreadListPage';
 import ThreadDetailPage from '../forum/ThreadDetailPage';
 import CreateThreadPage from '../forum/CreateThreadPage';
+import NotificationsPage from '../forum/NotificationsPage';
 import { useAuth } from "../contexts/AuthContext";
 
 function Page({ children }) {
@@ -91,8 +97,22 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
+              <RequireProfileComplete>
+                <Page>
+                  <Dashboard />
+                </Page>
+              </RequireProfileComplete>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ===== FORM FILLUP (PROTECTED) ===== */}
+        <Route
+          path="/form-fillup"
+          element={
+            <ProtectedRoute>
               <Page>
-                <Dashboard />
+                <FormFillup />
               </Page>
             </ProtectedRoute>
           }
@@ -101,6 +121,8 @@ function App() {
         {/* ===== AUTH ===== */}
         <Route path="/login" element={<Page><Login /></Page>} />
         <Route path="/signup" element={<Page><Signup /></Page>} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/email-verified" element={<EmailVerified />} />
 
         {/* ===== STATIC ===== */}
         <Route path="/about" element={<Page><About2 /><About /></Page>} />
@@ -128,6 +150,7 @@ function App() {
         {/* ===== FORUM ===== */}
         <Route path="/forum" element={<Page><ThreadListPage /></Page>} />
         <Route path="/forum/create" element={<Page><CreateThreadPage /></Page>} />
+        <Route path="/forum/notifications" element={<Page><NotificationsPage /></Page>} />
         <Route path="/forum/:threadId" element={<Page><ThreadDetailPage /></Page>} />
 
       </Routes>

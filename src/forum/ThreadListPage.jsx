@@ -9,6 +9,7 @@ import DateFilter from './DateFilter';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import '../css/forum.css';
+import '../css/NotificationsPage.css';
 
 const ThreadListPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,9 @@ const ThreadListPage = () => {
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [threads, setThreads] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const pageSize = 10;
 
   const [filters, setFilters] = useState({
     search: '',
@@ -43,6 +46,7 @@ const ThreadListPage = () => {
         const data = await getThreads(filters);
         if (!mounted) return;
         setThreads(data.results || []);
+            setTotalCount(data.count || 0);
       } catch (e) {
         console.error(e);
       } finally {
@@ -92,54 +96,13 @@ const ThreadListPage = () => {
                 className="tl-notification-btn"
                 type="button"
                 aria-label="Notifications"
-                onClick={() => setIsNotificationOpen((prev) => !prev)}
+                onClick={() => navigate('/forum/notifications')}
               >
                 <IoNotificationsOutline />
                 {unreadCount > 0 && (
                   <span className="tl-notification-badge">{unreadCount}</span>
                 )}
               </button>
-
-              {isNotificationOpen && (
-                <div className="tl-notification-dropdown">
-                  <div className="tl-notification-header">
-                    <span>Notifications</span>
-                    {notifications.length > 0 && (
-                      <button
-                        type="button"
-                        className="tl-mark-read-btn"
-                        onClick={markAllAsRead}
-                      >
-                        Mark all read
-                      </button>
-                    )}
-                  </div>
-
-                  {notifications.length === 0 ? (
-                    <div className="tl-notification-empty">
-                      No notifications yet
-                    </div>
-                  ) : (
-                    <div className="tl-notification-list">
-                      {notifications.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={`tl-notification-item ${item.isRead ? "" : "unread"}`}
-                          onClick={() => markAsRead(item.id)}
-                        >
-                          <div className="tl-notification-message">
-                            {item.message}
-                          </div>
-                          <div className="tl-notification-time">
-                            {new Date(item.createdAt).toLocaleString()}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </>
         )}
@@ -163,6 +126,39 @@ const ThreadListPage = () => {
           )}
         </div>
       )}
+
+      {/* Pagination */}
+      {totalCount > pageSize && (() => {
+        const totalPages = Math.ceil(totalCount / pageSize);
+        return (
+          <div className="notifications-pagination">
+            <button
+              className="page-btn"
+              onClick={() => setFilters({ ...filters, page: Math.max(1, filters.page - 1) })}
+              disabled={filters.page === 1}
+            >
+              &larr;
+            </button>
+            <span>Page {filters.page} of {totalPages}</span>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                className={`page-btn ${p === filters.page ? 'active' : ''}`}
+                onClick={() => setFilters({ ...filters, page: p })}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              className="page-btn"
+              onClick={() => setFilters({ ...filters, page: Math.min(totalPages, filters.page + 1) })}
+              disabled={filters.page === totalPages}
+            >
+              &rarr;
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 };

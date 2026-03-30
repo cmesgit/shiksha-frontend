@@ -47,17 +47,14 @@ const Signup = () => {
 
       // ✅ DO NOT auto-login
       // ✅ Redirect to login with info message
-      navigate("/login", {
+      navigate("/verify-email", {
         replace: true,
-        state: {
-          message:
-            "Account created successfully. Please verify your email before logging in.",
-        },
+        state: { email },
       });
     } catch (err) {
-      setError(
-        err?.message || "Signup failed. Please try again."
-      );
+      const raw = err?.message ?? err;
+      const msg = raw instanceof Error ? raw.message : typeof raw === "string" ? raw : "Signup failed. Please try again.";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -68,7 +65,7 @@ const Signup = () => {
       <div className="signup-form">
         <h2>Sign Up</h2>
 
-        {error && <p className="signup-error">{error}</p>}
+        {error && <p className="error general-error">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="signup-form-group">

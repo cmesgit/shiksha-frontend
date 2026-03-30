@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { FiArrowUpRight, FiLogOut } from "react-icons/fi";
+import { FiUser, FiArrowUpRight, FiLogOut } from "react-icons/fi";
 import "../css/Navbar.css";
 
 import { useLanguage } from "../contexts/LanguageContext";
@@ -120,6 +120,38 @@ const Navbar = () => {
                 <FiLogOut size={14} />
                 Logout
               </button>
+
+              {profileOpen && (
+  <div className="header-profile-menu">
+
+    <div className="header-profile-top">
+      <FiUser size={35}/>
+    </div>
+
+    <div className="header-profile-divider"></div>
+
+    <button
+      type="button"
+      className="header-profile-menu-item"
+      onClick={handleDashboard}
+    >
+      <span>Go to Dashboard</span>
+
+      <FiArrowUpRight className="header-profile-menu-icon"/>
+    </button>
+
+    <button
+      type="button"
+      className="header-profile-menu-item"
+      onClick={handleLogout}
+    >
+      <span>Logout</span>
+
+      <FiLogOut className="header-profile-menu-icon"/>
+    </button>
+
+  </div>
+)}
             </div>
           ) : (
             /* ── Logged-out: Login + Signup ── */
