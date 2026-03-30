@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { FiUser, FiArrowUpRight, FiLogOut } from "react-icons/fi";
+import { FiUser, FiArrowUpRight, FiLogOut, FiFileText } from "react-icons/fi";
 import "../css/Navbar.css";
 
 import { useLanguage } from "../contexts/LanguageContext";
@@ -162,6 +162,16 @@ const Navbar = () => {
       <span>Go to Dashboard</span>
 
       <FiArrowUpRight className="header-profile-menu-icon"/>
+    </button>
+
+    <button
+      type="button"
+      className="header-profile-menu-item"
+      onClick={() => { setProfileOpen(false); navigate("/form-fillup"); }}
+    >
+      <span>Form Fillup</span>
+
+      <FiFileText className="header-profile-menu-icon"/>
     </button>
 
     <button
