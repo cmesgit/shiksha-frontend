@@ -3,11 +3,14 @@ import "../css/AboutShiksha.css";
 const AboutShiksha = () => {
   return (
     <section className="sa-section">
+      {/* ambient glows — mirrors hero-glow-1 / 2 */}
+      <div className="sa-glow-1"></div>
+      <div className="sa-glow-2"></div>
+
       <div className="sa-inner">
 
         {/* LEFT */}
         <div className="sa-left">
-
           <div className="sa-features">
 
             <div className="sa-feat">
@@ -59,13 +62,11 @@ const AboutShiksha = () => {
                 <i className="fa-solid fa-arrow-right"></i>
               </span>
             </a>
-
             <div className="sa-trust">
               <i className="fa-solid fa-circle-check"></i>
               Free preview — no sign-up required
             </div>
           </div>
-
         </div>
 
         {/* RIGHT */}
@@ -76,37 +77,34 @@ const AboutShiksha = () => {
             </div>
 
             <div className="sa-stat-grid">
-  <div className="sa-stat-box">
-    <div className="sa-stat-val">17<span>+</span></div>
-    <div className="sa-stat-lbl">Academic Programs</div>
-  </div>
+              <div className="sa-stat-box">
+                <div className="sa-stat-val">17<span>+</span></div>
+                <div className="sa-stat-lbl">Academic Programs</div>
+              </div>
+              <div className="sa-stat-box">
+                <div className="sa-stat-val">8<span>+</span></div>
+                <div className="sa-stat-lbl">Exam Categories</div>
+              </div>
+              <div className="sa-stat-box">
+                <div className="sa-stat-val" style={{ fontSize: "22px" }}>Live</div>
+                <div className="sa-stat-lbl">Interactive Classes</div>
+              </div>
+              <div className="sa-stat-box">
+                <div className="sa-stat-val" style={{ fontSize: "22px", color: "#1dcaab" }}>Free</div>
+                <div className="sa-stat-lbl">Guest Preview Access</div>
+              </div>
+            </div>
 
-  <div className="sa-stat-box">
-    <div className="sa-stat-val">8<span>+</span></div>
-    <div className="sa-stat-lbl">Exam Categories</div>
-  </div>
+            <div className="sa-badges">
+              <span className="sa-badge">CBSE Aligned</span>
+              <span className="sa-badge">NCERT Based</span>
+              <span className="sa-badge">Mizoram Board</span>
+              <span className="sa-badge">NTA Pattern</span>
+              <span className="sa-badge">UPSC Framework</span>
+            </div>
+          </div>
+        </div>
 
-  <div className="sa-stat-box">
-    <div className="sa-stat-val" style={{fontSize:"22px"}}>Live</div>
-    <div className="sa-stat-lbl">Interactive Classes</div>
-  </div>
-
-  <div className="sa-stat-box">
-    <div className="sa-stat-val" style={{fontSize:"22px", color:"#1DCAAB"}}>Free</div>
-    <div className="sa-stat-lbl">Guest Preview Access</div>
-  </div>
-</div>
-
-<div className="sa-badges">
-  <span className="sa-badge">CBSE Aligned</span>
-  <span className="sa-badge">NCERT Based</span>
-  <span className="sa-badge">Mizoram Board</span>
-  <span className="sa-badge">NTA Pattern</span>
-  <span className="sa-badge">UPSC Framework</span>
-</div>
-</div>
-
-      </div>
       </div>
     </section>
   );

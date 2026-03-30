@@ -1,282 +1,241 @@
-/* RESET SAFE */
-.section *{
-box-sizing:border-box;
-margin:0;
-padding:0;
+/* ═══════════════════════════════════════════
+   LEARNING PATHWAYS — fully matches Hero
+═══════════════════════════════════════════ */
+.pathways-wrapper {
+  width: 100%;
+  background: linear-gradient(to bottom, #ffffff 70%, #e8e0cc 100%);
+  padding: 100px 48px 90px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* WRAPPER (fixes white gap conflict) */
-
-.pathways-wrapper{
-
-width:100%;
-
-background:#f7f7f0;
-
-padding:60px 20px;
-
-display:flex;
-
-justify-content:center;
-
+/* bg grid — identical to .hero-bg-grid */
+.pathways-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(132, 104, 39, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 173, 51, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    black 30%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
-/* SECTION */
-
-.section{
-
-width:100%;
-
-max-width:1160px;
-
-text-align:center;
-
+/* glow top-right — mirrors hero-glow-1 */
+.pathways-wrapper::after {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 67, 18, 0), transparent 70%);
+  top: -200px;
+  right: -100px;
+  pointer-events: none;
 }
 
-/* HEADER */
-
-.section__eyebrow{
-
-display:inline-flex;
-
-align-items:center;
-
-gap:10px;
-
-font-size:12px;
-
-font-weight:700;
-
-letter-spacing:.14em;
-
-text-transform:uppercase;
-
-color:#F8941F;
-
-margin-bottom:18px;
-
+/* glow bottom-left — mirrors hero-glow-2 */
+.pathways-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(40, 156, 49, 0.2), transparent 70%);
+  bottom: -150px;
+  left: -100px;
+  pointer-events: none;
 }
 
-.section__eyebrow::before{
-
-content:'';
-
-width:26px;
-
-height:2px;
-
-background:#F8941F;
-
-border-radius:2px;
-
+/* ── section ── */
+.section {
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
-.section__title{
-
-font-size:34px;
-
-font-weight:800;
-
-color:#1a1a2e;
-
-margin-bottom:14px;
-
+.section * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.highlight{
-
-color:#EE4A62;
-
+/* ── header — mirrors up-title / scard-name typography ── */
+.section__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1dcaab;
+  margin-bottom: 14px;
+  font-family: "Montserrat", sans-serif;
 }
 
-.section__underline{
-
-width:54px;
-
-height:3px;
-
-background:#28bba3;
-
-border-radius:4px;
-
-margin:0 auto 24px;
-
+.section__eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: #1dcaab;
+  border-radius: 2px;
 }
 
-.section__desc{
-
-font-size:15px;
-
-color:#666;
-
-line-height:1.7;
-
-max-width:760px;
-
-margin:0 auto 46px;
-
+.section__title {
+  font-size: 36px;
+  font-weight: 800;
+  color: rgba(10, 30, 15, 0.9);
+  margin-bottom: 16px;
+  font-family: "Montserrat", sans-serif;
+  line-height: 1.2;
 }
 
-/* GRID */
-
-.pathways-grid{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:20px;
-
+.highlight {
+  color: #1dcaab;
 }
 
-/* CARD */
-
-.pathway-card{
-
-display:flex;
-
-align-items:center;
-
-gap:18px;
-
-padding:24px;
-
-border-radius:16px;
-
-text-decoration:none;
-
-transition:.25s;
-
+.section__underline {
+  width: 48px;
+  height: 3px;
+  background: rgba(10, 30, 15, 0.2);
+  border-radius: 4px;
+  margin: 0 auto 20px;
 }
 
-.pathway-card:hover{
-
-transform:translateY(-5px);
-
-box-shadow:0 18px 40px rgba(0,0,0,.12);
-
+.section__desc {
+  font-size: 15px;
+  color: rgba(10, 30, 15, 0.6);
+  line-height: 1.75;
+  max-width: 680px;
+  margin: 0 auto 52px;
+  font-family: "Poppins", sans-serif;
 }
 
-/* ICON */
-
-.card__icon{
-
-width:48px;
-
-height:48px;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
+/* ── grid ── */
+.pathways-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.card__icon svg{
-
-width:30px;
-
-height:30px;
-
-}
-
-/* LABEL */
-
-.card__label{
-
-font-size:16px;
-
-font-weight:700;
-
-color:#333;
-
-text-align:left;
-
-}
-
-/* COLORS */
-
-.card--school{background:#E8FAF7;}
-.card--school svg{stroke:#28bba3;}
-.card--school:hover{background:#28bba3;}
-.card--school:hover .card__label{color:white;}
-.card--school:hover svg{stroke:white;}
-
-.card--iitjee{background:#FAF2F0;}
-.card--iitjee svg{stroke:#EE4A62;}
-.card--iitjee:hover{background:#EE4A62;}
-.card--iitjee:hover .card__label{color:white;}
-.card--iitjee:hover svg{stroke:white;}
-
-.card--neet{background:#EAFBF1;}
-.card--neet svg{stroke:#0ECD73;}
-.card--neet:hover{background:#0ECD73;}
-.card--neet:hover .card__label{color:white;}
-.card--neet:hover svg{stroke:white;}
-
-.card--upsc{background:#FBFAEB;}
-.card--upsc svg{stroke:#F8B81F;}
-.card--upsc:hover{background:#F8B81F;}
-.card--upsc:hover .card__label{color:white;}
-.card--upsc:hover svg{stroke:white;}
-
-.card--govt{background:#F3F3FB;}
-.card--govt svg{stroke:#8E56FF;}
-.card--govt:hover{background:#8E56FF;}
-.card--govt:hover .card__label{color:white;}
-.card--govt:hover svg{stroke:white;}
-
-.card--defence{background:#FBF0F4;}
-.card--defence svg{stroke:#F92596;}
-.card--defence:hover{background:#F92596;}
-.card--defence:hover .card__label{color:white;}
-.card--defence:hover svg{stroke:white;}
-
-.card--ca{background:#EEF2FD;}
-.card--ca svg{stroke:#5866EB;}
-.card--ca:hover{background:#5866EB;}
-.card--ca:hover .card__label{color:white;}
-.card--ca:hover svg{stroke:white;}
-
-.card--olympiad{background:#FBF7EB;}
-.card--olympiad svg{stroke:#F8941F;}
-.card--olympiad:hover{background:#F8941F;}
-.card--olympiad:hover .card__label{color:white;}
-.card--olympiad:hover svg{stroke:white;}
-
-.card--skill{background:#EDFBFB;}
-.card--skill svg{stroke:#39C0FA;}
-.card--skill:hover{background:#39C0FA;}
-.card--skill:hover .card__label{color:white;}
-.card--skill:hover svg{stroke:white;}
-
-/* RESPONSIVE */
-
-@media(max-width:920px){
-
-.pathways-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-}
-
-@media(max-width:560px){
-
-.pathways-grid{
-
-grid-template-columns:1fr;
-
-}
-
-}
+/* ── card — mirrors .scard exactly ── */
 .pathway-card {
-  border: none;
-  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 15px;
+  background: rgba(10, 30, 15, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
   width: 100%;
   text-align: left;
-  background: inherit;
-  cursor: pointer;
+  outline: none;
+  transition:
+    transform 0.26s ease,
+    box-shadow 0.26s ease,
+    border-color 0.26s ease;
+}
+
+.pathway-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 16px 44px rgba(0, 0, 0, 0.3),
+    0 0 0 1.5px var(--card-accent, #1dcaab);
+  border-color: var(--card-accent, #1dcaab);
+}
+
+/* ── icon — mirrors .scard-icon-wrap ── */
+.card__icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.card__icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--card-accent, #1dcaab);
+}
+
+/* ── label — mirrors .scard-name ── */
+.card__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: "Montserrat", sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── per-card accent — reuses hero subject card accent colors ── */
+.card--school {
+  --card-accent: #1dcaab;
+}
+.card--iitjee {
+  --card-accent: #f87171;
+}
+.card--neet {
+  --card-accent: #34d399;
+}
+.card--upsc {
+  --card-accent: #fbbf24;
+}
+.card--govt {
+  --card-accent: #a78bfa;
+}
+.card--defence {
+  --card-accent: #f472b6;
+}
+.card--ca {
+  --card-accent: #60a5fa;
+}
+.card--olympiad {
+  --card-accent: #fb923c;
+}
+.card--skill {
+  --card-accent: #38bdf8;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 992px) {
+  .pathways-wrapper {
+    padding: 80px 24px 70px;
+  }
+  .pathways-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .section__title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .pathways-wrapper {
+    padding: 64px 16px 60px;
+  }
+  .pathways-grid {
+    grid-template-columns: 1fr;
+  }
+  .section__title {
+    font-size: 24px;
+  }
 }

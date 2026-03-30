@@ -21,7 +21,7 @@
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 67, 18, 0.14), transparent 70%);
+  background: radial-gradient(circle, rgba(16, 67, 18, 0), transparent 70%);
   top: -160px;
   right: -80px;
   pointer-events: none;
@@ -93,7 +93,7 @@
   display: grid;
   grid-template-columns: repeat(2, 420px); /* fixed width cards */
   gap: 28px;
-  justify-content: center; 
+  justify-content: center;
 }
 
 .preview-grid > .course-card {
@@ -171,4 +171,3 @@
     padding: 12px 28px;
   }
 }
-
