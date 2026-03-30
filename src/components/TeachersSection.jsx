@@ -5,6 +5,9 @@ import "../css/teachers-section.css";
 const TeachersSection = () => {
   return (
     <section className="teachers-section">
+      {/* ambient glow — mirrors hero-glow-2 */}
+      <div className="teachers-glow"></div>
+
       <div className="teachers-container">
         <div className="teachers-header">
           <p className="teachers-subtitle">Our Faculty</p>
@@ -23,6 +26,7 @@ const TeachersSection = () => {
                   src={teacher.image}
                   alt={teacher.name}
                   className="teacher-image"
+                  loading="lazy"
                 />
               </div>
 
