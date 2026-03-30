@@ -56,7 +56,7 @@ const About2 = () => {
         <div className="ap-section-inner">
           <div className="ap-hero-badge" ref={ref}>
             <span className="ap-badge-dot"></span>
-            <span>Our Story</span>
+            <span>DONT HACK US !!</span>
           </div>
           <h1 className="ap-heading ap-heading-main ap-reveal" ref={ref}>About Us</h1>
           <p className="ap-intro ap-reveal" ref={ref}>
