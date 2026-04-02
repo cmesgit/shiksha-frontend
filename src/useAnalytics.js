@@ -5,9 +5,11 @@ export default function useAnalytics() {
   const location = useLocation();
 
   useEffect(() => {
-    if (window.gtag) {   // ✅ safety check
-      window.gtag('config', 'G-EQWR3BD3C7', {
+    if (window.gtag) {
+      window.gtag('event', 'page_view', {
+        page_location: window.location.href,
         page_path: location.pathname,
+        page_title: document.title,
       });
     }
   }, [location]);
