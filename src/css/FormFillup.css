@@ -21,11 +21,9 @@
     linear-gradient(rgba(132, 104, 39, 0.15) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 173, 51, 0.08) 1px, transparent 1px);
   background-size: 60px 60px;
-  mask-image: radial-gradient(
-    ellipse 80% 80% at 50% 50%,
-    black 30%,
-    transparent 100%
-  );
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%,
+      black 30%,
+      transparent 100%);
   pointer-events: none;
 }
 
@@ -74,6 +72,7 @@
     opacity: 0;
     transform: translateY(18px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -314,6 +313,108 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* ── radio group ── */
+.ff-radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 4px;
+}
+
+.ff-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+}
+
+.ff-radio-label input[type="radio"] {
+  accent-color: #1dcaab;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* ── multi-select checkbox group ── */
+.ff-multi-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 4px;
+}
+
+.ff-multi-select .ff-checkbox-row {
+  margin-bottom: 0;
+}
+
+/* ── file input ── */
+.ff-file-input {
+  width: 100%;
+  padding: 10px 13px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: "Poppins", sans-serif;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+}
+
+.ff-file-input::file-selector-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 12px;
+  margin-right: 10px;
+  font-size: 12px;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ff-file-input::file-selector-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* file name / existing file indicators */
+.ff-file-name {
+  display: block;
+  font-size: 11px;
+  color: #1dcaab;
+  font-family: "Poppins", sans-serif;
+  margin-top: 4px;
+}
+
+.ff-file-existing {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "Poppins", sans-serif;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* ── character count ── */
+.ff-char-count {
+  display: block;
+  text-align: right;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: "Poppins", sans-serif;
+  margin-top: 2px;
+}
+
+/* ── disabled select fix ── */
+.ff-field select:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
@@ -321,12 +422,15 @@
   .ff-container {
     padding: 60px 16px 60px;
   }
+
   .ff-card {
     padding: 28px 20px;
   }
+
   .ff-card h2 {
     font-size: 18px;
   }
+
   .ff-row {
     flex-direction: column;
     gap: 0;
