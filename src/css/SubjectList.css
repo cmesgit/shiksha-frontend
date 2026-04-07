@@ -1,13 +1,47 @@
 .course-detail-screen {
-  background: #f4f1eb;
+  background: #ffffff;
+  background-image:
+    linear-gradient(rgba(39, 132, 48, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(81, 201, 51, 0.17) 1px, transparent 1px);
+  background-size: 60px 60px;
   min-height: 100vh;
   padding-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-detail-screen::before {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(25, 91, 28, 0.43), transparent 70%);
+  top: -200px;
+  right: -100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.course-detail-screen::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(40, 156, 50, 0.29), transparent 70%);
+  bottom: -150px;
+  left: -100px;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .course-detail-container {
   max-width: 1180px;
   margin: 0 auto;
   padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 .course-detail-hero .course-detail-container {
   max-width: 90%;
@@ -22,9 +56,9 @@
 
 .course-detail-hero {
   background: #041f09;
-   background-image:
-    linear-gradient(rgba(132, 104, 39, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 173, 51, 0.07) 1px, transparent 1px);
+  background-image:
+    linear-gradient(rgba(132, 104, 39, 0) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 173, 51, 0) 1px, transparent 1px);
   background-size: 60px 60px;
   padding: 18px 0 75px;
   color: #ffffff;
@@ -117,7 +151,7 @@
 
 /* ── PANELS ── */
 .course-detail-panel {
-  background: #f8f8f8;
+  background: #ffffffc4;
   border: 1px solid #dcdcdc;
   border-radius: 18px;
   padding: 30px 32px 24px;
@@ -134,7 +168,7 @@
   margin-top: -90px;
   top: 240px;
   align-self: start;
-  background: #f8f5f1;
+  background: #ffffffd5;
   border: 1px solid #d8d0c7;
   border-radius: 14px;
   padding: 20px 18px;
@@ -147,7 +181,7 @@
   font-size: 16px;
   font-weight: 700;
   text-align: center;
-  color: #d97839;
+  color: #ff6600;
   font-family: "Poppins", sans-serif;
 }
 
@@ -163,7 +197,7 @@
   height: 13px;
   border-radius: 50%;
   margin-top: 5px;
-  background: #0d7078;
+  background: #003223;
   box-shadow: inset 0 0 0 3px #edf8f7;
   flex-shrink: 0;
 }
@@ -204,7 +238,7 @@
   border-radius: 10px;
   border: 1px solid #0d7078;
   background: #ffffff;
-  color: #0d7078;
+  color: #003223;
   font-size: 14px;
   font-weight: 600;
   font-family: "Montserrat", sans-serif;
@@ -213,7 +247,7 @@
 }
 
 .purchase-card__btn:hover {
-  background: #0d7078;
+  background: #003223d6;
   color: #ffffff;
 }
 
@@ -292,7 +326,7 @@
 }
 
 .course-accordion__item {
-  border: 1px solid #2b6955;
+  border: 1px solid #003223;
   border-radius: 16px;
   overflow: hidden;
 }
