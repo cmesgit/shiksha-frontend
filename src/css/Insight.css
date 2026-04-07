@@ -48,7 +48,7 @@
 .insight-search-bar {
   display: flex;
   align-items: center;
-  background: #12502761;
+  background: #1250274f;
   border: 1px solid rgba(132, 104, 39, 0.22);
   border-radius: 12px;
   padding: 6px 6px 6px 18px;
@@ -71,13 +71,13 @@
   outline: none;
   font-size: 13.5px;
   font-family: "Poppins", sans-serif;
-  color: #ffffff;
+  color: #000000;
   background: transparent;
   padding: 7px 0;
 }
 
 .insight-search-bar input::placeholder {
-  color: rgba(255, 255, 255, 0.77);
+  color: rgba(255, 255, 255, 0.94);
 }
 
 .insight-search-bar input:disabled {
@@ -311,7 +311,7 @@ main {
 
 .insight-sidebar h3 {
   font-family: "Montserrat", sans-serif;
-  color: #125027;
+  color: #ff8f01;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.4px;
@@ -382,7 +382,7 @@ main {
 
 .insight-infobox h3 {
   font-family: "Montserrat", sans-serif;
-  color: rgba(255, 255, 255, 0.92);
+  color: #ffffffeb;
   font-size: 14px;
   font-weight: 800;
   margin-bottom: 14px;
@@ -393,7 +393,7 @@ main {
 
 .insight-infobox h4 {
   font-family: "Montserrat", sans-serif;
-  color: #1dcaab;
+  color: #ff8f01;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.2px;
