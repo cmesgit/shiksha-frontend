@@ -2,7 +2,7 @@
    ABOUT PAGE
 ═══════════════════════════════════════════ */
 .about-page {
-  background: #e8e0cc;
+  background: #ffffff;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
@@ -19,6 +19,7 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  background-color: #ffffff;
   background-image:
     linear-gradient(rgba(132, 104, 39, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 173, 51, 0.06) 1px, transparent 1px);
@@ -28,11 +29,41 @@
 
 /* Alternating section background */
 .ap-alt {
-  background-color: #ddd5be;
+  background-color: #003223;
   background-image:
-    linear-gradient(rgba(132, 104, 39, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 173, 51, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
+}
+
+/* Text overrides for dark green sections */
+.ap-alt .ap-heading {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.ap-alt .ap-intro {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ap-alt .ap-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.ap-alt .ap-card-text p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ap-alt .ap-label {
+  color: #ff8f01;
+}
+
+.ap-alt .ap-list li {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ap-alt .ap-list li strong {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Ambient glow per section */
@@ -85,7 +116,7 @@
   border-radius: 100px;
   padding: 7px 18px;
   margin-bottom: 20px;
-  font-size: 11px;
+  font-size: 18px;
   font-weight: 700;
   color: #125027;
   letter-spacing: 1.5px;
@@ -436,7 +467,7 @@
 }
 
 .ap-why-card {
-  background: rgba(8, 24, 12, 0.7);
+  background: #003223;
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 18px;

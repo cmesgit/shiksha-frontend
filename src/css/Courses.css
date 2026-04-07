@@ -42,7 +42,9 @@
   font-family: "Poppins", sans-serif;
   color: #d79a68;
   cursor: pointer;
-  transition: color 0.2s ease, opacity 0.2s ease;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .courses-breadcrumb__item:hover:not(:disabled) {
@@ -103,14 +105,16 @@
 
 .courses-tile {
   width: 100%;
-  background: #00553d;
+  background: #003223;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 24px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
   overflow: hidden;
 }
 
@@ -122,7 +126,7 @@
 .courses-tile__imageWrap {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #d7c9a4;
+  background: #ffffff;
   border-bottom: 5px solid #296754;
   overflow: hidden;
 }
@@ -145,7 +149,7 @@
   color: rgba(18, 80, 39, 0.7);
   background:
     linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)),
-    linear-gradient(135deg, #e8dfc8 0%, #d6c7a4 100%);
+    linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
 }
 
 .courses-tile__content {
@@ -200,7 +204,7 @@
 .courses-tile__price {
   font-size: 14px;
   font-weight: 700;
-  color: #f4e5bf;
+  color: #ffffff;
   font-family: "Montserrat", sans-serif;
 }
 
@@ -218,12 +222,15 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .courses-tile__btn:hover {
   background: #ffffff;
-  color: #0d7078;
+  color: #003223;
   border-color: #ffffff;
 }
 

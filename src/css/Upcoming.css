@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════ */
 .upcoming-page {
   min-height: 100vh;
-  background: #e8e0cc;
+  background: #ffffff;
   background-image:
     linear-gradient(rgba(132, 104, 39, 0.12) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 173, 51, 0.07) 1px, transparent 1px);
