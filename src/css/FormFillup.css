@@ -436,3 +436,184 @@
     gap: 0;
   }
 }
+
+/* ═══════════════════════════════════════════
+   STEPPER
+═══════════════════════════════════════════ */
+.ff-stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 20px 0 32px;
+}
+
+.ff-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+}
+
+.ff-step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: "Montserrat", sans-serif;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.3);
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.ff-step-circle.active,
+.ff-step-circle.done {
+  background: #1dcaab;
+  border-color: #1dcaab;
+  color: #fff;
+}
+
+.ff-step-label {
+  font-size: 11px;
+  font-family: "Poppins", sans-serif;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  max-width: 100px;
+}
+
+.ff-step-label.active,
+.ff-step-label.done {
+  color: #1dcaab;
+}
+
+.ff-step-connector {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 17px;
+  min-width: 30px;
+}
+
+.ff-step-line {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 0.3s;
+}
+
+.ff-step-line.done {
+  background: #1dcaab;
+}
+
+/* ═══════════════════════════════════════════
+   YES / NO TOGGLE BUTTONS
+═══════════════════════════════════════════ */
+.ff-yesno-group {
+  display: flex;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.ff-yesno-btn {
+  padding: 10px 32px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: all 0.22s;
+}
+
+.ff-yesno-btn:hover {
+  border-color: #1dcaab;
+  color: #1dcaab;
+}
+
+.ff-yesno-btn.active {
+  border-color: #1dcaab;
+  color: #1dcaab;
+  background: rgba(29, 202, 171, 0.08);
+  box-shadow: 0 0 0 1.5px #1dcaab;
+}
+
+/* ═══════════════════════════════════════════
+   USERNAME + PHOTO ROW
+═══════════════════════════════════════════ */
+.ff-username-photo-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.ff-username-field {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.ff-photo-box {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  font-family: "Poppins", sans-serif;
+  transition: border-color 0.2s, background 0.2s;
+  overflow: hidden;
+}
+
+.ff-photo-box:hover {
+  border-color: #1dcaab;
+  background: rgba(29, 202, 171, 0.06);
+  color: #1dcaab;
+}
+
+.ff-photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ═══════════════════════════════════════════
+   EMAIL LOCK ICON
+═══════════════════════════════════════════ */
+.ff-input-icon-wrapper {
+  position: relative;
+}
+
+.ff-input-icon-wrapper input {
+  padding-right: 36px;
+}
+
+.ff-lock-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   ACTIONS RIGHT-ALIGNED (step 1)
+═══════════════════════════════════════════ */
+.ff-actions-right {
+  justify-content: flex-end;
+}
