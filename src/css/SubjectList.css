@@ -7,7 +7,6 @@
   min-height: 100vh;
   padding-bottom: 40px;
   position: relative;
-  overflow: hidden;
 }
 
 .course-detail-screen::before {
@@ -165,8 +164,7 @@
 /* ── PURCHASE CARD ── */
 .purchase-card {
   position: sticky;
-  margin-top: -90px;
-  top: 240px;
+  top: 150px;
   align-self: start;
   background: #ffffffd5;
   border: 1px solid #d8d0c7;
