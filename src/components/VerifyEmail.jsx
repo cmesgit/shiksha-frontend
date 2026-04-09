@@ -19,7 +19,7 @@ export default function VerifyEmail() {
     }, 8000);
 
     window.location.href =
-      `https://api.shikshacom.com/auth/verify-email/?token=${token}`;
+      `${import.meta.env.VITE_API_BASE || "https://api.shikshacom.com"}/auth/verify-email/?token=${token}`;
 
     return () => clearTimeout(timeout);
   }, [token]);
