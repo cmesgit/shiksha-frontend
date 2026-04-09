@@ -32,7 +32,7 @@ api.interceptors.response.use(
         await api.post("/accounts/refresh/");
         return api(originalRequest);
       } catch {
-        window.location.href = "https://www.shikshacom.com/login";
+        window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
       }
     }
 

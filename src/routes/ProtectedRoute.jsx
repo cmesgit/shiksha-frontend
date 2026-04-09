@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     // Redirect to marketing login page
-    window.location.href = "https://www.shikshacom.com/login";
+    window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
     return null;
   }
 

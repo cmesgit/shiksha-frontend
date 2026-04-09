@@ -116,9 +116,9 @@ const Navbar = () => {
 
     if (isTeacher) {
       window.location.href =
-        "https://teacher.shikshacom.com/teacher/dashboard";
+        import.meta.env.VITE_TEACHER_URL || "https://teacher.shikshacom.com/teacher/dashboard";
     } else {
-      window.location.href = "https://app.shikshacom.com/";
+      window.location.href = import.meta.env.VITE_APP_URL || "https://app.shikshacom.com/";
     }
   };
 
