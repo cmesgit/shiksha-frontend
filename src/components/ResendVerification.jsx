@@ -13,7 +13,7 @@ export default function ResendVerification() {
 
     try {
       const res = await fetch(
-        "https://api.shikshacom.com/auth/resend-verification/",
+        `${import.meta.env.VITE_API_BASE || "https://api.shikshacom.com"}/auth/resend-verification/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

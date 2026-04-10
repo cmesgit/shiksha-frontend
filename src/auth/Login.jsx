@@ -50,10 +50,10 @@ const Login = () => {
       const isTeacher = roles.some((r) => String(r).toLowerCase() === "teacher");
 
       setIsRedirecting(true);
-      setStatusMessage("Redirecting to homepage...");
+      setStatusMessage("Login successful! Redirecting...");
 
       setTimeout(() => {
-        navigate("/");
+        window.location.href = import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com";
       }, 500);
 
     } catch (err) {

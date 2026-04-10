@@ -75,11 +75,11 @@ function Page({ children }) {
 
 function AppEntry({ isAuthenticated }) {
   const host = window.location.hostname;
-  const isAppDomain = host === "app.shikshacom.com";
+  const isAppDomain = host === (new URL(import.meta.env.VITE_APP_URL || "https://app.shikshacom.com")).hostname;
 
   useEffect(() => {
     if (isAppDomain && !isAuthenticated) {
-      window.location.href = "https://www.shikshacom.com/login";
+      window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
     }
   }, [isAppDomain, isAuthenticated]);
 
