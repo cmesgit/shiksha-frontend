@@ -167,7 +167,7 @@
 /* Viewport — shows ~5 cards */
 .up-viewport {
   position: relative;
-  height: 400px;
+  height: 360px;
   overflow: hidden;
 }
 
@@ -207,7 +207,7 @@
 
 /* Individual update card */
 .up-card {
-  height: 72px;
+  height: 64px;
   flex-shrink: 0;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -225,7 +225,6 @@
 .up-card:hover {
   background: rgba(105, 189, 126, 0.05);
   border-color: color-mix(in srgb, var(--uaccent) 45%, transparent);
-  transform: translateX(4px);
 }
 
 /* Accent dot — no glow */

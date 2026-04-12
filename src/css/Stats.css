@@ -50,7 +50,7 @@
   transform: translateX(-50%);
   width: 0;
   height: 3px;
-  background: #127324;
+  background: #ff8f01;
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -58,7 +58,7 @@
   width: 48px;
 }
 .ss-item:hover .ss-num {
-  color: #127324;
+  color: #ff8f01;
 }
 .ss-num {
   transition: color 0.25s;
