@@ -18,7 +18,7 @@
    TOP STRIP
 ═══════════════════════════════════════════ */
 .top-strip {
-  background: #001265;
+  background: #757575;
   padding: 0 28px;
   height: 36px;
   display: flex;
@@ -215,25 +215,23 @@
 }
 
 .header-signup-btn {
-  background: #003223;
-  border: 1.5px solid var(--nb-forest);
+  background: transparent;
+  border: 2px solid var(--nb-border);
   padding: 8px 22px;
   border-radius: 8px;
-  color: #fff;
+  color: #033325;
   font-size: 13.5px;
   font-weight: 600;
   text-decoration: none;
   font-family: "Poppins", sans-serif;
-  box-shadow: 0 4px 14px rgba(18, 80, 39, 0.3);
   transition: all 0.22s;
   cursor: pointer;
 }
 
 .header-signup-btn:hover {
-  background: #106950;
+  background: rgba(18, 80, 39, 0.22);
   border-color: var(--nb-forest-mid);
-  box-shadow: 0 6px 20px #033325;
-  transform: translateY(-1px);
+  color: var(--nb-forest);
 }
 
 .header-profile-wrap {
@@ -333,7 +331,7 @@
 .nav-menu > li > .nav-link-btn,
 .nav-item.dropdown > .nav-label {
   display: block;
-  padding: 5px 10px;
+  padding: 5px 14px;
   text-decoration: none;
   color: #ffffff;
   font-weight: 600;
@@ -428,7 +426,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #041f09;
+  background: #003223;
   color: #fff;
   border: 1.5px solid #ffffff;
   border-radius: 8px;
@@ -444,7 +442,8 @@
 }
 
 .nav-dashboard-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  color: #003223;
   border-color: #ffffff;
   transform: translateY(-1px);
 }
