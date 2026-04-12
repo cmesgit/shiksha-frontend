@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import '../css/CurrentAffairs.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://api.shikshacom.com/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://api.shikshacom.com";
 
 const CurrentAffairs = () => {
   const [news, setNews] = useState([]);
@@ -95,7 +95,7 @@ const CurrentAffairs = () => {
                       {new Date(article.publishedAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <a
+                  
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
