@@ -58,7 +58,7 @@
 .hero-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 48px 60px;
+  padding: 56px 48px 60px;
   display: grid;
   grid-template-columns: 1.75fr 0.8fr;
   gap: 44px;
@@ -137,8 +137,8 @@
   width: 100%;
   max-width: 430px;
   background: #003223;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1.5px solid rgba(10, 30, 15, 0.75);
   border-radius: 22px;
   padding: 22px 22px 18px;
@@ -223,7 +223,7 @@
     transform 0.5s;
 }
 .up-card:hover {
-  background: rgba(105, 189, 126, 0.05);
+  background: transparent;
   border-color: color-mix(in srgb, var(--uaccent) 45%, transparent);
 }
 
@@ -256,7 +256,7 @@
   .hero-inner {
     grid-template-columns: 1fr;
     gap: 48px;
-    padding: 96px 24px 64px;
+    padding: 43px 24px 64px;
   }
   .hero-left {
     display: none;

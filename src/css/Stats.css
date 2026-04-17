@@ -82,6 +82,9 @@
   .ss-item:nth-last-child(2) {
     border-bottom: none;
   }
+  .ss-item::after {
+    bottom: -2px;
+  }
 }
 @media (max-width: 420px) {
   .ss-inner {
@@ -90,6 +93,10 @@
   .ss-num {
     font-size: 32px;
   }
+  .ss-item::after {
+    bottom: -2px;
+  }
+
 }
 
 /* Counter animation */

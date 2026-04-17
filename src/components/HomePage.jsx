@@ -28,7 +28,6 @@ const HomePage = () => {
       {/* EXISTING CONTENT */}
       <LearningPathways />
       <CoursePreview />
-      <TeachersSlider />
       <Footer />
       
     </div>
