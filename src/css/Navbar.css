@@ -254,7 +254,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #31601d;
+  background: #004a33;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -296,7 +296,7 @@
    NAVBAR
 ═══════════════════════════════════════════ */
 .navbar {
-  background: #041f09;
+  background: #003223;
   z-index: 100;
   border-top: 1px solid var(--nb-border);
   border-bottom: 1px solid var(--nb-border);
@@ -427,19 +427,19 @@
 
 .nav-labels:hover {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 .dropdown-menu li:hover > .nav-labels {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 .nav-dashboard-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #041f09;
+  background: #003223;
   color: #fff;
   border: 1.5px solid #ffffff;
   border-radius: 8px;
@@ -523,7 +523,7 @@
 
 .dropdown-menu li a:hover {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 .dropdown-menu li a.active {
@@ -533,7 +533,7 @@
 
 .dropdown-menu li a.active:hover {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 .nested-dropdown > .nav-label {
@@ -552,7 +552,7 @@
 
 .nested-dropdown > .nav-label:hover {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 .nested-menu {
@@ -579,7 +579,7 @@
 
 .nested-menu li a:hover {
   background: rgba(18, 80, 39, 0.08);
-  color: #125027;
+  color: #004a33;
 }
 
 /* ═══════════════════════════════════════════

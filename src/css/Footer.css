@@ -2,7 +2,7 @@
    FOOTER
 ═══════════════════════════════════════════ */
 .footer {
-  background: #041f09;
+  background: #003223;
   color: rgba(255, 255, 255, 0.75);
   font-family: "Poppins", sans-serif;
   position: relative;
@@ -28,7 +28,11 @@
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(27, 156, 133, 0.1), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(27, 156, 132, 0.11),
+    transparent 70%
+  );
   bottom: -160px;
   right: -80px;
   pointer-events: none;

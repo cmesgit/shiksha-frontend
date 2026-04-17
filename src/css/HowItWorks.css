@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════ */
 .hw-section {
   padding: 100px 24px 110px;
-  background: #003223;
+  background: #004a33;
   background-image:
     linear-gradient(rgba(132, 104, 39, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 173, 51, 0.06) 1px, transparent 1px);
@@ -56,7 +56,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 18px;
-  background: rgba(38, 60, 45, 0.23);
+  background: rgba(107, 138, 117, 0.23);
   border: 1px solid rgba(18, 80, 39, 0.28);
   border-radius: 100px;
   margin-bottom: 22px;
@@ -132,14 +132,14 @@
   left: 180px;
   right: 180px;
   height: 1.5px;
-  background: rgba(2, 35, 13, 0.39);
+  background: rgba(2, 35, 13, 0);
   z-index: 0;
 }
 
 .hw-progress-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #234f2b, #125027);
+  background: linear-gradient(90deg, #234f2b00, #12502700);
   border-radius: 2px;
   opacity: 0.5;
 }
@@ -166,12 +166,12 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(6, 56, 23, 0.18);
+  border: 1.5px solid #0638172e;
   transition: all 0.32s ease;
 }
 
 .hw-card:hover .hw-indicator-ring {
-  border-color: #1c4223;
+  border-color: #003223;
   transform: scale(1.08);
 }
 
@@ -191,13 +191,13 @@
 }
 
 .hw-card:hover .hw-indicator-inner {
-  background: #125027;
+  background: #003223;
   box-shadow: 0 8px 28px rgba(18, 80, 39, 0.28);
 }
 
 .hw-indicator-icon {
   font-size: 20px;
-  color: #125027;
+  color: #003223;
   transition: all 0.32s ease;
 }
 

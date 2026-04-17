@@ -54,7 +54,7 @@
 }
 
 .course-detail-hero {
-  background: #041f09;
+  background: #003223;
   background-image:
     linear-gradient(rgba(132, 104, 39, 0) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 173, 51, 0) 1px, transparent 1px);
@@ -108,7 +108,7 @@
   font-size: 25px;
   line-height: 1.25;
   font-weight: 700;
-  color: #ffc85c;
+  color: #ff8f01;
   font-family: "Poppins", sans-serif;
 }
 
@@ -333,7 +333,7 @@
 .course-accordion__header {
   width: 100%;
   border: none;
-  background: #2f735c;
+  background: #004a33;
   color: #ffffff;
   padding: 18px 20px;
   display: flex;

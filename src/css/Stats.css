@@ -1,5 +1,5 @@
 .ss-strip {
-  background: #003223;
+  background: #004a33;
   border-top: 1px solid #e8f5f0;
   border-bottom: 1px solid #e8f5f0;
   padding: 48px 24px;
@@ -100,7 +100,6 @@
   .ss-item::after {
     bottom: -2px;
   }
-
 }
 
 /* Counter animation */
