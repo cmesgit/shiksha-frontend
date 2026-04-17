@@ -43,14 +43,14 @@
   z-index: 1;
 }
 .course-detail-hero .course-detail-container {
-  max-width: 90%;
-  margin: 0;
-  padding: 0 68px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .course-detail-hero__content {
   max-width: 760px;
-  margin-left: 150px;
+  margin-left: 0;
 }
 
 .course-detail-hero {
@@ -166,7 +166,8 @@
   position: sticky;
   top: 150px;
   align-self: start;
-  background: #ffffffd5;
+  margin-top: -160px;
+  background: #ffffff;
   border: 1px solid #d8d0c7;
   border-radius: 14px;
   padding: 20px 18px;

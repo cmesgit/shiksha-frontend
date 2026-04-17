@@ -15,12 +15,24 @@
 .course-preview::before {
   content: "";
   position: absolute;
-  width: 600px;
-  height: 600px;
+  width: 700px;
+  height: 700px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 67, 18, 0), transparent 70%);
-  top: -160px;
-  right: -80px;
+  background: radial-gradient(circle, rgba(255, 145, 1, 0.21), transparent 70%);
+  top: -200px;
+  left: -160px;
+  pointer-events: none;
+}
+
+.course-preview::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(18, 80, 39, 0.41), transparent 70%);
+  bottom: -120px;
+  right: -100px;
   pointer-events: none;
 }
 

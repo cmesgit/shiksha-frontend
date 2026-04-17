@@ -189,55 +189,33 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px 12px 24px;
-  border-radius: 11px;
-  background: rgba(4, 47, 15, 0.55);
-  border: 1px solid rgba(171, 169, 169, 0.36);
-  backdrop-filter: blur(10px);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: "Montserrat", sans-serif;
+  padding: 8px 22px;
+  border-radius: 8px;
+  background: transparent;
+  border: 2px solid rgba(9, 62, 5, 0.18);
+  color: #033325;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
   transition: all 0.22s;
-  position: relative;
-  overflow: hidden;
-}
-.sa-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.08),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-.sa-btn:hover::before {
-  left: 160%;
 }
 .sa-btn:hover {
-  border-color: #05370e;
-  box-shadow: 0 0 0 1.5px #1dcaab;
-  transform: translateY(-2px);
-  color: #ffffff;
+  background: rgba(18, 80, 39, 0.22);
+  border-color: #1b9c85;
+  color: #125027;
   text-decoration: none;
 }
 .sa-btn-arrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: rgba(9, 62, 5, 0.1);
   flex-shrink: 0;
   transition: transform 0.22s;
 }
@@ -348,15 +326,34 @@
     transform 0.25s;
   cursor: default;
 }
-.sa-stat-box:not(:last-child):hover {
+.sa-stat-box:nth-child(1):hover,
+.sa-stat-box:nth-child(2):hover {
   border-color: rgba(255, 143, 1, 0.4);
   box-shadow: 0 0 0 1px rgba(255, 143, 1, 0.2);
   transform: translateY(-2px);
 }
-.sa-stat-box:not(:last-child):hover .sa-stat-val,
-.sa-stat-box:not(:last-child):hover .sa-stat-val span,
-.sa-stat-box:not(:last-child):hover .sa-stat-lbl {
+.sa-stat-box:nth-child(1):hover .sa-stat-val,
+.sa-stat-box:nth-child(1):hover .sa-stat-val span,
+.sa-stat-box:nth-child(2):hover .sa-stat-val,
+.sa-stat-box:nth-child(2):hover .sa-stat-val span {
   color: #ff8f01;
+}
+.sa-stat-box:nth-child(1):hover .sa-stat-lbl,
+.sa-stat-box:nth-child(2):hover .sa-stat-lbl {
+  color: rgba(255, 143, 1, 0.5);
+}
+
+.sa-stat-box:nth-child(3):hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px);
+}
+.sa-stat-box:nth-child(3):hover .sa-stat-val,
+.sa-stat-box:nth-child(3):hover .sa-stat-val span {
+  color: #ef4444;
+}
+.sa-stat-box:nth-child(3):hover .sa-stat-lbl {
+  color: rgba(239, 68, 68, 0.5);
 }
 
 .sa-stat-box:last-child:hover {
@@ -365,9 +362,11 @@
   transform: translateY(-2px);
 }
 .sa-stat-box:last-child:hover .sa-stat-val,
-.sa-stat-box:last-child:hover .sa-stat-val span,
-.sa-stat-box:last-child:hover .sa-stat-lbl {
+.sa-stat-box:last-child:hover .sa-stat-val span {
   color: #1dcaab;
+}
+.sa-stat-box:last-child:hover .sa-stat-lbl {
+  color: rgba(29, 202, 171, 0.5);
 }
 .sa-stat-val {
   font-family: "Montserrat", sans-serif;

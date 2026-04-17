@@ -39,6 +39,10 @@
   font-weight: 500;
   color: #e8f5f0;
   font-family: "Poppins", sans-serif;
+  transition: color 0.25s;
+}
+.ss-item:hover .ss-label {
+  color: rgba(255, 143, 1, 0.6);
 }
 
 /* Bottom accent on hover */

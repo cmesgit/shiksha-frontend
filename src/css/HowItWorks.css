@@ -101,7 +101,7 @@
 }
 
 .hw-title span {
-  background: linear-gradient(90deg, #ff8f01, #864c00);
+  background: linear-gradient(90deg, #ff8f01, #ff8f01);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -275,7 +275,7 @@
 }
 
 .hw-card:hover .hw-card-title {
-  color: #5f3600;
+  color: #ff8f01;
 }
 
 .hw-card-desc {
