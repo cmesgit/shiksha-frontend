@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 import "./Login.css";
 
 const EyeIcon = () => (
@@ -18,6 +19,7 @@ const EyeOffIcon = () => (
 
 const Login = () => {
   const { login } = useAuth();
+  const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,12 +51,14 @@ const Login = () => {
       const roles = Array.isArray(loggedInUser?.roles) ? loggedInUser.roles : [];
       const isTeacher = roles.some((r) => String(r).toLowerCase() === "teacher");
 
+      showToast({ message: "You are logged in! Welcome back.", duration: 2500 });
+
       setIsRedirecting(true);
       setStatusMessage("Login successful! Redirecting...");
 
       setTimeout(() => {
         window.location.href = import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com";
-      }, 500);
+      }, 2500);
 
     } catch (err) {
       const raw = err?.message ?? err;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCoursePublic, submitEnrollmentRequest } from "../api/enrollments";
+import { useToast } from "../contexts/ToastContext";
 import "../css/Enroll.css";
 
 // Placeholder QR — swap out with the real UPI QR image file in /public or /assets
@@ -16,6 +17,7 @@ const Enroll = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showToast } = useToast();
 
   const [course, setCourse] = useState(null);
   const [loadingCourse, setLoadingCourse] = useState(true);
@@ -80,6 +82,7 @@ const Enroll = () => {
 
     try {
       await submitEnrollmentRequest(fd);
+      showToast({ message: `Enrolled in ${course.title}! We'll verify your payment within 24 hrs.`, duration: 4000 });
       setSubmitted(true);
     } catch (err) {
       const detail =
