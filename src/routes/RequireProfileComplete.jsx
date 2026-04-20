@@ -7,7 +7,12 @@ const RequireProfileComplete = ({ children }) => {
 
   if (loading) return null;
 
-  if (location.pathname === "/form-fillup") return children;
+  if (location.pathname === "/form-fillup") {
+    if (user && user.profile_complete === true) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return children;
+  }
 
   if (user && user.profile_complete === false) {
     return <Navigate to="/form-fillup" state={{ onboarding: true }} replace />;

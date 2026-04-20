@@ -122,9 +122,11 @@ function App() {
           path="/form-fillup"
           element={
             <ProtectedRoute>
-              <Page>
-                <FormFillup />
-              </Page>
+              <RequireProfileComplete>
+                <Page>
+                  <FormFillup />
+                </Page>
+              </RequireProfileComplete>
             </ProtectedRoute>
           }
         />
