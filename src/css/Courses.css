@@ -123,6 +123,43 @@
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.2);
 }
 
+.courses-tile--locked {
+  cursor: default;
+  position: relative;
+  opacity: 0.72;
+  filter: grayscale(0.3);
+}
+
+.courses-tile--locked:hover {
+  transform: none;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+}
+
+.courses-tile__coming-soon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
+.courses-tile__lock-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.9;
+}
+
 .courses-tile__imageWrap {
   width: 100%;
   aspect-ratio: 16 / 9;

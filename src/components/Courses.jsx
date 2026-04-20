@@ -41,6 +41,13 @@ const BOARD_OPTIONS = {
       desc: 'Central Board of Secondary Education. Most widely followed board in India.',
       image: cbseImg,
     },
+    {
+      id: 'icse',
+      title: 'ICSE',
+      desc: 'Indian Certificate of Secondary Education.',
+      image: cbseImg,
+      locked: true,
+    },
   ],
   state: [
     {
@@ -218,17 +225,32 @@ const CourseTile = ({
   price,
   buttonText = 'Browse',
   onClick,
+  locked = false,
 }) => {
+  const handleClick = locked ? undefined : onClick;
+
   return (
     <article
-      className="courses-tile"
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
+      className={`courses-tile${locked ? ' courses-tile--locked' : ''}`}
+      onClick={handleClick}
+      role={locked ? 'img' : 'button'}
+      tabIndex={locked ? -1 : 0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onClick();
+        if (!locked && (e.key === 'Enter' || e.key === ' ')) onClick();
       }}
     >
+      {locked && (
+        <div className="courses-tile__coming-soon">
+          <span className="courses-tile__lock-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </span>
+          <span className="courses-tile__coming-label">Coming Soon</span>
+        </div>
+      )}
+
       <div className="courses-tile__imageWrap">
         {image ? (
           <img src={image} alt={title} className="courses-tile__image" />
@@ -247,12 +269,13 @@ const CourseTile = ({
           <button
             type="button"
             className="courses-tile__btn"
+            disabled={locked}
             onClick={(e) => {
               e.stopPropagation();
-              onClick();
+              if (!locked) onClick();
             }}
           >
-            {buttonText}
+            {locked ? 'Coming Soon' : buttonText}
           </button>
         </div>
       </div>
@@ -543,6 +566,7 @@ const Courses = () => {
                 title={board.title}
                 desc={board.desc}
                 buttonText="Browse"
+                locked={board.locked}
                 onClick={() => handleBoardSelect(board.id)}
               />
             ))}
