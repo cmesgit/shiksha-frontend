@@ -557,6 +557,29 @@ const Courses = () => {
     navigate(`/enroll/${courseId}`);
   };
 
+  const searchBar = (placeholder = 'Search boards…') => (
+    <div className="courses-search-box">
+      <svg className="courses-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        type="text"
+        className="courses-search-input"
+        placeholder={placeholder}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+      {searchQuery && (
+        <button className="courses-search-clear" onClick={() => setSearchQuery('')} aria-label="Clear">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+
   if (activeCourse) {
     return (
       <SubjectList
@@ -599,6 +622,12 @@ const Courses = () => {
   }
 
   if (selectedBoard) {
+    const classesToShow = searchQuery.trim()
+      ? CLASSES.filter((cls) =>
+          `${cls.title} ${cls.subtitle || ''}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        )
+      : CLASSES;
+
     return (
       <section className="courses-page">
         <div className="courses-container">
@@ -611,52 +640,40 @@ const Courses = () => {
               { key: 'board', label: currentBoard?.title || 'Board' },
             ]}
             onTrailClick={handleTrailClick}
+            rightSlot={searchBar('Search course…')}
           />
 
-          <div className="courses-grid courses-grid--classes">
-            {CLASSES.map((cls) => (
-              <ClassCourseTile
-                key={cls.id}
-                image={cls.image}
-                title={cls.title}
-                subtitle={cls.subtitle}
-                desc={cls.desc}
-                duration={cls.duration}
-                fee={cls.fee}
-                access={cls.access}
-                mode={cls.mode}
-                onViewDetails={() => handleClassSelect(cls)}
-                onEnroll={() => handleEnrollNow(cls)}
-              />
-            ))}
-          </div>
+          {searchQuery.trim() && (
+            <p className="courses-search-count">
+              {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;{searchQuery.trim()}&rdquo;
+            </p>
+          )}
+
+          {classesToShow.length > 0 ? (
+            <div className="courses-grid courses-grid--classes">
+              {classesToShow.map((cls) => (
+                <ClassCourseTile
+                  key={cls.id}
+                  image={cls.image}
+                  title={cls.title}
+                  subtitle={cls.subtitle}
+                  desc={cls.desc}
+                  duration={cls.duration}
+                  fee={cls.fee}
+                  access={cls.access}
+                  mode={cls.mode}
+                  onViewDetails={() => handleClassSelect(cls)}
+                  onEnroll={() => handleEnrollNow(cls)}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="courses-search-empty">No classes found for &ldquo;{searchQuery.trim()}&rdquo;</p>
+          )}
         </div>
       </section>
     );
   }
-
-  const searchBar = (
-    <div className="courses-search-box">
-      <svg className="courses-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-      <input
-        type="text"
-        className="courses-search-input"
-        placeholder="Search boards…"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-      {searchQuery && (
-        <button className="courses-search-clear" onClick={() => setSearchQuery('')} aria-label="Clear">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      )}
-    </div>
-  );
 
   if (selectedBoardGroup) {
     const boardsToShow = searchQuery.trim()
@@ -674,7 +691,7 @@ const Courses = () => {
               { key: 'boardGroup', label: currentBoardGroup?.title || 'Board Type' },
             ]}
             onTrailClick={handleTrailClick}
-            rightSlot={searchBar}
+            rightSlot={searchBar()}
           />
 
           {searchQuery.trim() && (
