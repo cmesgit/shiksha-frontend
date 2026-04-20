@@ -405,10 +405,8 @@ const Courses = () => {
   };
 
   const handleEnrollNow = (cls) => {
-    window.open(
-      'https://docs.google.com/forms/d/e/1FAIpQLScYOfEKfvAqgSpfeZp-wAvwnB9dXi0UXCn5GoZHe8TVRJZT1A/viewform?usp=header',
-      '_blank'
-    );
+    const courseId = cls.courseId || cls.backendId || cls.id;
+    navigate(`/enroll/${courseId}`);
   };
 
   if (activeCourse) {
