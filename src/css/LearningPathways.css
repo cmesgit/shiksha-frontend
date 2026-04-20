@@ -134,7 +134,9 @@
   gap: 12px;
   padding: 16px 18px;
   border-radius: 15px;
-  background: #003223;
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
+    rgba(0, 50, 35, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
   cursor: pointer;

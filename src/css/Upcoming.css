@@ -84,7 +84,9 @@
 
 /* Individual card */
 .upcoming-feature-card {
-  background: rgba(8, 24, 12, 0.7);
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
+    rgba(0, 50, 35, 0.8);
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 18px;
@@ -186,7 +188,9 @@
 ═══════════════════════════════════════════ */
 .upcoming-cta-section {
   text-align: center;
-  background: rgba(8, 24, 12, 0.72);
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
+    rgba(0, 50, 35, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 22px;
@@ -204,7 +208,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #125027, #1dcaab, #ff8f01);
+  background: linear-gradient(90deg, #0f468a, #ffffff, #0f468a);
   border-radius: 3px 3px 0 0;
 }
 
@@ -235,7 +239,7 @@
   padding: 13px 36px;
   border: none;
   border-radius: 12px;
-  background: #1b9c85;
+  background: #0d8b65;
   color: #fff;
   font-size: 14px;
   font-weight: 700;

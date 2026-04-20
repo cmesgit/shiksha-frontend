@@ -41,6 +41,7 @@ import Counselling from "./Counselling";
 
 import Placements from "./Placements";
 import Payment from "./Payment";
+import Enroll from "./Enroll";
 import FormFillup from "./FormFillup";
 
 import RequireProfileComplete from "../routes/RequireProfileComplete";
@@ -123,6 +124,17 @@ function App() {
             <ProtectedRoute>
               <Page>
                 <FormFillup />
+              </Page>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/enroll/:courseId"
+          element={
+            <ProtectedRoute>
+              <Page>
+                <Enroll />
               </Page>
             </ProtectedRoute>
           }

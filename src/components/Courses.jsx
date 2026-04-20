@@ -62,6 +62,10 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      cbse: '3b54e0cf-9e17-4652-b5de-110735c1ed8e',
+      mbse: '2b24c4a0-787e-4a0d-acf3-29e9f4e921cf',
+    },
   },
   {
     id: 'class9',
@@ -72,6 +76,10 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      cbse: '26b5b4ce-5b0a-4381-a492-c134676881f2',
+      mbse: '9fac2eae-5a90-411e-994d-d2613923cddf',
+    },
   },
   {
     id: 'class10',
@@ -82,6 +90,10 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      cbse: '41ec43ac-bac7-4a68-b5d6-eda2acd85585',
+      mbse: 'cfe07ab8-1508-4c14-8181-8ba21d4cb331',
+    },
   },
   {
     id: 'class11science',
@@ -93,6 +105,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: 'eb7700aa-a95b-4eeb-a4e4-cdffe9c27a73',
+    },
   },
   {
     id: 'class11commerce',
@@ -104,6 +119,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: '51724c07-b13a-4413-85d8-d7cf2561fabb',
+    },
   },
   {
     id: 'class11arts',
@@ -115,6 +133,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: '24056c0b-1d46-411a-912d-5fecd2b8d90f',
+    },
   },
   {
     id: 'class12science',
@@ -126,6 +147,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: '6493ae70-6f47-48e9-b3a7-cb345432cf0d',
+    },
   },
   {
     id: 'class12commerce',
@@ -137,6 +161,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: '933a79ca-b5ed-4df4-926d-2d241c3efde9',
+    },
   },
   {
     id: 'class12arts',
@@ -148,6 +175,9 @@ const CLASSES = [
     fee: '1500',
     access: 'Full Course Access',
     mode: 'Online',
+    courseIds: {
+      mbse: 'e0ccb831-57d4-49a1-818f-cc6d234db5af',
+    },
   },
 ];
 
@@ -405,10 +435,12 @@ const Courses = () => {
   };
 
   const handleEnrollNow = (cls) => {
-    window.open(
-      'https://docs.google.com/forms/d/e/1FAIpQLScYOfEKfvAqgSpfeZp-wAvwnB9dXi0UXCn5GoZHe8TVRJZT1A/viewform?usp=header',
-      '_blank'
-    );
+    const courseId = cls.courseIds?.[selectedBoard];
+    if (!courseId) {
+      alert(`${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${currentBoard?.title || 'this board'}.`);
+      return;
+    }
+    navigate(`/enroll/${courseId}`);
   };
 
   if (activeCourse) {
