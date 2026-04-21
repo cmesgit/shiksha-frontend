@@ -12,6 +12,7 @@ import { HashLink } from "react-router-hash-link";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { APP_URL, TEACHER_URL } from "../config/urls";
 
 const Navbar = () => {
   const { t } = useLanguage();
@@ -118,10 +119,9 @@ const Navbar = () => {
       normalizedRoles.includes("teacher") || singleRole === "teacher";
 
     if (isTeacher) {
-      window.location.href =
-        import.meta.env.VITE_TEACHER_URL || "https://teacher.shikshacom.com/teacher/dashboard";
+      window.location.href = TEACHER_URL;
     } else {
-      window.location.href = import.meta.env.VITE_APP_URL || "https://app.shikshacom.com/";
+      window.location.href = APP_URL;
     }
   };
 

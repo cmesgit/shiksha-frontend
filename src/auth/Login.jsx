@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { HOME_URL } from "../config/urls";
 import "./Login.css";
 
 const EyeIcon = () => (
@@ -56,7 +57,7 @@ const Login = () => {
       setIsRedirecting(true);
       setStatusMessage("Login successful! Redirecting...");
 
-      let redirectTo = import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com";
+      let redirectTo = HOME_URL;
       try {
         const stashed = sessionStorage.getItem("post_auth_redirect");
         if (stashed && stashed.startsWith("/") && !stashed.startsWith("//")) {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { API_URL as API_BASE } from "../config/urls";
 import '../css/CurrentAffairs.css';
-
-const API_BASE = import.meta.env.VITE_API_URL || "https://api.shikshacom.com";
 
 const CurrentAffairs = () => {
   const [news, setNews] = useState([]);

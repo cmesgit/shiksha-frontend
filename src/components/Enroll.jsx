@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCoursePublic, submitEnrollmentRequest } from "../api/enrollments";
 import { useToast } from "../contexts/ToastContext";
+import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
 // Placeholder QR — swap out with the real UPI QR image file in /public or /assets
@@ -125,8 +126,7 @@ const Enroll = () => {
           <button
             className="enroll-submit"
             onClick={() => {
-              window.location.href =
-                import.meta.env.VITE_APP_URL || "https://app.shikshacom.com/";
+              window.location.href = APP_URL;
             }}
           >
             Go to Dashboard

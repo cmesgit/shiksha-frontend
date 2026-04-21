@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { LOGIN_URL } from "../config/urls";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -15,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
       }
     } catch (_) { /* sessionStorage unavailable */ }
 
-    window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
+    window.location.href = LOGIN_URL;
     return null;
   }
 
