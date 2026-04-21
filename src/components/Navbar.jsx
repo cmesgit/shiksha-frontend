@@ -11,10 +11,12 @@ import { HashLink } from "react-router-hash-link";
 
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 
 const Navbar = () => {
   const { t } = useLanguage();
   const { isAuthenticated, user, loading, logout } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -101,6 +103,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
+    showToast({ message: "You have been logged out. See you soon!", type: "info", duration: 3000 });
     navigate("/login", { replace: true });
   };
 

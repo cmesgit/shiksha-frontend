@@ -465,11 +465,7 @@ const FormFillup = () => {
       await submitFormFillup(fd);
 
       await bootstrap();
-      if (isOnboarding) {
-        navigate("/dashboard", { replace: true });
-      } else {
-        setSuccess("Profile updated successfully!");
-      }
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       const raw = extractError(err);
       const msg = raw instanceof Error ? raw.message : typeof raw === "string" ? raw : "Failed to save. Please try again.";
