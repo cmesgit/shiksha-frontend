@@ -9,18 +9,21 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 import AuthLoader from "./components/AuthLoader.jsx";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { ToastProvider } from "./contexts/ToastContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <LanguageProvider>
-            <AuthLoader>
-              <App />
-            </AuthLoader>
-          </LanguageProvider>
-        </NotificationProvider>
+        <ToastProvider>
+          <NotificationProvider>
+            <LanguageProvider>
+              <AuthLoader>
+                <App />
+              </AuthLoader>
+            </LanguageProvider>
+          </NotificationProvider>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

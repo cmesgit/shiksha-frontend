@@ -41,6 +41,7 @@ import Counselling from "./Counselling";
 
 import Placements from "./Placements";
 import Payment from "./Payment";
+import Enroll from "./Enroll";
 import FormFillup from "./FormFillup";
 
 import RequireProfileComplete from "../routes/RequireProfileComplete";
@@ -50,6 +51,7 @@ import ThreadDetailPage from "../forum/ThreadDetailPage";
 import CreateThreadPage from "../forum/CreateThreadPage";
 import NotificationsPage from "../forum/NotificationsPage";
 import { useAuth } from "../contexts/AuthContext";
+import { APP_URL, LOGIN_URL } from "../config/urls";
 import Blogs from "./Blogs";
 import BlogDetail from "./BlogDetail";
 
@@ -75,11 +77,11 @@ function Page({ children }) {
 
 function AppEntry({ isAuthenticated }) {
   const host = window.location.hostname;
-  const isAppDomain = host === (new URL(import.meta.env.VITE_APP_URL || "https://app.shikshacom.com")).hostname;
+  const isAppDomain = host === new URL(APP_URL).hostname;
 
   useEffect(() => {
     if (isAppDomain && !isAuthenticated) {
-      window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
+      window.location.href = LOGIN_URL;
     }
   }, [isAppDomain, isAuthenticated]);
 
@@ -121,8 +123,21 @@ function App() {
           path="/form-fillup"
           element={
             <ProtectedRoute>
+              <RequireProfileComplete>
+                <Page>
+                  <FormFillup />
+                </Page>
+              </RequireProfileComplete>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/enroll/:courseId"
+          element={
+            <ProtectedRoute>
               <Page>
-                <FormFillup />
+                <Enroll />
               </Page>
             </ProtectedRoute>
           }

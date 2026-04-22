@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_URL, LOGIN_URL } from "../config/urls";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   withCredentials: true,
 });
 
@@ -33,7 +34,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch {
         if (!window.location.pathname.includes("/login") && !window.location.pathname.includes("/signup")) {
-          window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
+          window.location.href = LOGIN_URL;
         }
       }
     }

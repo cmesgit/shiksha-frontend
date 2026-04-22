@@ -27,8 +27,9 @@ const updates = [
   { id: 8, title: 'New and Profound Instructor joining us', accent: '#fb923c' },
 ];
 
-const CARD_HEIGHT = 72;
+const CARD_HEIGHT = 64;
 const GAP = 10;
+const CARDS_PER_PAGE = 5;
 
 const Hero = () => {
   const [visible, setVisible] = useState(false);
@@ -47,7 +48,7 @@ const Hero = () => {
   const step = CARD_HEIGHT + GAP;
 
   const advance = () => {
-    currentRef.current += 1;
+    currentRef.current += CARDS_PER_PAGE;
     setTransitioning(true);
     setOffset(currentRef.current * step);
 
@@ -115,8 +116,6 @@ const Hero = () => {
               onMouseEnter={() => setPaused(true)}
               onMouseLeave={() => setPaused(false)}
             >
-              <div className="up-fade up-fade-top"></div>
-
               <div
                 className="up-track"
                 style={{
@@ -137,8 +136,6 @@ const Hero = () => {
                   </div>
                 ))}
               </div>
-
-              <div className="up-fade up-fade-bottom"></div>
             </div>
           </div>
         </div>
