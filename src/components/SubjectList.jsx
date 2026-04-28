@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { APP_URL } from '../config/urls';
 import '../css/SubjectList.css';
 
 const Breadcrumb = ({ items, onNavigate }) => {
@@ -26,7 +27,7 @@ const Breadcrumb = ({ items, onNavigate }) => {
   );
 };
 
-const SubjectList = ({ course, boardGroup, board, selectedClass, onBack }) => {
+const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack }) => {
   const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(0);
 
@@ -214,10 +215,23 @@ const SubjectList = ({ course, boardGroup, board, selectedClass, onBack }) => {
 
             <button
               className="purchase-card__btn"
-              onClick={() => navigate("/login")}
->
-  Start Subscription
-</button>
+              disabled={enrollmentStatus === 'PENDING'}
+              onClick={() => {
+                if (enrollmentStatus === 'APPROVED') {
+                  window.location.href = APP_URL;
+                  return;
+                }
+                if (enrollmentStatus === 'PENDING') return;
+                if (!courseId) return;
+                navigate(`/enroll/${courseId}`);
+              }}
+            >
+              {enrollmentStatus === 'APPROVED'
+                ? 'Go to Dashboard'
+                : enrollmentStatus === 'PENDING'
+                ? 'Pending Approval'
+                : 'Start Subscription'}
+            </button>
           </aside>
         </div>
       </div>
