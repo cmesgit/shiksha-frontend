@@ -213,13 +213,8 @@ const SubjectList = ({ course, boardGroup, board, selectedClass, onBack }) => {
             </ul>
 
             <button
-  className="purchase-card__btn"
-  onClick={() =>
-    window.open(
-      'https://docs.google.com/forms/d/e/1FAIpQLScYOfEKfvAqgSpfeZp-wAvwnB9dXi0UXCn5GoZHe8TVRJZT1A/viewform?usp=header',
-      '_blank'
-    )
-  }
+              className="purchase-card__btn"
+              onClick={() => navigate("/login")}
 >
   Start Subscription
 </button>
