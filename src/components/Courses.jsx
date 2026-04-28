@@ -610,7 +610,7 @@ const Courses = () => {
       window.location.href = APP_URL;
       return;
     }
-    navigate(`/enroll/${courseId}`);
+    navigate("/login");
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
