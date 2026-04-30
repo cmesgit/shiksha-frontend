@@ -916,9 +916,7 @@
   }
 
   .nav-dashboard-li {
-    position: static;
-    right: auto;
-    margin-left: 0 !important;
+    display: none;
   }
 
   .nav-dashboard-btn {
