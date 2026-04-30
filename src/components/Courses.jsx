@@ -610,7 +610,9 @@ const Courses = () => {
       window.location.href = APP_URL;
       return;
     }
-    navigate("/login");
+  
+navigate("/enroll");
+
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
@@ -640,6 +642,10 @@ const Courses = () => {
     return (
       <SubjectList
         course={activeCourse}
+        courseId={selectedClass?.courseIds?.[selectedBoard]}
+        enrollmentStatus={
+          enrollmentStatusByCourseId[selectedClass?.courseIds?.[selectedBoard]]
+        }
         boardGroup={currentBoardGroup?.title}
         board={currentBoard?.title}
         selectedClass={
