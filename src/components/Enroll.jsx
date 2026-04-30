@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { getCoursePublic, submitEnrollmentRequest } from "../api/enrollments";
+import {
+  getCoursePublic,
+  submitEnrollmentRequest,
+  getMyEnrollmentRequests,
+} from "../api/enrollments";
 import { useToast } from "../contexts/ToastContext";
+import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
 // Placeholder QR — swap out with the real UPI QR image file in /public or /assets
@@ -34,6 +39,7 @@ const Enroll = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [existingStatus, setExistingStatus] = useState(null); // 'APPROVED' | 'PENDING' | null
 
   useEffect(() => {
     setLoadingCourse(true);
@@ -51,6 +57,24 @@ const Enroll = () => {
       })
       .finally(() => setLoadingCourse(false));
   }, [courseId]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    getMyEnrollmentRequests()
+      .then((data) => {
+        if (cancelled) return;
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const match = list.find((r) => r?.course?.id === courseId);
+        if (!match) return;
+        if (match.status === "APPROVED") setExistingStatus("APPROVED");
+        else if (match.status === "PENDING") setExistingStatus("PENDING");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user, courseId]);
 
   const profile = user?.profile || {};
   const profileComplete = user?.profile_complete;
@@ -112,6 +136,48 @@ const Enroll = () => {
     );
   }
 
+  if (existingStatus === "APPROVED") {
+    return (
+      <div className="enroll-page">
+        <div className="enroll-success">
+          <h2>Already enrolled</h2>
+          <p>
+            You're already enrolled in <strong>{course.title}</strong>.
+            Head to your dashboard to start learning.
+          </p>
+          <button
+            className="enroll-submit"
+            onClick={() => {
+              window.location.href = APP_URL;
+            }}
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (existingStatus === "PENDING") {
+    return (
+      <div className="enroll-page">
+        <div className="enroll-success">
+          <h2>Request pending approval</h2>
+          <p>
+            You've already submitted an enrollment request for <strong>{course.title}</strong>.
+            Our team will verify your payment and approve it within 24 hours.
+          </p>
+          <button
+            className="enroll-submit"
+            onClick={() => navigate("/courses")}
+          >
+            Back to Courses
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
       <div className="enroll-page">
@@ -122,7 +188,12 @@ const Enroll = () => {
             Our team will verify your payment and approve your enrollment within 24 hours.
             You'll get an email confirmation once approved.
           </p>
-          <button className="enroll-submit" onClick={() => navigate("/dashboard")}>
+          <button
+            className="enroll-submit"
+            onClick={() => {
+              window.location.href = APP_URL;
+            }}
+          >
             Go to Dashboard
           </button>
         </div>

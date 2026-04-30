@@ -241,13 +241,30 @@
 @media (max-width: 992px) {
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: 48px;
-    padding: 43px 24px 64px;
+    gap: 28px;
+    padding: 32px 24px 48px;
   }
   .hero-left {
-    display: none;
+    display: flex;
+  }
+  .subject-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .scard {
+    height: 130px;
   }
   .updates-panel {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .scard {
+    height: 110px;
+  }
+  .subject-grid {
+    gap: 8px;
   }
 }

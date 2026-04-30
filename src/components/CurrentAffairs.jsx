@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
+import { API_URL as API_BASE } from "../config/urls";
 import '../css/CurrentAffairs.css';
-
-const API_BASE = import.meta.env.VITE_API_URL || "https://api.shikshacom.com";
 
 const CurrentAffairs = () => {
   const [news, setNews] = useState([]);
@@ -15,7 +14,7 @@ const CurrentAffairs = () => {
     setError(null);
     setNews([]);
     try {
-      const response = await fetch(API_BASE + '/api/news/top-headlines/');
+      const response = await fetch(API_BASE + '/news/top-headlines/');
       if (!response.ok) throw new Error('Server error: ' + response.status);
       const data = await response.json();
       const transformedArticles = data.articles.map((article) => ({

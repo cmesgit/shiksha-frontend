@@ -478,6 +478,21 @@
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+.courses-tile__btn--enrolled,
+.courses-tile__btn--enrolled:hover {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}
+
+.courses-tile__btn--pending,
+.courses-tile__btn--pending:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fde68a;
+  border-color: rgba(253, 230, 138, 0.55);
+  cursor: not-allowed;
+}
+
 .courses-tile__btn--secondary {
   background: transparent;
   color: #ffffff;

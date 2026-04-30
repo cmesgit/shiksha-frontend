@@ -4,6 +4,9 @@ import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
+import { useAuth } from '../contexts/AuthContext';
+import { getMyEnrollmentRequests } from '../api/enrollments';
+import { APP_URL } from '../config/urls';
 
 import cbseImg from '../assets/courses/Cbse.png';
 import icseImg from '../assets/courses/Icse.svg';
@@ -353,7 +356,21 @@ const ClassCourseTile = ({
   mode,
   onViewDetails,
   onEnroll,
+  enrollmentStatus,
 }) => {
+  const isEnrolled = enrollmentStatus === 'APPROVED';
+  const isPending = enrollmentStatus === 'PENDING';
+
+  let enrollBtnLabel = 'ENROLL NOW';
+  let enrollBtnClass = 'courses-tile__btn courses-tile__btn--primary';
+  if (isEnrolled) {
+    enrollBtnLabel = 'ENROLLED';
+    enrollBtnClass += ' courses-tile__btn--enrolled';
+  } else if (isPending) {
+    enrollBtnLabel = 'PENDING APPROVAL';
+    enrollBtnClass += ' courses-tile__btn--pending';
+  }
+
   return (
     <article
       className="courses-tile courses-tile--detailed"
@@ -409,13 +426,15 @@ const ClassCourseTile = ({
         <div className="courses-tile__actions">
           <button
             type="button"
-            className="courses-tile__btn courses-tile__btn--primary"
+            className={enrollBtnClass}
+            disabled={isPending}
             onClick={(e) => {
               e.stopPropagation();
+              if (isPending) return;
               onEnroll();
             }}
           >
-            ENROLL NOW
+            {enrollBtnLabel}
           </button>
 
           <button
@@ -442,6 +461,7 @@ const ALL_BOARDS = [
 const Courses = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const [selectedBoardGroup, setSelectedBoardGroup] = useState(
     location.state?.selectedBoardGroup || null
@@ -450,6 +470,38 @@ const Courses = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setEnrollmentStatusByCourseId({});
+      return;
+    }
+    let cancelled = false;
+    getMyEnrollmentRequests()
+      .then((data) => {
+        if (cancelled) return;
+        const list = Array.isArray(data) ? data : data?.results || [];
+        // APPROVED wins over PENDING wins over REJECTED when multiple requests exist.
+        const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+        const map = {};
+        for (const req of list) {
+          const cid = req?.course?.id;
+          if (!cid) continue;
+          const existing = map[cid];
+          if (!existing || (priority[req.status] || 0) > (priority[existing] || 0)) {
+            map[cid] = req.status;
+          }
+        }
+        setEnrollmentStatusByCourseId(map);
+      })
+      .catch(() => {
+        // Non-fatal — default to no known status; button stays "ENROLL NOW".
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -554,7 +606,13 @@ const Courses = () => {
       alert(`${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${currentBoard?.title || 'this board'}.`);
       return;
     }
-    navigate(`/enroll/${courseId}`);
+    if (enrollmentStatusByCourseId[courseId] === 'APPROVED') {
+      window.location.href = APP_URL;
+      return;
+    }
+  
+navigate("/enroll");
+
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
@@ -584,6 +642,10 @@ const Courses = () => {
     return (
       <SubjectList
         course={activeCourse}
+        courseId={selectedClass?.courseIds?.[selectedBoard]}
+        enrollmentStatus={
+          enrollmentStatusByCourseId[selectedClass?.courseIds?.[selectedBoard]]
+        }
         boardGroup={currentBoardGroup?.title}
         board={currentBoard?.title}
         selectedClass={
@@ -651,21 +713,26 @@ const Courses = () => {
 
           {classesToShow.length > 0 ? (
             <div className="courses-grid courses-grid--classes">
-              {classesToShow.map((cls) => (
-                <ClassCourseTile
-                  key={cls.id}
-                  image={cls.image}
-                  title={cls.title}
-                  subtitle={cls.subtitle}
-                  desc={cls.desc}
-                  duration={cls.duration}
-                  fee={cls.fee}
-                  access={cls.access}
-                  mode={cls.mode}
-                  onViewDetails={() => handleClassSelect(cls)}
-                  onEnroll={() => handleEnrollNow(cls)}
-                />
-              ))}
+              {classesToShow.map((cls) => {
+                const cid = cls.courseIds?.[selectedBoard];
+                const status = cid ? enrollmentStatusByCourseId[cid] : undefined;
+                return (
+                  <ClassCourseTile
+                    key={cls.id}
+                    image={cls.image}
+                    title={cls.title}
+                    subtitle={cls.subtitle}
+                    desc={cls.desc}
+                    duration={cls.duration}
+                    fee={cls.fee}
+                    access={cls.access}
+                    mode={cls.mode}
+                    onViewDetails={() => handleClassSelect(cls)}
+                    onEnroll={() => handleEnrollNow(cls)}
+                    enrollmentStatus={status}
+                  />
+                );
+              })}
             </div>
           ) : (
             <p className="courses-search-empty">No classes found for &ldquo;{searchQuery.trim()}&rdquo;</p>

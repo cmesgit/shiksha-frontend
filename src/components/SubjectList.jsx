@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import '../css/SubjectList.css';
 
 const Breadcrumb = ({ items, onNavigate }) => {
@@ -26,7 +27,7 @@ const Breadcrumb = ({ items, onNavigate }) => {
   );
 };
 
-const SubjectList = ({ course, boardGroup, board, selectedClass, onBack }) => {
+const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack }) => {
   const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(0);
 
@@ -211,18 +212,15 @@ const SubjectList = ({ course, boardGroup, board, selectedClass, onBack }) => {
               <li>Lifetime access after course completion</li>
               <li>Access to all subjects included in this course</li>
             </ul>
-
-            <button
+<button
   className="purchase-card__btn"
-  onClick={() =>
-    window.open(
-      'https://docs.google.com/forms/d/e/1FAIpQLScYOfEKfvAqgSpfeZp-wAvwnB9dXi0UXCn5GoZHe8TVRJZT1A/viewform?usp=header',
-      '_blank'
-    )
-  }
+  onClick={() => navigate("/enroll")}
 >
   Start Subscription
 </button>
+            
+              
+
           </aside>
         </div>
       </div>

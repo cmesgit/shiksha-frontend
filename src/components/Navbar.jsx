@@ -12,6 +12,8 @@ import { HashLink } from "react-router-hash-link";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { APP_URL, TEACHER_URL } from "../config/urls";
+import { getFormFillupData } from "../api/formFillupApi";
 
 const Navbar = () => {
   const { t } = useLanguage();
@@ -26,6 +28,7 @@ const Navbar = () => {
   const [openNestedDropdown, setOpenNestedDropdown] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [hideTopStrip, setHideTopStrip] = useState(false);
+  const [profileUsername, setProfileUsername] = useState("");
 
   const profileMenuRef = useRef(null);
 
@@ -77,6 +80,16 @@ const Navbar = () => {
   }, [mobileOpen]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+    getFormFillupData()
+      .then((res) => {
+        const uname = res.data?.username;
+        if (uname) setProfileUsername(uname);
+      })
+      .catch(() => {});
+  }, [isAuthenticated]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setHideTopStrip(window.scrollY > 10);
     };
@@ -118,14 +131,14 @@ const Navbar = () => {
       normalizedRoles.includes("teacher") || singleRole === "teacher";
 
     if (isTeacher) {
-      window.location.href =
-        import.meta.env.VITE_TEACHER_URL || "https://teacher.shikshacom.com/teacher/dashboard";
+      window.location.href = TEACHER_URL;
     } else {
-      window.location.href = import.meta.env.VITE_APP_URL || "https://app.shikshacom.com/";
+      window.location.href = APP_URL;
     }
   };
 
   const firstName =
+    profileUsername ||
     user?.first_name ||
     user?.firstName ||
     user?.name?.split(" ")?.[0] ||
@@ -229,16 +242,29 @@ const Navbar = () => {
         </header>
 
         <nav className="navbar navbar-pc">
-          <button
-            className={`hamburger-btn${mobileOpen ? " open" : ""}`}
-            onClick={toggleMobileMenu}
-            aria-label="Toggle menu"
-            type="button"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          <div className="navbar-mobile-bar">
+            <button
+              className={`hamburger-btn${mobileOpen ? " open" : ""}`}
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+              type="button"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+
+            {isAuthenticated && user && (
+              <button
+                type="button"
+                className="mobile-nav-dashboard-btn"
+                onClick={handleDashboard}
+              >
+                Dashboard
+                <FiArrowUpRight size={14} />
+              </button>
+            )}
+          </div>
 
           <ul className={`nav-menu${mobileOpen ? " mobile-open" : ""}`}>
             <li>
