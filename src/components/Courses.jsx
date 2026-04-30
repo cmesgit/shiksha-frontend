@@ -610,7 +610,7 @@ const Courses = () => {
       window.location.href = APP_URL;
       return;
     }
-    navigate("/login");
+    navigate("/enroll");
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
