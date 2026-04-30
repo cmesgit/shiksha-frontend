@@ -526,6 +526,25 @@
 }
 
 @media (max-width: 768px) {
+  .courses-hero__row {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .courses-hero__row::before {
+    display: none;
+  }
+
+  .courses-hero__right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .courses-search-box {
+    max-width: 100%;
+  }
+
   .courses-tile__actions {
     display: flex;
     flex-direction: row;

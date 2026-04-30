@@ -666,7 +666,7 @@
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (min-width: 769px) {
+@media (min-width: 993px) {
   .header-user-name {
     display: block;
   }
@@ -676,101 +676,8 @@
   }
 }
 
-@media (max-width: 768px) {
-  .site-fixed-header {
-    top: 30px;
-    z-index: 9999;
-  }
-
-  .site-fixed-header--top {
-    top: 0;
-  }
-
-  .site-fixed-header-space {
-    height: 109px;
-  }
-
-  .site-fixed-header-space--small {
-    height: 118px;
-  }
-
-  .top-strip {
-    padding: 0 12px;
-    height: 30px;
-    font-size: 11px;
-    max-height: 30px;
-  }
-
-  .top-strip marquee {
-    width: 100%;
-  }
-
-  .main-header {
-    padding: 10px 14px;
-    min-height: 64px;
-    gap: 10px;
-  }
-
-  .brand-link {
-    gap: 10px;
-    min-width: 0;
-  }
-
-  .logo {
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-  }
-
-  .title h1 {
-    font-size: 16px;
-    line-height: 1.05;
-  }
-
-  .title p {
-    font-size: 8.5px;
-    letter-spacing: 0.9px;
-    line-height: 1.2;
-  }
-
-  .header-right {
-    flex-shrink: 0;
-  }
-
-  .header-auth {
-    gap: 8px;
-  }
-
-  .header-login-btn,
-  .header-signup-btn {
-    padding: 7px 12px;
-    font-size: 12px;
-  }
-
-  .header-user-name {
-    display: none;
-  }
-
-  .profile-btn {
-    padding: 8px 10px;
-  }
-
-  .profile-dropdown-user {
-    display: block;
-    padding: 10px 14px 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    margin-bottom: 4px;
-  }
-
-  .profile-dropdown-name {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #0e1c0f;
-    word-break: break-word;
-    line-height: 1.35;
-  }
-
+/* ── Tablet + Mobile: hamburger nav bar ── */
+@media (max-width: 992px) {
   .navbar-mobile-bar {
     display: flex;
     align-items: center;
@@ -844,7 +751,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    background: #041f09;
+    background: #003223;
   }
 
   .nav-menu {
@@ -856,7 +763,7 @@
     -webkit-overflow-scrolling: touch;
     padding: 0 0 12px;
     justify-content: flex-start;
-    background: #041f09;
+    background: #003223;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -1009,9 +916,7 @@
   }
 
   .nav-dashboard-li {
-    position: static;
-    right: auto;
-    margin-left: 0 !important;
+    display: none;
   }
 
   .nav-dashboard-btn {
@@ -1024,6 +929,103 @@
     right: 0;
     top: calc(100% + 8px);
     min-width: 180px;
+  }
+
+  .header-user-name {
+    display: none;
+  }
+
+  .profile-dropdown-user {
+    display: block;
+    padding: 10px 14px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 4px;
+  }
+
+  .profile-dropdown-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0e1c0f;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+}
+
+/* ── Mobile only: header & spacing adjustments ── */
+@media (max-width: 768px) {
+  .site-fixed-header {
+    top: 30px;
+    z-index: 9999;
+  }
+
+  .site-fixed-header--top {
+    top: 0;
+  }
+
+  .site-fixed-header-space {
+    height: 109px;
+  }
+
+  .site-fixed-header-space--small {
+    height: 118px;
+  }
+
+  .top-strip {
+    padding: 0 12px;
+    height: 30px;
+    font-size: 11px;
+    max-height: 30px;
+  }
+
+  .top-strip marquee {
+    width: 100%;
+  }
+
+  .main-header {
+    padding: 10px 14px;
+    min-height: 64px;
+    gap: 10px;
+  }
+
+  .brand-link {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .logo {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .title h1 {
+    font-size: 16px;
+    line-height: 1.05;
+  }
+
+  .title p {
+    font-size: 8.5px;
+    letter-spacing: 0.9px;
+    line-height: 1.2;
+  }
+
+  .header-right {
+    flex-shrink: 0;
+  }
+
+  .header-auth {
+    gap: 8px;
+  }
+
+  .header-login-btn,
+  .header-signup-btn {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .profile-btn {
+    padding: 8px 10px;
   }
 }
 

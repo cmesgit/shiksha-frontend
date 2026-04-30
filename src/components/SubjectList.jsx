@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 import '../css/SubjectList.css';
 
@@ -30,6 +31,23 @@ const Breadcrumb = ({ items, onNavigate }) => {
 const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack }) => {
   const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(0);
+  const purchaseCardRef = useRef(null);
+  const [purchaseCardVisible, setPurchaseCardVisible] = useState(false);
+
+  useEffect(() => {
+    const el = purchaseCardRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPurchaseCardVisible(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const scrollToPurchaseCard = () => {
+    purchaseCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   if (!course || !course.topics) return null;
 
@@ -196,7 +214,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
             </div>
           </div>
 
-          <aside className="purchase-card">
+          <aside className="purchase-card" ref={purchaseCardRef}>
             <h3 className="purchase-card__title">Purchase course</h3>
 
             <div className="purchase-card__plan">
@@ -224,6 +242,29 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
           </aside>
         </div>
       </div>
+      {createPortal(
+        <div
+          className={`purchase-card-float${purchaseCardVisible ? ' purchase-card-float--hidden' : ''}`}
+          onClick={scrollToPurchaseCard}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToPurchaseCard(); }}
+          aria-label="View course subscription details"
+        >
+          <div>
+            <p className="purchase-card-float__label">Subscribe</p>
+            <p className="purchase-card-float__price">{coursePrice} / month</p>
+          </div>
+          <button
+            type="button"
+            className="purchase-card-float__btn"
+            onClick={(e) => { e.stopPropagation(); scrollToPurchaseCard(); }}
+          >
+            View Plan
+          </button>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
