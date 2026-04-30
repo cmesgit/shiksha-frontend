@@ -611,8 +611,7 @@ const Courses = () => {
       return;
     }
   
-navigate("/enroll");
-
+navigate(`/enroll/${courseId}`);
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
