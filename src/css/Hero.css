@@ -238,11 +238,36 @@
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (max-width: 992px) {
+/* Tablet: side-by-side layout, smaller cards */
+@media (max-width: 992px) and (min-width: 769px) {
+  .hero-inner {
+    grid-template-columns: 1.3fr 0.8fr;
+    gap: 28px;
+    padding: 36px 24px 48px;
+  }
+  .hero-left {
+    display: flex;
+  }
+  .subject-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .scard {
+    height: 130px;
+  }
+  .updates-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Mobile: stacked layout, 2×3 grid */
+@media (max-width: 768px) {
   .hero-inner {
     grid-template-columns: 1fr;
     gap: 28px;
-    padding: 32px 24px 48px;
+    padding: 32px 20px 48px;
   }
   .hero-left {
     display: flex;
