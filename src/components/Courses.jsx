@@ -610,11 +610,9 @@ const Courses = () => {
       window.location.href = APP_URL;
       return;
     }
-<<<<<<< HEAD
-    navigate("/enroll");
-=======
-    navigate(`/enroll/${courseId}`);
->>>>>>> 025354e33ed1c9e0cf86611b75aba1ef5f6d1926
+  
+navigate("/enroll");
+
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
