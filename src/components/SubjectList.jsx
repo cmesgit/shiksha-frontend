@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { APP_URL } from '../config/urls';
+
 import '../css/SubjectList.css';
 
 const Breadcrumb = ({ items, onNavigate }) => {
