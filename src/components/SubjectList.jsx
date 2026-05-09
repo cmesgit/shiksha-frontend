@@ -232,7 +232,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
             </ul>
 <button
   className="purchase-card__btn"
-  onClick={() => navigate("/enroll")}
+    onClick={() => navigate(`/enroll/${courseId}`)}
 >
   Start Subscription
 </button>
