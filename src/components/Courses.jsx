@@ -466,46 +466,105 @@ const Courses = () => {
   const [selectedBoardGroup, setSelectedBoardGroup] = useState(
     location.state?.selectedBoardGroup || null
   );
-  const [selectedBoard, setSelectedBoard] = useState(location.state?.selectedBoard || null);
+  const [selectedBoard, setSelectedBoard] = useState(
+    location.state?.selectedBoard || null
+  );
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
+
+  const goToState = (nextState) => {
+    const state = {
+      selectedBoardGroup,
+      selectedBoard,
+      selectedClass,
+      activeCourse,
+      ...nextState,
+    };
+
+    window.history.pushState(state, '');
+  };
+
+  useEffect(() => {
+    window.history.replaceState(
+      {
+        selectedBoardGroup,
+        selectedBoard,
+        selectedClass,
+        activeCourse,
+      },
+      ''
+    );
+  }, []);
+
+  useEffect(() => {
+    const handleBrowserBack = () => {
+      if (activeCourse) {
+        setActiveCourse(null);
+        return;
+      }
+
+      if (selectedClass) {
+        setSelectedClass(null);
+        return;
+      }
+
+      if (selectedBoard) {
+        setSelectedBoard(null);
+        return;
+      }
+
+      if (selectedBoardGroup) {
+        setSelectedBoardGroup(null);
+      }
+    };
+
+    window.addEventListener('popstate', handleBrowserBack);
+
+    return () => {
+      window.removeEventListener('popstate', handleBrowserBack);
+    };
+  }, [activeCourse, selectedClass, selectedBoard, selectedBoardGroup]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       setEnrollmentStatusByCourseId({});
       return;
     }
+
     let cancelled = false;
+
     getMyEnrollmentRequests()
       .then((data) => {
         if (cancelled) return;
+
         const list = Array.isArray(data) ? data : data?.results || [];
-        // APPROVED wins over PENDING wins over REJECTED when multiple requests exist.
         const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
         const map = {};
+
         for (const req of list) {
           const cid = req?.course?.id;
           if (!cid) continue;
+
           const existing = map[cid];
           if (!existing || (priority[req.status] || 0) > (priority[existing] || 0)) {
             map[cid] = req.status;
           }
         }
+
         setEnrollmentStatusByCourseId(map);
       })
-      .catch(() => {
-        // Non-fatal — default to no known status; button stays "ENROLL NOW".
-      });
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, [isAuthenticated]);
 
-useEffect(() => {
-  window.scrollTo(0, 0);
-}, [selectedBoardGroup, selectedBoard]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedBoardGroup, selectedBoard, selectedClass, activeCourse]);
 
   useEffect(() => {
     if (location.state?.resetCourses) {
@@ -534,9 +593,11 @@ useEffect(() => {
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
+
     const pool = selectedBoardGroup
-      ? (BOARD_OPTIONS[selectedBoardGroup] || [])
+      ? BOARD_OPTIONS[selectedBoardGroup] || []
       : ALL_BOARDS;
+
     return pool.filter(
       (b) =>
         b.title.toLowerCase().includes(q) ||
@@ -547,6 +608,14 @@ useEffect(() => {
 
   const handleSearchBoardSelect = (board) => {
     if (board.locked) return;
+
+    goToState({
+      selectedBoardGroup: board.groupId,
+      selectedBoard: board.id,
+      selectedClass: null,
+      activeCourse: null,
+    });
+
     setSearchQuery('');
     setSelectedBoardGroup(board.groupId);
     setSelectedBoard(board.id);
@@ -556,6 +625,7 @@ useEffect(() => {
 
   const handleTrailClick = (key) => {
     setSearchQuery('');
+
     if (key === 'boards') {
       setSelectedBoardGroup(null);
       setSelectedBoard(null);
@@ -578,6 +648,13 @@ useEffect(() => {
   };
 
   const handleBoardGroupSelect = (groupId) => {
+    goToState({
+      selectedBoardGroup: groupId,
+      selectedBoard: null,
+      selectedClass: null,
+      activeCourse: null,
+    });
+
     setSearchQuery('');
     setSelectedBoardGroup(groupId);
     setSelectedBoard(null);
@@ -586,6 +663,13 @@ useEffect(() => {
   };
 
   const handleBoardSelect = (boardId) => {
+    goToState({
+      selectedBoardGroup,
+      selectedBoard: boardId,
+      selectedClass: null,
+      activeCourse: null,
+    });
+
     setSearchQuery('');
     setSelectedBoard(boardId);
     setSelectedClass(null);
@@ -593,8 +677,17 @@ useEffect(() => {
   };
 
   const handleClassSelect = (cls) => {
-    setSelectedClass(cls);
     const course = resolvedCourseData[cls.id];
+
+    goToState({
+      selectedBoardGroup,
+      selectedBoard,
+      selectedClass: cls,
+      activeCourse: course || null,
+    });
+
+    setSelectedClass(cls);
+
     if (course) {
       setActiveCourse(course);
     }
@@ -602,24 +695,41 @@ useEffect(() => {
 
   const handleEnrollNow = (cls) => {
     const courseId = cls.courseIds?.[selectedBoard];
+
     if (!courseId) {
-      alert(`${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${currentBoard?.title || 'this board'}.`);
+      alert(
+        `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
+          currentBoard?.title || 'this board'
+        }.`
+      );
       return;
     }
+
     if (enrollmentStatusByCourseId[courseId] === 'APPROVED') {
       window.location.href = APP_URL;
       return;
     }
-  
-navigate(`/enroll/${courseId}`);
+
+    navigate(`/enroll/${courseId}`);
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
     <div className="courses-search-box">
-      <svg className="courses-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="courses-search-icon"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
+
       <input
         type="text"
         className="courses-search-input"
@@ -627,10 +737,24 @@ navigate(`/enroll/${courseId}`);
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
+
       {searchQuery && (
-        <button className="courses-search-clear" onClick={() => setSearchQuery('')} aria-label="Clear">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        <button
+          className="courses-search-clear"
+          onClick={() => setSearchQuery('')}
+          aria-label="Clear"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       )}
@@ -676,7 +800,6 @@ navigate(`/enroll/${courseId}`);
 
           if (level === 'class') {
             setActiveCourse(null);
-          
           }
         }}
       />
@@ -686,7 +809,9 @@ navigate(`/enroll/${courseId}`);
   if (selectedBoard) {
     const classesToShow = searchQuery.trim()
       ? CLASSES.filter((cls) =>
-          `${cls.title} ${cls.subtitle || ''}`.toLowerCase().includes(searchQuery.trim().toLowerCase())
+          `${cls.title} ${cls.subtitle || ''}`
+            .toLowerCase()
+            .includes(searchQuery.trim().toLowerCase())
         )
       : CLASSES;
 
@@ -707,7 +832,8 @@ navigate(`/enroll/${courseId}`);
 
           {searchQuery.trim() && (
             <p className="courses-search-count">
-              {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;{searchQuery.trim()}&rdquo;
+              {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;
+              {searchQuery.trim()}&rdquo;
             </p>
           )}
 
@@ -716,6 +842,7 @@ navigate(`/enroll/${courseId}`);
               {classesToShow.map((cls) => {
                 const cid = cls.courseIds?.[selectedBoard];
                 const status = cid ? enrollmentStatusByCourseId[cid] : undefined;
+
                 return (
                   <ClassCourseTile
                     key={cls.id}
@@ -735,7 +862,9 @@ navigate(`/enroll/${courseId}`);
               })}
             </div>
           ) : (
-            <p className="courses-search-empty">No classes found for &ldquo;{searchQuery.trim()}&rdquo;</p>
+            <p className="courses-search-empty">
+              No classes found for &ldquo;{searchQuery.trim()}&rdquo;
+            </p>
           )}
         </div>
       </section>
@@ -745,7 +874,7 @@ navigate(`/enroll/${courseId}`);
   if (selectedBoardGroup) {
     const boardsToShow = searchQuery.trim()
       ? searchResults
-      : (BOARD_OPTIONS[selectedBoardGroup] || []);
+      : BOARD_OPTIONS[selectedBoardGroup] || [];
 
     return (
       <section className="courses-page">
@@ -763,7 +892,8 @@ navigate(`/enroll/${courseId}`);
 
           {searchQuery.trim() && (
             <p className="courses-search-count">
-              {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;{searchQuery.trim()}&rdquo;
+              {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;
+              {searchQuery.trim()}&rdquo;
             </p>
           )}
 
@@ -783,7 +913,9 @@ navigate(`/enroll/${courseId}`);
               ))}
             </div>
           ) : (
-            <p className="courses-search-empty">No boards found for &ldquo;{searchQuery.trim()}&rdquo;</p>
+            <p className="courses-search-empty">
+              No boards found for &ldquo;{searchQuery.trim()}&rdquo;
+            </p>
           )}
         </div>
       </section>
@@ -798,17 +930,22 @@ navigate(`/enroll/${courseId}`);
           subtitle=""
           trail={[{ key: 'boards', label: 'Boards' }]}
           onTrailClick={handleTrailClick}
-          rightSlot={searchBar}
+          rightSlot={searchBar()}
         />
 
         {searchQuery.trim() ? (
           searchResults.length > 0 ? (
             <div>
-              <p className="courses-search-count">{searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;{searchQuery.trim()}&rdquo;</p>
+              <p className="courses-search-count">
+                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;
+                {searchQuery.trim()}&rdquo;
+              </p>
+
               <div className="courses-grid courses-grid--board-options">
                 {searchResults.map((board) => (
                   <div key={board.id} className="courses-search-result">
                     <span className="courses-search-group-tag">{board.groupLabel}</span>
+
                     <CourseTile
                       image={board.image}
                       boardCode={board.boardCode}
@@ -823,7 +960,9 @@ navigate(`/enroll/${courseId}`);
               </div>
             </div>
           ) : (
-            <p className="courses-search-empty">No boards found for &ldquo;{searchQuery.trim()}&rdquo;</p>
+            <p className="courses-search-empty">
+              No boards found for &ldquo;{searchQuery.trim()}&rdquo;
+            </p>
           )
         ) : (
           <div className="courses-grid courses-grid--boards">
