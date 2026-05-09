@@ -242,16 +242,29 @@ const Navbar = () => {
         </header>
 
         <nav className="navbar navbar-pc">
-          <button
-            className={`hamburger-btn${mobileOpen ? " open" : ""}`}
-            onClick={toggleMobileMenu}
-            aria-label="Toggle menu"
-            type="button"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
+          <div className="navbar-mobile-bar">
+            <button
+              className={`hamburger-btn${mobileOpen ? " open" : ""}`}
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+              type="button"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+
+            {isAuthenticated && user && (
+              <button
+                type="button"
+                className="mobile-nav-dashboard-btn"
+                onClick={handleDashboard}
+              >
+                Dashboard
+                <FiArrowUpRight size={14} />
+              </button>
+            )}
+          </div>
 
           <ul className={`nav-menu${mobileOpen ? " mobile-open" : ""}`}>
             <li>

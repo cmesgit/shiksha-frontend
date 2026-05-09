@@ -268,14 +268,14 @@ function App() {
             </Page>
           }
         />
-        <Route
-          path="/blogs/:id"
-          element={
-            <Page>
-              <BlogDetail />
-            </Page>
-          }
-        />
+   <Route
+  path="/blogs/*"
+  element={
+    <Page>
+      <BlogDetail />
+    </Page>
+  }
+/>
         <Route
           path="/counselling"
           element={

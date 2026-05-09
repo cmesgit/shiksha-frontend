@@ -16,12 +16,18 @@ const Blogs = () => {
         {blogsData.map((blog) => (
           <Link
             key={blog.id}
-            to={`/blogs/${blog.id}`}
+            to={blog.slug ? `/blogs/${blog.slug}` : "#"}
             className="blog-list-card"
           >
             <div className="blog-list-image-wrap">
-              <img src={blog.thumbnail} alt={blog.title} className="blog-list-image" />
-              <span className="blog-list-category">{blog.category}</span>
+              <img
+                src={blog.thumbnail}
+                alt={blog.title}
+                className="blog-list-image"
+              />
+              <span className="blog-list-category">
+                {blog.category}
+              </span>
             </div>
 
             <div className="blog-list-content">
@@ -29,7 +35,7 @@ const Blogs = () => {
               <p>{blog.subtitle}</p>
 
               <div className="blog-list-tags">
-                {blog.tags.slice(0, 4).map((tag) => (
+                {blog.tags?.slice(0, 4).map((tag) => (
                   <span key={tag}>{tag}</span>
                 ))}
               </div>
