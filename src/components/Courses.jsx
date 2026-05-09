@@ -503,9 +503,9 @@ const Courses = () => {
     };
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [selectedBoardGroup, selectedBoard, selectedClass, activeCourse]);
+useEffect(() => {
+  window.scrollTo(0, 0);
+}, [selectedBoardGroup, selectedBoard]);
 
   useEffect(() => {
     if (location.state?.resetCourses) {
@@ -676,13 +676,7 @@ navigate(`/enroll/${courseId}`);
 
           if (level === 'class') {
             setActiveCourse(null);
-             // scroll back to previous classes section
-    setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }, 50);
+          
           }
         }}
       />
