@@ -653,3 +653,68 @@
     background: #e8f5e9;
   }
 }
+
+/* =========================================
+   MOBILE SEE MORE FIX
+========================================= */
+
+/* desktop */
+.course-mobile-hidden {
+  display: block;
+}
+
+.course-mobile-toggle-btn {
+  display: none;
+}
+
+/* mobile */
+@media (max-width: 700px) {
+
+  /* hide extra content initially */
+  .course-mobile-hidden {
+    display: none;
+  }
+
+  /* show after click */
+  .course-mobile-hidden.show-mobile-content {
+    display: block;
+  }
+
+  /* button visible only mobile */
+  .course-mobile-toggle-btn {
+    display: inline-block;
+    margin-top: 10px;
+    border: none;
+    background: transparent;
+    color: #ff8f01;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
+
+/* =========================================
+   MOBILE SECTION SEE MORE
+========================================= */
+
+.course-mobile-section-btn {
+  display: none;
+}
+
+@media (max-width: 700px) {
+
+  .course-mobile-section-btn {
+    display: inline-block;
+    margin-top: 12px;
+    border: none;
+    background: transparent;
+    color: #ff8f01;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
