@@ -30,7 +30,7 @@ import stateImg from '../assets/courses/state.jpeg';
 const BOARD_GROUPS = [
   {
     id: 'central',
-    title: 'Central Board',
+    title: 'JABREEZE A WOW',
     desc: 'National Curriculum Boards',
     image: centralImg,
   },
