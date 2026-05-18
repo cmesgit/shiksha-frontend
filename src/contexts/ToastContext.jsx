@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import Toast from "../components/Toast";
 
 const ToastContext = createContext(null);
@@ -13,6 +13,17 @@ export const ToastProvider = ({ children }) => {
 
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem("pending_toast");
+      if (pending) {
+        sessionStorage.removeItem("pending_toast");
+        const { message, type, duration } = JSON.parse(pending);
+        setToasts([{ id: Date.now(), message, type, duration }]);
+      }
+    } catch (_) { /* sessionStorage unavailable */ }
   }, []);
 
   return (

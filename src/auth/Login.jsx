@@ -51,8 +51,6 @@ const Login = () => {
       const roles = Array.isArray(loggedInUser?.roles) ? loggedInUser.roles : [];
       const isTeacher = roles.some((r) => String(r).toLowerCase() === "teacher");
 
-      showToast({ message: "You are logged in! Welcome back.", duration: 2500 });
-
       let redirectTo = HOME_URL;
       try {
         const stashed = sessionStorage.getItem("post_auth_redirect");
@@ -60,6 +58,14 @@ const Login = () => {
           redirectTo = stashed;
         }
         sessionStorage.removeItem("post_auth_redirect");
+      } catch (_) { /* sessionStorage unavailable */ }
+
+      try {
+        sessionStorage.setItem("pending_toast", JSON.stringify({
+          message: "You are logged in! Welcome back.",
+          type: "success",
+          duration: 2500,
+        }));
       } catch (_) { /* sessionStorage unavailable */ }
 
       window.location.href = redirectTo;
