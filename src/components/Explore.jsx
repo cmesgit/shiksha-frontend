@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../css/Insight.css';
+import '../css/Explore.css';
 
 const stripHtml = (html) => {
   if (!html) return '';
@@ -8,7 +8,7 @@ const stripHtml = (html) => {
   return tmp.textContent || tmp.innerText || '';
 };
 
-const Insight = () => {
+const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [articleData, setArticleData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -283,14 +283,14 @@ const Insight = () => {
   // const generateAISummary = async (text) => { ... }
 
   return (
-    <div className="insight-page">
+    <div className="explore-page">
       {/* Header with Search Bar */}
-      <header className="insight-header">
-        <div className="insight-container">
-          <div className="insight-search-bar">
+      <header className="explore-header">
+        <div className="explore-container">
+          <div className="explore-search-bar">
             <input
               type="text"
-              placeholder="Search insights..."
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyPress}
@@ -311,8 +311,8 @@ const Insight = () => {
       </header>
 
       {/* Main Content */}
-      <div className="insight-container">
-        <div className="insight-grid">
+      <div className="explore-container">
+        <div className="explore-grid">
           {/* Main Article */}
           <main>
             {loading ? (
@@ -321,7 +321,7 @@ const Insight = () => {
                 <p>Loading article...</p>
               </div>
             ) : articleData ? (
-              <article className="insight-article-content">
+              <article className="explore-article-content">
                 <h1>{articleData.title}</h1>
 
                 {articleData.description && (
@@ -329,7 +329,7 @@ const Insight = () => {
                 )}
 
                 {articleData.sections && articleData.sections.length > 0 && (
-                  <div className="insight-toc">
+                  <div className="explore-toc">
                     <h2>Contents</h2>
                     <ol>
                       {articleData.sections.map((section, index) => (
@@ -351,7 +351,7 @@ const Insight = () => {
                   );
                 })}
 
-                {/*<section className="insight-related-topics">
+                {/*<section className="explore-related-topics">
                   <h2>Related Topics</h2>
                   <ul>
                     {articleData.relatedTopics && articleData.relatedTopics.length > 0 ? (
@@ -384,7 +384,7 @@ const Insight = () => {
                 </section>*/}
               </article>
             ) : (
-              <article className="insight-article-content">
+              <article className="explore-article-content">
                 <h1>Welcome to ShikshaCom Explore</h1>
                 <p>
                   Search for any topic above to get comprehensive information.
@@ -400,7 +400,7 @@ const Insight = () => {
           <div className="right-column">
             {/* Left Sidebar */}
             <aside>
-              <div className="insight-sidebar">
+              <div className="explore-sidebar">
                 <h3>Categories</h3>
                 <ol>
                   <li><a href="#">Education</a></li>
@@ -429,7 +429,7 @@ const Insight = () => {
             {/* Right Sidebar - Infobox */}
             <aside>
               {articleData ? (
-                <div className="insight-infobox">
+                <div className="explore-infobox">
                   <h3>{articleData.title}</h3>
 
                   {/* Basic Info */}
@@ -481,7 +481,7 @@ const Insight = () => {
                   </ul>
                 </div>
               ) : (
-                <div className="insight-infobox">
+                <div className="explore-infobox">
                   <h3>ShikshaCom Explore</h3>
                   <img src="/Shiksha.png" alt="Shiksha" />
                   <p>Search for any topic to see structured information.</p>
@@ -502,4 +502,4 @@ const Insight = () => {
   );
 };
 
-export default Insight;  
+export default Explore;

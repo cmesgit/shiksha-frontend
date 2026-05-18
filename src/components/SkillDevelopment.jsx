@@ -2,8 +2,8 @@ import '../css/Upcoming.css';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-const Training = () => {
-  const trainingFeatures = [
+const SkillDevelopment = () => {
+  const skillDevelopmentFeatures = [
     {
       title: "Industrial Training Programs",
       description: "Hands-on training in various industrial sectors including manufacturing, IT, and engineering",
@@ -41,13 +41,13 @@ const Training = () => {
       <div className="upcoming-page-content">
         <Navbar />
         <div className="upcoming-container">
-          <h1>Skill Developemnt Programs - Coming Soon </h1>
+          <h1>Skill Development Programs - Coming Soon </h1>
           <p className="upcoming-page-description">
-            We're developing comprehensive training programs to empower learners and professionals. Here's what's in our pipeline:
+            We're developing comprehensive skill development programs to empower learners and professionals. Here's what's in our pipeline:
           </p>
 
           <div className="upcoming-features-grid">
-            {trainingFeatures.map((feature, index) => (
+            {skillDevelopmentFeatures.map((feature, index) => (
               <div key={index} className="upcoming-feature-card">
                 <div className="upcoming-feature-header">
                   <h3>{feature.title}</h3>
@@ -64,7 +64,7 @@ const Training = () => {
 
           <div className="upcoming-cta-section">
             <h2>Stay Updated</h2>
-            <p>Be the first to know when our training programs launch!</p>
+            <p>Be the first to know when our skill development programs launch!</p>
             <div className="upcoming-cta-buttons">
               <button className="upcoming-notify-btn">Notify Me</button>
               <button className="upcoming-back-btn" onClick={() => window.history.back()}>
@@ -79,4 +79,4 @@ const Training = () => {
   );
 };
 
-export default Training;
+export default SkillDevelopment;

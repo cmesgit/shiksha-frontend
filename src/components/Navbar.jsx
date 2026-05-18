@@ -388,7 +388,7 @@ const Navbar = () => {
                 </li>
 
                 <li>
-                  <NavLink to="/insight" onClick={closeMobileMenu}>
+                  <NavLink to="/explore" onClick={closeMobileMenu}>
                     Explore
                   </NavLink>
                 </li>
@@ -414,12 +414,12 @@ const Navbar = () => {
 
                   <ul className="dropdown-menu nested-menu">
                     <li>
-                      <NavLink to="/training" onClick={closeMobileMenu}>
+                      <NavLink to="/skill-development" onClick={closeMobileMenu}>
                         Industrial
                       </NavLink>
                     </li>
                     <li>
-                      <NavLink to="/training" onClick={closeMobileMenu}>
+                      <NavLink to="/skill-development" onClick={closeMobileMenu}>
                         Specialized
                       </NavLink>
                     </li>
