@@ -1,6 +1,11 @@
 import React from "react";
 import teachersData from "../data/teachersData";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 import "../css/teachers-section.css";
+import "../css/teachers-slider.css";
 
 const TeachersSection = () => {
   return (
@@ -18,25 +23,40 @@ const TeachersSection = () => {
           </p>
         </div>
 
-        <div className="teachers-grid">
+        <Swiper
+          className="teachers-swiper"
+          modules={[Navigation, Autoplay]}
+          navigation
+          autoplay={{ delay: 2500, pauseOnMouseEnter: true }}
+          loop={true}
+          spaceBetween={20}
+          slidesPerView={4}
+          breakpoints={{
+            0: { slidesPerView: 1, spaceBetween: 14 },
+            576: { slidesPerView: 2, spaceBetween: 16 },
+            768: { slidesPerView: 3, spaceBetween: 18 },
+            1024: { slidesPerView: 4, spaceBetween: 20 },
+          }}
+        >
           {teachersData.map((teacher) => (
-            <div className="teacher-card" key={teacher.id}>
-              <div className="teacher-image-wrapper">
-                <img
-                  src={teacher.image}
-                  alt={teacher.name}
-                  className="teacher-image"
-                  loading="lazy"
-                />
+            <SwiperSlide key={teacher.id}>
+              <div className="teacher-slider-card">
+                <div className="teacher-slider-image-wrap">
+                  <img
+                    src={teacher.image}
+                    alt={teacher.name}
+                    className="teacher-slider-image"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="teacher-slider-info">
+                  <h3>{teacher.name}</h3>
+                  <p>{teacher.subject}</p>
+                </div>
               </div>
-
-              <div className="teacher-info">
-                <h3 className="teacher-name">{teacher.name}</h3>
-                <p className="teacher-subject">{teacher.subject}</p>
-              </div>
-            </div>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </div>
     </section>
   );
