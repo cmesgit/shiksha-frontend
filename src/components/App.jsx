@@ -237,7 +237,7 @@ function App() {
         />
 
         <Route
-          path="/courses"
+          path="/courses/*"
           element={
             <Page>
               <Courses />

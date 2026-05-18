@@ -474,17 +474,17 @@ const Courses = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
 
-  const goToState = (nextState) => {
-    const state = {
+const goToState = (url, nextState = {}) => {
+  navigate(url, {
+    state: {
       selectedBoardGroup,
       selectedBoard,
       selectedClass,
       activeCourse,
       ...nextState,
-    };
-
-    window.history.pushState(state, '');
-  };
+    },
+  });
+};
 
   useEffect(() => {
     window.history.replaceState(
@@ -575,6 +575,63 @@ const Courses = () => {
     }
   }, [location.state]);
 
+
+useEffect(() => {
+  const pathParts = location.pathname.split('/').filter(Boolean);
+
+  // /courses
+  if (pathParts.length === 1) {
+    setSelectedBoardGroup(null);
+    setSelectedBoard(null);
+    setSelectedClass(null);
+    setActiveCourse(null);
+    return;
+  }
+
+  // /courses/state
+  if (pathParts.length === 2) {
+    setSelectedBoardGroup(pathParts[1]);
+    setSelectedBoard(null);
+    setSelectedClass(null);
+    setActiveCourse(null);
+    return;
+  }
+
+  // /courses/state/mbse
+  if (pathParts.length === 3) {
+    setSelectedBoardGroup(pathParts[1]);
+    setSelectedBoard(pathParts[2]);
+    setSelectedClass(null);
+    setActiveCourse(null);
+    return;
+  }
+
+  // /courses/state/mbse/class9
+  if (pathParts.length === 4) {
+    const boardGroup = pathParts[1];
+    const board = pathParts[2];
+    const classId = pathParts[3];
+
+    const cls = CLASSES.find((c) => c.id === classId);
+
+    setSelectedBoardGroup(boardGroup);
+    setSelectedBoard(board);
+    setSelectedClass(cls || null);
+
+    if (cls) {
+      const course =
+        board === 'mbse'
+          ? mbseCourseData[classId]
+          : courseData[classId];
+
+      setActiveCourse(course || null);
+    }
+
+    return;
+  }
+}, [location.pathname]);
+
+
   const currentBoardGroup = useMemo(
     () => BOARD_GROUPS.find((item) => item.id === selectedBoardGroup),
     [selectedBoardGroup]
@@ -606,54 +663,76 @@ const Courses = () => {
     );
   }, [searchQuery, selectedBoardGroup]);
 
-  const handleSearchBoardSelect = (board) => {
-    if (board.locked) return;
+const handleSearchBoardSelect = (board) => {
+  if (board.locked) return;
 
-    goToState({
+  goToState(
+    `/courses/${board.groupId}/${board.id}`,
+    {
       selectedBoardGroup: board.groupId,
       selectedBoard: board.id,
       selectedClass: null,
       activeCourse: null,
-    });
+    }
+  );
 
-    setSearchQuery('');
-    setSelectedBoardGroup(board.groupId);
-    setSelectedBoard(board.id);
+  setSearchQuery('');
+  setSelectedBoardGroup(board.groupId);
+  setSelectedBoard(board.id);
+  setSelectedClass(null);
+  setActiveCourse(null);
+};
+
+const handleTrailClick = (key) => {
+  setSearchQuery('');
+
+  // GO BACK TO ALL BOARDS
+  if (key === 'boards') {
+    navigate('/courses');
+
+    setSelectedBoardGroup(null);
+    setSelectedBoard(null);
     setSelectedClass(null);
     setActiveCourse(null);
-  };
+    return;
+  }
 
-  const handleTrailClick = (key) => {
-    setSearchQuery('');
+  // GO BACK TO BOARD GROUP
+  if (key === 'boardGroup') {
+    navigate(`/courses/${selectedBoardGroup}`);
 
-    if (key === 'boards') {
-      setSelectedBoardGroup(null);
-      setSelectedBoard(null);
-      setSelectedClass(null);
-      setActiveCourse(null);
-      return;
-    }
+    setSelectedBoard(null);
+    setSelectedClass(null);
+    setActiveCourse(null);
+    return;
+  }
 
-    if (key === 'boardGroup') {
-      setSelectedBoard(null);
-      setSelectedClass(null);
-      setActiveCourse(null);
-      return;
-    }
+  // GO BACK TO BOARD
+  if (key === 'board') {
+    navigate(`/courses/${selectedBoardGroup}/${selectedBoard}`);
 
-    if (key === 'board') {
-      setSelectedClass(null);
-      setActiveCourse(null);
-    }
-  };
+    setSelectedClass(null);
+    setActiveCourse(null);
+    return;
+  }
 
-  const handleBoardGroupSelect = (groupId) => {
-    goToState({
-      selectedBoardGroup: groupId,
-      selectedBoard: null,
-      selectedClass: null,
-      activeCourse: null,
-    });
+  // GO BACK TO CLASS PAGE
+  if (key === 'class') {
+    navigate(
+      `/courses/${selectedBoardGroup}/${selectedBoard}/${selectedClass?.id}`
+    );
+
+    setActiveCourse(null);
+  }
+};
+
+const handleBoardGroupSelect = (groupId) => {
+  goToState(`/courses/${groupId}`, {
+    selectedBoardGroup: groupId,
+    selectedBoard: null,
+    selectedClass: null,
+    activeCourse: null,
+  });
 
     setSearchQuery('');
     setSelectedBoardGroup(groupId);
@@ -662,13 +741,13 @@ const Courses = () => {
     setActiveCourse(null);
   };
 
-  const handleBoardSelect = (boardId) => {
-    goToState({
-      selectedBoardGroup,
-      selectedBoard: boardId,
-      selectedClass: null,
-      activeCourse: null,
-    });
+const handleBoardSelect = (boardId) => {
+  goToState(`/courses/${selectedBoardGroup}/${boardId}`, {
+    selectedBoardGroup,
+    selectedBoard: boardId,
+    selectedClass: null,
+    activeCourse: null,
+  });
 
     setSearchQuery('');
     setSelectedBoard(boardId);
@@ -676,10 +755,12 @@ const Courses = () => {
     setActiveCourse(null);
   };
 
-  const handleClassSelect = (cls) => {
-    const course = resolvedCourseData[cls.id];
+const handleClassSelect = (cls) => {
+  const course = resolvedCourseData[cls.id];
 
-    goToState({
+  goToState(
+    `/courses/${selectedBoardGroup}/${selectedBoard}/${cls.id}`,
+    {
       selectedBoardGroup,
       selectedBoard,
       selectedClass: cls,
@@ -777,31 +858,8 @@ const Courses = () => {
             : selectedClass?.title
         }
         onBack={(level) => {
-          if (level === 'boards') {
-            setSelectedBoardGroup(null);
-            setSelectedBoard(null);
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
-          }
-
-          if (level === 'boardGroup') {
-            setSelectedBoard(null);
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
-          }
-
-          if (level === 'board') {
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
-          }
-
-          if (level === 'class') {
-            setActiveCourse(null);
-          }
-        }}
+  handleTrailClick(level);
+}}
       />
     );
   }
