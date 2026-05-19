@@ -54,6 +54,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, LOGIN_URL } from "../config/urls";
 import Blogs from "./Blogs";
 import BlogDetail from "./BlogDetail";
+import ProfileFillupModal from "./ProfileFillupModal";
+import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -100,8 +102,10 @@ function App() {
   if (loading) return null;
 
   return (
+    <ProfileModalProvider>
     <div className="app">
       <ScrollToTop />
+      <ProfileFillupModal />
 
       <Routes>
         <Route path="/" element={<AppEntry isAuthenticated={isAuthenticated} />} />
@@ -346,6 +350,7 @@ function App() {
         />
       </Routes>
     </div>
+    </ProfileModalProvider>
   );
 }
 

@@ -34,33 +34,69 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="verify-container">
-      <div className="verify-card">
-        <div className="verify-icon">✉️</div>
-        <h2>Verify Your Email</h2>
-        <p className="verify-desc">
-          We've sent a verification link to{" "}
-          {email ? <strong>{email}</strong> : "your email"}.
-          Please check your inbox and click the link to verify your account.
+    <div className="ve-container">
+      {/* Decorative glows — mirrors Login page */}
+      <div className="ve-glow ve-glow--tl" />
+      <div className="ve-glow ve-glow--br" />
+      <div className="ve-glow ve-glow--tr" />
+      <div className="ve-glow ve-glow--center" />
+
+      <div className="ve-card">
+        {/* Envelope icon */}
+        <div className="ve-icon-wrap">
+          <svg
+            className="ve-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="2" y="4" width="20" height="16" rx="2.5" />
+            <path d="m2 7 10 6.5L22 7" />
+          </svg>
+        </div>
+
+        <h2 className="ve-title">Check your inbox</h2>
+
+        <p className="ve-desc">
+          We&apos;ve sent a verification link to{" "}
+          {email ? (
+            <strong className="ve-email">{email}</strong>
+          ) : (
+            "your email address"
+          )}
+          . Click the link in the email to activate your account.
         </p>
 
-        <p className="verify-note">
-          Didn't receive the email? Check your spam folder or click below to resend.
+        <p className="ve-note">
+          Didn&apos;t receive it? Check your spam folder or resend below.
         </p>
 
         <button
-          className="verify-resend-btn"
+          className="ve-btn"
           onClick={handleResend}
           disabled={resending}
         >
-          {resending ? "Sending..." : "Resend Verification Email"}
+          {resending ? (
+            <><span className="ve-btn__spinner" /> Sending…</>
+          ) : (
+            "Resend Verification Email"
+          )}
         </button>
 
-        {message && <p className="verify-success">{message}</p>}
-        {error && <p className="verify-error">{error}</p>}
+        {message && (
+          <div className="ve-alert ve-alert--success">{message}</div>
+        )}
+        {error && (
+          <div className="ve-alert ve-alert--error">{error}</div>
+        )}
 
-        <p className="verify-footer">
-          Already verified? <Link to="/login">Sign in</Link>
+        <p className="ve-footer">
+          Already verified?{" "}
+          <Link to="/login" className="ve-link">Sign in →</Link>
         </p>
       </div>
     </div>

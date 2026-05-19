@@ -5,6 +5,7 @@ import SubjectList from './SubjectList';
 import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
 import { useAuth } from '../contexts/AuthContext';
+import { useProfileModal } from '../contexts/ProfileModalContext';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { APP_URL } from '../config/urls';
 
@@ -461,7 +462,8 @@ const ALL_BOARDS = [
 const Courses = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const { openWithMessage } = useProfileModal();
 
   const [selectedBoardGroup, setSelectedBoardGroup] = useState(
     location.state?.selectedBoardGroup || null
@@ -694,6 +696,16 @@ const Courses = () => {
   };
 
   const handleEnrollNow = (cls) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    if (user?.profile_complete === false) {
+      openWithMessage('Please complete your profile to enroll in a course.');
+      return;
+    }
+
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
@@ -710,7 +722,7 @@ const Courses = () => {
       return;
     }
 
-    navigate(`/enroll/${courseId}`);
+    setEnrollModalCourseId(courseId);
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
@@ -762,47 +774,37 @@ const Courses = () => {
   );
 
   if (activeCourse) {
+    const activeCourseId = selectedClass?.courseIds?.[selectedBoard];
     return (
-      <SubjectList
-        course={activeCourse}
-        courseId={selectedClass?.courseIds?.[selectedBoard]}
-        enrollmentStatus={
-          enrollmentStatusByCourseId[selectedClass?.courseIds?.[selectedBoard]]
-        }
-        boardGroup={currentBoardGroup?.title}
-        board={currentBoard?.title}
-        selectedClass={
-          selectedClass?.subtitle
-            ? `${selectedClass.title} (${selectedClass.subtitle})`
-            : selectedClass?.title
-        }
-        onBack={(level) => {
-          if (level === 'boards') {
-            setSelectedBoardGroup(null);
-            setSelectedBoard(null);
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
+      <>
+        <SubjectList
+          course={activeCourse}
+          courseId={activeCourseId}
+          enrollmentStatus={enrollmentStatusByCourseId[activeCourseId]}
+          boardGroup={currentBoardGroup?.title}
+          board={currentBoard?.title}
+          selectedClass={
+            selectedClass?.subtitle
+              ? `${selectedClass.title} (${selectedClass.subtitle})`
+              : selectedClass?.title
           }
-
-          if (level === 'boardGroup') {
-            setSelectedBoard(null);
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
-          }
-
-          if (level === 'board') {
-            setSelectedClass(null);
-            setActiveCourse(null);
-            return;
-          }
-
-          if (level === 'class') {
-            setActiveCourse(null);
-          }
-        }}
-      />
+          onBack={(level) => { handleTrailClick(level); }}
+          onEnroll={() => {
+            if (!isAuthenticated) { navigate('/login'); return; }
+            if (user?.profile_complete === false) {
+              openWithMessage('Please complete your profile to subscribe to a course.');
+              return;
+            }
+            setEnrollModalCourseId(activeCourseId);
+          }}
+        />
+        {enrollModalCourseId && (
+          <EnrollModal
+            courseId={enrollModalCourseId}
+            onClose={() => setEnrollModalCourseId(null)}
+          />
+        )}
+      </>
     );
   }
 

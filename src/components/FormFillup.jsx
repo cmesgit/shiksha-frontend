@@ -65,7 +65,7 @@ const STUDENT_STEPS = ["Basic Details", "Parent Information", "Academic Informat
 const TEACHER_STEPS_COURSE = ["Basic Details", "Professional Background", "Course Application", "Verification"];
 const TEACHER_STEPS_SKILL = ["Basic Details", "Professional Background", "Specialized Skill", "Verification"];
 
-const FormFillup = () => {
+const FormFillup = ({ onSuccess } = {}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { bootstrap } = useAuth();
@@ -465,8 +465,12 @@ const FormFillup = () => {
       await submitFormFillup(fd);
 
       await bootstrap();
-      setSuccess("Profile submitted successfully! Redirecting...");
-      setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        setSuccess("Profile submitted successfully! Redirecting...");
+        setTimeout(() => navigate("/dashboard", { replace: true }), 1500);
+      }
     } catch (err) {
       const raw = extractError(err);
       const msg = raw instanceof Error ? raw.message : typeof raw === "string" ? raw : "Failed to save. Please try again.";

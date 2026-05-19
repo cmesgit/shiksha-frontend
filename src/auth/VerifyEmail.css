@@ -1,133 +1,257 @@
-.verify-container {
-  min-height: 100vh;
+/* ═══════════════════════════════════════════
+   VERIFY EMAIL PAGE
+   ═══════════════════════════════════════════ */
+
+/* ── Container — matches Login page background ── */
+.ve-container {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
   padding: 24px;
-  background: linear-gradient(180deg, #f8f4df 0%, #f5f5dc 100%);
+  background-color: #041f09;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  overflow: hidden;
 }
 
-.verify-card {
+/* ── Radial glow orbs — mirrors Login page ── */
+.ve-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ve-glow--tl {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 200, 100, 0.22), transparent 70%);
+  top: -160px;
+  left: -140px;
+}
+
+.ve-glow--br {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(0, 180, 80, 0.2), transparent 70%);
+  bottom: -150px;
+  right: -120px;
+}
+
+.ve-glow--tr {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, rgba(0, 200, 100, 0.2), transparent 70%);
+  top: -140px;
+  right: -120px;
+}
+
+.ve-glow--center {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(50, 220, 120, 0.12), transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── Card ── */
+.ve-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 440px;
-  background: #fff;
-  padding: 2.5rem 2rem;
-  border-radius: 14px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  padding: 2.6rem 2.2rem 2.2rem;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
   text-align: center;
-  animation: loginCardEnter 0.45s ease;
+  animation: ve-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.verify-icon {
-  font-size: 3rem;
-  margin-bottom: 12px;
+@keyframes ve-enter {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-.verify-card h2 {
-  color: #222;
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.verify-desc {
-  color: #555;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  margin-bottom: 8px;
-}
-
-.verify-desc strong {
-  color: #222;
-}
-
-.verify-note {
-  color: #888;
-  font-size: 0.85rem;
+/* ── Envelope icon ── */
+.ve-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  border: 2px solid rgba(0, 50, 35, 0.12);
   margin-bottom: 20px;
 }
 
-.verify-resend-btn {
+.ve-icon {
+  width: 34px;
+  height: 34px;
+  color: #003223;
+}
+
+/* ── Heading ── */
+.ve-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 14px;
+  line-height: 1.2;
+}
+
+/* ── Description ── */
+.ve-desc {
+  font-family: "Montserrat", sans-serif;
+  color: #555;
+  font-size: 0.93rem;
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.ve-email {
+  color: #003223;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+/* ── Note ── */
+.ve-note {
+  font-family: "Montserrat", sans-serif;
+  color: #9ca3af;
+  font-size: 0.83rem;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ── Button ── */
+.ve-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  padding: 0.82rem;
+  padding: 0.85rem 1rem;
   background: linear-gradient(135deg, #3fad4e 0%, #2f9d42 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 999px;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.22s ease;
-  box-shadow: 0 10px 22px rgba(63, 173, 78, 0.2);
+  box-shadow: 0 10px 24px rgba(63, 173, 78, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.22s ease, filter 0.2s ease;
 }
 
-.verify-resend-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(63, 173, 78, 0.24);
+.ve-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 32px rgba(63, 173, 78, 0.34);
 }
 
-.verify-resend-btn:disabled {
-  opacity: 0.78;
+.ve-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ve-btn:disabled {
+  opacity: 0.72;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.verify-success {
-  margin-top: 14px;
-  color: #2c6e49;
-  font-size: 0.92rem;
+/* Button spinner */
+.ve-btn__spinner {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ve-spin 0.7s linear infinite;
+}
+
+@keyframes ve-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Alert banners ── */
+.ve-alert {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.88rem;
   font-weight: 500;
-  background: rgba(44, 110, 73, 0.08);
-  border: 1px solid rgba(44, 110, 73, 0.14);
-  padding: 0.6rem 0.85rem;
-  border-radius: 8px;
+  text-align: left;
+  line-height: 1.5;
 }
 
-.verify-error {
-  margin-top: 14px;
-  color: #c0392b;
-  font-size: 0.92rem;
-  font-weight: 500;
-  background: rgba(192, 57, 43, 0.08);
-  border: 1px solid rgba(192, 57, 43, 0.14);
-  padding: 0.6rem 0.85rem;
-  border-radius: 8px;
+.ve-alert--success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
 }
 
-.verify-footer {
-  margin-top: 20px;
-  font-size: 0.9rem;
-  color: #444;
+.ve-alert--error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
 }
 
-.verify-footer a {
-  color: #1f2937;
-  font-weight: 600;
+/* ── Footer link ── */
+.ve-footer {
+  margin-top: 22px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.88rem;
+  color: #6b7280;
+}
+
+.ve-link {
+  color: #003223;
+  font-weight: 700;
   text-decoration: none;
+  font-family: "Poppins", sans-serif;
+  transition: color 0.2s ease;
 }
 
-.verify-footer a:hover {
-  color: #2f9d42;
+.ve-link:hover {
+  color: #3fad4e;
   text-decoration: underline;
 }
 
-@keyframes loginCardEnter {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+/* ── Divider ── */
+.ve-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 20px 0;
 }
 
+/* ── Responsive ── */
 @media (max-width: 480px) {
-  .verify-card {
-    padding: 1.5rem;
+  .ve-card {
+    padding: 2rem 1.4rem 1.8rem;
+    border-radius: 16px;
   }
 
-  .verify-card h2 {
-    font-size: 1.4rem;
+  .ve-title {
+    font-size: 1.45rem;
+  }
+
+  .ve-icon-wrap {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ve-icon {
+    width: 28px;
+    height: 28px;
   }
 }

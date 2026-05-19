@@ -198,24 +198,42 @@ const Navbar = () => {
                 >
                   <FiUser size={18} />
                 </button>
-
                 {profileOpen && (
                   <div className="profile-dropdown">
                     <div className="profile-dropdown-user">
-                      <span className="profile-dropdown-name">
-                        Hi, {firstName}
-                      </span>
+                      <span className="profile-dropdown-name">Hi, {firstName}</span>
                     </div>
 
                     <button
                       className="dropdown-item"
-                      onClick={() => {
-                        navigate("/form-fillup");
-                        setProfileOpen(false);
-                      }}
+                      onClick={() => { window.location.href = `${APP_URL}/profile`; setProfileOpen(false); }}
+                    >
+                      <FiUser size={16} />
+                      Profile
+                    </button>
+
+                    <button
+                      className="dropdown-item"
+                      onClick={() => { window.location.href = `${APP_URL}`; setProfileOpen(false); }}
+                    >
+                      <FiFileText size={16} />
+                      My Courses
+                    </button>
+
+                    <button
+                      className="dropdown-item"
+                      onClick={() => { navigate("/form-fillup"); setProfileOpen(false); }}
                     >
                       <FiFileText size={16} />
                       Fill Form
+                    </button>
+
+                    <button
+                      className="dropdown-item"
+                      onClick={() => { window.location.href = `${APP_URL}/change-password`; setProfileOpen(false); }}
+                    >
+                      <FiFileText size={16} />
+                      Change Password
                     </button>
 
                     <button
