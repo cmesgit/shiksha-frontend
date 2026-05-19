@@ -202,30 +202,26 @@ const Navbar = () => {
                 {profileOpen && (
   <div className="profile-dropdown">
     <div className="profile-dropdown-user">
-      <span className="profile-dropdown-name">Hi, {firstName}</span>
+      <span className="profile-dropdown-name">
+        Hi, {firstName}
+      </span>
     </div>
 
-    <button className="dropdown-item" onClick={() => { navigate("/profile"); setProfileOpen(false); }}>
-      <FiUser size={16} />
-      Profile
-    </button>
-
-    <button className="dropdown-item" onClick={() => { navigate("/my-courses"); setProfileOpen(false); }}>
+    <button
+      className="dropdown-item"
+      onClick={() => {
+        navigate("/form-fillup");
+        setProfileOpen(false);
+      }}
+    >
       <FiFileText size={16} />
-      My Courses
+      Fill Form
     </button>
 
-    <button className="dropdown-item" onClick={() => { navigate("/"); setProfileOpen(false); }}>
-      <FiArrowUpRight size={16} />
-      Return to Homepage
-    </button>
-
-    <button className="dropdown-item" onClick={() => { navigate("/change-password"); setProfileOpen(false); }}>
-      <FiFileText size={16} />
-      Change Password
-    </button>
-
-    <button className="dropdown-item logout" onClick={handleLogout}>
+    <button
+      className="dropdown-item logout"
+      onClick={handleLogout}
+    >
       <FiLogOut size={16} />
       Logout
     </button>
