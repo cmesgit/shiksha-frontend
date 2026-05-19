@@ -223,11 +223,11 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  z-index: 1000;
+  z-index: 9999;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 24px 16px 40px;
   overflow-y: auto;
 }
 
@@ -237,9 +237,10 @@
   width: 100%;
   max-width: 980px;
   position: relative;
-  padding: 36px 28px 40px;
+  padding: 48px 28px 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   animation: enroll-modal-in 0.2s ease;
+  margin: auto 0;
 }
 
 @keyframes enroll-modal-in {
@@ -256,9 +257,10 @@
   border-radius: 6px;
   font-size: 1rem;
   line-height: 1;
-  padding: 4px 10px;
+  padding: 6px 12px;
   cursor: pointer;
   color: #555;
+  z-index: 1;
 }
 
 .enroll-modal__close:hover {

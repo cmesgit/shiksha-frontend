@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -21,6 +21,7 @@ const formatRupees = (paise) =>
 const EnrollModal = ({ courseId, onClose }) => {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const location = useLocation();
 
   const [course, setCourse] = useState(null);
   const [loadingCourse, setLoadingCourse] = useState(true);
@@ -38,6 +39,12 @@ const EnrollModal = ({ courseId, onClose }) => {
   const [submitError, setSubmitError] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [existingStatus, setExistingStatus] = useState(null);
+
+  const initialPath = useRef(location.pathname);
+
+  useEffect(() => {
+    if (location.pathname !== initialPath.current) onClose();
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === "Escape") onClose(); };
