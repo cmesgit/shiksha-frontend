@@ -214,7 +214,7 @@ const Navbar = () => {
 
     <button
       className="dropdown-item"
-      onClick={() => { window.location.href = `${APP_URL}/my-courses`; setProfileOpen(false); }}
+      onClick={() => { window.location.href = `${APP_URL}`; setProfileOpen(false); }}
     >
       <FiFileText size={16} />
       My Courses
@@ -245,6 +245,7 @@ const Navbar = () => {
     </button>
   </div>
 )}
+
                
               </div>
             ) : (
