@@ -253,15 +253,15 @@
 }
 
 .courses-tile--enrolled {
-  border: 1.5px solid rgba(22, 163, 74, 0.7);
+  border: 1.5px solid rgba(255, 143, 1, 0.7);
   box-shadow:
-    0 0 0 3px rgba(22, 163, 74, 0.18),
+    0 0 0 3px rgba(255, 143, 1, 0.18),
     0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .courses-tile--enrolled:hover {
   box-shadow:
-    0 0 0 4px rgba(22, 163, 74, 0.25),
+    0 0 0 4px rgba(255, 143, 1, 0.25),
     0 22px 44px rgba(0, 0, 0, 0.2);
 }
 
@@ -298,9 +298,9 @@
 }
 
 .courses-tile__status-badge--enrolled {
-  background: rgba(22, 163, 74, 0.88);
+  background: rgba(255, 143, 1, 0.9);
   color: #ffffff;
-  border: 1px solid rgba(134, 239, 172, 0.45);
+  border: 1px solid rgba(255, 200, 100, 0.45);
 }
 
 .courses-tile__status-badge--pending {
@@ -542,9 +542,9 @@
 
 .courses-tile__btn--enrolled,
 .courses-tile__btn--enrolled:hover {
-  background: #16a34a;
+  background: #ff8f01;
   color: #ffffff;
-  border-color: #16a34a;
+  border-color: #ff8f01;
 }
 
 .courses-tile__btn--pending,
