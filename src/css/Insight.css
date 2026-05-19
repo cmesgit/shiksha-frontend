@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════
-   EXPLORE PAGE
+   INSIGHT PAGE
 ═══════════════════════════════════════════ */
-.explore-page {
+.insight-page {
   font-family: "Poppins", sans-serif;
   line-height: 1.6;
   color: rgba(14, 28, 15, 0.8);
@@ -14,7 +14,7 @@
   position: relative;
 }
 
-.explore-page::before {
+.insight-page::before {
   content: "";
   position: absolute;
   width: 600px;
@@ -28,7 +28,7 @@
 }
 
 /* ── Header ── */
-.explore-header {
+.insight-header {
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(16px);
   padding: 28px 30px;
@@ -38,14 +38,14 @@
   z-index: 50;
 }
 
-.explore-container {
+.insight-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 30px;
 }
 
 /* ── Search bar ── */
-.explore-search-bar {
+.insight-search-bar {
   display: flex;
   align-items: center;
   background: #1250274f;
@@ -60,12 +60,12 @@
     box-shadow 0.25s;
 }
 
-.explore-search-bar:focus-within {
+.insight-search-bar:focus-within {
   border-color: #1b9c85;
   box-shadow: 0 0 0 3px rgba(29, 202, 171, 0.12);
 }
 
-.explore-search-bar input {
+.insight-search-bar input {
   flex: 1;
   border: none;
   outline: none;
@@ -76,15 +76,15 @@
   padding: 7px 0;
 }
 
-.explore-search-bar input::placeholder {
+.insight-search-bar input::placeholder {
   color: rgba(255, 255, 255, 0.94);
 }
 
-.explore-search-bar input:disabled {
+.insight-search-bar input:disabled {
   opacity: 0.5;
 }
 
-.explore-search-bar button {
+.insight-search-bar button {
   flex-shrink: 0;
   width: 38px;
   height: 38px;
@@ -103,18 +103,18 @@
   box-shadow: 0 4px 12px rgba(18, 80, 39, 0.28);
 }
 
-.explore-search-bar button svg {
+.insight-search-bar button svg {
   width: 16px;
   height: 16px;
 }
 
-.explore-search-bar button:hover:not(:disabled) {
+.insight-search-bar button:hover:not(:disabled) {
   background: #1b9c85;
   box-shadow: 0 6px 18px rgba(27, 156, 133, 0.38);
   transform: translateY(-1px);
 }
 
-.explore-search-bar button:disabled {
+.insight-search-bar button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
@@ -177,7 +177,7 @@
 }
 
 /* ── Main grid ── */
-.explore-grid {
+.insight-grid {
   display: grid;
   grid-template-columns: 2.5fr 1fr;
   gap: 24px;
@@ -206,7 +206,7 @@ main {
 }
 
 /* Article typography */
-.explore-article-content h1 {
+.insight-article-content h1 {
   font-family: "Montserrat", sans-serif;
   color: #125027;
   font-size: 28px;
@@ -218,7 +218,7 @@ main {
   line-height: 1.2;
 }
 
-.explore-article-content h2 {
+.insight-article-content h2 {
   font-family: "Montserrat", sans-serif;
   color: #125027;
   font-size: 18px;
@@ -228,7 +228,7 @@ main {
   border-bottom: 1px solid rgba(132, 104, 39, 0.16);
 }
 
-.explore-article-content h3 {
+.insight-article-content h3 {
   font-family: "Montserrat", sans-serif;
   color: #1b9c85;
   font-size: 15px;
@@ -236,28 +236,28 @@ main {
   margin: 20px 0 8px;
 }
 
-.explore-article-content p {
+.insight-article-content p {
   color: rgba(14, 28, 15, 0.65);
   margin-bottom: 14px;
   line-height: 1.82;
   font-size: 14px;
 }
 
-.explore-article-content ul,
-.explore-article-content ol {
+.insight-article-content ul,
+.insight-article-content ol {
   margin-bottom: 16px;
   padding-left: 20px;
   color: rgba(14, 28, 15, 0.62);
 }
 
-.explore-article-content li {
+.insight-article-content li {
   margin-bottom: 6px;
   line-height: 1.7;
   font-size: 13.5px;
 }
 
 /* Table of contents */
-.explore-toc {
+.insight-toc {
   background: rgba(18, 80, 39, 0.05);
   border: 1px solid rgba(18, 80, 39, 0.12);
   border-radius: 13px;
@@ -265,7 +265,7 @@ main {
   margin-bottom: 28px;
 }
 
-.explore-toc h2 {
+.insight-toc h2 {
   color: #125027;
   font-size: 13px;
   font-weight: 800;
@@ -276,16 +276,16 @@ main {
   padding: 0;
 }
 
-.explore-toc ol {
+.insight-toc ol {
   padding-left: 18px;
   margin: 0;
 }
 
-.explore-toc li {
+.insight-toc li {
   margin-bottom: 6px;
 }
 
-.explore-toc a {
+.insight-toc a {
   color: rgba(14, 28, 15, 0.62);
   text-decoration: none;
   font-size: 13px;
@@ -293,12 +293,12 @@ main {
   transition: color 0.2s;
 }
 
-.explore-toc a:hover {
+.insight-toc a:hover {
   color: #1b9c85;
 }
 
 /* ── Sidebar ── */
-.explore-sidebar {
+.insight-sidebar {
   background: rgba(255, 255, 255, 0.48);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(132, 104, 39, 0.16);
@@ -309,7 +309,7 @@ main {
   top: 90px;
 }
 
-.explore-sidebar h3 {
+.insight-sidebar h3 {
   font-family: "Montserrat", sans-serif;
   color: #ff8f01;
   font-size: 11px;
@@ -321,18 +321,18 @@ main {
   border-bottom: 1px solid rgba(132, 104, 39, 0.16);
 }
 
-.explore-sidebar ul,
-.explore-sidebar ol {
+.insight-sidebar ul,
+.insight-sidebar ol {
   list-style: none;
   padding: 0;
   margin: 0 0 18px;
 }
 
-.explore-sidebar li {
+.insight-sidebar li {
   margin-bottom: 4px;
 }
 
-.explore-sidebar a {
+.insight-sidebar a {
   color: rgba(14, 28, 15, 0.62);
   text-decoration: none;
   display: block;
@@ -343,12 +343,12 @@ main {
   transition: all 0.2s;
 }
 
-.explore-sidebar a:hover {
+.insight-sidebar a:hover {
   background: rgba(18, 80, 39, 0.07);
   color: #125027;
 }
 
-.explore-sidebar button {
+.insight-sidebar button {
   background: none;
   border: none;
   cursor: pointer;
@@ -363,13 +363,13 @@ main {
   transition: all 0.2s;
 }
 
-.explore-sidebar button:hover {
+.insight-sidebar button:hover {
   background: rgba(18, 80, 39, 0.07);
   color: #125027;
 }
 
 /* ── Infobox ── */
-.explore-infobox {
+.insight-infobox {
   background: #003223;
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -380,7 +380,7 @@ main {
   top: 90px;
 }
 
-.explore-infobox h3 {
+.insight-infobox h3 {
   font-family: "Montserrat", sans-serif;
   color: #ffffffeb;
   font-size: 14px;
@@ -391,7 +391,7 @@ main {
   line-height: 1.3;
 }
 
-.explore-infobox h4 {
+.insight-infobox h4 {
   font-family: "Montserrat", sans-serif;
   color: #ff8f01;
   font-size: 10px;
@@ -403,7 +403,7 @@ main {
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.explore-infobox img {
+.insight-infobox img {
   width: 100%;
   height: 120px;
   object-fit: contain;
@@ -415,39 +415,39 @@ main {
   filter: brightness(0) invert(1);
 }
 
-.explore-infobox table {
+.insight-infobox table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 16px;
 }
 
-.explore-infobox td {
+.insight-infobox td {
   padding: 8px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 12.5px;
   color: rgba(255, 255, 255, 0.62);
 }
 
-.explore-infobox td:first-child {
+.insight-infobox td:first-child {
   font-weight: 700;
   color: rgba(255, 255, 255, 0.82);
   width: 38%;
 }
 
-.explore-infobox p {
+.insight-infobox p {
   font-size: 12.5px;
   color: rgba(255, 255, 255, 0.5);
   line-height: 1.72;
   margin: 0 0 8px;
 }
 
-.explore-infobox ul {
+.insight-infobox ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.explore-infobox li {
+.insight-infobox li {
   padding: 7px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.5);
@@ -455,24 +455,24 @@ main {
   line-height: 1.5;
 }
 
-.explore-infobox li:last-child {
+.insight-infobox li:last-child {
   border-bottom: none;
 }
 
-.explore-infobox a {
+.insight-infobox a {
   color: #1dcaab;
   text-decoration: none;
   font-size: 12.5px;
   transition: color 0.2s;
 }
 
-.explore-infobox a:hover {
+.insight-infobox a:hover {
   color: #fff;
 }
 
 /* ── Related topics / references ── */
-.explore-references,
-.explore-related-topics {
+.insight-references,
+.insight-related-topics {
   background: rgba(255, 255, 255, 0.42);
   border: 1px solid rgba(132, 104, 39, 0.14);
   border-radius: 13px;
@@ -480,8 +480,8 @@ main {
   margin-top: 24px;
 }
 
-.explore-references h2,
-.explore-related-topics h2 {
+.insight-references h2,
+.insight-related-topics h2 {
   font-family: "Montserrat", sans-serif;
   color: #125027;
   font-size: 14px;
@@ -491,29 +491,29 @@ main {
   padding: 0;
 }
 
-.explore-references ol,
-.explore-related-topics ul {
+.insight-references ol,
+.insight-related-topics ul {
   padding-left: 18px;
   margin: 0;
   color: rgba(14, 28, 15, 0.6);
 }
 
-.explore-references li,
-.explore-related-topics li {
+.insight-references li,
+.insight-related-topics li {
   margin-bottom: 7px;
   line-height: 1.6;
   font-size: 13px;
 }
 
-.explore-references a,
-.explore-related-topics a {
+.insight-references a,
+.insight-related-topics a {
   color: #1b9c85;
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.explore-references a:hover,
-.explore-related-topics a:hover {
+.insight-references a:hover,
+.insight-related-topics a:hover {
   color: #125027;
 }
 
@@ -540,69 +540,69 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: #003223;
 }
 ::-webkit-scrollbar-thumb {
-  background: #003223;
+  background: rgba(132, 104, 39, 0.35);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1b9c85;
+  background: rgba(18, 80, 39, 0.45);
 }
 
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
 @media (max-width: 1024px) {
-  .explore-grid {
+  .insight-grid {
     grid-template-columns: 1fr;
     padding: 20px;
     gap: 20px;
   }
 
-  .explore-sidebar,
-  .explore-infobox {
+  .insight-sidebar,
+  .insight-infobox {
     position: static;
   }
 }
 
 @media (max-width: 768px) {
-  .explore-header {
+  .insight-header {
     padding: 18px;
   }
-  .explore-container {
+  .insight-container {
     padding: 0 18px;
   }
-  .explore-search-bar {
+  .insight-search-bar {
     max-width: 100%;
   }
-  .explore-grid {
+  .insight-grid {
     padding: 16px 18px;
   }
   main,
-  .explore-sidebar,
-  .explore-infobox {
+  .insight-sidebar,
+  .insight-infobox {
     padding: 18px;
   }
-  .explore-article-content h1 {
+  .insight-article-content h1 {
     font-size: 22px;
   }
-  .explore-article-content h2 {
+  .insight-article-content h2 {
     font-size: 17px;
   }
 }
 
 @media (max-width: 480px) {
-  .explore-header {
+  .insight-header {
     padding: 14px;
   }
-  .explore-container {
+  .insight-container {
     padding: 0 14px;
   }
-  .explore-grid {
+  .insight-grid {
     padding: 14px;
   }
 }

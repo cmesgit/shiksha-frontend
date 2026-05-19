@@ -1,5 +1,5 @@
 .courses-page {
-  background: #ffffff;
+  background: #fff;
   min-height: 100vh;
   padding-bottom: 60px;
   background-image:
@@ -26,7 +26,7 @@
 }
 
 .courses-hero__row::before {
-  content: "";
+  content: '';
   flex: 1;
 }
 
@@ -117,9 +117,7 @@
   border-radius: 999px;
   padding: 0 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .courses-search-box:focus-within {
@@ -158,9 +156,7 @@
   align-items: center;
   padding: 4px;
   border-radius: 50%;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .courses-search-clear:hover {
@@ -252,65 +248,6 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
-.courses-tile--enrolled {
-  border: 2px solid #ff8f01;
-  box-shadow:
-    0 0 0 4px rgba(255, 143, 1, 0.35),
-    0 0 18px 4px rgba(255, 143, 1, 0.25),
-    0 18px 40px rgba(0, 0, 0, 0.16);
-}
-
-.courses-tile--enrolled:hover {
-  box-shadow:
-    0 0 0 4px rgba(255, 143, 1, 0.45),
-    0 0 24px 6px rgba(255, 143, 1, 0.3),
-    0 22px 44px rgba(0, 0, 0, 0.2);
-}
-
-.courses-tile--pending {
-  border: 1.5px solid rgba(217, 119, 6, 0.6);
-  box-shadow:
-    0 0 0 3px rgba(217, 119, 6, 0.14),
-    0 18px 40px rgba(0, 0, 0, 0.16);
-}
-
-.courses-tile--pending:hover {
-  box-shadow:
-    0 0 0 4px rgba(217, 119, 6, 0.2),
-    0 22px 44px rgba(0, 0, 0, 0.2);
-}
-
-/* ── Status badge on image ── */
-.courses-tile__status-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 2;
-}
-
-.courses-tile__status-badge--enrolled {
-  background: rgba(255, 143, 1, 0.9);
-  color: #ffffff;
-  border: 1px solid rgba(255, 200, 100, 0.45);
-}
-
-.courses-tile__status-badge--pending {
-  background: rgba(161, 84, 0, 0.88);
-  color: #fef3c7;
-  border: 1px solid rgba(253, 230, 138, 0.4);
-}
-
 .courses-tile__coming-soon {
   position: absolute;
   top: 12px;
@@ -337,7 +274,6 @@
 }
 
 .courses-tile__imageWrap {
-  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #ffffff;
@@ -544,9 +480,9 @@
 
 .courses-tile__btn--enrolled,
 .courses-tile__btn--enrolled:hover {
-  background: #ff8f01;
+  background: #16a34a;
   color: #ffffff;
-  border-color: #ff8f01;
+  border-color: #16a34a;
 }
 
 .courses-tile__btn--pending,

@@ -33,6 +33,7 @@ const Login = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // ✅ SHOW MESSAGE FROM SIGNUP
   useEffect(() => {
@@ -54,6 +55,11 @@ const Login = () => {
       const roles = Array.isArray(loggedInUser?.roles) ? loggedInUser.roles : [];
       const isTeacher = roles.some((r) => String(r).toLowerCase() === "teacher");
 
+      showToast({ message: "You are logged in! Welcome back.", duration: 2500 });
+
+      setIsRedirecting(true);
+      setStatusMessage("Login successful! Redirecting...");
+
       let redirectTo = HOME_URL;
       try {
         const stashed = sessionStorage.getItem("post_auth_redirect");
@@ -63,15 +69,9 @@ const Login = () => {
         sessionStorage.removeItem("post_auth_redirect");
       } catch (_) { /* sessionStorage unavailable */ }
 
-      try {
-        sessionStorage.setItem("pending_toast", JSON.stringify({
-          message: "You are logged in! Welcome back.",
-          type: "success",
-          duration: 2500,
-        }));
-      } catch (_) { /* sessionStorage unavailable */ }
-
-      window.location.href = redirectTo;
+      setTimeout(() => {
+        window.location.href = redirectTo;
+      }, 2500);
 
     } catch (err) {
       const raw = err?.message ?? err;
@@ -86,9 +86,18 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className={`login-container ${isRedirecting ? "is-redirecting" : ""}`}>
       <div className="login-glow-center"></div>
       <div className="login-glow-top-right"></div>
+      {isRedirecting && (
+        <div className="login-overlay">
+          <div className="login-overlay-card">
+            <div className="login-spinner"></div>
+            <h3>Please wait</h3>
+            <p>{statusMessage}</p>
+          </div>
+        </div>
+      )}
 
       <div className="login-form">
         <h2>Login</h2>

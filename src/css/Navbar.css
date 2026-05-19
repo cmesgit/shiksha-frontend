@@ -46,10 +46,6 @@
   padding-bottom: 0;
 }
 
-.top-strip marquee {
-  line-height: 30px;
-}
-
 .top-strip marquee span {
   margin-right: 32px;
 }

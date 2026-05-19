@@ -33,8 +33,8 @@ import Signup from "../auth/Signup";
 import VerifyEmail from "../auth/VerifyEmail";
 import EmailVerified from "../auth/EmailVerified";
 
-import Explore from "./Explore";
-import SkillDevelopment from "./SkillDevelopment";
+import Insight from "./Insight";
+import Training from "./Training";
 import GeneralStudies from "./GeneralStudies";
 import Faq from "./Faq";
 import Counselling from "./Counselling";
@@ -241,7 +241,7 @@ function App() {
         />
 
         <Route
-          path="/courses/*"
+          path="/courses"
           element={
             <Page>
               <Courses />
@@ -289,10 +289,10 @@ function App() {
           }
         />
         <Route
-          path="/explore"
+          path="/insight"
           element={
             <Page>
-              <Explore />
+              <Insight />
             </Page>
           }
         />
@@ -305,7 +305,7 @@ function App() {
           }
         />
 
-        <Route path="/skill-development" element={<SkillDevelopment />} />
+        <Route path="/training" element={<Training />} />
         <Route path="/upcoming" element={<Upcoming />} />
         <Route
           path="/payment"

@@ -342,7 +342,7 @@
 }
 .sa-stat-box:nth-child(1):hover .sa-stat-lbl,
 .sa-stat-box:nth-child(2):hover .sa-stat-lbl {
-  color: #ff8f01;
+  color: rgba(255, 143, 1, 0.5);
 }
 
 .sa-stat-box:nth-child(3):hover {
@@ -355,7 +355,7 @@
   color: #ef4444;
 }
 .sa-stat-box:nth-child(3):hover .sa-stat-lbl {
-  color: #ef4444;
+  color: rgba(239, 68, 68, 0.5);
 }
 
 .sa-stat-box:last-child:hover {
@@ -368,7 +368,7 @@
   color: #1dcaab;
 }
 .sa-stat-box:last-child:hover .sa-stat-lbl {
-  color: #1dcaab;
+  color: rgba(29, 202, 171, 0.5);
 }
 .sa-stat-val {
   font-family: "Montserrat", sans-serif;
@@ -386,7 +386,7 @@
 }
 .sa-stat-lbl {
   font-size: 11px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
   letter-spacing: 0.3px;
   font-family: "Poppins", sans-serif;
