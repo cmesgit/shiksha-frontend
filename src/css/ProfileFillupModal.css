@@ -1,0 +1,126 @@
+/* ═══════════════════════════════════════════
+   PROFILE FILLUP MODAL  (pfm- prefix)
+   ═══════════════════════════════════════════ */
+
+.pfm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 20, 13, 0.7);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 40px;
+  overflow-y: auto;
+}
+
+.pfm-modal {
+  width: 100%;
+  max-width: 860px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.32),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+  animation: pfm-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  margin: auto 0;
+}
+
+@keyframes pfm-in {
+  from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Header ── */
+.pfm-header {
+  background: #003223;
+  padding: 20px 28px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pfm-header__text { flex: 1; min-width: 0; }
+
+.pfm-header__title {
+  margin: 0 0 4px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.pfm-header__subtitle {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-family: "Montserrat", sans-serif;
+}
+
+.pfm-header__skip {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.pfm-header__skip:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── Notification banner ── */
+.pfm-notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff8ed;
+  border-bottom: 2px solid #ff8f01;
+  padding: 12px 28px;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7a3e00;
+}
+
+.pfm-notification__icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  color: #ff8f01;
+}
+
+/* ── Body ── */
+.pfm-body {
+  background: #f2f5f2;
+  max-height: 78vh;
+  overflow-y: auto;
+  /* Show FormFillup's own styles unmodified — just scope the scroll here */
+}
+
+/* Thin scrollbar inside body */
+.pfm-body::-webkit-scrollbar { width: 6px; }
+.pfm-body::-webkit-scrollbar-track { background: #eef1ee; }
+.pfm-body::-webkit-scrollbar-thumb { background: #003223; border-radius: 4px; }
+.pfm-body::-webkit-scrollbar-thumb:hover { background: #004a33; }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .pfm-overlay { padding: 0; align-items: flex-end; }
+  .pfm-modal   { border-radius: 20px 20px 0 0; margin: 0; max-width: 100%; }
+  .pfm-body    { max-height: 82vh; }
+  .pfm-header  { padding: 16px 18px 14px; }
+  .pfm-header__title { font-size: 1.05rem; }
+}

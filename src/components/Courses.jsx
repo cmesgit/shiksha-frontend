@@ -6,6 +6,7 @@ import EnrollModal from './EnrollModal';
 import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
 import { useAuth } from '../contexts/AuthContext';
+import { useProfileModal } from '../contexts/ProfileModalContext';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { APP_URL } from '../config/urls';
 
@@ -471,7 +472,8 @@ const ALL_BOARDS = [
 const Courses = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const { openWithMessage } = useProfileModal();
 
   const [selectedBoardGroup, setSelectedBoardGroup] = useState(
     location.state?.selectedBoardGroup || null
@@ -791,6 +793,11 @@ const handleClassSelect = (cls) => {
       return;
     }
 
+    if (user?.profile_complete === false) {
+      openWithMessage('Please complete your profile to enroll in a course.');
+      return;
+    }
+
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
@@ -876,6 +883,10 @@ const handleClassSelect = (cls) => {
           onBack={(level) => { handleTrailClick(level); }}
           onEnroll={() => {
             if (!isAuthenticated) { navigate('/login'); return; }
+            if (user?.profile_complete === false) {
+              openWithMessage('Please complete your profile to subscribe to a course.');
+              return;
+            }
             setEnrollModalCourseId(activeCourseId);
           }}
         />
