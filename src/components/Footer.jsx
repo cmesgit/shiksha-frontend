@@ -65,11 +65,11 @@ const Footer = () => {
               <p>
                 <Link to="/forum">Forum</Link>
                 <br />
-                <Link to="/explore">Explore</Link>
+                <Link to="/insight">Explore</Link>
                 <br />
                 <Link to="/counselling">Counselling</Link>
                 <br />
-                <Link to="/skill-development">Skill Development</Link>
+                <Link to="/training">Skill Development</Link>
                 <br />
                 <Link to="/upcoming">Placement</Link>
               </p>

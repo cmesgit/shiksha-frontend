@@ -28,7 +28,7 @@ const Breadcrumb = ({ items, onNavigate }) => {
   );
 };
 
-const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack, onEnroll }) => {
+const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack }) => {
   const navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState(0);
   const purchaseCardRef = useRef(null);
@@ -276,7 +276,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
             </ul>
 <button
   className="purchase-card__btn"
-  onClick={() => onEnroll ? onEnroll() : navigate(`/enroll/${courseId}`)}
+    onClick={() => navigate(`/enroll/${courseId}`)}
 >
   Start Subscription
 </button>

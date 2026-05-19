@@ -200,37 +200,33 @@ const Navbar = () => {
                 </button>
 
                 {profileOpen && (
-  <div className="profile-dropdown">
-    <div className="profile-dropdown-user">
-      <span className="profile-dropdown-name">Hi, {firstName}</span>
-    </div>
+                  <div className="profile-dropdown">
+                    <div className="profile-dropdown-user">
+                      <span className="profile-dropdown-name">
+                        Hi, {firstName}
+                      </span>
+                    </div>
 
-    <button className="dropdown-item" onClick={() => { navigate("/profile"); setProfileOpen(false); }}>
-      <FiUser size={16} />
-      Profile
-    </button>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => {
+                        navigate("/form-fillup");
+                        setProfileOpen(false);
+                      }}
+                    >
+                      <FiFileText size={16} />
+                      Fill Form
+                    </button>
 
-    <button className="dropdown-item" onClick={() => { navigate("/my-courses"); setProfileOpen(false); }}>
-      <FiFileText size={16} />
-      My Courses
-    </button>
-
-    <button className="dropdown-item" onClick={() => { navigate("/"); setProfileOpen(false); }}>
-      <FiArrowUpRight size={16} />
-      Return to Homepage
-    </button>
-
-    <button className="dropdown-item" onClick={() => { navigate("/change-password"); setProfileOpen(false); }}>
-      <FiFileText size={16} />
-      Change Password
-    </button>
-
-    <button className="dropdown-item logout" onClick={handleLogout}>
-      <FiLogOut size={16} />
-      Logout
-    </button>
-  </div>
-)}
+                    <button
+                      className="dropdown-item logout"
+                      onClick={handleLogout}
+                    >
+                      <FiLogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="header-auth">
@@ -392,7 +388,7 @@ const Navbar = () => {
                 </li>
 
                 <li>
-                  <NavLink to="/explore" onClick={closeMobileMenu}>
+                  <NavLink to="/insight" onClick={closeMobileMenu}>
                     Explore
                   </NavLink>
                 </li>
@@ -418,12 +414,12 @@ const Navbar = () => {
 
                   <ul className="dropdown-menu nested-menu">
                     <li>
-                      <NavLink to="/skill-development" onClick={closeMobileMenu}>
+                      <NavLink to="/training" onClick={closeMobileMenu}>
                         Industrial
                       </NavLink>
                     </li>
                     <li>
-                      <NavLink to="/skill-development" onClick={closeMobileMenu}>
+                      <NavLink to="/training" onClick={closeMobileMenu}>
                         Specialized
                       </NavLink>
                     </li>

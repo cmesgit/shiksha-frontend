@@ -488,17 +488,17 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: #e8e0cc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #003223;
+  background: rgba(132, 104, 39, 0.35);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1b9c85;
+  background: rgba(18, 80, 39, 0.45);
 }
 
 /* ═══════════════════════════════════════════
