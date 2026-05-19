@@ -138,29 +138,52 @@ const EnrollModal = ({ courseId, onClose }) => {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const content = (() => {
+  const headerTitle = course
+    ? `Enroll in ${course.title}`
+    : "Course Enrollment";
+
+  const headerSubtitle = loadingCourse
+    ? "Fetching course details…"
+    : fetchError
+    ? "Something went wrong"
+    : existingStatus === "APPROVED"
+    ? "You are already enrolled in this course"
+    : existingStatus === "PENDING"
+    ? "Your enrollment is being reviewed"
+    : submitted
+    ? "Your request has been received"
+    : "Pay via UPI · Upload receipt · Get approved within 24 hrs";
+
+  const body = (() => {
     if (loadingCourse) {
-      return <div className="enroll-modal-status">Loading course details...</div>;
+      return (
+        <div className="em-status">
+          <div className="em-spinner" />
+          <p>Loading course details…</p>
+        </div>
+      );
     }
 
     if (fetchError) {
       return (
-        <div className="enroll-modal-status">
-          <p className="enroll-error" style={{ marginBottom: 16 }}>{fetchError}</p>
-          <button className="enroll-submit" style={{ maxWidth: 200, margin: '0 auto', display: 'block' }} onClick={onClose}>Close</button>
+        <div className="em-status">
+          <div className="em-status__icon em-status__icon--error">✕</div>
+          <p className="em-status__msg">{fetchError}</p>
+          <button className="em-btn em-btn--outline" onClick={onClose}>Close</button>
         </div>
       );
     }
 
     if (existingStatus === "APPROVED") {
       return (
-        <div className="enroll-success">
-          <h2>Already enrolled</h2>
-          <p>
+        <div className="em-status">
+          <div className="em-status__icon em-status__icon--success">✓</div>
+          <h3 className="em-status__heading">Already enrolled</h3>
+          <p className="em-status__msg">
             You&apos;re already enrolled in <strong>{course.title}</strong>.
             Head to your dashboard to start learning.
           </p>
-          <button className="enroll-submit" onClick={() => { window.location.href = APP_URL; }}>
+          <button className="em-btn em-btn--primary" onClick={() => { window.location.href = APP_URL; }}>
             Go to Dashboard
           </button>
         </div>
@@ -169,27 +192,29 @@ const EnrollModal = ({ courseId, onClose }) => {
 
     if (existingStatus === "PENDING") {
       return (
-        <div className="enroll-success">
-          <h2>Request pending approval</h2>
-          <p>
-            You&apos;ve already submitted an enrollment request for <strong>{course.title}</strong>.
-            Our team will verify your payment and approve it within 24 hours.
+        <div className="em-status">
+          <div className="em-status__icon em-status__icon--pending">⏳</div>
+          <h3 className="em-status__heading">Pending approval</h3>
+          <p className="em-status__msg">
+            Your enrollment request for <strong>{course.title}</strong> is under review.
+            Our team will verify your payment within 24 hours.
           </p>
-          <button className="enroll-submit" onClick={onClose}>Close</button>
+          <button className="em-btn em-btn--outline" onClick={onClose}>Got it</button>
         </div>
       );
     }
 
     if (submitted) {
       return (
-        <div className="enroll-success">
-          <h2>Request submitted!</h2>
-          <p>
+        <div className="em-status">
+          <div className="em-status__icon em-status__icon--success">✓</div>
+          <h3 className="em-status__heading">Request submitted!</h3>
+          <p className="em-status__msg">
             We&apos;ve received your enrollment request for <strong>{course.title}</strong>.
-            Our team will verify your payment and approve your enrollment within 24 hours.
+            Our team will approve your enrollment within 24 hours.
             You&apos;ll get an email confirmation once approved.
           </p>
-          <button className="enroll-submit" onClick={() => { window.location.href = APP_URL; }}>
+          <button className="em-btn em-btn--primary" onClick={() => { window.location.href = APP_URL; }}>
             Go to Dashboard
           </button>
         </div>
@@ -197,147 +222,184 @@ const EnrollModal = ({ courseId, onClose }) => {
     }
 
     return (
-      <>
-        <h2 className="enroll-title">Enroll in {course.title}</h2>
-        <p className="enroll-subtitle">
-          Pay via QR, upload receipt, and we&apos;ll approve your enrollment shortly.
-        </p>
+      <div className="em-grid">
+        {/* ── Left column ── */}
+        <div className="em-col">
 
-        <div className="enroll-grid">
-          <div>
-            <div className="enroll-card">
-              <h3>Course</h3>
-              <div className="enroll-course-title">{course.title}</div>
-              <div className="enroll-course-meta">
+          {/* Course summary */}
+          <div className="em-card">
+            <p className="em-card__label">Course</p>
+            <p className="em-card__course-name">{course.title}</p>
+            {[course.board, course.stream].filter(Boolean).length > 0 && (
+              <p className="em-card__meta">
                 {[course.board, course.stream].filter(Boolean).join(" · ")}
-              </div>
-              <div className="enroll-price">{formatRupees(course.price)}</div>
-            </div>
-
-            <div className="enroll-card" style={{ marginTop: 16 }}>
-              <h3>Pay with UPI</h3>
-              <div className="enroll-qr-wrapper">
-                <img src={QR_IMG} alt="UPI QR code" className="enroll-qr" />
-                <p className="enroll-qr-note">Scan with any UPI app to pay. Then fill the payment details.</p>
-              </div>
-            </div>
-
-            <div className="enroll-card" style={{ marginTop: 16 }}>
-              <h3>Your Details</h3>
-              {!profileComplete && (
-                <div className="enroll-profile-incomplete">
-                  Your profile is incomplete. Please complete it before enrolling.
-                </div>
-              )}
-              <div className="enroll-profile-summary">
-                <div><strong>Name:</strong> {fullName || "—"}</div>
-                <div><strong>Email:</strong> {user?.email || "—"}</div>
-                <div><strong>Phone:</strong> {profile.phone || "—"}</div>
-                <div><strong>Class:</strong> {profile.current_class || "—"} · {profile.board || "—"}</div>
-                <div><strong>School:</strong> {profile.school_name || "—"}</div>
-                <div><strong>Guardian:</strong> {profile.father_name || profile.mother_name || profile.guardian_name || "—"}</div>
-              </div>
-              <Link to="/form-fillup" className="enroll-edit-link" onClick={onClose}>Edit Profile →</Link>
-            </div>
+              </p>
+            )}
+            <p className="em-card__price">{formatRupees(course.price)}</p>
+            <span className="em-card__duration-badge">12-month subscription</span>
           </div>
 
-          <div>
-            <form className="enroll-card" onSubmit={handleSubmit}>
-              <h3>Payment Details</h3>
+          {/* QR */}
+          <div className="em-card em-card--qr">
+            <p className="em-card__label">Pay with UPI</p>
+            <div className="em-qr-wrap">
+              <img src={QR_IMG} alt="UPI QR code" className="em-qr" />
+            </div>
+            <p className="em-qr-hint">Scan with any UPI app · Then fill in the payment details →</p>
+          </div>
 
-              <div className="enroll-form-grid">
-                <div className="enroll-field">
-                  <label>Payment Method *</label>
-                  <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                    <option value="UPI">UPI</option>
-                    <option value="BANK">Bank Transfer</option>
-                  </select>
-                </div>
-                <div className="enroll-field">
-                  <label>Amount Paid (₹) *</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="enroll-field">
-                  <label>UTR / Transaction ID *</label>
-                  <input
-                    type="text"
-                    value={utr}
-                    onChange={(e) => setUtr(e.target.value)}
-                    placeholder="e.g. 420123456789"
-                    required
-                  />
-                </div>
-                <div className="enroll-field">
-                  <label>Payment Date *</label>
-                  <input
-                    type="date"
-                    value={paymentDate}
-                    max={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setPaymentDate(e.target.value)}
-                    required
-                  />
-                </div>
+          {/* Profile */}
+          <div className="em-card">
+            <p className="em-card__label">Your Details</p>
+            {!profileComplete && (
+              <div className="em-alert em-alert--warning">
+                Profile incomplete — please complete it before enrolling.
               </div>
-
-              <div className="enroll-form-grid full" style={{ marginTop: 12 }}>
-                <div className="enroll-field">
-                  <label>Payment Receipt (image) *</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setReceipt(e.target.files?.[0] || null)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="enroll-checkboxes">
-                <label className="enroll-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={agreePayment}
-                    onChange={(e) => setAgreePayment(e.target.checked)}
-                  />
-                  <span>I confirm the payment details above are correct.</span>
-                </label>
-                <label className="enroll-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={agreeTerms}
-                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                  />
-                  <span>
-                    I agree to the <Link to="/terms" target="_blank">Terms &amp; Refund Policy</Link>.
-                  </span>
-                </label>
-              </div>
-
-              {submitError && <div className="enroll-error">{submitError}</div>}
-
-              <button type="submit" className="enroll-submit" disabled={!canSubmit}>
-                {submitting ? "Submitting..." : "Submit for Approval"}
-              </button>
-            </form>
+            )}
+            <ul className="em-profile">
+              <li><span>Name</span><strong>{fullName || "—"}</strong></li>
+              <li><span>Email</span><strong>{user?.email || "—"}</strong></li>
+              <li><span>Phone</span><strong>{profile.phone || "—"}</strong></li>
+              <li><span>Class</span><strong>{[profile.current_class, profile.board].filter(Boolean).join(" · ") || "—"}</strong></li>
+              <li><span>School</span><strong>{profile.school_name || "—"}</strong></li>
+              <li>
+                <span>Guardian</span>
+                <strong>{profile.father_name || profile.mother_name || profile.guardian_name || "—"}</strong>
+              </li>
+            </ul>
+            <Link to="/form-fillup" className="em-edit-link" onClick={onClose}>
+              Edit profile →
+            </Link>
           </div>
         </div>
-      </>
+
+        {/* ── Right column ── */}
+        <div className="em-col">
+          <form className="em-card em-card--form" onSubmit={handleSubmit}>
+            <p className="em-card__label">Payment Details</p>
+
+            <div className="em-form-grid">
+              <div className="em-field">
+                <label>Payment Method</label>
+                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                  <option value="UPI">UPI</option>
+                  <option value="BANK">Bank Transfer</option>
+                </select>
+              </div>
+
+              <div className="em-field">
+                <label>Amount Paid (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="e.g. 1500"
+                  required
+                />
+              </div>
+
+              <div className="em-field em-field--full">
+                <label>UTR / Transaction ID</label>
+                <input
+                  type="text"
+                  value={utr}
+                  onChange={(e) => setUtr(e.target.value)}
+                  placeholder="e.g. 420123456789"
+                  required
+                />
+              </div>
+
+              <div className="em-field">
+                <label>Payment Date</label>
+                <input
+                  type="date"
+                  value={paymentDate}
+                  max={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setPaymentDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="em-field em-field--full">
+                <label>Payment Receipt (image)</label>
+                <div className="em-file-wrap">
+                  <label className="em-file-label">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setReceipt(e.target.files?.[0] || null)}
+                      required
+                    />
+                    <span className="em-file-btn">Choose file</span>
+                    <span className="em-file-name">{receipt ? receipt.name : "No file chosen"}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="em-checks">
+              <label className="em-check">
+                <input
+                  type="checkbox"
+                  checked={agreePayment}
+                  onChange={(e) => setAgreePayment(e.target.checked)}
+                />
+                <span>I confirm the payment details above are correct.</span>
+              </label>
+              <label className="em-check">
+                <input
+                  type="checkbox"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="em-inline-link">
+                    Terms &amp; Refund Policy
+                  </Link>.
+                </span>
+              </label>
+            </div>
+
+            {submitError && (
+              <div className="em-alert em-alert--error">{submitError}</div>
+            )}
+
+            <button type="submit" className="em-btn em-btn--primary em-btn--submit" disabled={!canSubmit}>
+              {submitting ? (
+                <><span className="em-btn-spinner" /> Submitting…</>
+              ) : (
+                "Submit for Approval"
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
     );
   })();
 
   return createPortal(
-    <div className="enroll-modal-overlay" onClick={handleOverlayClick}>
-      <div className="enroll-modal" role="dialog" aria-modal="true" aria-label="Course Enrollment">
-        <button className="enroll-modal__close" onClick={onClose} aria-label="Close enrollment dialog">
-          &#x2715;
-        </button>
-        {content}
+    <div className="em-overlay" onClick={handleOverlayClick}>
+      <div className="em-modal" role="dialog" aria-modal="true" aria-label="Course Enrollment">
+
+        {/* Dark-green header */}
+        <div className="em-header">
+          <div className="em-header__text">
+            <h2 className="em-header__title">{headerTitle}</h2>
+            <p className="em-header__subtitle">{headerSubtitle}</p>
+          </div>
+          <button className="em-header__close" onClick={onClose} aria-label="Close enrollment dialog">
+            &#x2715;
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="em-body">
+          {body}
+        </div>
+
       </div>
     </div>,
     document.body
