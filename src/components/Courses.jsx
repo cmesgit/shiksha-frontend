@@ -396,11 +396,6 @@ const ClassCourseTile = ({
         ) : (
           <div className="courses-tile__imagePlaceholder">Course Image</div>
         )}
-        {isEnrolled && (
-          <span className="courses-tile__status-badge courses-tile__status-badge--enrolled">
-            ✓ Enrolled
-          </span>
-        )}
         {isPending && (
           <span className="courses-tile__status-badge courses-tile__status-badge--pending">
             ⏳ Pending
