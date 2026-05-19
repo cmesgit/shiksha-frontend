@@ -12,7 +12,6 @@ import AboutShiksha from "./AboutShiksha";
 import VideoShowcase from "./VideoShowcase";
 import LearningPathways from "./LearningPathways";
 import TeachersSlider from "../components/TeachersSlider";
-import TeachersSection from "./TeachersSection";
 
 const HomePage = () => {
   return (
@@ -29,7 +28,6 @@ const HomePage = () => {
       {/* EXISTING CONTENT */}
       <LearningPathways />
       <CoursePreview />
-      {/* <TeachersSection /> */}
       <Footer />
       
     </div>

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
-import EnrollModal from './EnrollModal';
 import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
 import { useAuth } from '../contexts/AuthContext';
@@ -372,13 +371,9 @@ const ClassCourseTile = ({
     enrollBtnClass += ' courses-tile__btn--pending';
   }
 
-  let tileClass = 'courses-tile courses-tile--detailed';
-  if (isEnrolled) tileClass += ' courses-tile--enrolled';
-  else if (isPending) tileClass += ' courses-tile--pending';
-
   return (
     <article
-      className={tileClass}
+      className="courses-tile courses-tile--detailed"
       role="button"
       tabIndex={0}
       onClick={onViewDetails}
@@ -395,11 +390,6 @@ const ClassCourseTile = ({
           />
         ) : (
           <div className="courses-tile__imagePlaceholder">Course Image</div>
-        )}
-        {isPending && (
-          <span className="courses-tile__status-badge courses-tile__status-badge--pending">
-            ⏳ Pending
-          </span>
         )}
       </div>
 
@@ -483,19 +473,18 @@ const Courses = () => {
   const [activeCourse, setActiveCourse] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
-  const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
 
-const goToState = (url, nextState = {}) => {
-  navigate(url, {
-    state: {
+  const goToState = (nextState) => {
+    const state = {
       selectedBoardGroup,
       selectedBoard,
       selectedClass,
       activeCourse,
       ...nextState,
-    },
-  });
-};
+    };
+
+    window.history.pushState(state, '');
+  };
 
   useEffect(() => {
     window.history.replaceState(
@@ -586,63 +575,6 @@ const goToState = (url, nextState = {}) => {
     }
   }, [location.state]);
 
-
-useEffect(() => {
-  const pathParts = location.pathname.split('/').filter(Boolean);
-
-  // /courses
-  if (pathParts.length === 1) {
-    setSelectedBoardGroup(null);
-    setSelectedBoard(null);
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // /courses/state
-  if (pathParts.length === 2) {
-    setSelectedBoardGroup(pathParts[1]);
-    setSelectedBoard(null);
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // /courses/state/mbse
-  if (pathParts.length === 3) {
-    setSelectedBoardGroup(pathParts[1]);
-    setSelectedBoard(pathParts[2]);
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // /courses/state/mbse/class9
-  if (pathParts.length === 4) {
-    const boardGroup = pathParts[1];
-    const board = pathParts[2];
-    const classId = pathParts[3];
-
-    const cls = CLASSES.find((c) => c.id === classId);
-
-    setSelectedBoardGroup(boardGroup);
-    setSelectedBoard(board);
-    setSelectedClass(cls || null);
-
-    if (cls) {
-      const course =
-        board === 'mbse'
-          ? mbseCourseData[classId]
-          : courseData[classId];
-
-      setActiveCourse(course || null);
-    }
-
-    return;
-  }
-}, [location.pathname]);
-
-
   const currentBoardGroup = useMemo(
     () => BOARD_GROUPS.find((item) => item.id === selectedBoardGroup),
     [selectedBoardGroup]
@@ -674,76 +606,54 @@ useEffect(() => {
     );
   }, [searchQuery, selectedBoardGroup]);
 
-const handleSearchBoardSelect = (board) => {
-  if (board.locked) return;
+  const handleSearchBoardSelect = (board) => {
+    if (board.locked) return;
 
-  goToState(
-    `/courses/${board.groupId}/${board.id}`,
-    {
+    goToState({
       selectedBoardGroup: board.groupId,
       selectedBoard: board.id,
       selectedClass: null,
       activeCourse: null,
+    });
+
+    setSearchQuery('');
+    setSelectedBoardGroup(board.groupId);
+    setSelectedBoard(board.id);
+    setSelectedClass(null);
+    setActiveCourse(null);
+  };
+
+  const handleTrailClick = (key) => {
+    setSearchQuery('');
+
+    if (key === 'boards') {
+      setSelectedBoardGroup(null);
+      setSelectedBoard(null);
+      setSelectedClass(null);
+      setActiveCourse(null);
+      return;
     }
-  );
 
-  setSearchQuery('');
-  setSelectedBoardGroup(board.groupId);
-  setSelectedBoard(board.id);
-  setSelectedClass(null);
-  setActiveCourse(null);
-};
+    if (key === 'boardGroup') {
+      setSelectedBoard(null);
+      setSelectedClass(null);
+      setActiveCourse(null);
+      return;
+    }
 
-const handleTrailClick = (key) => {
-  setSearchQuery('');
+    if (key === 'board') {
+      setSelectedClass(null);
+      setActiveCourse(null);
+    }
+  };
 
-  // GO BACK TO ALL BOARDS
-  if (key === 'boards') {
-    navigate('/courses');
-
-    setSelectedBoardGroup(null);
-    setSelectedBoard(null);
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // GO BACK TO BOARD GROUP
-  if (key === 'boardGroup') {
-    navigate(`/courses/${selectedBoardGroup}`);
-
-    setSelectedBoard(null);
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // GO BACK TO BOARD
-  if (key === 'board') {
-    navigate(`/courses/${selectedBoardGroup}/${selectedBoard}`);
-
-    setSelectedClass(null);
-    setActiveCourse(null);
-    return;
-  }
-
-  // GO BACK TO CLASS PAGE
-  if (key === 'class') {
-    navigate(
-      `/courses/${selectedBoardGroup}/${selectedBoard}/${selectedClass?.id}`
-    );
-
-    setActiveCourse(null);
-  }
-};
-
-const handleBoardGroupSelect = (groupId) => {
-  goToState(`/courses/${groupId}`, {
-    selectedBoardGroup: groupId,
-    selectedBoard: null,
-    selectedClass: null,
-    activeCourse: null,
-  });
+  const handleBoardGroupSelect = (groupId) => {
+    goToState({
+      selectedBoardGroup: groupId,
+      selectedBoard: null,
+      selectedClass: null,
+      activeCourse: null,
+    });
 
     setSearchQuery('');
     setSelectedBoardGroup(groupId);
@@ -752,13 +662,13 @@ const handleBoardGroupSelect = (groupId) => {
     setActiveCourse(null);
   };
 
-const handleBoardSelect = (boardId) => {
-  goToState(`/courses/${selectedBoardGroup}/${boardId}`, {
-    selectedBoardGroup,
-    selectedBoard: boardId,
-    selectedClass: null,
-    activeCourse: null,
-  });
+  const handleBoardSelect = (boardId) => {
+    goToState({
+      selectedBoardGroup,
+      selectedBoard: boardId,
+      selectedClass: null,
+      activeCourse: null,
+    });
 
     setSearchQuery('');
     setSelectedBoard(boardId);
@@ -766,12 +676,10 @@ const handleBoardSelect = (boardId) => {
     setActiveCourse(null);
   };
 
-const handleClassSelect = (cls) => {
-  const course = resolvedCourseData[cls.id];
+  const handleClassSelect = (cls) => {
+    const course = resolvedCourseData[cls.id];
 
-  goToState(
-    `/courses/${selectedBoardGroup}/${selectedBoard}/${cls.id}`,
-    {
+    goToState({
       selectedBoardGroup,
       selectedBoard,
       selectedClass: cls,
@@ -786,11 +694,6 @@ const handleClassSelect = (cls) => {
   };
 
   const handleEnrollNow = (cls) => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
@@ -807,7 +710,7 @@ const handleClassSelect = (cls) => {
       return;
     }
 
-    setEnrollModalCourseId(courseId);
+    navigate(`/enroll/${courseId}`);
   };
 
   const searchBar = (placeholder = 'Search boards…') => (
@@ -859,33 +762,47 @@ const handleClassSelect = (cls) => {
   );
 
   if (activeCourse) {
-    const activeCourseId = selectedClass?.courseIds?.[selectedBoard];
     return (
-      <>
-        <SubjectList
-          course={activeCourse}
-          courseId={activeCourseId}
-          enrollmentStatus={enrollmentStatusByCourseId[activeCourseId]}
-          boardGroup={currentBoardGroup?.title}
-          board={currentBoard?.title}
-          selectedClass={
-            selectedClass?.subtitle
-              ? `${selectedClass.title} (${selectedClass.subtitle})`
-              : selectedClass?.title
+      <SubjectList
+        course={activeCourse}
+        courseId={selectedClass?.courseIds?.[selectedBoard]}
+        enrollmentStatus={
+          enrollmentStatusByCourseId[selectedClass?.courseIds?.[selectedBoard]]
+        }
+        boardGroup={currentBoardGroup?.title}
+        board={currentBoard?.title}
+        selectedClass={
+          selectedClass?.subtitle
+            ? `${selectedClass.title} (${selectedClass.subtitle})`
+            : selectedClass?.title
+        }
+        onBack={(level) => {
+          if (level === 'boards') {
+            setSelectedBoardGroup(null);
+            setSelectedBoard(null);
+            setSelectedClass(null);
+            setActiveCourse(null);
+            return;
           }
-          onBack={(level) => { handleTrailClick(level); }}
-          onEnroll={() => {
-            if (!isAuthenticated) { navigate('/login'); return; }
-            setEnrollModalCourseId(activeCourseId);
-          }}
-        />
-        {enrollModalCourseId && (
-          <EnrollModal
-            courseId={enrollModalCourseId}
-            onClose={() => setEnrollModalCourseId(null)}
-          />
-        )}
-      </>
+
+          if (level === 'boardGroup') {
+            setSelectedBoard(null);
+            setSelectedClass(null);
+            setActiveCourse(null);
+            return;
+          }
+
+          if (level === 'board') {
+            setSelectedClass(null);
+            setActiveCourse(null);
+            return;
+          }
+
+          if (level === 'class') {
+            setActiveCourse(null);
+          }
+        }}
+      />
     );
   }
 
@@ -899,66 +816,58 @@ const handleClassSelect = (cls) => {
       : CLASSES;
 
     return (
-      <>
-        <section className="courses-page">
-          <div className="courses-container">
-            <SectionHeader
-              title="Courses"
-              subtitle=""
-              trail={[
-                { key: 'boards', label: 'Boards' },
-                { key: 'boardGroup', label: currentBoardGroup?.title || 'Board Type' },
-                { key: 'board', label: currentBoard?.title || 'Board' },
-              ]}
-              onTrailClick={handleTrailClick}
-              rightSlot={searchBar('Search course…')}
-            />
-
-            {searchQuery.trim() && (
-              <p className="courses-search-count">
-                {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;
-                {searchQuery.trim()}&rdquo;
-              </p>
-            )}
-
-            {classesToShow.length > 0 ? (
-              <div className="courses-grid courses-grid--classes">
-                {classesToShow.map((cls) => {
-                  const cid = cls.courseIds?.[selectedBoard];
-                  const status = cid ? enrollmentStatusByCourseId[cid] : undefined;
-
-                  return (
-                    <ClassCourseTile
-                      key={cls.id}
-                      image={cls.image}
-                      title={cls.title}
-                      subtitle={cls.subtitle}
-                      desc={cls.desc}
-                      duration={cls.duration}
-                      fee={cls.fee}
-                      access={cls.access}
-                      mode={cls.mode}
-                      onViewDetails={() => handleClassSelect(cls)}
-                      onEnroll={() => handleEnrollNow(cls)}
-                      enrollmentStatus={status}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="courses-search-empty">
-                No classes found for &ldquo;{searchQuery.trim()}&rdquo;
-              </p>
-            )}
-          </div>
-        </section>
-        {enrollModalCourseId && (
-          <EnrollModal
-            courseId={enrollModalCourseId}
-            onClose={() => setEnrollModalCourseId(null)}
+      <section className="courses-page">
+        <div className="courses-container">
+          <SectionHeader
+            title="Courses"
+            subtitle=""
+            trail={[
+              { key: 'boards', label: 'Boards' },
+              { key: 'boardGroup', label: currentBoardGroup?.title || 'Board Type' },
+              { key: 'board', label: currentBoard?.title || 'Board' },
+            ]}
+            onTrailClick={handleTrailClick}
+            rightSlot={searchBar('Search course…')}
           />
-        )}
-      </>
+
+          {searchQuery.trim() && (
+            <p className="courses-search-count">
+              {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;
+              {searchQuery.trim()}&rdquo;
+            </p>
+          )}
+
+          {classesToShow.length > 0 ? (
+            <div className="courses-grid courses-grid--classes">
+              {classesToShow.map((cls) => {
+                const cid = cls.courseIds?.[selectedBoard];
+                const status = cid ? enrollmentStatusByCourseId[cid] : undefined;
+
+                return (
+                  <ClassCourseTile
+                    key={cls.id}
+                    image={cls.image}
+                    title={cls.title}
+                    subtitle={cls.subtitle}
+                    desc={cls.desc}
+                    duration={cls.duration}
+                    fee={cls.fee}
+                    access={cls.access}
+                    mode={cls.mode}
+                    onViewDetails={() => handleClassSelect(cls)}
+                    onEnroll={() => handleEnrollNow(cls)}
+                    enrollmentStatus={status}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <p className="courses-search-empty">
+              No classes found for &ldquo;{searchQuery.trim()}&rdquo;
+            </p>
+          )}
+        </div>
+      </section>
     );
   }
 
