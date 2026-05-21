@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../css/Insight.css';
+import '../css/Explore.css';
 
 const stripHtml = (html) => {
   if (!html) return '';
@@ -8,7 +8,7 @@ const stripHtml = (html) => {
   return tmp.textContent || tmp.innerText || '';
 };
 
-const Insight = () => {
+const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [articleData, setArticleData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,6 @@ const Insight = () => {
         console.warn('Intro HTML fetch failed:', err);
       }
 
-      // Try to fetch additional data but don't fail if they don't work
       try {
         wikidataData = await fetchWikidata(query);
       } catch (err) {
@@ -118,27 +117,24 @@ const Insight = () => {
 
   const fetchWikipediaSummary = async (title) => {
     try {
-      // Get the full page content using the parse API
       const parseResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&origin=*`);
       if (parseResponse.ok) {
         const parseData = await parseResponse.json();
         if (parseData.parse && parseData.parse.text) {
           const fullContent = parseData.parse.text['*'];
 
-          // Also get sections for table of contents
           try {
             const sectionsResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
             if (sectionsResponse.ok) {
               const sectionsData = await sectionsResponse.json();
               const sections = sectionsData.remaining?.sections || [];
-              // Filter out unwanted sections like "See also", "References", "External links"
               const filteredSections = sections.filter(section =>
                 !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
               );
               return {
                 title: parseData.parse.title,
                 extract: fullContent,
-                sections: filteredSections.slice(0, 20), // Increased limit to 20 sections
+                sections: filteredSections.slice(0, 20),
                 originalExtract: fullContent
               };
             }
@@ -155,7 +151,6 @@ const Insight = () => {
         }
       }
 
-      // Fallback: Try to get a very long extract (no character limit)
       const extractResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=false&explaintext&format=json&titles=${encodeURIComponent(title)}&origin=*`);
       if (extractResponse.ok) {
         const extractData = await extractResponse.json();
@@ -164,20 +159,18 @@ const Insight = () => {
         const page = pages[pageId];
         if (!page.missing) {
           const fullExtract = page.extract;
-          // Now try to get sections
           try {
             const sectionsResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
             if (sectionsResponse.ok) {
               const sectionsData = await sectionsResponse.json();
               const sections = sectionsData.remaining?.sections || [];
-              // Filter out unwanted sections like "See also", "References", "External links"
               const filteredSections = sections.filter(section =>
                 !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
               );
               return {
                 title: sectionsData.displaytitle || page.title,
                 extract: fullExtract,
-                sections: filteredSections.slice(0, 20), // Increased limit to 20 sections
+                sections: filteredSections.slice(0, 20),
                 originalExtract: fullExtract
               };
             }
@@ -193,31 +186,27 @@ const Insight = () => {
         }
       }
 
-      // Final fallback to mobile-sections API
       const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
       if (!response.ok) throw new Error('Failed to fetch Wikipedia content');
       const data = await response.json();
       const fullText = data.lead?.sections?.map(section => section.text).join(' ') || data.extract || '';
       const sections = data.remaining?.sections || [];
-      // Filter out unwanted sections like "See also", "References", "External links"
       const filteredSections = sections.filter(section =>
         !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
       );
       return {
         title: data.displaytitle || title,
         extract: fullText,
-        sections: filteredSections.slice(0, 20), // Increased limit to 20 sections
+        sections: filteredSections.slice(0, 20),
         originalExtract: fullText
       };
     } catch (err) {
-      // Final fallback with search
       try {
         const searchResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(title)}&format=json&origin=*`);
         if (!searchResponse.ok) throw new Error('Page not found and search failed');
         const searchData = await searchResponse.json();
         if (searchData.query.search && searchData.query.search.length > 0) {
           const bestMatch = searchData.query.search[0].title;
-          // Retry with the best match
           return await fetchWikipediaSummary(bestMatch);
         } else {
           throw new Error('Page not found');
@@ -228,11 +217,8 @@ const Insight = () => {
     }
   };
 
-
-
   const fetchWikidata = async (title) => {
     try {
-      // First search for the Wikidata ID
       const searchResponse = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(title)}&language=en&format=json&origin=*`);
       if (!searchResponse.ok) throw new Error('Failed to search Wikidata');
       const searchData = await searchResponse.json();
@@ -242,8 +228,6 @@ const Insight = () => {
       }
 
       const qid = searchData.search[0].id;
-
-      // Then fetch the entity data
       const entityResponse = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`);
       if (!entityResponse.ok) throw new Error('Failed to fetch Wikidata entity');
       const entityData = await entityResponse.json();
@@ -279,18 +263,15 @@ const Insight = () => {
     }
   };
 
-  // Removed AI summary generation due to hardcoded API key security issue
-  // const generateAISummary = async (text) => { ... }
-
   return (
-    <div className="insight-page">
+    <div className="explore-page">
       {/* Header with Search Bar */}
-      <header className="insight-header">
-        <div className="insight-container">
-          <div className="insight-search-bar">
+      <header className="explore-header">
+        <div className="explore-container">
+          <div className="explore-search-bar">
             <input
               type="text"
-              placeholder="Search insights..."
+              placeholder="Search topics to explore..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyPress}
@@ -311,8 +292,8 @@ const Insight = () => {
       </header>
 
       {/* Main Content */}
-      <div className="insight-container">
-        <div className="insight-grid">
+      <div className="explore-container">
+        <div className="explore-grid">
           {/* Main Article */}
           <main>
             {loading ? (
@@ -321,7 +302,7 @@ const Insight = () => {
                 <p>Loading article...</p>
               </div>
             ) : articleData ? (
-              <article className="insight-article-content">
+              <article className="explore-article-content">
                 <h1>{articleData.title}</h1>
 
                 {articleData.description && (
@@ -329,7 +310,7 @@ const Insight = () => {
                 )}
 
                 {articleData.sections && articleData.sections.length > 0 && (
-                  <div className="insight-toc">
+                  <div className="explore-toc">
                     <h2>Contents</h2>
                     <ol>
                       {articleData.sections.map((section, index) => (
@@ -350,41 +331,9 @@ const Insight = () => {
                     </section>
                   );
                 })}
-
-                {/*<section className="insight-related-topics">
-                  <h2>Related Topics</h2>
-                  <ul>
-                    {articleData.relatedTopics && articleData.relatedTopics.length > 0 ? (
-                      articleData.relatedTopics.map((topic, index) => (
-                        <li key={index}>
-                          <button
-                            onClick={() => handleRelatedTopicClick(topic.title)}
-                            className="related-topic-link"
-                          >
-                            {topic.title}
-                          </button>
-                          {topic.description && <span> - {topic.description}</span>}
-                        </li>
-                      ))
-                    ) : (
-                      <>
-                        {articleData.infobox && articleData.infobox.claims && articleData.infobox.claims.P361 && articleData.infobox.claims.P361.length > 0 && (
-                          <li>Part of: {articleData.infobox.claims.P361[0].mainsnak?.datavalue?.value?.id || 'Related entity'}</li>
-                        )}
-                        {articleData.infobox && articleData.infobox.claims && articleData.infobox.claims.P279 && articleData.infobox.claims.P279.length > 0 && (
-                          <li>Subclass of: {articleData.infobox.claims.P279[0].mainsnak?.datavalue?.value?.id || 'Related class'}</li>
-                        )}
-                        {articleData.infobox && articleData.infobox.claims && articleData.infobox.claims.P31 && articleData.infobox.claims.P31.length > 0 && (
-                          <li>Instance of: {articleData.infobox.claims.P31[0].mainsnak?.datavalue?.value?.id || 'Related instance'}</li>
-                        )}
-                        <li>Explore more about {articleData.title} through related searches.</li>
-                      </>
-                    )}
-                  </ul>
-                </section>*/}
               </article>
             ) : (
-              <article className="insight-article-content">
+              <article className="explore-article-content">
                 <h1>Welcome to ShikshaCom Explore</h1>
                 <p>
                   Search for any topic above to get comprehensive information.
@@ -400,7 +349,7 @@ const Insight = () => {
           <div className="right-column">
             {/* Left Sidebar */}
             <aside>
-              <div className="insight-sidebar">
+              <div className="explore-sidebar">
                 <h3>Categories</h3>
                 <ol>
                   <li><a href="#">Education</a></li>
@@ -429,10 +378,9 @@ const Insight = () => {
             {/* Right Sidebar - Infobox */}
             <aside>
               {articleData ? (
-                <div className="insight-infobox">
+                <div className="explore-infobox">
                   <h3>{articleData.title}</h3>
 
-                  {/* Basic Info */}
                   <h4>Article Information</h4>
                   <ul>
                     <li><strong>Topic:</strong> {articleData.title}</li>
@@ -441,7 +389,6 @@ const Insight = () => {
                     )}
                   </ul>
 
-                  {/* Description from Wikipedia summary */}
                   <h4>Description</h4>
                   <p>
                     {articleData.description
@@ -481,17 +428,17 @@ const Insight = () => {
                   </ul>
                 </div>
               ) : (
-                <div className="insight-infobox">
+                <div className="explore-infobox">
                   <h3>ShikshaCom Explore</h3>
                   <img src="/Shiksha.png" alt="Shiksha" />
                   <p>Search for any topic to see structured information.</p>
                   <h4>Key Highlights</h4>
-                    <ul>
-                      <li>In-depth explanations of topics</li>
-                      <li>Clear summaries for quick understanding</li>
-                      <li>Sections and tables for structured learning</li>
-                      <li>Related topics for extended exploration</li>
-                    </ul>
+                  <ul>
+                    <li>In-depth explanations of topics</li>
+                    <li>Clear summaries for quick understanding</li>
+                    <li>Sections and tables for structured learning</li>
+                    <li>Related topics for extended exploration</li>
+                  </ul>
                 </div>
               )}
             </aside>
@@ -502,4 +449,4 @@ const Insight = () => {
   );
 };
 
-export default Insight;  
+export default Explore;
