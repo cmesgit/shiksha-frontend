@@ -214,13 +214,15 @@ const Navbar = () => {
 
                     
 
-                    <button
-                      className="dropdown-item"
-                      onClick={() => { navigate("/form-fillup"); setProfileOpen(false); }}
-                    >
-                      <FiFileText size={16} />
-                      Fill Form
-                    </button>
+                    {!user.profile_complete && (
+                      <button
+                        className="dropdown-item"
+                        onClick={() => { navigate("/form-fillup"); setProfileOpen(false); }}
+                      >
+                        <FiFileText size={16} />
+                        Fill Form
+                      </button>
+                    )}
 
                     <button
                       className="dropdown-item"
