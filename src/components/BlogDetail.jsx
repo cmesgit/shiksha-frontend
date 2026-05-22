@@ -145,6 +145,7 @@ const BlogDetail = () => {
   const { "*": slug } = useParams(); // ✅ IMPORTANT FIX
   const navigate = useNavigate();
   const [showTopButton, setShowTopButton] = useState(false);
+  const [hoveredBtn, setHoveredBtn] = useState(null);
 
   const Component = articleMap[slug];
 
@@ -160,44 +161,83 @@ const BlogDetail = () => {
 
   return (
     <div style={{ position: "relative" }}>
-     <button
-  onClick={() => navigate("/blogs")}
-  style={{
-    position: "fixed",        // FIXED
-    top: "185px",              // below navbar
-    left: "20px",
-    zIndex: 9999,             // ensure visible
-    padding: "8px 12px",
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  }}
->
-  ← Back
-</button>
+      <div
+        style={{
+          position: "fixed",
+          top: "210px",
+          left: "40px",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        <button
+          onClick={() => navigate("/blogs")}
+          onMouseEnter={() => setHoveredBtn("back")}
+          onMouseLeave={() => setHoveredBtn(null)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 20px",
+            background: hoveredBtn === "back"
+              ? "rgba(0, 92, 58, 0.95)"
+              : "rgba(0, 50, 35, 0.82)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.18)",
+            borderRadius: "50px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "600",
+            letterSpacing: "0.4px",
+            boxShadow: hoveredBtn === "back"
+              ? "0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.08)"
+              : "0 4px 16px rgba(0,0,0,0.22)",
+            transform: hoveredBtn === "back" ? "translateX(-3px)" : "translateX(0)",
+            transition: "all 0.25s ease",
+          }}
+        >
+          <span style={{ fontSize: "16px", lineHeight: 1 }}>‹</span>
+          Back
+        </button>
+
+        {showTopButton && (
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onMouseEnter={() => setHoveredBtn("top")}
+            onMouseLeave={() => setHoveredBtn(null)}
+            style={{
+              width: "42px",
+              height: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: hoveredBtn === "top"
+                ? "linear-gradient(135deg, #005c3a, #00875a)"
+                : "linear-gradient(135deg, #003223, #005c3a)",
+              color: "#fff",
+              border: "1px solid rgba(255,255,255,0.18)",
+              borderRadius: "50%",
+              cursor: "pointer",
+              fontSize: "18px",
+              boxShadow: hoveredBtn === "top"
+                ? "0 8px 28px rgba(0,82,46,0.55), 0 0 0 4px rgba(0,135,90,0.2)"
+                : "0 4px 16px rgba(0,50,35,0.45)",
+              transform: hoveredBtn === "top"
+                ? "translateY(-4px) scale(1.1)"
+                : "translateY(0) scale(1)",
+              transition: "all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            ↑
+          </button>
+        )}
+      </div>
 
       {Component ? <Component /> : <h2>Blog not found</h2>}
-
-      <button
-  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-  style={{
-    position: "fixed",
-    right: "20px",
-    bottom: "20px",
-    zIndex: 9999,
-    padding: "10px 14px",
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    borderRadius: "50%",
-    cursor: "pointer",
-    display: showTopButton ? "block" : "none",
-  }}
->
-  ⮝
-</button>
     </div>
   );
 };
