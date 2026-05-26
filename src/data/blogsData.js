@@ -68,6 +68,32 @@ import c9s12 from "../assets/blog/blog-class9/science/12.png";
 import c9s13 from "../assets/blog/blog-class9/science/13.png";
 import c9s14 from "../assets/blog/blog-class9/science/14.png";
 
+// ================= CLASS 9 History IMAGES =================
+
+import c9h1 from "../assets/blog/blog-class9/history/1.png";
+import c9h2 from "../assets/blog/blog-class9/history/2.png";
+import c9h3 from "../assets/blog/blog-class9/history/3.png";
+import c9h4 from "../assets/blog/blog-class9/history/4.png";
+import c9h5 from "../assets/blog/blog-class9/history/5.png";
+import c9h6 from "../assets/blog/blog-class9/history/6.png";
+import c9h7 from "../assets/blog/blog-class9/history/7.png";
+
+
+// ================= CLASS 9 Economics IMAGES =================
+import c9e1 from "../assets/blog/blog-class9/economics/1.png";
+import c9e2 from "../assets/blog/blog-class9/economics/2.png";
+import c9e3 from "../assets/blog/blog-class9/economics/3.png";
+import c9e4 from "../assets/blog/blog-class9/economics/4.png";
+
+
+// ================= CLASS 9 Geography IMAGES =================
+import c9g1 from "../assets/blog/blog-class9/geography/1.png";
+import c9g2 from "../assets/blog/blog-class9/geography/2.png";
+import c9g3 from "../assets/blog/blog-class9/geography/3.png";
+import c9g4 from "../assets/blog/blog-class9/geography/4.png";
+import c9g5 from "../assets/blog/blog-class9/geography/5.png";
+
+
 // ================= DATA =================
 
 const blogsData = [
@@ -516,6 +542,137 @@ const blogsData = [
     thumbnail: c9s14,
   },
 
-];
+  // ================= CLASS 9 HISTORY =================
+  {
+    id: "c9h1",
+    slug: "class-9/history/chapter-1",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 1: The French Revolution",
+    thumbnail: c9h1,
+  },
+  {
+    id: "c9h2",
+    slug: "class-9/history/chapter-2",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 2: Socialism in Europe and the Russian Revolution",
+    thumbnail: c9h2,
+  },
+  {
+    id: "c9h3",
+    slug: "class-9/history/chapter-3",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 3: Nazism and the Rise of Hitler",
+    thumbnail: c9h3,
+  },
+  {
+    id: "c9h4",
+    slug: "class-9/history/chapter-4",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 4: Forest Society and Colonialism",
+    thumbnail: c9h4,
+  },
+  {
+    id: "c9h5",
+    slug: "class-9/history/chapter-5",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 5: Pastoralists in the Modern World",
+    thumbnail: c9h5,
+  },
+ {
+    id: "c9h6",
+    slug: "class-9/history/chapter-6",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 6: Peasants and Farmers",
+    thumbnail: c9h6,
+ },
+ {
+    id: "c9h7",
+    slug: "class-9/history/chapter-7",
+    category: "History",
+    classLevel: "9",
+    title: "Chapter 7: History and Sport: The Story of Cricket",
+    thumbnail: c9h7,
+  },
 
+{
+id: "c9e1",
+slug: "class-9/economics/chapter-1",
+category: "Economics",
+classLevel: "9",
+title: "Chapter 1: The Story of Village Palampur",
+thumbnail: c9e1
+},
+{
+id: "c9e2",
+slug: "class-9/economics/chapter-2",
+category: "Economics",
+classLevel: "9",
+title: "Chapter 2: people as Resource",
+thumbnail: c9e2
+},
+{
+id: "c9e3",
+slug: "class-9/economics/chapter-3",
+category: "Economics",
+classLevel: "9",
+title: "Chapter 3:  Poverty as a Challenge",
+thumbnail: c9e3
+},
+{
+id: "c9e4",
+slug: "class-9/economics/chapter-4",
+category: "Economics",
+classLevel: "9",
+title: "Chapter 4: Food Security in India",
+thumbnail: c9e4
+},
+
+{
+  id: "c9g1",
+  slug: "class-9/geography/chapter-1",
+  category: "Geography",
+  classLevel: "9",
+  title: "Chapter 1: India - Size and Location",
+  thumbnail: c9g1
+},
+{
+  id: "c9g2",
+  slug: "class-9/geography/chapter-2",
+  category: "Geography",
+  classLevel: "9",
+  title: "Chapter 2: Physical Features of India",
+  thumbnail: c9g2
+},
+{
+  id: "c9g3",
+  slug: "class-9/geography/chapter-3",
+  category: "Geography",
+  classLevel: "9",
+  title: "Chapter 3: Drainage",
+  thumbnail: c9g3
+},
+{
+  id: "c9g4",
+  slug: "class-9/geography/chapter-4",
+  category: "Geography",
+  classLevel: "9",
+  title: "Chapter 4: Climate",
+  thumbnail: c9g4
+},{
+  id: "c9g5",
+  slug: "class-9/geography/chapter-5",
+  category: "Geography",
+  classLevel: "9",
+  title: "Chapter 5: Natural Vegetation and Wildlife",
+  thumbnail: c9g5
+}
+
+
+];
 export default blogsData;

@@ -69,6 +69,30 @@ import C9Chapter12 from "./blogs/class-9/science/Chapter12.jsx";
 import C9Chapter13 from "./blogs/class-9/science/Chapter13.jsx";
 import C9Chapter14 from "./blogs/class-9/science/Chapter14.jsx";
 
+//class 9 history
+import C9Chapter1History from "./blogs/class-9/history/Chapter1.jsx";
+import C9Chapter2History from "./blogs/class-9/history/Chapter2.jsx";
+import C9Chapter3History from "./blogs/class-9/history/Chapter3.jsx";
+import C9Chapter4History from "./blogs/class-9/history/Chapter4.jsx";
+import C9Chapter5History from "./blogs/class-9/history/Chapter5.jsx";
+import C9Chapter6History from "./blogs/class-9/history/Chapter6.jsx";
+import C9Chapter7History from "./blogs/class-9/history/Chapter7.jsx";
+
+//class9 geography
+import c9Chapter1Geography from "./blogs/class-9/geography/Chapter1.jsx";
+import c9Chapter2Geography from "./blogs/class-9/geography/Chapter2.jsx";
+import c9Chapter3Geography from "./blogs/class-9/geography/Chapter3.jsx";
+import c9Chapter4Geography from "./blogs/class-9/geography/Chapter4.jsx";
+import c9Chapter5Geography from "./blogs/class-9/geography/Chapter5.jsx";
+
+//class 9 economics
+import c9Chapter1Economics from "./blogs/class-9/economics/Chapter1.jsx";
+import c9Chapter2Economics from "./blogs/class-9/economics/Chapter2.jsx";
+import c9Chapter3Economics from "./blogs/class-9/economics/Chapter3.jsx";
+import c9Chapter4Economics from "./blogs/class-9/economics/Chapter4.jsx";
+
+
+
 /* ================= MAP ================= */
 
 const articleMap = {
@@ -122,7 +146,7 @@ const articleMap = {
   "class-10/science/chapter-15": Chapter15Science,
   "class-10/science/chapter-16": Chapter16Science,
 
-  // Class 9
+  // Class 9 science
   "class-9/science/chapter-1": C9Chapter1,
   "class-9/science/chapter-2": C9Chapter2,
   "class-9/science/chapter-3": C9Chapter3,
@@ -137,12 +161,35 @@ const articleMap = {
   "class-9/science/chapter-12": C9Chapter12,
   "class-9/science/chapter-13": C9Chapter13,
   "class-9/science/chapter-14": C9Chapter14,
+
+  // Class 9 History
+"class-9/history/chapter-1": C9Chapter1History,
+"class-9/history/chapter-2": C9Chapter2History,
+"class-9/history/chapter-3": C9Chapter3History,
+"class-9/history/chapter-4": C9Chapter4History,
+"class-9/history/chapter-5": C9Chapter5History,
+"class-9/history/chapter-6": C9Chapter6History,
+"class-9/history/chapter-7": C9Chapter7History,
+ 
+// Class 9 Geography
+"class-9/geography/chapter-1": c9Chapter1Geography,
+"class-9/geography/chapter-2": c9Chapter2Geography,
+"class-9/geography/chapter-3": c9Chapter3Geography,
+"class-9/geography/chapter-4": c9Chapter4Geography,
+"class-9/geography/chapter-5": c9Chapter5Geography,
+
+// Class 9 Economics
+"class-9/economics/chapter-1": c9Chapter1Economics,
+"class-9/economics/chapter-2": c9Chapter2Economics,
+"class-9/economics/chapter-3": c9Chapter3Economics,
+"class-9/economics/chapter-4": c9Chapter4Economics,
+
 };
 
 /* ================= COMPONENT ================= */
 
 const BlogDetail = () => {
-  const { "*": slug } = useParams(); // ✅ IMPORTANT FIX
+  const { "*": slug } = useParams(); 
   const navigate = useNavigate();
   const [showTopButton, setShowTopButton] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState(null);
