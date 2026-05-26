@@ -75,7 +75,6 @@ import C9Chapter2History from "./blogs/class-9/history/Chapter2.jsx";
 import C9Chapter3History from "./blogs/class-9/history/Chapter3.jsx";
 import C9Chapter4History from "./blogs/class-9/history/Chapter4.jsx";
 import C9Chapter5History from "./blogs/class-9/history/Chapter5.jsx";
-import C9Chapter6History from "./blogs/class-9/history/Chapter6.jsx";
 import C9Chapter7History from "./blogs/class-9/history/Chapter7.jsx";
 
 //class9 geography
