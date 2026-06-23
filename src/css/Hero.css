@@ -115,7 +115,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  background: transparent;
+  padding: 4px;
+
   transform: translateZ(0);
   will-change: transform;
   transition: transform 0.5s ease;
@@ -254,8 +258,14 @@
     gap: 10px;
   }
   .scard {
-    height: 130px;
+    height: 150px;
   }
+
+  .scard-img {
+    object-fit: contain;
+    padding: 4px;
+  }
+
   .updates-panel {
     max-width: 100%;
     width: 100%;
@@ -278,8 +288,14 @@
     gap: 10px;
   }
   .scard {
-    height: 130px;
+    height: 140px;
   }
+
+  .scard-img {
+    object-fit: contain;
+    padding: 4px;
+  }
+
   .updates-panel {
     max-width: 100%;
   }
@@ -289,6 +305,12 @@
   .scard {
     height: 110px;
   }
+
+  .scard-img {
+    object-fit: contain;
+    padding: 4px;
+  }
+
   .subject-grid {
     gap: 8px;
   }

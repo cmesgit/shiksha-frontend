@@ -154,9 +154,9 @@ const Navbar = () => {
     <>
       <div className={`top-strip ${hideTopStrip ? "top-strip--hidden" : ""}`}>
         <marquee width="90%" direction="left" height="30px" scrollAmount="10">
-          <span>Hurry Up!!! Admission is going on.</span>
-          <span> | New session starts from 2026 | </span>
-          <span className="blink">Register Now!</span>
+          <span>Start learning today and achieve your academic goals.</span>
+          <span> | Expert mentors | Interactive classes | Learn at your own pace | </span>
+          <span className="blink">Enroll Now!</span>
         </marquee>
 
         {/*

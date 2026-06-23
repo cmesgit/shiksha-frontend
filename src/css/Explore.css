@@ -15,16 +15,7 @@
 }
 
 .explore-page::before {
-  content: "";
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 67, 18, 0.16), transparent 70%);
-  top: -160px;
-  right: -80px;
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 /* ── Header ── */
