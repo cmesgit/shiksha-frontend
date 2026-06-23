@@ -1,22 +1,22 @@
-/* Profile.jsx — wired Skill Development teacher profile.
-   ────────────────────────────────────────────────────────────────
-   Wired to the Django backend through ../../api/skillApi.js:
+/* PLACEMENT: src/components/skill/Profile.jsx
+   ACTION:    Replace the entire file.
 
-     • course      → fetchExpertCourse(expert.id)   GET /skill/courses/
-     • reviews     → fetchExpertReviews(expert.id)  GET /skill/teachers/<id>/reviews/
-     • book a slot → nav("payment", { sessionDraft }) — goes through PaymentScreen
-     • buy course  → enrollCourse(course.id)        POST /skill/courses/<id>/enroll/
-     • message     → messageExpert(expert.id, txt)  POST /skill/conversations/
+   Fixes from original:
 
-   CHANGES vs original:
-     1. confirmBook() now navigates to "payment" with a sessionDraft instead of
-        calling requestSession() inline — so the learner goes through PaymentScreen.
-     2. Category lookup uses (s.slug || s.id) so it works with both backend UUIDs
-        and mock data where id === slug. */
+   FIX 1 — confirmMsg() now sends the message AND redirects to the student
+   app's SkillMessages page with teacher_profile_id in the query string,
+   so the conversation continues in the real WS inbox — not a dead REST thread.
+
+   FIX 2 — "ok: buy" modal now has a "Go to my courses" button that redirects
+   to APP_URL + "/" (student dashboard root) instead of doing nothing.
+
+   t.teacher_profile_id is available after the backend serializers.py fix. */
+
 import React, { useState, useEffect } from "react";
 import { SKILL_CATEGORIES } from "./data";
 import { SDAvail } from "./availability";
 import * as skillApi from "../../api/skillApi";
+import { APP_URL } from "../../config/urls";
 import "./SkillProfile.css";
 
 /* ── inline icon set ─────────────────────────────────────────── */
@@ -100,20 +100,18 @@ function AvailGrid({ tid, interactive, selected, onPick }) {
 }
 
 export default function Profile({ t, nav, initialMode }) {
-  // FIX: use slug || id so this works whether categories come from backend (UUID id + slug)
-  // or mock data (id === slug string like "coding")
   const cat = SKILL_CATEGORIES.find(s => (s.slug || s.id) === t.cat) || SKILL_CATEGORIES[0];
   const first = (t.name || "").split(" ")[0];
 
-  const [course, setCourse] = useState(undefined);
+  const [course, setCourse]   = useState(undefined);
   const [reviews, setReviews] = useState({ count: 0, list: [] });
-  const [mode, setMode] = useState(initialMode === "course" ? "course" : "live");
-  const [modal, setModal] = useState(null);
-  const [slot, setSlot] = useState(null);
+  const [mode, setMode]       = useState(initialMode === "course" ? "course" : "live");
+  const [modal, setModal]     = useState(null);
+  const [slot, setSlot]       = useState(null);
   const [allOpen, setAllOpen] = useState({ 0: true });
-  const [bTopic, setBTopic] = useState("");
-  const [bDur, setBDur] = useState(0);
-  const [pay, setPay] = useState("UPI");
+  const [bTopic, setBTopic]   = useState("");
+  const [bDur, setBDur]       = useState(0);
+  const [pay, setPay]         = useState("UPI");
   const [buyEmail, setBuyEmail] = useState("");
   const [msgText, setMsgText] = useState("");
 
@@ -128,7 +126,8 @@ export default function Profile({ t, nav, initialMode }) {
     }).catch(() => {
       if (!alive) return;
       setReviews({ count: 0, list: [] });
-      skillApi.fetchExpertCourse(t.id, { rating: t.rating }).then(c => alive && setCourse(c || null)).catch(() => setCourse(null));
+      skillApi.fetchExpertCourse(t.id, { rating: t.rating })
+        .then(c => alive && setCourse(c || null)).catch(() => setCourse(null));
     });
     return () => { alive = false; };
   }, [t.id, t.rating]);
@@ -139,13 +138,13 @@ export default function Profile({ t, nav, initialMode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const hasCourse = !!course;
+  const hasCourse     = !!course;
   const totalLectures = hasCourse ? course.curriculum.reduce((a, s) => a + s.l.length, 0) : 0;
-  const reviewN = reviews.count;
-  const responds = t.sessions > 120 ? "within 1 hour" : t.sessions > 80 ? "within 2 hours" : "within 4 hours";
-  const loc = "Online only";
-  const off = hasCourse && course.old ? Math.round((1 - course.price / course.old) * 100) : 0;
-  const effMode = hasCourse ? mode : "live";
+  const reviewN       = reviews.count;
+  const responds      = t.sessions > 120 ? "within 1 hour" : t.sessions > 80 ? "within 2 hours" : "within 4 hours";
+  const loc           = "Online only";
+  const off           = hasCourse && course.old ? Math.round((1 - course.price / course.old) * 100) : 0;
+  const effMode       = hasCourse ? mode : "live";
 
   function scrollToCard() {
     if (window.innerWidth > 900) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -161,21 +160,13 @@ export default function Profile({ t, nav, initialMode }) {
   }
   const everyOpen = hasCourse && course.curriculum.every((_, i) => allOpen[i]);
 
-  /* ── action handlers ──────────────────────────────────────── */
-
-  // FIX: instead of calling requestSession() inline, build a sessionDraft and
-  // navigate to PaymentScreen which handles payment + session creation.
   function confirmBook() {
-    const durations = [60, 90, 120];
+    const durations   = [60, 90, 120];
     const duration_mins = durations[bDur] || 60;
-    const slotLabel = slot ? SDAvail.label(slot) : null;
-
-    // Parse slot label "Mon 23 · 6 PM" into a rough date/time for the confirmation screen.
-    // The real scheduled_for is set by the teacher when they confirm via their dashboard.
+    const slotLabel   = slot ? SDAvail.label(slot) : null;
     const sessionDraft = {
       topic:        bTopic || `Intro to ${t.skills?.[0] || "the skill"}`,
-      slot,
-      slotLabel,
+      slot, slotLabel,
       date:         slotLabel ? slotLabel.split(" · ")[0] : null,
       time:         slotLabel ? slotLabel.split(" · ")[1] : null,
       mode:         "online",
@@ -183,7 +174,6 @@ export default function Profile({ t, nav, initialMode }) {
       expertId:     t.id,
       note:         (bTopic ? `Topic: ${bTopic}. ` : "") + (slotLabel ? `Requested slot: ${slotLabel}.` : ""),
     };
-
     setModal(null);
     nav("payment", { teacher: t, sessionDraft });
   }
@@ -194,12 +184,25 @@ export default function Profile({ t, nav, initialMode }) {
     catch (e) { console.warn("enrollCourse failed (demo continues):", e?.message); }
     setModal({ ok: "buy" });
   }
+
+  // FIX 1: after sending, redirect to the student app's SkillMessages page
+  // with teacher_profile_id so it opens the live WS DM immediately.
+  // t.teacher_profile_id = TeacherProfile UUID (from ExpertCardSerializer after backend fix).
   async function confirmMsg() {
     setModal("busy");
-    try { await skillApi.messageExpert(t.id, msgText); }
-    catch (e) { console.warn("messageExpert failed (demo continues):", e?.message); }
+    try {
+      await skillApi.messageExpert(t.id, msgText);
+    } catch (e) {
+      console.warn("messageExpert failed (demo continues):", e?.message);
+    }
     setModal({ ok: "msg" });
+    // Redirect after a short pause so the user sees the success state
+    if (t.teacher_profile_id) {
+      const dest = `${APP_URL}/skill-messages?teacherProfileId=${t.teacher_profile_id}&expertName=${encodeURIComponent(t.name)}`;
+      setTimeout(() => { window.location.href = dest; }, 1400);
+    }
   }
+
   function openBook() { setSlot(null); setBTopic(""); setBDur(0); setModal("book"); }
 
   return (
@@ -424,7 +427,11 @@ export default function Profile({ t, nav, initialMode }) {
           <div className="ic"><Ic n="check" w={26} sw={2.5} /></div>
           <h3>You're enrolled! 🎉</h3>
           <p>"{course.title}" is now in your library with lifetime access. Start anytime — your first lessons are ready.</p>
-          <button className="btn btn-accent" style={{ margin: "16px auto 0" }} onClick={() => setModal(null)}>Start learning <Ic n="arrow" w={16} /></button>
+          {/* FIX 2: button now redirects to student dashboard instead of doing nothing */}
+          <button className="btn btn-accent" style={{ margin: "16px auto 0" }}
+            onClick={() => { window.location.href = APP_URL + "/"; }}>
+            Start learning <Ic n="arrow" w={16} />
+          </button>
         </div>
       );
     }
@@ -433,8 +440,14 @@ export default function Profile({ t, nav, initialMode }) {
         <div className="ok">
           <div className="ic"><Ic n="check" w={26} sw={2.5} /></div>
           <h3>Message sent to {first}</h3>
-          <p>You'll get their reply in your inbox.</p>
-          <button className="btn btn-ghost" style={{ margin: "16px auto 0" }} onClick={() => setModal(null)}>Done</button>
+          <p>Taking you to your messages…</p>
+          {/* Fallback button if redirect is slow */}
+          {t.teacher_profile_id && (
+            <button className="btn btn-ghost" style={{ margin: "16px auto 0" }}
+              onClick={() => { window.location.href = `${APP_URL}/skill-messages?teacherProfileId=${t.teacher_profile_id}&expertName=${encodeURIComponent(t.name)}`; }}>
+              Open messages now
+            </button>
+          )}
         </div>
       );
     }
@@ -492,7 +505,7 @@ export default function Profile({ t, nav, initialMode }) {
         <>
           <div className="mh"><div><h3>Message {first}</h3><div className="who">Usually replies {responds}</div></div><CloseBtn /></div>
           <div className="field"><label>Your message</label><textarea className="inp" value={msgText} onChange={e => setMsgText(e.target.value)} placeholder={`Hi ${first}, I'd like to learn ${t.skills?.[0] || "this skill"}. I'm a beginner with about 3 hrs a week — could we chat?`} /></div>
-          <div className="summary">Replies arrive in your inbox and by email.</div>
+          <div className="summary">Replies arrive in your messages inbox.</div>
           <button className="btn btn-forest" style={{ width: "100%", justifyContent: "center" }} onClick={confirmMsg} disabled={!msgText.trim()}><Ic n="send" w={16} /> Send message</button>
         </>
       );
