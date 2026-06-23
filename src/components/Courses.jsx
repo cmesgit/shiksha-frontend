@@ -7,6 +7,7 @@ import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
+import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { APP_URL } from '../config/urls';
 
@@ -709,7 +710,7 @@ const Courses = () => {
       return;
     }
 
-    if (user?.profile_complete === false) {
+    if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {
       openWithMessage('Please complete your profile to enroll in a course.');
       return;
     }
@@ -799,7 +800,7 @@ const Courses = () => {
           onBack={(level) => { handleTrailClick(level); }}
           onEnroll={() => {
             if (!isAuthenticated) { navigate('/login'); return; }
-            if (user?.profile_complete === false) {
+            if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {
               openWithMessage('Please complete your profile to subscribe to a course.');
               return;
             }

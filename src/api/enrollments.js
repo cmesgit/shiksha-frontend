@@ -11,10 +11,32 @@ export const submitEnrollmentRequest = (formData) =>
 export const getMyEnrollmentRequests = () =>
   api.get("/enrollments/requests/mine/").then((r) => r.data);
 
-// --- Free trial ---
+// --- Pluggable payment mode (free / manual_upi / razorpay) ---
 
-export const getTrialStatus = (courseId) =>
-  api.get(`/enrollments/courses/${courseId}/trial-status/`).then((r) => r.data);
+/**
+ * Active payment mode, set by the admin in GlobalSettings (no restart).
+ * Shape: { provider, label, is_free, auto_activate, requires_manual_proof,
+ *          collects_money }
+ * Falls back to "free" if the endpoint is unavailable so the UI never hard-fails.
+ */
+export const getPaymentConfig = () =>
+  api
+    .get("/enrollments/payment-config/")
+    .then((r) => r.data)
+    .catch(() => ({
+      provider: "free",
+      label: "Free (no payment)",
+      is_free: true,
+      auto_activate: true,
+      requires_manual_proof: false,
+      collects_money: false,
+    }));
 
-export const startTrial = (courseId) =>
-  api.post(`/enrollments/courses/${courseId}/start-trial/`).then((r) => r.data);
+/**
+ * One-tap enrollment while the platform is free. The backend only honours this
+ * when the active provider auto-activates (i.e. free mode), so flipping to a
+ * paid mode closes this door automatically.
+ * Returns: { detail, course_id, subscription: { id, status, expires_at } }
+ */
+export const freeEnroll = (courseId) =>
+  api.post("/enrollments/free-enroll/", { course: courseId }).then((r) => r.data);

@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 
 /**
  * RequireProfileComplete — two-way gate.
@@ -12,12 +13,18 @@ import { useAuth } from "../contexts/AuthContext";
  * Only enforced for the learner context. Account/teacher contexts pass through
  * (a teacher filling out the learner form would make no sense; the student app
  * has its own RequireProfileComplete that mirrors this).
+ *
+ * When FORM_FILLUP_ENABLED is false (the current default) this guard is a
+ * no-op: learners are never forced onto the form. See config/featureFlags.js.
  */
 const RequireProfileComplete = ({ children }) => {
   const { user, isLearnerContext, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return null;
+
+  // Enforcement disabled → let everything through untouched.
+  if (!FORM_FILLUP_ENABLED) return children;
 
   const complete =
     user?.profile_complete ??

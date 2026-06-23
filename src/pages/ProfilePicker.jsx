@@ -44,6 +44,7 @@ const ProfilePicker = () => {
   const [pin, setPin]         = useState("");
   const [busy, setBusy]       = useState(false);
   const [error, setError]     = useState("");
+  const [leaving, setLeaving] = useState(null); // label shown during fade-out before redirect
 
   // Teacher-mode: reveal password, then (if 2 approved tracks) choose a dashboard.
   const [teachPwVisible, setTeachPwVisible] = useState(false);
@@ -66,10 +67,19 @@ const ProfilePicker = () => {
     }
   }, [loading, isAuthenticated, context]);
 
-  const goLearner = () => { window.location.href = APP_DASHBOARD_URL; };
-  const goTeacherTrack = (track) => {
-    window.location.href = track === "academy" ? TEACHER_ACADEMY_URL : TEACHER_SKILL_URL;
+  // A profile/track choice ends in a full-page navigation. Play a short
+  // fade-out + "Opening…" state first so the hard jump doesn't feel abrupt.
+  const fadeThenGo = (url, label) => {
+    setLeaving(label || "Opening…");
+    window.setTimeout(() => { window.location.href = url; }, 340);
   };
+  const goLearner = (name) =>
+    fadeThenGo(APP_DASHBOARD_URL, name ? `Opening ${name}'s space…` : "Opening…");
+  const goTeacherTrack = (track) =>
+    fadeThenGo(
+      track === "academy" ? TEACHER_ACADEMY_URL : TEACHER_SKILL_URL,
+      `Opening ${TRACK_NAME[track]}…`
+    );
 
   const choose = async (profile) => {
     setError("");
@@ -81,7 +91,7 @@ const ProfilePicker = () => {
     setBusy(true);
     try {
       await selectProfile(profile.id, profile.requires_pin ? pin : undefined);
-      goLearner();
+      goLearner(profile.display_name);
     } catch (err) {
       setError(err?.message || "Could not open that profile.");
       setBusy(false);
@@ -126,16 +136,39 @@ const ProfilePicker = () => {
     return "Teaching";
   };
 
-  return (
-    <div className="pp-container">
-      <div className="pp-inner">
-        <h1 className="pp-title">Who's learning?</h1>
+  // While the account session resolves, show a calm loader instead of a
+  // flash of an empty "Who's learning?" grid that then pops full.
+  if (loading || !isAuthenticated || context === "learner" || context === "teacher") {
+    return (
+      <div className="pp-container">
+        <div className="pp-loading">
+          <div className="pp-spinner" />
+          <p>{leaving || "Loading…"}</p>
+        </div>
+      </div>
+    );
+  }
 
-        {error && <p className="pp-error">{error}</p>}
+  return (
+    <div className={`pp-container${leaving ? " pp-container--leaving" : ""}`}>
+      {leaving && (
+        <div className="pp-leaving" role="status" aria-live="polite">
+          <div className="pp-spinner" />
+          <p>{leaving}</p>
+        </div>
+      )}
+      <div className="pp-inner">
+        <h1 className="pp-title pp-fade-in">Who&apos;s learning?</h1>
+
+        {error && <p className="pp-error pp-fade-in">{error}</p>}
 
         <div className="pp-grid">
-          {profiles.map((p) => (
-            <div key={p.id} className="pp-card">
+          {profiles.map((p, i) => (
+            <div
+              key={p.id}
+              className="pp-card pp-card--enter"
+              style={{ animationDelay: `${i * 55}ms` }}
+            >
               <button
                 type="button"
                 className="pp-card-btn"
@@ -149,7 +182,7 @@ const ProfilePicker = () => {
               </button>
 
               {pinFor === p.id && p.requires_pin && (
-                <div className="pp-pin-row">
+                <div className="pp-pin-row pp-reveal">
                   <input
                     className="pp-pin"
                     inputMode="numeric"
@@ -170,7 +203,10 @@ const ProfilePicker = () => {
           ))}
 
           {teacherInfo && (
-            <div className="pp-card">
+            <div
+              className="pp-card pp-card--enter"
+              style={{ animationDelay: `${profiles.length * 55}ms` }}
+            >
               <button
                 type="button"
                 className="pp-card-btn pp-teach"
@@ -184,7 +220,7 @@ const ProfilePicker = () => {
 
               {/* Step 1: account password */}
               {teachPwVisible && !chooseTrack && (
-                <div className="pp-pin-row">
+                <div className="pp-pin-row pp-reveal">
                   <input
                     className="pp-pin"
                     type="password"
@@ -207,7 +243,7 @@ const ProfilePicker = () => {
 
               {/* Step 2 (both tracks): choose which dashboard */}
               {chooseTrack && (
-                <div className="pp-track-choose">
+                <div className="pp-track-choose pp-reveal">
                   <p className="pp-track-choose__label">Open which dashboard?</p>
                   {approved.map((t) => (
                     <button key={t} className="pp-track-btn" disabled={busy}

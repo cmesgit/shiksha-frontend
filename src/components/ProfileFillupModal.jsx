@@ -3,11 +3,19 @@ import { useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useProfileModal } from "../contexts/ProfileModalContext";
+import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import FormFillup from "./FormFillup";
 import ProfileSuccessModal from "./ProfileSuccessModal";
 import "../css/ProfileFillupModal.css";
 
 const ProfileFillupModal = () => {
+  // Form-fillup enforcement is turned off platform-wide. Render nothing so the
+  // post-login popup never appears. (Re-enable via config/featureFlags.js.)
+  if (!FORM_FILLUP_ENABLED) return null;
+  return <ProfileFillupModalInner />;
+};
+
+const ProfileFillupModalInner = () => {
   const { user, isAuthenticated } = useAuth();
   const { notification, clearNotification } = useProfileModal();
   const location = useLocation();
