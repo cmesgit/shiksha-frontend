@@ -1,179 +1,175 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
-import "./Login.css";
+import { AuthShell, Field, PasswordField, FooterLink } from "./AuthKit";
 
-const EyeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>
-);
+/* ════════════════════════════════════════════════════════════════
+   Login — CLEAN single-account model (Netflix flow)
 
-const EyeOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>
-);
+   You log in ONCE. Then the picker decides who you are.
 
-const Login = () => {
-  const { login } = useAuth();
-  const { showToast } = useToast();
+   Step 1  email      → optional pre-auth lookup for a friendly greeting
+   Step 2  password   → POST /accounts/login/
+                          · context "learner" (backend auto-selected a single
+                            PIN-free profile, no teacher) → student dashboard
+                          · context "account" (multiple profiles, a PIN, or a
+                            teacher identity exists) → /pick-profile
+
+   REMOVED vs. the old flow (this was the source of the confusion):
+     - "Log in as Student / Teacher / Admin" role grid    → gone
+     - Teacher "Learner | Teacher" sub-choice             → gone (picker does it)
+     - Pre-auth profile GRID on the login screen          → gone (picker does it)
+     - Teacher-type (Guest | Faculty) picker              → gone (routed by backend)
+     - Admin 2FA stub screen                              → gone (admins log in
+       with the same email + password and are routed by role; see ADMIN note)
+
+   The ProfilePicker (/pick-profile) is the single switchboard for
+   "who am I right now": learner tiles (people) + one Teaching tile (a mode).
+════════════════════════════════════════════════════════════════ */
+
+const STEP_EMAIL = "email";
+const STEP_PW     = "pw";
+
+function readErr(err, fallback) {
+  const raw = err?.message ?? err;
+  return raw instanceof Error ? raw.message
+    : typeof raw === "string" ? raw
+    : err?.response?.data?.detail || fallback;
+}
+
+export default function Login() {
+  const { login, lookupEmail } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
-  const [identifier, setIdentifier] = useState("");
-  const [username, setUsername] = useState("");      // only used after a 409
-  const [needUsername, setNeedUsername] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [step, setStep]             = useState(STEP_EMAIL);
+  const [email, setEmail]           = useState("");
+  const [password, setPassword]     = useState("");
+  const [showPw, setShowPw]         = useState(false);
+  const [greetName, setGreetName]   = useState("");
+  const [error, setError]           = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [statusMsg, setStatusMsg]   = useState("");
 
-  // Show message passed from signup / password-reset redirects.
+  // Carry messages forwarded from signup / "identity added" flows.
   useEffect(() => {
-    if (location.state?.message) {
-      setStatusMessage(location.state.message);
-    }
+    if (location.state?.message) setStatusMsg(location.state.message);
   }, [location.state]);
 
-  const handleSubmit = async (e) => {
+
+
+  /* ── Step 1: email → friendly greeting, then password ── */
+  const submitEmail = async (e) => {
     e.preventDefault();
     setError("");
-    setStatusMessage("");
+    if (!email.trim()) { setError("Please enter your email."); return; }
     setSubmitting(true);
-
-    // After a 409, the user types their username; that becomes the identifier.
-    const idToSend = needUsername ? username.trim() : identifier.trim();
-
     try {
-      setStatusMessage("Checking your account...");
-      const { redirect } = await login(idToSend, password);
-
-      showToast({ message: "You are logged in! Welcome back.", duration: 2500 });
-
-      let redirectTo = "/";
-      try {
-        const stashed = sessionStorage.getItem("post_auth_redirect");
-        if (stashed && stashed.startsWith("/") && !stashed.startsWith("//")) {
-          redirectTo = stashed;
-        }
-        sessionStorage.removeItem("post_auth_redirect");
-      } catch (_) { /* sessionStorage unavailable */ }
-
-      // If the backend points us at a dashboard on a different host, go there.
-      // Same-host (or malformed) → fall through to in-app navigation.
-      if (redirect?.dashboard_url) {
-        try {
-          const target = new URL(redirect.dashboard_url);
-          if (target.hostname !== window.location.hostname) {
-            window.location.href = redirect.dashboard_url;
-            return;
-          }
-        } catch (_) { /* malformed url — fall through */ }
-      }
-
-      navigate(redirectTo, { replace: true });
-    } catch (err) {
-      setStatusMessage("");
-      if (err?.code === "ambiguous_email") {
-        // Shared email → reveal the username field and ask them to retry.
-        setNeedUsername(true);
-        setPassword("");
-        setError(
-          "This email is linked to more than one account. " +
-          "Please enter your username to sign in."
-        );
-      } else {
-        setError(err?.message || "Login failed");
-      }
+      // Pre-auth lookup returns display names only (no secrets). Used purely
+      // to greet the user; failure is non-blocking and never reveals whether
+      // the email exists beyond what the picker already shows.
+      const data = await lookupEmail(email);
+      const first = (data?.profiles || [])[0];
+      setGreetName(first?.display_name || "");
+    } catch {
+      setGreetName("");
+    } finally {
       setSubmitting(false);
+      setStep(STEP_PW);
     }
   };
 
+  /* ── Step 2: password → real login → let App.jsx route by context ── */
+  const submitPw = async (e) => {
+    e.preventDefault();
+    setError(""); setSubmitting(true);
+    try {
+      setStatusMsg("Checking your account…");
+      await login(email, password);
+      // login() now always runs bootstrap() before returning, so by the time
+      // we reach here: isAuthenticated=true, context is set, user is populated.
+      //
+      // App.jsx's /login route already handles all three outcomes:
+      //   context="learner"  → window.location.replace(APP_DASHBOARD_URL)
+      //   context="teacher"  → window.location.replace(TEACHER_DASHBOARD_URL)
+      //   context="account"  → <Navigate to="/pick-profile" replace />
+      //
+      // Because login() calls setLoading(true) internally, App.jsx renders
+      // <RouteFallback /> during bootstrap which UNMOUNTS this component.
+      // Any code after `await login()` runs on an unmounted component — React
+      // 18 makes setState no-ops, but window.location calls still fire. So we
+      // do nothing here and let the App.jsx route tree handle navigation.
+      //
+      // (Admin: same email+password, routed by role. Hook stub:)
+      //   if (hasRole("ADMIN")) window.location.href = ADMIN_URL;
+    } catch (err) {
+      setError(readErr(err, "Login failed."));
+      setStatusMsg(""); setSubmitting(false);
+    }
+  };
+
+  const back = () => {
+    setError(""); setStatusMsg("");
+    setStep(STEP_EMAIL);
+  };
+
   return (
-    <div className="login-container">
-      <div className="login-glow-center"></div>
-      <div className="login-glow-top-right"></div>
+    <AuthShell role="student" flowLabel="Log in">
 
-      <div className="login-form">
-        <h2>Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          {!needUsername ? (
-            <div className="login-form-group">
-              <label>Username or email</label>
-              <input
-                type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                required
-                disabled={submitting}
-                autoComplete="username"
-              />
-            </div>
-          ) : (
-            <div className="login-form-group">
-              <label>Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={submitting}
-                autoFocus
-                autoComplete="username"
-              />
-            </div>
-          )}
 
-          <div className="login-form-group">
-            <label>Password</label>
-            <div className="password-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={submitting}
-                autoComplete="current-password"
-              />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowPassword((p) => !p)}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+      <div className="af-toprow">
+        {step !== STEP_EMAIL
+          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>
+          : <span />}
+      </div>
+
+      {/* ── Step 1: email ── */}
+      {step === STEP_EMAIL && (
+        <>
+          <h1 className="af-heading">Welcome back</h1>
+          <p className="af-sub">Log in with your email to continue.</p>
+          {statusMsg && !error && <div className="af-status">{statusMsg}</div>}
+          <form onSubmit={submitEmail} style={{ display: "contents" }}>
+            <Field id="lf-email" label="Email" type="email" value={email}
+              onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+              required autoFocus autoComplete="email" />
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Checking…</> : "Continue"}
               </button>
             </div>
-          </div>
+          </form>
+          <FooterLink>Don't have an account? <Link to="/signup">Create one</Link></FooterLink>
+        </>
+      )}
 
-          {error && <p className="login-error">{error}</p>}
+      {/* ── Step 2: password ── */}
+      {step === STEP_PW && (
+        <>
+          <h1 className="af-heading">{greetName ? `Hi, ${greetName}` : "Enter your password"}</h1>
+          <p className="af-sub">Enter the password for <strong>{email}</strong>.</p>
+          <form onSubmit={submitPw} style={{ display: "contents" }}>
+            <PasswordField id="lf-password" label="Password" value={password}
+              onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
+              required autoFocus autoComplete="current-password"
+              show={showPw} onToggle={() => setShowPw((v) => !v)} />
+            <Link to="/forgot-password" className="af-note">Forgot password?</Link>
+            {error && <div className="af-error">{error}</div>}
+            {statusMsg && !error && <div className="af-status">{statusMsg}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Signing in…</> : "Log in"}
+              </button>
+            </div>
+          </form>
+          <FooterLink>Don't have an account? <Link to="/signup">Create one</Link></FooterLink>
+        </>
+      )}
 
-          {statusMessage && !error && (
-            <p className="login-status">{statusMessage}</p>
-          )}
-
-          <button type="submit" className="login-submit-btn" disabled={submitting}>
-            {submitting ? "Please wait..." : "Login"}
-          </button>
-        </form>
-
-        <p style={{ marginTop: 12 }}>
-          <Link to="/forgot-password">Forgot password?</Link>
-        </p>
-
-        <p>
-          Don't have an account? <Link to="/signup">Sign up</Link>
-        </p>
-      </div>
-    </div>
+    </AuthShell>
   );
-};
-
-export default Login;
+}

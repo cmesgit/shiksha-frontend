@@ -5,6 +5,7 @@ import {
   FiUser,
   FiLogOut,
   FiFileText,
+  FiUsers,
 } from "react-icons/fi";
 import "../css/Navbar.css";
 import { HashLink } from "react-router-hash-link";
@@ -13,11 +14,12 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { APP_URL, TEACHER_URL } from "../config/urls";
+import ProfileSwitcher from "../shared/ProfileSwitcher";
 import { getFormFillupData } from "../api/formFillupApi";
 
 const Navbar = () => {
   const { t } = useLanguage();
-  const { isAuthenticated, user, loading, logout } = useAuth();
+  const { isAuthenticated, user, loading, logout, isTeacherContext } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -131,7 +133,9 @@ const Navbar = () => {
       normalizedRoles.includes("teacher") || singleRole === "teacher";
 
     if (isTeacher) {
-      window.location.href = TEACHER_URL;
+      // Already in teacher context → go straight to the teacher dashboard.
+      // Otherwise go to pick-profile so the user can enter the teacher password first.
+      window.location.href = isTeacherContext ? TEACHER_URL : "/pick-profile";
     } else {
       window.location.href = APP_URL;
     }
@@ -150,9 +154,9 @@ const Navbar = () => {
     <>
       <div className={`top-strip ${hideTopStrip ? "top-strip--hidden" : ""}`}>
         <marquee width="90%" direction="left" height="30px" scrollAmount="10">
-          <span>Hurry Up!!! Admission is going on.</span>
-          <span> | New session starts from 2026 | </span>
-          <span className="blink">Register Now!</span>
+          <span>Start learning today and achieve your academic goals.</span>
+          <span> | Expert mentors | Interactive classes | Learn at your own pace | </span>
+          <span className="blink">Enroll Now!</span>
         </marquee>
 
         {/*
@@ -188,62 +192,11 @@ const Navbar = () => {
 
           <div className="header-right">
             {isAuthenticated && user ? (
-              <div className="header-profile-wrap" ref={profileMenuRef}>
-                <span className="header-user-name">Hi, {firstName}</span>
-
-                <button
-                  type="button"
-                  className="profile-btn"
-                  onClick={() => setProfileOpen((prev) => !prev)}
-                >
-                  <FiUser size={18} />
-                </button>
-                {profileOpen && (
-                  <div className="profile-dropdown">
-                    <div className="profile-dropdown-user">
-                      <span className="profile-dropdown-name">Hi, {firstName}</span>
-                    </div>
-
-                    <button
-  className="dropdown-item"
-  onClick={() => {
-    navigate("/profile");
-    setProfileOpen(false);
-  }}
->
-  <FiUser size={16} />
-  Profile
-</button>
-                    
-
-                    {!user.profile_complete && (
-                      <button
-                        className="dropdown-item"
-                        onClick={() => { navigate("/form-fillup"); setProfileOpen(false); }}
-                      >
-                        <FiFileText size={16} />
-                        Fill Form
-                      </button>
-                    )}
-
-                    <button
-                      className="dropdown-item"
-                      onClick={() => { window.location.href = `${APP_URL}/change-password`; setProfileOpen(false); }}
-                    >
-                      <FiFileText size={16} />
-                      Change Password
-                    </button>
-
-                    <button
-                      className="dropdown-item logout"
-                      onClick={handleLogout}
-                    >
-                      <FiLogOut size={16} />
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
+              <ProfileSwitcher
+                teacherSignupUrl="/signup?role=teacher"
+                learnUrl={APP_URL}
+                teachUrl={TEACHER_URL}
+              />
             ) : (
               <div className="header-auth">
                 <Link to="/login" className="header-login-btn">

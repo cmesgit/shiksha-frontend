@@ -1,23 +1,29 @@
-import { useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { LOGIN_URL } from "../config/urls";
 
+/**
+ * Uses <Navigate> instead of window.location.href = LOGIN_URL.
+ *
+ * The /login route is local to this React app — window.location.href
+ * causes a full hard reload, which re-runs bootstrap from scratch and
+ * can briefly flip auth state in a way that triggers repeated redirects.
+ * <Navigate> stays within React Router and avoids the reload entirely.
+ */
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
-  // Wait for bootstrap to finish
   if (loading) return null;
 
   if (!isAuthenticated) {
     try {
-      const here = window.location.pathname + window.location.search;
-      if (here && here.startsWith("/") && !here.startsWith("//")) {
+      const here = location.pathname + location.search;
+      if (here.startsWith("/") && !here.startsWith("//")) {
         sessionStorage.setItem("post_auth_redirect", here);
       }
-    } catch (_) { /* sessionStorage unavailable */ }
+    } catch { /* sessionStorage unavailable */ }
 
-    window.location.href = LOGIN_URL;
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

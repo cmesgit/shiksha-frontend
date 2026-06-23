@@ -1,0 +1,39 @@
+.sbp-page { min-height: 100vh; background: #f5f0e6; font-family: "Poppins",sans-serif; }
+.sbp-hero { background: #041f09; padding: 56px 24px 64px; }
+.sbp-hero__inner { max-width: 700px; margin: 0 auto; text-align: center; }
+.sbp-hero__label { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #ff8f01; margin: 0 0 12px; }
+.sbp-hero__title { font-size: 44px; font-weight: 900; color: #fff; letter-spacing: -1.5px; line-height: 1.05; margin: 0 0 14px; }
+.sbp-hero__sub { font-size: 15px; color: rgba(255,255,255,.62); line-height: 1.65; margin: 0 0 28px; }
+.sbp-search-bar { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 100px; padding: 10px 18px; max-width: 520px; margin: 0 auto; }
+.sbp-search-icon { font-size: 16px; flex-shrink: 0; }
+.sbp-search-input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; background: transparent; }
+.sbp-search-clear { border: none; background: none; color: #9ca3af; cursor: pointer; font-size: 16px; }
+.sbp-body { max-width: 1180px; margin: 0 auto; padding: 32px 24px 60px; }
+.sbp-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.sbp-cat { border: 1.5px solid #d4cfc9; background: #fff; color: #4b4540; padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+.sbp-cat.on, .sbp-cat:hover { background: #041f09; border-color: #041f09; color: #fff; }
+.sbp-count { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+.sbp-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(270px,1fr)); gap: 18px; }
+.sbp-loading, .sbp-empty { text-align: center; padding: 60px 0; color: #6b7280; font-size: 15px; }
+.sbp-card { background: #fff; border: 1px solid #e5e0d8; border-radius: 18px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.sbp-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(4,31,9,.12); }
+.sbp-card__photo { aspect-ratio: 4/3; overflow: hidden; position: relative; background: #0a7d8c; }
+.sbp-card__photo img { width: 100%; height: 100%; object-fit: cover; }
+.sbp-card__initials { position: absolute; inset: 0; display: grid; place-items: center; font-size: 42px; font-weight: 900; color: rgba(255,255,255,.85); }
+.sbp-card__verified { position: absolute; bottom: 8px; left: 8px; background: #22c55e; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+.sbp-card__body { padding: 16px; }
+.sbp-card__cat { font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #ff8f01; margin-bottom: 4px; }
+.sbp-card__name { font-size: 16px; font-weight: 800; color: #041f09; margin-bottom: 2px; }
+.sbp-card__title { font-size: 12.5px; color: #6b7280; margin-bottom: 10px; }
+.sbp-tag { background: rgba(4,31,9,.07); color: #1a4d1a; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+.sbp-card__tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.sbp-card__stats { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6b7280; margin-bottom: 14px; flex-wrap: wrap; }
+.sbp-card__stars { color: #ff8f01; }
+.sbp-card__rate { font-weight: 700; color: #0a7d8c; margin-left: auto; }
+.sbp-card__cta { width: 100%; background: #041f09; color: #fff; border: none; border-radius: 10px; padding: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.sbp-card__cta:hover { background: #0a4018; }
+.sbp-teach-banner { background: linear-gradient(135deg,#041f09,#0a4018); border-radius: 18px; padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.sbp-teach-banner__txt h3 { font-size: 18px; font-weight: 800; color: #fff; margin: 0 0 6px; }
+.sbp-teach-banner__txt p { font-size: 13.5px; color: rgba(255,255,255,.65); margin: 0; line-height: 1.6; max-width: 480px; }
+.sbp-teach-banner__btn { background: #ff8f01; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.sbp-teach-banner__btn:hover { background: #e67e00; }

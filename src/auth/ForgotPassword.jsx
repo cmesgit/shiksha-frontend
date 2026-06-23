@@ -1,27 +1,22 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import { useToast } from "../contexts/ToastContext";
-import "./Login.css";
+import {
+  AuthShell, Field, PasswordField, StatusChip, FooterLink,
+} from "./AuthKit";
 
-const EyeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
+/* ════════════════════════════════════════════════════════════════
+   ForgotPassword — on the shared Login Flow design (AuthKit shell).
+   Code-based reset, wired to the real backend:
+     STEP_EMAIL    → POST /accounts/password-reset/request/  { email }
+     STEP_CODE     → POST /accounts/password-reset/verify/   { email, code } → { ticket }
+     STEP_PASSWORD → POST /accounts/password-reset/confirm/  { email, ticket, new_password }
+   One email = one account, so there's exactly one code.
+════════════════════════════════════════════════════════════════ */
 
-const EyeOffIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-);
-
-const STEP_EMAIL = "email";
-const STEP_CODE = "code";
+const STEP_EMAIL    = "email";
+const STEP_CODE     = "code";
 const STEP_PASSWORD = "password";
 
 const errMsg = (err, fallback) =>
@@ -32,14 +27,15 @@ const errMsg = (err, fallback) =>
   err?.message ||
   fallback;
 
-const ForgotPassword = () => {
+export default function ForgotPassword() {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   const [step, setStep] = useState(STEP_EMAIL);
 
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const codeRefs = useRef([]);
   const [ticket, setTicket] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -49,37 +45,51 @@ const ForgotPassword = () => {
   const [info, setInfo] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const code = digits.join("");
+
+  /* ── 6-box code input ── */
+  const onDigit = (i, val) => {
+    const v = val.replace(/\D/g, "").slice(-1);
+    const next = [...digits]; next[i] = v; setDigits(next);
+    if (v && i < 5) codeRefs.current[i + 1]?.focus();
+  };
+  const onDigitKey = (i, e) => {
+    if (e.key === "Backspace" && !digits[i] && i > 0) codeRefs.current[i - 1]?.focus();
+  };
+  const onDigitPaste = (e) => {
+    const txt = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+    if (!txt) return;
+    e.preventDefault();
+    const next = ["", "", "", "", "", ""];
+    for (let i = 0; i < txt.length; i++) next[i] = txt[i];
+    setDigits(next);
+    codeRefs.current[Math.min(txt.length, 5)]?.focus();
+  };
+
+  /* ── step 1: request a code ── */
   const handleRequest = async (e) => {
     e.preventDefault();
-    setError("");
-    setInfo("");
-    setSubmitting(true);
+    setError(""); setInfo(""); setSubmitting(true);
     try {
       await api.post("/accounts/password-reset/request/", { email: email.trim().toLowerCase() });
-      // A shared email gets one code PER account, each labelled with its
-      // username — the user picks the code for the account they're resetting.
-      setInfo(
-        "If an account exists for that email, we've sent a 6-digit code. " +
-        "If you have more than one account on this email, each gets its own " +
-        "code labelled with its username — enter the one you want to reset."
-      );
+      setInfo("If an account exists for that email, we've sent a 6-digit code. It expires in 15 minutes.");
+      setDigits(["", "", "", "", "", ""]);
       setStep(STEP_CODE);
     } catch (err) {
-      setError(errMsg(err, "Could not send verification code. Please try again."));
+      setError(errMsg(err, "Could not send the code. Please try again."));
     } finally {
       setSubmitting(false);
     }
   };
 
+  /* ── step 2: verify the code → ticket ── */
   const handleVerify = async (e) => {
     e.preventDefault();
-    setError("");
-    setInfo("");
-    setSubmitting(true);
+    setError(""); setInfo(""); setSubmitting(true);
     try {
       const { data } = await api.post("/accounts/password-reset/verify/", {
         email: email.trim().toLowerCase(),
-        code: code.trim(),
+        code,
       });
       setTicket(data.ticket);
       setStep(STEP_PASSWORD);
@@ -90,20 +100,12 @@ const ForgotPassword = () => {
     }
   };
 
+  /* ── step 3: set the new password ── */
   const handleConfirm = async (e) => {
     e.preventDefault();
-    setError("");
-    setInfo("");
-
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
+    setError(""); setInfo("");
+    if (newPassword !== confirmPassword) { setError("Passwords do not match."); return; }
+    if (newPassword.length < 8) { setError("Password must be at least 8 characters."); return; }
     setSubmitting(true);
     try {
       await api.post("/accounts/password-reset/confirm/", {
@@ -111,7 +113,7 @@ const ForgotPassword = () => {
         ticket,
         new_password: newPassword,
       });
-      showToast({ message: "Your password has been changed. Please log in.", duration: 3500 });
+      showToast({ message: "Password changed. Please log in.", duration: 3500 });
       navigate("/login", {
         replace: true,
         state: { message: "Your password has been changed. Please log in with your new password." },
@@ -123,12 +125,12 @@ const ForgotPassword = () => {
   };
 
   const handleResend = async () => {
-    setError("");
-    setInfo("");
-    setSubmitting(true);
+    setError(""); setInfo(""); setSubmitting(true);
     try {
       await api.post("/accounts/password-reset/request/", { email: email.trim().toLowerCase() });
-      setInfo("A new verification code has been sent.");
+      setInfo("A new code has been sent.");
+      setDigits(["", "", "", "", "", ""]);
+      codeRefs.current[0]?.focus();
     } catch (err) {
       setError(errMsg(err, "Could not resend the code. Please try again later."));
     } finally {
@@ -136,148 +138,106 @@ const ForgotPassword = () => {
     }
   };
 
+  const back = () => {
+    setError(""); setInfo("");
+    if (step === STEP_CODE) setStep(STEP_EMAIL);
+    else if (step === STEP_PASSWORD) setStep(STEP_CODE);
+  };
+
   return (
-    <div className="login-container">
-      <div className="login-glow-center"></div>
-      <div className="login-glow-top-right"></div>
-
-      <div className="login-form">
-        <h2>Forgot Password</h2>
-
-        {step === STEP_EMAIL && (
-          <form onSubmit={handleRequest}>
-            <p className="login-status" style={{ marginBottom: 16 }}>
-              Enter your account email and we'll send you a 6-digit verification code.
-            </p>
-
-            <div className="login-form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={submitting}
-                autoFocus
-              />
-            </div>
-
-            {error && <p className="login-error">{error}</p>}
-
-            <button type="submit" className="login-submit-btn" disabled={submitting}>
-              {submitting ? "Sending..." : "Send verification code"}
-            </button>
-          </form>
-        )}
-
-        {step === STEP_CODE && (
-          <form onSubmit={handleVerify}>
-            <p className="login-status" style={{ marginBottom: 16 }}>
-              We sent a 6-digit code to <strong>{email}</strong>. If this email
-              has more than one account, use the code labelled with the username
-              you want to reset.
-            </p>
-
-            <div className="login-form-group">
-              <label>Verification Code</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="\d{6}"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                required
-                disabled={submitting}
-                autoFocus
-                style={{ letterSpacing: "0.4em", fontSize: "1.1rem", textAlign: "center" }}
-              />
-            </div>
-
-            {error && <p className="login-error">{error}</p>}
-            {info && !error && <p className="login-status">{info}</p>}
-
-            <button type="submit" className="login-submit-btn" disabled={submitting || code.length !== 6}>
-              {submitting ? "Verifying..." : "Verify code"}
-            </button>
-
-            <p style={{ marginTop: 12 }}>
-              Didn't get it?{" "}
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={submitting}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#22c55e",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  padding: 0,
-                }}
-              >
-                Resend code
-              </button>
-            </p>
-          </form>
-        )}
-
-        {step === STEP_PASSWORD && (
-          <form onSubmit={handleConfirm}>
-            <p className="login-status" style={{ marginBottom: 16 }}>
-              Choose a new password for <strong>{email}</strong>.
-            </p>
-
-            <div className="login-form-group">
-              <label>New Password</label>
-              <div className="password-wrapper">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  disabled={submitting}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  className="toggle-password"
-                  onClick={() => setShowPassword((p) => !p)}
-                >
-                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
-              </div>
-            </div>
-
-            <div className="login-form-group">
-              <label>Confirm New Password</label>
-              <div className="password-wrapper">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  disabled={submitting}
-                />
-              </div>
-            </div>
-
-            {error && <p className="login-error">{error}</p>}
-
-            <button type="submit" className="login-submit-btn" disabled={submitting}>
-              {submitting ? "Changing..." : "Change password"}
-            </button>
-          </form>
-        )}
-
-        <p>
-          Remembered your password? <Link to="/login">Back to login</Link>
-        </p>
+    <AuthShell role="neutral" flowLabel="Reset password" brandIcon="lock">
+      <div className="af-toprow">
+        {step !== STEP_EMAIL
+          ? <button className="af-iconbtn" onClick={back} aria-label="Back" type="button">‹</button>
+          : <span />}
       </div>
-    </div>
-  );
-};
 
-export default ForgotPassword;
+      {/* ── STEP 1: email ── */}
+      {step === STEP_EMAIL && (
+        <>
+          <h1 className="af-heading">Forgot your password?</h1>
+          <p className="af-sub">Enter your account email and we'll send you a 6-digit code to reset it.</p>
+          <form onSubmit={handleRequest} style={{ display: "contents" }}>
+            <Field id="fp-email" label="Email" type="email" value={email}
+              onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+              required autoFocus autoComplete="email" disabled={submitting} />
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Sending…</> : "Send code"}
+              </button>
+            </div>
+          </form>
+          <FooterLink>Remembered it? <Link to="/login">Back to login</Link></FooterLink>
+        </>
+      )}
+
+      {/* ── STEP 2: 6-digit code ── */}
+      {step === STEP_CODE && (
+        <>
+          <h1 className="af-heading">Enter your code</h1>
+          <p className="af-sub">We sent a 6-digit code to <strong>{email}</strong>. Enter it below.</p>
+          <form onSubmit={handleVerify} style={{ display: "contents" }}>
+            <div className="af-2fa-boxes">
+              {digits.map((d, i) => (
+                <input
+                  key={i}
+                  ref={(el) => { codeRefs.current[i] = el; }}
+                  className="af-2fa-box"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => onDigit(i, e.target.value)}
+                  onKeyDown={(e) => onDigitKey(i, e)}
+                  onPaste={onDigitPaste}
+                  autoFocus={i === 0}
+                  disabled={submitting}
+                />
+              ))}
+            </div>
+            {info && !error && <p className="af-sub" style={{ marginTop: 14 }}>{info}</p>}
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting || code.length !== 6}>
+                {submitting ? <><span className="af-spin" />Verifying…</> : "Verify code"}
+              </button>
+            </div>
+          </form>
+          <FooterLink>
+            Didn't get it?{" "}
+            <button type="button" className="af-note" onClick={handleResend} disabled={submitting}
+              style={{ marginTop: 0 }}>Resend code</button>
+          </FooterLink>
+        </>
+      )}
+
+      {/* ── STEP 3: new password ── */}
+      {step === STEP_PASSWORD && (
+        <>
+          <StatusChip icon="lock" role="neutral" />
+          <h1 className="af-heading">Set a new password</h1>
+          <p className="af-sub">Choose a new password for <strong>{email}</strong>.</p>
+          <form onSubmit={handleConfirm} style={{ display: "contents" }}>
+            <PasswordField id="fp-new" label="New password" value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)} placeholder="At least 8 characters"
+              required minLength={8} autoFocus autoComplete="new-password"
+              show={showPassword} onToggle={() => setShowPassword((p) => !p)} />
+            <PasswordField id="fp-confirm" label="Confirm new password" value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password"
+              required minLength={8} autoComplete="new-password"
+              show={showPassword} onToggle={() => setShowPassword((p) => !p)} />
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Changing…</> : "Change password"}
+              </button>
+            </div>
+          </form>
+        </>
+      )}
+    </AuthShell>
+  );
+}

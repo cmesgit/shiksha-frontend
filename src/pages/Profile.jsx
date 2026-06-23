@@ -3,47 +3,64 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import "../css/Profile.css";
 
+// localStorage key scoped to the active learner profile
+const storageKey = (profileId) => `shiksha_profile_${profileId}`;
+
+const loadLocalProfile = (profileId) => {
+  if (!profileId) return {};
+  try {
+    const raw = localStorage.getItem(storageKey(profileId));
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+};
+
+const saveLocalProfile = (profileId, data) => {
+  if (!profileId) return;
+  try {
+    localStorage.setItem(storageKey(profileId), JSON.stringify(data));
+  } catch { /* storage full — ignore */ }
+};
+
 export default function Profile() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [avatar, setAvatar]     = useState(null);
   const [avatarType, setAvatarType] = useState(null);
   const [tempAvatar, setTempAvatar] = useState(null);
   const [tempAvatarType, setTempAvatarType] = useState(null);
   const [tempAvatarFile, setTempAvatarFile] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
 
+  const [activeProfileId, setActiveProfileId] = useState(null); // ← FIX: store profile id
   const [studentInfo, setStudentInfo] = useState(null);
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses]   = useState([]);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Public profile data (persisted in localStorage)
-  const [about, setAbout] = useState("");
-  const [subjects, setSubjects] = useState([]);
-  const [hobbies, setHobbies] = useState([]);
+  // Public profile data — persisted in localStorage, keyed by profileId
+  const [about, setAbout]         = useState("");
+  const [subjects, setSubjects]   = useState([]);
+  const [hobbies, setHobbies]     = useState([]);
   const [languages, setLanguages] = useState([]);
 
   // Ephemeral edit-mode state
-  const [editName, setEditName] = useState("");
-  const [editAbout, setEditAbout] = useState("");
-  const [editSubjects, setEditSubjects] = useState([]);
-  const [editHobbies, setEditHobbies] = useState([]);
+  const [editName, setEditName]           = useState("");
+  const [editAbout, setEditAbout]         = useState("");
+  const [editSubjects, setEditSubjects]   = useState([]);
+  const [editHobbies, setEditHobbies]     = useState([]);
   const [editLanguages, setEditLanguages] = useState([]);
-  const [newSubject, setNewSubject] = useState("");
-  const [newHobby, setNewHobby] = useState("");
-  const [newLanguage, setNewLanguage] = useState("");
+  const [newSubject, setNewSubject]       = useState("");
+  const [newHobby, setNewHobby]           = useState("");
+  const [newLanguage, setNewLanguage]     = useState("");
 
   const emojis = [
-    "😀", "😎", "🤓", "😊", "🥳", "😇", "🤩", "😍",
-    "🦊", "🐱", "🐶", "🐼", "🦁", "🐯", "🐻", "🐨",
-    "👨‍🎓", "👩‍🎓", "👨‍💻", "👩‍💻", "🧑‍🎨", "👨‍🔬", "👩‍🔬", "🧑‍🚀",
-    "⭐", "🌟", "✨", "💫", "🔥", "💎", "🎯", "🎨",
+    "😀","😎","🤓","😊","🥳","😇","🤩","😍",
+    "🦊","🐱","🐶","🐼","🦁","🐯","🐻","🐨",
+    "👨‍🎓","👩‍🎓","👨‍💻","👩‍💻","🧑‍🎨","👨‍🔬","👩‍🔬","🧑‍🚀",
+    "⭐","🌟","✨","💫","🔥","💎","🎯","🎨",
   ];
 
- useEffect(() => {
-  fetchProfile();
-}, []);
+  useEffect(() => { fetchProfile(); }, []);
 
   const fetchProfile = async () => {
     try {
@@ -54,26 +71,45 @@ export default function Profile() {
       const me = meRes.data;
       const sp = spRes.data;
 
+      // ── FIX: capture active profile id for subsequent PATCHes ──
+      const profileId = me.active_profile?.id || null;
+      setActiveProfileId(profileId);
+
+      // me.profile is _legacy_profile_dict(active_learner_profile)
+      const legacyProfile = me.profile || {};
+
       setStudentInfo({
-        name: sp.name || me.profile.full_name,
-        email: sp.email || me.email,
-        studentId: sp.student_id || me.profile.student_id,
-        phone: sp.phone || me.profile.phone,
-        gender: sp.gender,
-        dateOfBirth: sp.date_of_birth,
-        state: sp.state,
-        district: sp.district,
-        city: sp.city_town,
-        pinCode: sp.pin_code,
-        currentClass: sp.current_class,
-        stream: sp.stream,
-        board: sp.board,
-        schoolName: sp.school_name,
+        name:         sp.name         || legacyProfile.full_name  || me.username || "",
+        email:        sp.email        || me.email                 || "",
+        studentId:    sp.student_id                               || "",
+        phone:        sp.phone        || legacyProfile.phone      || "",
+        gender:       sp.gender                                   || "",
+        dateOfBirth:  sp.date_of_birth                           || "",
+        state:        sp.state                                    || "",
+        district:     sp.district                                 || "",
+        city:         sp.city_town                                || "",
+        pinCode:      sp.pin_code                                 || "",
+        currentClass: sp.current_class                           || "",
+        stream:       sp.stream                                   || "",
+        board:        sp.board                                    || "",
+        schoolName:   sp.school_name  || legacyProfile.school_name || "",
       });
 
-      setAvatar(sp.photo || me.profile.avatar);
-      setAvatarType(me.profile.avatar_type);
+      // ── FIX: avatar comes from the active learner profile ──
+      const ap = me.active_profile;
+      setAvatar(ap?.avatar || sp.photo || null);
+      setAvatarType(ap?.avatar_type || null);
+
       setCourses(me.enrollments || []);
+
+      // ── FIX: load persisted public-profile data from localStorage ──
+      if (profileId) {
+        const local = loadLocalProfile(profileId);
+        setAbout(local.about       || "");
+        setSubjects(local.subjects || []);
+        setHobbies(local.hobbies   || []);
+        setLanguages(local.languages || []);
+      }
     } catch (err) {
       console.error("Failed to load profile", err);
     } finally {
@@ -87,28 +123,35 @@ export default function Profile() {
     setEditSubjects([...subjects]);
     setEditHobbies([...hobbies]);
     setEditLanguages([...languages]);
-    setNewSubject("");
-    setNewHobby("");
-    setNewLanguage("");
+    setNewSubject(""); setNewHobby(""); setNewLanguage("");
     setIsEditing(true);
   };
 
-  const handleEditCancel = () => {
-    setIsEditing(false);
-  };
+  const handleEditCancel = () => { setIsEditing(false); };
 
   const handleEditSave = async () => {
     setSaving(true);
 
+    // ── FIX: persist about/interests to localStorage ──
+    const localData = {
+      about: editAbout,
+      subjects: editSubjects,
+      hobbies: editHobbies,
+      languages: editLanguages,
+    };
+    saveLocalProfile(activeProfileId, localData);
     setAbout(editAbout);
     setSubjects(editSubjects);
     setHobbies(editHobbies);
     setLanguages(editLanguages);
+
     try {
-      await api.patch("/accounts/me/", {
-        username: editName,
-        profile: { full_name: editName },
-      });
+      // ── FIX: PATCH display_name to the active learner profile ──
+      if (activeProfileId && editName.trim()) {
+        await api.patch(`/accounts/profiles/${activeProfileId}/`, {
+          display_name: editName.trim(),
+        });
+      }
       await fetchProfile();
     } catch (err) {
       console.error("Profile update failed", err);
@@ -138,16 +181,19 @@ export default function Profile() {
   };
 
   const handleAvatarSave = async () => {
+    if (!activeProfileId) return;
     try {
+      // ── FIX: PATCH avatar to the active learner profile endpoint ──
       if (tempAvatarType === "emoji") {
-        await api.patch("/accounts/me/", {
-          profile: { avatar_emoji: tempAvatar },
+        await api.patch(`/accounts/profiles/${activeProfileId}/`, {
+          avatar_emoji: tempAvatar,
         });
-      }
-      if (tempAvatarType === "image" && tempAvatarFile) {
+      } else if (tempAvatarType === "image" && tempAvatarFile) {
         const formData = new FormData();
         formData.append("avatar_image", tempAvatarFile);
-        await api.patch("/accounts/me/", formData);
+        await api.patch(`/accounts/profiles/${activeProfileId}/`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
       await fetchProfile();
       setShowPicker(false);
@@ -166,26 +212,9 @@ export default function Profile() {
     setTempAvatarFile(null);
   };
 
-  const addSubject = () => {
-    if (newSubject.trim()) {
-      setEditSubjects((p) => [...p, newSubject.trim()]);
-      setNewSubject("");
-    }
-  };
-
-  const addHobby = () => {
-    if (newHobby.trim()) {
-      setEditHobbies((p) => [...p, newHobby.trim()]);
-      setNewHobby("");
-    }
-  };
-
-  const addLanguage = () => {
-    if (newLanguage.trim()) {
-      setEditLanguages((p) => [...p, newLanguage.trim()]);
-      setNewLanguage("");
-    }
-  };
+  const addSubject  = () => { if (newSubject.trim())  { setEditSubjects(p => [...p, newSubject.trim()]);   setNewSubject("");  } };
+  const addHobby    = () => { if (newHobby.trim())    { setEditHobbies(p  => [...p, newHobby.trim()]);     setNewHobby("");    } };
+  const addLanguage = () => { if (newLanguage.trim()) { setEditLanguages(p => [...p, newLanguage.trim()]); setNewLanguage(""); } };
 
   if (loading) return <div className="profileLoading">Loading...</div>;
 
@@ -196,17 +225,17 @@ export default function Profile() {
   ].filter(Boolean);
 
   const locationBits = [studentInfo?.city, studentInfo?.district, studentInfo?.state]
-    .filter(Boolean)
-    .join(", ");
+    .filter(Boolean).join(", ");
 
   const langBadgeText = languages.length > 0 ? languages.join(" & ") : null;
 
   const displaySubjects = isEditing ? editSubjects : subjects;
-  const displayHobbies = isEditing ? editHobbies : hobbies;
+  const displayHobbies  = isEditing ? editHobbies  : hobbies;
 
   return (
     <div className="profilePage">
       <div className="profileContainer">
+        {/* ── Header ── */}
         <div className="profileHeader">
           <div className="profileHeader__left">
             <div className="profileHeader__avatarWrap">
@@ -309,7 +338,11 @@ export default function Profile() {
                   <span>• {studentInfo.studentId}</span>
                 </div>
               )}
-              
+              {locationBits && (
+                <div className="profileHeader__metaRow">
+                  <span>• {locationBits}</span>
+                </div>
+              )}
 
               {!isEditing && (
                 <div className="profileHeader__badges">
@@ -328,9 +361,7 @@ export default function Profile() {
           <div className="profileHeader__actions">
             {isEditing ? (
               <div className="profileHeader__editBtns">
-                <button className="profileBtn profileBtn--outline" onClick={handleEditCancel}>
-                  Cancel
-                </button>
+                <button className="profileBtn profileBtn--outline" onClick={handleEditCancel}>Cancel</button>
                 <button className="profileBtn profileBtn--solid" onClick={handleEditSave} disabled={saving}>
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -353,7 +384,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* About */}
+        {/* ── About ── */}
         <hr className="profileDivider" />
         <div className="profileSection">
           <h3 className="profileSection__title">About</h3>
@@ -371,7 +402,7 @@ export default function Profile() {
           )}
         </div>
 
-        {/* Interests */}
+        {/* ── Interests ── */}
         <hr className="profileDivider" />
         <div className="profileSection">
           <h3 className="profileSection__title">Interests</h3>
@@ -385,9 +416,7 @@ export default function Profile() {
                     <button
                       className="interests__removeBtn"
                       onClick={() => setEditSubjects(editSubjects.filter((_, idx) => idx !== i))}
-                    >
-                      ×
-                    </button>
+                    >×</button>
                   )}
                 </div>
               ))}
@@ -414,9 +443,7 @@ export default function Profile() {
                     <button
                       className="interests__removeBtn"
                       onClick={() => setEditHobbies(editHobbies.filter((_, idx) => idx !== i))}
-                    >
-                      ×
-                    </button>
+                    >×</button>
                   )}
                 </div>
               ))}
@@ -436,7 +463,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Languages — edit mode only */}
+        {/* ── Languages (edit mode only) ── */}
         {isEditing && (
           <>
             <hr className="profileDivider" />
@@ -448,9 +475,7 @@ export default function Profile() {
                   <button
                     className="interests__removeBtn"
                     onClick={() => setEditLanguages(editLanguages.filter((_, idx) => idx !== i))}
-                  >
-                    ×
-                  </button>
+                  >×</button>
                 </div>
               ))}
               <div className="interests__addRow">
@@ -467,7 +492,7 @@ export default function Profile() {
           </>
         )}
 
-        {/* Private Session Activity — view mode only */}
+        {/* ── Private Session Activity (view mode only) ── */}
         {!isEditing && (
           <>
             <hr className="profileDivider" />
@@ -483,29 +508,26 @@ export default function Profile() {
 
         <hr className="profileDivider" />
       </div>
-    {/* Courses Enrolled 
-      <div className="coursesSection">
-        <div className="coursesSection__table">
-          <div className="coursesSection__header">
-            <span className="coursesSection__headerItem">COURSES ENROLLED</span>
-            <span className="coursesSection__headerItem">BATCH CODE</span>
+
+      {/* ── Courses Enrolled ── */}
+      {courses.length > 0 && (
+        <div className="coursesSection">
+          <div className="coursesSection__table">
+            <div className="coursesSection__header">
+              <span className="coursesSection__headerItem">COURSES ENROLLED</span>
+              <span className="coursesSection__headerItem">BATCH CODE</span>
+            </div>
+            <div className="coursesSection__body">
+              {courses.map((item) => (
+                <div key={item.id} className="coursesSection__row">
+                  <span className="coursesSection__course">{item.course_title}</span>
+                  <span className="coursesSection__batch">{item.batch_code}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="coursesSection__body">
-            {courses.map((item) => (
-              <div key={item.id} className="coursesSection__row">
-                <span className="coursesSection__course">{item.course_title}</span>
-                <span className="coursesSection__batch">{item.batch_code}</span>
-              </div>   
-
-            ))}
-
-          </div>
-
         </div>
-      </div>
-    
-    </div>
-*/}
+      )}
     </div>
   );
 }

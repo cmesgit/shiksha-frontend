@@ -5,10 +5,11 @@ import {
   getCoursePublic,
   submitEnrollmentRequest,
   getMyEnrollmentRequests,
-  getTrialStatus,
-  startTrial,
+  getPaymentConfig,
+  freeEnroll,
 } from "../api/enrollments";
 import { useToast } from "../contexts/ToastContext";
+import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
@@ -30,6 +31,9 @@ const Enroll = () => {
   const [loadingCourse, setLoadingCourse] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
+  // Active payment mode (free / manual_upi / razorpay).
+  const [payCfg, setPayCfg] = useState(null);
+
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [utr, setUtr] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
@@ -43,11 +47,10 @@ const Enroll = () => {
   const [submitted, setSubmitted] = useState(false);
   const [existingStatus, setExistingStatus] = useState(null); // 'APPROVED' | 'PENDING' | null
 
-  // Trial state
-  const [trialStatus, setTrialStatus] = useState(null); // {can_start, reason, has_used_trial, has_active_subscription, trial_duration_days, subscription}
-  const [trialStarting, setTrialStarting] = useState(false);
-  const [trialError, setTrialError] = useState("");
-  const [trialStartedSub, setTrialStartedSub] = useState(null);
+  // Free-enroll state
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollError, setEnrollError] = useState("");
+  const [enrolledSub, setEnrolledSub] = useState(null);
 
   useEffect(() => {
     setLoadingCourse(true);
@@ -67,6 +70,14 @@ const Enroll = () => {
   }, [courseId]);
 
   useEffect(() => {
+    let cancelled = false;
+    getPaymentConfig()
+      .then((cfg) => { if (!cancelled) setPayCfg(cfg); })
+      .catch(() => { if (!cancelled) setPayCfg({ provider: "free", is_free: true, auto_activate: true }); });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     let cancelled = false;
     getMyEnrollmentRequests()
@@ -84,37 +95,32 @@ const Enroll = () => {
     };
   }, [user, courseId]);
 
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    getTrialStatus(courseId)
-      .then((data) => { if (!cancelled) setTrialStatus(data); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [user, courseId]);
+  const isFreeMode = !!(payCfg && (payCfg.is_free || payCfg.auto_activate));
+  const isRazorpay = payCfg?.provider === "razorpay";
 
-  const handleStartTrial = async () => {
-    setTrialError("");
-    setTrialStarting(true);
+  const handleFreeEnroll = async () => {
+    setEnrollError("");
+    setEnrolling(true);
     try {
-      const data = await startTrial(courseId);
-      setTrialStartedSub(data?.subscription || null);
+      const data = await freeEnroll(courseId);
+      setEnrolledSub(data?.subscription || null);
       showToast({
-        message: `Your free trial of ${course?.title} has started!`,
+        message: `You're enrolled in ${course?.title}!`,
         duration: 3500,
       });
     } catch (err) {
-      setTrialError(
+      setEnrollError(
         err?.response?.data?.detail ||
-        "Could not start your free trial. Please try again."
+        "Could not complete your enrollment. Please try again."
       );
     } finally {
-      setTrialStarting(false);
+      setEnrolling(false);
     }
   };
 
   const profile = user?.profile || {};
-  const profileComplete = user?.profile_complete;
+  // Form-fillup enforcement is off → never block enrollment on completeness.
+  const profileComplete = FORM_FILLUP_ENABLED ? user?.profile_complete : true;
 
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
 
@@ -158,7 +164,7 @@ const Enroll = () => {
     }
   };
 
-  if (loadingCourse) {
+  if (loadingCourse || payCfg === null) {
     return <div className="enroll-page"><div className="enroll-loading">Loading course...</div></div>;
   }
 
@@ -195,7 +201,7 @@ const Enroll = () => {
     );
   }
 
-  if (existingStatus === "PENDING") {
+  if (existingStatus === "PENDING" && !isFreeMode) {
     return (
       <div className="enroll-page">
         <div className="enroll-success">
@@ -238,19 +244,15 @@ const Enroll = () => {
     );
   }
 
-  if (trialStartedSub) {
-    const trialEnd = trialStartedSub.expires_at
-      ? new Date(trialStartedSub.expires_at).toLocaleDateString("en-IN", {
-          day: "numeric", month: "long", year: "numeric",
-        })
-      : "in 30 days";
+  // ── Free enroll succeeded ──
+  if (enrolledSub) {
     return (
       <div className="enroll-page">
         <div className="enroll-success">
-          <h2>Your free trial has started 🎉</h2>
+          <h2>You're enrolled! 🎉</h2>
           <p>
-            You now have full access to <strong>{course.title}</strong> until{" "}
-            <strong>{trialEnd}</strong>. After that, enroll to keep learning.
+            You now have full access to <strong>{course.title}</strong>.
+            Jump into your dashboard to start learning.
           </p>
           <button
             className="enroll-submit"
@@ -263,58 +265,68 @@ const Enroll = () => {
     );
   }
 
-  const activeSub = trialStatus?.subscription;
-  const onActiveTrial = activeSub?.is_trial && activeSub?.status === "ACTIVE";
-  const canStartTrial = trialStatus?.can_start === true && !existingStatus;
-
-  // First-time users must take the trial — hide the payment form entirely
-  // until they've used (or are currently using) it.
-  if (canStartTrial) {
+  // ── FREE MODE — one-tap confirmation ──
+  if (isFreeMode) {
     return (
       <div className="enroll-page">
         <div className="enroll-success">
-          <h2>Try {course.title} free for {trialStatus?.trial_duration_days || 30} days 🎁</h2>
+          <h2>Get {course.title} for free 🎁</h2>
           <p>
-            Start with full access — no payment needed. After your trial ends,
-            you can enroll to keep learning.
+            {[course.board, course.stream].filter(Boolean).join(" · ")}
+          </p>
+          <p>
+            Full access is free right now — no payment needed.
+            {course.price ? (
+              <>
+                {" "}
+                <span style={{ textDecoration: "line-through", opacity: 0.6 }}>
+                  {formatRupees(course.price)}
+                </span>{" "}
+                <strong>Free</strong>
+              </>
+            ) : null}
           </p>
           <button
             type="button"
             className="enroll-submit"
-            onClick={handleStartTrial}
-            disabled={trialStarting || !profileComplete}
-            title={!profileComplete ? "Complete your profile to start your trial" : ""}
+            onClick={handleFreeEnroll}
+            disabled={enrolling}
           >
-            {trialStarting
-              ? "Starting..."
-              : `Start ${trialStatus?.trial_duration_days || 30}-day free trial`}
+            {enrolling ? "Enrolling..." : "Enroll free"}
           </button>
-          {trialError && (
-            <p className="enroll-error" style={{ marginTop: 12 }}>{trialError}</p>
-          )}
-          {!profileComplete && (
-            <p style={{ marginTop: 12 }}>
-              Complete your <Link to="/form-fillup">profile</Link> first.
-            </p>
+          {enrollError && (
+            <p className="enroll-error" style={{ marginTop: 12 }}>{enrollError}</p>
           )}
         </div>
       </div>
     );
   }
 
+  // ── RAZORPAY — gateway not wired yet ──
+  if (isRazorpay) {
+    return (
+      <div className="enroll-page">
+        <div className="enroll-success">
+          <h2>Online payment coming soon</h2>
+          <p>
+            Card / UPI gateway checkout for <strong>{course.title}</strong> isn't
+            available yet. Please check back shortly.
+          </p>
+          <button className="enroll-submit" onClick={() => navigate("/courses")}>
+            Back to Courses
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── MANUAL UPI — pay + upload receipt + admin approval ──
   return (
     <div className="enroll-page">
       <h1 className="enroll-title">Enroll in {course.title}</h1>
       <p className="enroll-subtitle">
         Pay via QR, upload receipt, and we'll approve your enrollment shortly.
       </p>
-
-      {onActiveTrial && (
-        <div className="enroll-trial-banner">
-          <strong>Free trial active</strong> · {activeSub.days_remaining} day{activeSub.days_remaining === 1 ? "" : "s"} remaining.
-          Enroll below to keep access after your trial ends — you won't lose any remaining trial days.
-        </div>
-      )}
 
       <div className="enroll-grid">
         {/* LEFT: course + QR + profile summary */}

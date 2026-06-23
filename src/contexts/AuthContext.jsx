@@ -1,149 +1,303 @@
+/**
+ * src/contexts/AuthContext.jsx — FIXED
+ *
+ * The two bugs that caused the infinite reload loop on /login:
+ *
+ * BUG 1: interceptor was intercepting /me/ calls.
+ *   Bootstrap calls /me/ → gets 401 → interceptor fires → refresh fails
+ *   → window.location.href = LOGIN_URL → hard reload of /login
+ *   → bootstrap calls /me/ again → same → infinite loop.
+ *   FIX: skip the interceptor for /me/ and /notifications/ calls.
+ *        Let bootstrap handle its own /me/ 401 gracefully.
+ *
+ * BUG 2: interceptor redirected to LOGIN_URL even when already on /login.
+ *   FIX: only redirect if the current path is not an auth page.
+ *
+ * Both fixes match the original api/apiClient.js behaviour that was working.
+ */
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import api from "../api/apiClient";
-import extractError from "../utils/extractError";
+import axios from "axios";
+import { API_URL, LOGIN_URL } from "../config/urls";
 
-const AuthContext = createContext(null);
+// ── Axios client ──────────────────────────────────────────────────────────────
+const api = axios.create({
+  baseURL:         API_URL,
+  withCredentials: true,
+});
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+let _isRefreshing = false;
+let _queue        = [];
+const _flush = (err) => {
+  _queue.forEach((p) => (err ? p.reject(err) : p.resolve()));
+  _queue = [];
+};
 
-  const isAuthenticated = !!user;
+api.interceptors.response.use(
+  (r) => r,
+  async (error) => {
+    const orig = error.config;
+    const st   = error.response?.status;
+    const url  = orig?.url || "";
 
-  /**
-   * Refresh access token using refresh cookie
-   */
-  const refreshToken = async () => {
+    // FIX 1: never intercept /me/ or /notifications/ — bootstrap handles /me/ 401
+    // itself; intercepting it causes an infinite reload on the /login page.
+    const isMeCall           = url.includes("/me/");
+    const isNotificationCall = url.includes("/notifications/");
+    if (isMeCall || isNotificationCall) {
+      return Promise.reject(error);
+    }
+
+    if (
+      st !== 401 ||
+      orig._retry ||
+      url.includes("/accounts/refresh/") ||
+      url.includes("/accounts/login/")
+    ) {
+      return Promise.reject(error);
+    }
+
+    if (_isRefreshing) {
+      return new Promise((res, rej) =>
+        _queue.push({ resolve: res, reject: rej })
+      ).then(() => api(orig));
+    }
+
+    orig._retry   = true;
+    _isRefreshing = true;
     try {
       await api.post("/accounts/refresh/");
-      return true;
-    } catch {
-      return false;
+      _flush(null);
+      return api(orig);
+    } catch (e) {
+      _flush(e);
+      // FIX 2: only redirect if we are NOT already on an auth page.
+      // Without this check, arriving at /login triggers another redirect
+      // to /login, which triggers another, forever.
+      const p = window.location.pathname;
+      const onAuthPage =
+        p === "/login" ||
+        p === "/signup" ||
+        p.startsWith("/verify-email") ||
+        p.startsWith("/forgot-password") ||
+        p.startsWith("/email-verified");
+      if (!onAuthPage) {
+        window.location.href = LOGIN_URL;
+      }
+      return Promise.reject(e);
+    } finally {
+      _isRefreshing = false;
     }
-  };
+  }
+);
 
-  /**
-   * Bootstrap user session
-   */
+export { api };
+
+// ── Error extractor ───────────────────────────────────────────────────────────
+function extractError(err) {
+  const d = err?.response?.data;
+  if (!d)                       return err?.message || "Something went wrong.";
+  if (typeof d === "string")    return d;
+  if (d.detail)                 return d.detail;
+  for (const k of Object.keys(d)) {
+    const v = d[k];
+    if (Array.isArray(v) && v.length) return v[0];
+    if (typeof v === "string")        return v;
+  }
+  return "Something went wrong.";
+}
+
+// ── Context ───────────────────────────────────────────────────────────────────
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user,        setUser]        = useState(null);
+  const [profiles,    setProfiles]    = useState([]);
+  const [teacherInfo, setTeacherInfo] = useState(null);
+  const [context,     setContext]     = useState(null);
+  const [loading,     setLoading]     = useState(true);
+
+  const isAuthenticated       = !!user;
+  const needsProfileSelection = isAuthenticated && context === "account";
+  const activeProfile         = user?.active_profile || null;
+  const isTeacherContext      = context === "teacher";
+  const isLearnerContext      = context === "learner";
+
+  // ── Bootstrap ─────────────────────────────────────────────────────────────
+  // The interceptor skips /me/ calls, so bootstrap handles refresh manually.
   const bootstrap = useCallback(async () => {
+    const apply = (data) => {
+      setUser(data);
+      setContext(data.context || "account");
+      setProfiles(Array.isArray(data.profiles) ? data.profiles : []);
+      setTeacherInfo(data.teacher || null);
+      return data;
+    };
     try {
       const res = await api.get("/accounts/me/");
-      setUser(res.data);
-      return res.data;
-    } catch (err) {
-      // 🔥 Try refresh once
-      const refreshed = await refreshToken();
-
-      if (refreshed) {
-        try {
-          const res = await api.get("/accounts/me/");
-          setUser(res.data);
-          return res.data;
-        } catch {
-          setUser(null);
-        }
-      } else {
+      return apply(res.data);
+    } catch {
+      // /me/ failed — try refreshing the token once
+      try {
+        await api.post("/accounts/refresh/");
+      } catch {
+        // Refresh also failed — user is not logged in
         setUser(null);
+        setLoading(false);
+        return null;
       }
-
-      return null;
+      // Refresh succeeded — retry /me/
+      try {
+        return apply((await api.get("/accounts/me/")).data);
+      } catch {
+        setUser(null);
+        return null;
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /**
-   * Initial bootstrap
-   */
-  useEffect(() => {
-    bootstrap();
-  }, [bootstrap]);
+  useEffect(() => { bootstrap(); }, [bootstrap]);
 
-  /**
-   * Login. `identifier` is a username OR an email.
-   *
-   * Returns { me, redirect } on success, where:
-   *   - me        = the /me/ payload (also stored as `user`)
-   *   - redirect  = { role, dashboard_url } from the backend, or null
-   *
-   * On the shared-email case the backend returns HTTP 409 with
-   * { code: "ambiguous_email" }. We reject with that `code` so the login
-   * form can reveal a username field and ask the user to retry by username.
-   */
-  const login = async (identifier, password) => {
+  // ── Step 1 — account login ─────────────────────────────────────────────────
+  const login = async (email, password) => {
     try {
-      const res = await api.post("/accounts/login/", { identifier, password });
-
+      const res  = await api.post("/accounts/login/", { email, password });
+      const data = res.data;
+      // Stash what the login response told us so the picker has profiles/teacher
+      // available immediately after bootstrap, even if /me/ returns slightly
+      // different shape data.
+      setProfiles(data.profiles || []);
+      setTeacherInfo(data.teacher || null);
+      setContext(data.context);
+      // ALWAYS bootstrap — this populates `user` (isAuthenticated) regardless
+      // of context. Without it, "account" context navigated to /pick-profile
+      // while user was still null, causing ProtectedRoute to kick back to /login.
       setLoading(true);
-      const me = await bootstrap();
-      return { me, redirect: res.data?.redirect ?? null };
+      await bootstrap();
+      return data;
     } catch (err) {
-      setLoading(false);
-
-      const code = err?.response?.data?.code ?? null;
-      const cleanError = extractError(err);
-
-      return Promise.reject({
-        message: cleanError,
-        code,
-        raw: err,
-      });
+      return Promise.reject({ message: extractError(err), raw: err });
     }
   };
 
-  /**
-   * Signup
-   */
+  // ── Step 2A — select / switch learner profile ──────────────────────────────
+  const selectProfile = async (profileId, pin) => {
+    try {
+      await api.post("/accounts/profiles/select/", { profile_id: profileId, pin });
+      setLoading(true);
+      return await bootstrap();
+    } catch (err) {
+      return Promise.reject({ message: extractError(err), raw: err });
+    }
+  };
+
+  const switchProfile = selectProfile;
+
+  // ── Step 2B — enter teacher context (account password) ────────────────────
+  const enterTeacherMode = async (password, track) => {
+    try {
+      await api.post("/accounts/context/teacher/", { password, track });
+      setLoading(true);
+      await bootstrap();
+      return { ok: true };
+    } catch (err) {
+      const code = err?.response?.data?.code;
+      if (code === "no_teacher")    return { needsSignup: true };
+      if (code === "not_approved")  return { notApproved: true };
+      if (code === "track_pending") return { trackPending: true };
+      if (code === "track_locked")  return { trackLocked: true };
+      return Promise.reject({ message: extractError(err), raw: err });
+    }
+  };
+
+  // ── Profile PIN ────────────────────────────────────────────────────────────
+  const setProfilePin = async (profileId, pin) => {
+    try {
+      const res = await api.post("/accounts/profiles/pin/", {
+        profile_id: profileId,
+        pin: pin || "",
+      });
+      const refreshed = await api.get("/accounts/profiles/");
+      setProfiles(refreshed.data);
+      return res.data;
+    } catch (err) {
+      return Promise.reject({ message: extractError(err), raw: err });
+    }
+  };
+
+  // ── Email helpers ──────────────────────────────────────────────────────────
+  const lookupEmail = async (email) => {
+    try {
+      const res = await api.post("/accounts/profiles/lookup/", {
+        email: email.trim().toLowerCase(),
+      });
+      return res.data;
+    } catch {
+      return { profiles: [], has_teacher: false };
+    }
+  };
+
+  const checkEmail = async (email) => {
+    try {
+      const res = await api.post("/accounts/email/check/", {
+        email: email.trim().toLowerCase(),
+      });
+      return res.data;
+    } catch {
+      return { exists: false, has_student: false, has_teacher: false, is_verified: false };
+    }
+  };
+
+  // ── Signup ─────────────────────────────────────────────────────────────────
   const signup = async (payload) => {
     try {
       await api.post("/accounts/signup/", payload);
     } catch (err) {
-      return Promise.reject({
-        message: extractError(err),
-        raw: err,
-      });
+      return Promise.reject({ message: extractError(err), raw: err });
     }
   };
 
-  /**
-   * Logout
-   */
+  // ── Logout ─────────────────────────────────────────────────────────────────
+  // Does NOT do window.location.href — the caller (Navbar.handleLogout) uses
+  // navigate("/login") which keeps React Router in control and avoids a hard
+  // reload that would restart the bootstrap loop.
   const logout = async () => {
-    try {
-      await api.post("/accounts/logout/");
-    } catch {
-      // ignore
-    }
-
+    try { await api.post("/accounts/logout/"); } catch { /* ignore */ }
     setUser(null);
+    setProfiles([]);
+    setTeacherInfo(null);
+    setContext(null);
   };
 
-  /**
-   * Role checker. Accounts are single-role; `user.roles` is an array of
-   * role-name strings (e.g. ["STUDENT"]). Comparison is case-insensitive.
-   */
+  // ── Role check ─────────────────────────────────────────────────────────────
   const hasRole = (role) => {
     if (!user || !Array.isArray(user.roles)) return false;
-    const target = String(role).toLowerCase();
-    return user.roles.some((r) => String(r).toLowerCase() === target);
+    return user.roles.some(
+      (r) => String(r).toLowerCase() === String(role).toLowerCase()
+    );
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated,
-        loading,
-        login,
-        signup,
-        logout,
-        hasRole,
-        bootstrap,
+        user, profiles, teacherInfo, context, activeProfile,
+        isAuthenticated, needsProfileSelection, isTeacherContext, isLearnerContext,
+        loading, api,
+        login, selectProfile, switchProfile,
+        enterTeacherMode, setProfilePin,
+        signup, lookupEmail, checkEmail, logout, hasRole, bootstrap,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
+}
+
+export default api;

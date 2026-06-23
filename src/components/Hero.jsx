@@ -1,30 +1,111 @@
 import { useEffect, useState, useRef } from 'react';
-import image1 from '../assets/image1.jpg';
-import image2 from '../assets/image2.jpg';
-import image3 from '../assets/image3.jpg';
-import image4 from '../assets/image4.jpg';
-import image5 from '../assets/image5.jpg';
-import image6 from '../assets/image6.jpg';
+import { useNavigate } from 'react-router-dom';
+import image1 from '../assets/shikshaCards/ac2.png';
+import image2 from '../assets/shikshaCards/LvRc2.png';
+import image3 from '../assets/shikshaCards/sd2.png';
+import image4 from '../assets/shikshaCards/bt2.png';
+import image5 from '../assets/shikshaCards/tutor2.png';
+import image6 from '../assets/shikshaCards/green.png';
 import '../css/Hero.css';
 
 const subjectCards = [
-  { id: 1, name: 'Physics', img: image1, accent: '#60a5fa' },
-  { id: 2, name: 'Chemistry', img: image2, accent: '#34d399' },
-  { id: 3, name: 'Biology', img: image3, accent: '#fbbf24' },
-  { id: 4, name: 'Mathematics', img: image4, accent: '#a78bfa' },
-  { id: 5, name: 'History', img: image5, accent: '#f87171' },
-  { id: 6, name: 'English', img: image6, accent: '#fb923c' },
+  {
+    id: 1,
+    name: 'Academic Coaching',
+    img: image1,
+    accent: '#60a5fa',
+    path: '/courses',
+  },
+
+  {
+    id: 2,
+    name: 'Live & Recorded Classes',
+    img: image2,
+    accent: '#34d399',
+    path: '/courses',
+  },
+
+  {
+    id: 3,
+    name: 'Skill Development',
+    img: image3,
+    accent: '#fbbf24',
+    path: '/skill-development',
+  },
+
+  {
+    id: 4,
+    name: 'Book a Tutor',
+    img: image4,
+    accent: '#a78bfa',
+    path: "/skill-development",
+  },
+
+  {
+    id: 5,
+    name: 'Become a Tutor',
+    img: image5,
+    accent: '#f87171',
+    path: '/skill-development',
+  },
+
+  {
+    id: 6,
+    name: 'English',
+    img: image6,
+    accent: '#fb923c',
+    //path: '/english',
+  },
 ];
 
 const updates = [
-  { id: 1, title: 'April Session Starting soon', accent: '#ff8f01' },
-  { id: 2, title: 'CBSE / NCERT Course from Class 8 to Class 12', accent: '#f87171' },
-  { id: 3, title: 'MBSC Course from Class 8 to Class 12', accent: '#1dcaab' },
-  { id: 4, title: 'Higher education for all stream', accent: '#a78bfa' },
-  { id: 5, title: 'Free guest access — no registration needed', accent: '#34d399' },
-  { id: 6, title: 'New Live Session features just added', accent: '#fbbf24' },
-  { id: 7, title: 'Enrollment open now', accent: '#60a5fa' },
-  { id: 8, title: 'New and Profound Instructor joining us', accent: '#fb923c' },
+  {
+    id: 1,
+    title: 'Enrollment available for Classes 8–12',
+    accent: '#ff8f01'
+  },
+
+  {
+    id: 2,
+    title: 'CBSE, NCERT & MBSE coaching programs added',
+    accent: '#f87171'
+  },
+
+  {
+    id: 3,
+    title: 'Competitive exam preparation will be available soon',
+    accent: '#1dcaab'
+  },
+
+  {
+    id: 4,
+    title: 'New skill development programs launched',
+    accent: '#a78bfa'
+  },
+
+  {
+    id: 5,
+    title: 'Live classes and recorded sessions available',
+    accent: '#34d399'
+  },
+
+  {
+    id: 6,
+    title: 'Expert mentors and guest tutors joining ShikshaCom',
+    accent: '#fbbf24'
+  },
+
+  {
+    id: 7,
+    title: 'Tutor applications open for specialized skills',
+    accent: '#60a5fa'
+  },
+
+  {
+    id: 8,
+    title: 'Subscription plans and guest access available',
+    accent: '#fb923c'
+  }
 ];
 
 const CARD_HEIGHT = 64;
@@ -32,6 +113,9 @@ const GAP = 10;
 const CARDS_PER_PAGE = 5;
 
 const Hero = () => {
+
+  const navigate = useNavigate();
+
   const [visible, setVisible] = useState(false);
   const [offset, setOffset] = useState(0);
   const [transitioning, setTransitioning] = useState(true);
@@ -92,14 +176,22 @@ const Hero = () => {
         <div className="hero-left">
           <div className="subject-grid">
             {subjectCards.map((card, i) => (
-              <div
-                key={card.id}
-                className={`scard ${visible ? 'scard-visible' : ''}`}
-                style={{ '--delay': `${i * 40}ms`, '--accent': card.accent }}
-              >
-                <img src={card.img} alt={card.name} className="scard-img" />
-              </div>
-            ))}
+  <div
+    key={card.id}
+    className={`scard ${visible ? 'scard-visible' : ''}`}
+    style={{
+      '--delay': `${i * 40}ms`,
+      '--accent': card.accent
+    }}
+    onClick={() => navigate(card.path)}
+  >
+    <img
+      src={card.img}
+      alt={card.name}
+      className="scard-img"
+    />
+  </div>
+))}
           </div>
         </div>
 
