@@ -132,7 +132,6 @@ export default function Signup() {
   const doSignup = async (extra) => {
     const payload = {
       email,
-      ...(isExisting ? {} : { username }),
       password: isExisting ? existingPassword : password,
       role,
       ...extra,
@@ -215,7 +214,6 @@ export default function Signup() {
   const nextFromCreds = (e) => {
     e.preventDefault();
     setError("");
-    if (!username.trim())     { setError("Username is required."); return; }
     if (password.length < 8)  { setError("Password must be at least 8 characters."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
     if (role === "STUDENT") go(STEP_PROFILE);
@@ -250,7 +248,6 @@ export default function Signup() {
   const doSignupTeacher = async (type) => {
     const payload = {
       email,
-      ...(isExisting ? {} : { username }),
       password: isExisting ? existingPassword : password,
       role: "TEACHER",
       teacher_type: type,
@@ -356,14 +353,11 @@ export default function Signup() {
       {step === STEP_CREDS && (
         <>
           <h1 className="af-heading">Set up your account</h1>
-          <p className="af-sub">Pick a username and a password for <strong>{email}</strong>.</p>
+          <p className="af-sub">Choose a password for <strong>{email}</strong>.</p>
           <form onSubmit={nextFromCreds} style={{ display: "contents" }}>
-            <Field id="su-username" label="Username" value={username}
-              onChange={(e) => setUsername(e.target.value)} placeholder="your_username"
-              required autoFocus autoComplete="username" />
             <PasswordField id="su-pw" label="Password" value={password}
               onChange={(e) => setPassword(e.target.value)} placeholder="Min. 8 characters"
-              required autoComplete="new-password"
+              required autoFocus autoComplete="new-password"
               show={showPw} onToggle={() => setShowPw((v) => !v)} />
             <PasswordField id="su-cf" label="Confirm password" value={confirm}
               onChange={(e) => setConfirm(e.target.value)} placeholder="Repeat password"
