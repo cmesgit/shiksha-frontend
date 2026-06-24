@@ -24,7 +24,15 @@ const formatRupees = (paise) =>
 const Enroll = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isLearnerContext,
+    isTeacherContext,
+    needsProfileSelection,
+    profiles,
+    switchProfile,
+  } = useAuth();
   const { showToast } = useToast();
 
   const [course, setCourse] = useState(null);
@@ -174,6 +182,67 @@ const Enroll = () => {
         <div className="enroll-loading">
           <p>{fetchError}</p>
           <button onClick={() => navigate("/courses")}>Back to Courses</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Learner-context gate ──────────────────────────────────────────────
+  // Academy enrollment attaches to a LEARNER PROFILE. A teacher-context user,
+  // or someone who hasn't picked a profile yet, must switch into a learner
+  // profile first — otherwise the backend now rejects the enroll (403).
+  if (isAuthenticated && !isLearnerContext) {
+    const learnerProfiles = (profiles || []).filter((p) => p?.is_active !== false);
+
+    const rememberAndGo = (path) => {
+      try { sessionStorage.setItem("postAuthRedirect", `/enroll/${courseId}`); } catch {}
+      navigate(path);
+    };
+    // existing learner profiles → the picker; no profiles → manage/create page
+    const goManage = () => rememberAndGo(learnerProfiles.length > 0 ? "/pick-profile" : "/manage-profiles");
+
+    const switchInto = async (pid) => {
+      try {
+        await switchProfile(pid);
+        // switchProfile re-bootstraps; once context flips to learner this
+        // component re-renders past the gate.
+      } catch {
+        rememberAndGo("/pick-profile");
+      }
+    };
+
+    return (
+      <div className="enroll-page">
+        <div className="enroll-success">
+          <h2>Switch to a learner profile</h2>
+          <p>
+            Courses are added to a learner profile, not your{" "}
+            {isTeacherContext ? "teacher" : "account"} login. Pick the learner
+            who'll take <strong>{course?.title}</strong>.
+          </p>
+
+          {learnerProfiles.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, margin: "16px 0" }}>
+              {learnerProfiles.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="enroll-submit"
+                  onClick={() => switchInto(p.id)}
+                >
+                  Continue as {p.display_name || p.first_name || "this learner"}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: "16px 0", opacity: 0.8 }}>
+              You don't have a learner profile yet — create one to enroll.
+            </p>
+          )}
+
+          <button type="button" className="enroll-submit" onClick={goManage}>
+            {learnerProfiles.length > 0 ? "Manage profiles" : "Create a learner profile"}
+          </button>
         </div>
       </div>
     );
