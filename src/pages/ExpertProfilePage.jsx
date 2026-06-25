@@ -20,11 +20,13 @@
  *   NEW: window.location.href = APP_URL + "/" (student dashboard root, which
  *        shows the Skill Dev section when activeTrack === "skill")
  */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
 import { APP_URL } from "../config/urls";
+import { fetchAvailability } from "../api/skillApi";
+import { SDAvail } from "../components/skill/availability";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
@@ -187,12 +189,12 @@ export default function ExpertProfilePage() {
     setTab("book");
   };
 
-  const handleBookSession = async (note) => {
+  const handleBookSession = async (draft) => {
     try {
-      await api.post("/skill/payments/create-order/", { teacherId: id, draft: note });
-      return { ok: true };
+      const { data } = await api.post("/skill/payments/create-order/", { teacherId: id, draft });
+      return { ok: true, status: data?.status || "requested" };
     } catch (e) {
-      return { ok: false, error: e?.response?.data?.detail || "Could not book." };
+      return { ok: false, error: e?.response?.data?.detail || e?.response?.data?.slot || "Could not book." };
     }
   };
 
@@ -347,28 +349,131 @@ export default function ExpertProfilePage() {
   );
 }
 
+function SlotGrid({ avail, selected, onPick }) {
+  const ACC = "#13899b";
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#6b7280", margin: "6px 0 10px" }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: ACC, display: "inline-block" }} /> Open</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: "#f0a23b", display: "inline-block" }} /> Booked</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: "#eee", display: "inline-block" }} /> Closed</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: `52px repeat(${SDAvail.DAYS.length}, 1fr)`, gap: 5, alignItems: "center" }}>
+        <div />
+        {SDAvail.DAYS.map(d => <div key={d} style={{ fontSize: 10.5, fontWeight: 700, color: "#6b7280", textAlign: "center" }}>{d}</div>)}
+        {SDAvail.SLOTS.map((sl, si) => (
+          <Fragment key={sl}>
+            <div style={{ fontSize: 10.5, fontWeight: 700, color: "#9aa9af", textAlign: "right", paddingRight: 4 }}>{sl}</div>
+            {SDAvail.DAYS.map((d, di) => {
+              const k = di + "-" + si;
+              const booked = (avail.booked || []).includes(k);
+              const open   = (avail.open || []).includes(k);
+              const isSel  = selected === k;
+              const clickable = open && !booked;
+              const bg = booked ? "#f0a23b" : open ? (isSel ? ACC : "rgba(19,137,155,.18)") : "#f1f1f1";
+              return (
+                <button key={k} type="button" disabled={!clickable}
+                  onClick={() => clickable && onPick(k)}
+                  title={booked ? "Already booked" : open ? SDAvail.label(k) : "Closed"}
+                  style={{ height: 26, borderRadius: 6, border: isSel ? `2px solid ${ACC}` : "1px solid #e3e3e3", background: bg, cursor: clickable ? "pointer" : "default", padding: 0 }} />
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BookForm({ expert, onBook }) {
   const [note, setNote] = useState("");
+  const [slot, setSlot] = useState(null);
+  const [dur,  setDur]  = useState(60);
+  const [avail, setAvail] = useState({ open: [], booked: [] });
+  const [availLoaded, setAvailLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg]   = useState("");
+  const [done, setDone] = useState(false);
+
+  // Load the expert's REAL published availability (same record the expert edits
+  // and the student app reads). Empty until loaded / if the expert set none.
+  useEffect(() => {
+    let alive = true;
+    fetchAvailability(expert.id).then(r => {
+      if (!alive) return;
+      setAvail(r); setAvailLoaded(true);
+    });
+    return () => { alive = false; };
+  }, [expert.id]);
+
+  const hasOpen = (avail.open || []).length > 0;
+  const first   = (expert.name || "").split(" ")[0];
+
   const submit = async () => {
+    if (hasOpen && !slot) { setMsg("Please pick an available slot above."); return; }
     setBusy(true); setMsg("");
-    const r = await onBook(note);
-    setMsg(r.ok ? "✓ Session requested! Check your dashboard for details." : r.error);
-    if (r.ok) setNote("");
+    const draft = {
+      topic:         note || `1-on-1 session with ${expert.name}`,
+      note,
+      slot,
+      slotLabel:     slot ? SDAvail.label(slot) : null,
+      duration_mins: dur,
+    };
+    const r = await onBook(draft);
+    if (r.ok) setDone(true);
+    else setMsg(r.error || "Could not book.");
     setBusy(false);
   };
+
+  if (done) {
+    return (
+      <div className="ep-book-card">
+        <h2>Request sent to {first} 🎉</h2>
+        <p style={{ color: "#6b7280", lineHeight: 1.6 }}>
+          {first} will review your request and confirm the slot. Once it's accepted,
+          you'll be able to join the session from your dashboard.
+        </p>
+        <button className="ep-btn ep-btn--primary ep-btn--wide"
+          onClick={() => { window.location.href = APP_URL + "/skill-dev/sessions"; }}>
+          Go to my dashboard
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="ep-book-card">
-      <h2>Book a session with {expert.name.split(" ")[0]}</h2>
+      <h2>Book a session with {first}</h2>
       <div className="ep-book-price">{expert.rate === 0 ? "Free for now" : `₹${expert.rate} per session`}</div>
-      <label className="ep-book-label">What do you want to work on?</label>
+
+      <label className="ep-book-label">Pick a time · this week</label>
+      {!availLoaded ? (
+        <div style={{ fontSize: 13, color: "#6b7280", padding: "8px 0" }}>Loading availability…</div>
+      ) : !hasOpen ? (
+        <div style={{ fontSize: 13, color: "#b46a00", background: "rgba(255,143,1,.08)", border: "1px solid rgba(255,143,1,.25)", borderRadius: 10, padding: "10px 12px" }}>
+          {first} hasn't published open slots yet. You can still send a request and agree a time over chat.
+        </div>
+      ) : (
+        <SlotGrid avail={avail} selected={slot} onPick={setSlot} />
+      )}
+
+      <label className="ep-book-label" style={{ marginTop: 14, display: "block" }}>Duration</label>
+      <select value={dur} onChange={e => setDur(+e.target.value)}
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #d7e3e5", fontSize: 14 }}>
+        <option value={60}>1 hour</option>
+        <option value={90}>1.5 hours</option>
+        <option value={120}>2 hours</option>
+      </select>
+
+      <label className="ep-book-label" style={{ marginTop: 14, display: "block" }}>What do you want to work on?</label>
       <textarea className="ep-book-note" rows={4} value={note}
         placeholder="e.g. I want to improve my Python skills, especially around data structures…"
         onChange={e => setNote(e.target.value)} />
+
       {msg && <div className={`ep-book-msg ${msg.startsWith("✓") ? "ok" : "err"}`}>{msg}</div>}
-      <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={submit} disabled={busy}>
-        {busy ? "Requesting…" : "Request session"}
+      <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={submit}
+        disabled={busy || (hasOpen && !slot)}>
+        {busy ? "Requesting…" : (hasOpen && !slot) ? "Pick a slot to continue" : "Request session"}
       </button>
     </div>
   );
