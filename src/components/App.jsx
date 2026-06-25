@@ -27,7 +27,9 @@ const Counselling      = lazy(() => import("./Counselling"));
 const Explore          = lazy(() => import("./Explore"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
-const SkillDevelopment = lazy(() => import("./SkillDevelopment"));
+// Retired: the old skill mini-app at /skill-development now redirects to
+// /skill/browse. Kept here (commented) for reference / quick rollback.
+// const SkillDevelopment = lazy(() => import("./SkillDevelopment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
@@ -197,7 +199,10 @@ function App() {
         <Route path="/counselling"     element={<Page><Counselling /></Page>} />
         <Route path="/explore"         element={<Page><Explore /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
-        <Route path="/skill-development" element={<SkillDevelopment />} />
+        {/* Legacy mini-app retired — redirect to the live, login-gated pages.
+            Keeps old links/bookmarks working. The new canonical pages are
+            /skill/browse (directory) and /experts/:id (profile + book + message). */}
+        <Route path="/skill-development" element={<Navigate to="/skill/browse" replace />} />
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
         <Route path="/upcoming"        element={<Upcoming />} />

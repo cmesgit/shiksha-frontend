@@ -5,13 +5,15 @@
  * Fixes from original:
  *
  * FIX 1 — Messaging goes to the real WS chat, not the dead REST model.
- *   OLD: POST /skill/conversations/ → skills.Conversation (REST-only, no WS).
- *        Thread never appears in the student dashboard SkillMessages inbox.
- *   NEW: After the first message is sent via REST (which is fine as a one-off
- *        first contact), redirect the student to APP_URL/skill-messages with
- *        the expert's TeacherProfile UUID in the query string. The student app
- *        reads that on landing and opens the live WS DM immediately.
- *        expert.teacher_profile_id is now in the API response (serializers.py fix).
+ *   OLD: POST /skill/conversations/ → skills.Conversation (REST-only, DELETED).
+ *        404s now; the message was never delivered.
+ *   NEW: No REST send (the chat app is WS-only). The composer hands off to the
+ *        student app's SkillMessages inbox with the expert's TeacherProfile UUID
+ *        and the typed draft in the query string:
+ *          APP_URL/skill-messages?teacherProfileId=<id>&expertName=<n>&draft=<text>
+ *        SkillMessages opens the live WS DM (ChatAPI.startDirect("TEACHER", id))
+ *        and pre-fills the draft. expert.teacher_profile_id comes from the
+ *        /skill/teachers/<id>/ response (serializers.py).
  *
  * FIX 2 — Post-enroll redirect was pointing at "/app/skill" (doesn't exist).
  *   OLD: navigate("/app/skill")
@@ -59,11 +61,14 @@ function AuthGateModal({ action, expertName, onClose }) {
 }
 
 /* ── Inline message composer ─────────────────────────────────────────── */
-// Sends the first message via REST (skill/conversations/ — fine for initial
-// contact), then redirects to the student app's SkillMessages page with
-// teacherProfileId in the query string. SkillMessages reads that and opens
-// the live WS DM immediately so the conversation continues in real time.
-function MessageComposer({ expertId, teacherProfileId, expertName, onSent }) {
+// Messaging is delivered over the live WebSocket chat (the `chat` app), which
+// has NO REST send — so we do NOT post the message here. Instead we hand off to
+// the student app's SkillMessages inbox, carrying the expert's TeacherProfile
+// UUID and the typed draft in the query string. SkillMessages opens the WS DM
+// (ChatAPI.startDirect("TEACHER", teacherProfileId)) and pre-fills the draft so
+// the learner sends it in real time. (The old POST /skill/conversations/ route
+// was deleted along with the skills messaging model.)
+function MessageComposer({ teacherProfileId, expertName, onSent }) {
   const [body, setBody]       = useState("");
   const [sending, setSending] = useState(false);
   const [err, setErr]         = useState("");
@@ -71,26 +76,21 @@ function MessageComposer({ expertId, teacherProfileId, expertName, onSent }) {
 
   useEffect(() => { textRef.current?.focus(); }, []);
 
-  const send = async () => {
+  const send = () => {
     if (!body.trim()) return;
+    if (!teacherProfileId) {
+      setErr("This expert can't be messaged yet. Please try booking instead.");
+      return;
+    }
     setSending(true); setErr("");
-    try {
-      // Send the first message via the skills REST endpoint
-      const convRes = await api.post("/skill/conversations/", { expert: expertId });
-      await api.post(`/skill/conversations/${convRes.data.id}/messages/`, { body: body.trim() });
-      onSent();
-
-      // Redirect to student app's SkillMessages with this expert pre-selected.
-      // teacherProfileId = TeacherProfile UUID — what StartDirectView needs to
-      // open the WS chat thread. The student app reads ?teacherProfileId= on
-      // mount and calls ChatAPI.startDirect("TEACHER", teacherProfileId).
-      if (teacherProfileId) {
-        const dest = `${APP_URL}/skill-messages?teacherProfileId=${teacherProfileId}&expertName=${encodeURIComponent(expertName)}`;
-        setTimeout(() => { window.location.href = dest; }, 1200);
-      }
-    } catch (e) {
-      setErr(e?.response?.data?.detail || "Could not send. Try again.");
-    } finally { setSending(false); }
+    onSent();
+    // Carry the draft to the student app's live inbox.
+    const dest =
+      `${APP_URL}/skill-messages` +
+      `?teacherProfileId=${encodeURIComponent(teacherProfileId)}` +
+      `&expertName=${encodeURIComponent(expertName)}` +
+      `&draft=${encodeURIComponent(body.trim())}`;
+    setTimeout(() => { window.location.href = dest; }, 600);
   };
 
   return (
@@ -101,7 +101,7 @@ function MessageComposer({ expertId, teacherProfileId, expertName, onSent }) {
         placeholder={`Hi ${expertName.split(" ")[0]}, I'd like to…`} />
       {err && <div className="ep-composer__err">{err}</div>}
       <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={send} disabled={sending || !body.trim()}>
-        {sending ? "Sending…" : "Send message"}
+        {sending ? "Opening messages…" : "Continue in messages"}
       </button>
     </div>
   );
@@ -262,10 +262,9 @@ export default function ExpertProfilePage() {
             </div>
           </div>
 
-          {/* Inline composer — passes teacher_profile_id for WS redirect */}
+          {/* Inline composer — hands off to the app's live WS inbox */}
           {showComposer && !msgSent && (
             <MessageComposer
-              expertId={id}
               teacherProfileId={expert.teacher_profile_id}
               expertName={expert.name}
               onSent={() => { setMsgSent(true); setShowComposer(false); }}
@@ -273,7 +272,7 @@ export default function ExpertProfilePage() {
           )}
           {msgSent && (
             <div className="ep-msg-sent">
-              ✓ Message sent! Taking you to your messages…
+              ✓ Taking you to your messages…
             </div>
           )}
         </div>

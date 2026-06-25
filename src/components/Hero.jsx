@@ -30,7 +30,7 @@ const subjectCards = [
     name: 'Skill Development',
     img: image3,
     accent: '#fbbf24',
-    path: '/skill-development',
+    path: '/skill/browse',
   },
 
   {
@@ -38,7 +38,7 @@ const subjectCards = [
     name: 'Book a Tutor',
     img: image4,
     accent: '#a78bfa',
-    path: "/skill-development",
+    path: "/skill/browse",
   },
 
   {
@@ -46,7 +46,7 @@ const subjectCards = [
     name: 'Become a Tutor',
     img: image5,
     accent: '#f87171',
-    path: '/skill-development',
+    path: '/signup?role=teacher&skill=true',
   },
 
   {
