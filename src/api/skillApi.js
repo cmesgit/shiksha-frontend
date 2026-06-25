@@ -31,6 +31,21 @@ export async function fetchTeacher(id) {
   return data;
 }
 
+/* ── Expert weekly availability (real, backend-driven) ─────────
+   GET /skill/teachers/<id>/availability/ → { open: [...], booked: [...] }
+   This is the SAME record the expert edits on their Availability screen and
+   the student app reads, so the public profile grid now reflects real slots
+   instead of the old localStorage mock. */
+export async function fetchAvailability(expertId) {
+  if (!expertId) return { open: [], booked: [] };
+  try {
+    const { data } = await api.get(`/skill/teachers/${expertId}/availability/`);
+    return { open: data.open || [], booked: data.booked || [] };
+  } catch {
+    return { open: [], booked: [] }; // expert hasn't set any slots yet
+  }
+}
+
 /* ── Payment config ───────────────────────────────────────────
    GET /skill/payment-config/ → active payment mode + payee details.
    Booking / course-buy screens call this on load to decide between a
@@ -199,7 +214,7 @@ export async function payForSession({ teacherId, draft, method, amount }) {
 }
 
 export default {
-  fetchTeachers, fetchTeacher, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
+  fetchTeachers, fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
   registerStudent, registerTeacher,
   fetchInterviewSlots, scheduleInterview, fetchReviewQueue, submitEvaluation,
   requestSession, payForSession, enrollCourse,

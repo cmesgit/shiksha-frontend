@@ -72,7 +72,14 @@ function AvailLegend() {
   );
 }
 function AvailGrid({ tid, interactive, selected, onPick }) {
-  const d = SDAvail.get(tid);
+  // Real open/booked slots from the backend (the same record the expert edits
+  // and the student app reads). Falls back to empty until loaded / if unset.
+  const [d, setD] = useState({ open: [], booked: [] });
+  useEffect(() => {
+    let alive = true;
+    skillApi.fetchAvailability(tid).then(r => { if (alive) setD(r); });
+    return () => { alive = false; };
+  }, [tid]);
   return (
     <div className="avgrid">
       <div />
