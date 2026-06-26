@@ -38,6 +38,7 @@ const STEP_CREDS    = "creds";     // new account: password + confirm + username
 const STEP_CONFIRM  = "confirm";   // existing account: account password (ownership)
 const STEP_PROFILE  = "profile";   // student: one profile name
 const STEP_TTYPE    = "ttype";     // teacher: guest | faculty
+const STEP_GUEST_PROFILE = "guest_profile"; // guest: spec profile details
 const STEP_DONE_FAC = "done_fac";  // faculty: application submitted
 const STEP_DONE_GST = "done_gst";  // guest: you're live
 
@@ -86,6 +87,18 @@ export default function Signup() {
   /* student profile (minimal — just one name) */
   const [profileName, setProfileName] = useState("");
 
+  /* guest expert profile (spec-required details, collected at signup).
+     Profile photo is finished from the dashboard — it needs a file upload the
+     JSON signup call doesn't carry — and the dashboard gate requires it there. */
+  const [gp, setGp] = useState({
+    full_name: "", date_of_birth: "", phone: "",
+    subject_description: "", languages: "", bio: "",
+    hourly_rate: "", class_mode: "online", class_location: "",
+    city: "", pincode: "", district: "", state: "",
+  });
+  const setGpField = (k) => (e) => { setError(""); setGp((p) => ({ ...p, [k]: e.target.value })); };
+  const gpOffline = gp.class_mode === "home" || gp.class_mode === "travel";
+
   /* add-a-track */
   const [addTrack, setAddTrack] = useState("");  // "academy" | "skill" | ""
   const TRACK_LABEL = { academy: "Academy (Faculty)", skill: "Skill (Guest expert)" };
@@ -125,6 +138,7 @@ export default function Signup() {
     if (step === STEP_CONFIRM)  { setIsExisting(false); setIsUpgrade(false); setExistingPassword(""); go(STEP_EMAIL); }
     if (step === STEP_PROFILE)  go(isExisting ? STEP_CONFIRM : STEP_CREDS);
     if (step === STEP_TTYPE)    go(isExisting ? STEP_CONFIRM : STEP_CREDS);
+    if (step === STEP_GUEST_PROFILE) go(STEP_TTYPE);
     if (step === STEP_AT_CONFIRM) { navigate(-1); return; }
   };
 
@@ -239,19 +253,27 @@ export default function Signup() {
     doSignup({ profiles: [{ display_name: name, relationship: "SELF" }] });
   };
 
-  /* ── STEP: teacher type → submit ── */
+  /* ── STEP: teacher type → guest collects profile first, faculty submits ── */
   const submitTeacher = (type) => {
     setTeacherType(type);
     setError("");
-    doSignupTeacher(type);
+    if (type === "GUEST") {
+      // Guest experts are listed from their profile, so gather the spec
+      // details now instead of dropping them onto an empty dashboard.
+      go(STEP_GUEST_PROFILE);
+    } else {
+      // Faculty are reviewed by admin and fill their details after approval.
+      doSignupTeacher(type);
+    }
   };
-  const doSignupTeacher = async (type) => {
+  const doSignupTeacher = async (type, expertProfile) => {
     const payload = {
       email,
       password: isExisting ? existingPassword : password,
       role: "TEACHER",
       teacher_type: type,
     };
+    if (expertProfile) payload.expert_profile = expertProfile;
     setSubmitting(true);
     try {
       await signup(payload);
@@ -262,6 +284,39 @@ export default function Signup() {
       setError(readErr(err, "Signup failed. Please try again."));
       setSubmitting(false);
     }
+  };
+
+  /* ── STEP: guest expert profile → submit with nested expert_profile ── */
+  const submitGuestProfile = (e) => {
+    e.preventDefault();
+    setError("");
+    if (!gp.full_name.trim())          { setError("Enter your full name."); return; }
+    if (!gp.date_of_birth)             { setError("Enter your date of birth."); return; }
+    if (!gp.phone.trim())              { setError("Enter your phone number."); return; }
+    if (!gp.subject_description.trim()){ setError("Tell learners what you teach."); return; }
+    if (!gp.languages.trim())          { setError("Add at least one language."); return; }
+    if (!gp.bio.trim())                { setError("Add a short about-you description."); return; }
+    if (!(Number(gp.hourly_rate) > 0)) { setError("Set your hourly fee."); return; }
+    if (gpOffline && !gp.class_location.trim()) {
+      setError("Add your class location — it's required for at-home / travel teaching.");
+      return;
+    }
+    const expertProfile = {
+      full_name:           gp.full_name.trim(),
+      date_of_birth:       gp.date_of_birth,
+      phone:               gp.phone.trim(),
+      subject_description: gp.subject_description.trim(),
+      languages:           gp.languages.split(",").map((s) => s.trim()).filter(Boolean),
+      bio:                 gp.bio.trim(),
+      hourly_rate:         Number(gp.hourly_rate) || 0,
+      class_mode:          gp.class_mode,
+      class_location:      gpOffline ? gp.class_location.trim() : "",
+      city:                gp.city.trim(),
+      pincode:             gp.pincode.trim(),
+      district:            gp.district.trim(),
+      state:               gp.state.trim(),
+    };
+    doSignupTeacher("GUEST", expertProfile);
   };
 
   const finishTeacher = () => {
@@ -295,10 +350,16 @@ export default function Signup() {
     }
   };
   const finishAddTrack = () => {
-    const msg = addTrack === "academy"
-      ? "Faculty application submitted. We'll email you when it's approved — your current track stays live."
-      : "Skill (Guest expert) track added. You can switch to it from your dashboard now.";
-    navigate("/login", { replace: true, state: { message: msg } });
+    if (addTrack === "academy") {
+      // Applying for Faculty now opens the application form so they can fill in
+      // qualifications, subjects and verification documents. They're already
+      // signed in (this is an add-track), so /form-fillup is reachable.
+      navigate("/form-fillup", { replace: true });
+      return;
+    }
+    navigate("/login", { replace: true, state: {
+      message: "Skill (Guest expert) track added. You can switch to it from your dashboard now.",
+    } });
   };
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
@@ -449,8 +510,95 @@ export default function Signup() {
           {error && <div className="af-error">{error}</div>}
           <div className="af-spacer" />
           <p className="af-sub" style={{ fontSize: 12.5, marginTop: 8 }}>
-            You can fill in your skills, bio, courses and rates later from your dashboard.
+            Guest experts set up their profile on the next step. Faculty add their
+            details once their application is approved.
           </p>
+        </>
+      )}
+
+      {/* ── guest expert profile (spec details, collected at signup) ── */}
+      {step === STEP_GUEST_PROFILE && (
+        <>
+          <h1 className="af-heading">Your expert profile</h1>
+          <p className="af-sub">
+            This is what learners see — it gets you listed. You can edit any of it later,
+            and add a profile photo, from your dashboard.
+          </p>
+          <form onSubmit={submitGuestProfile} style={{ display: "contents" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <Field id="gp-name" label="Full name" value={gp.full_name}
+                onChange={setGpField("full_name")} placeholder="Your name" required autoFocus />
+              <Field id="gp-phone" label="Phone number" value={gp.phone}
+                onChange={setGpField("phone")} placeholder="10-digit mobile" required />
+              <Field id="gp-dob" label="Date of birth" type="date" value={gp.date_of_birth}
+                onChange={setGpField("date_of_birth")} required />
+              <Field id="gp-fee" label="Hourly fee (₹)" type="number" min="0" value={gp.hourly_rate}
+                onChange={setGpField("hourly_rate")} placeholder="e.g. 500" required />
+            </div>
+
+            <div className="af-field">
+              <label htmlFor="gp-subject">Subject &amp; what you teach</label>
+              <textarea id="gp-subject" value={gp.subject_description}
+                onChange={setGpField("subject_description")} rows={2}
+                placeholder="e.g. Hindustani vocal for beginners to intermediate"
+                style={{ resize: "vertical", font: "inherit" }} required />
+            </div>
+
+            <Field id="gp-langs" label="Languages (comma-separated)" value={gp.languages}
+              onChange={setGpField("languages")} placeholder="English, Hindi, Manipuri" required />
+
+            <div className="af-field">
+              <label htmlFor="gp-bio">About you</label>
+              <textarea id="gp-bio" value={gp.bio} onChange={setGpField("bio")} rows={2}
+                placeholder="A short intro learners will read on your profile"
+                style={{ resize: "vertical", font: "inherit" }} required />
+            </div>
+
+            <div className="af-field">
+              <label>Where do you teach?</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[
+                  { v: "online", label: "Online only" },
+                  { v: "home",   label: "At my place" },
+                  { v: "travel", label: "I travel" },
+                ].map((m) => (
+                  <button key={m.v} type="button"
+                    onClick={() => { setError(""); setGp((p) => ({ ...p, class_mode: m.v })); }}
+                    style={{
+                      flex: 1, padding: "9px 8px", borderRadius: 10, cursor: "pointer",
+                      fontSize: 13, fontWeight: 600,
+                      border: gp.class_mode === m.v ? "1.5px solid #2f9d42" : "1.5px solid #d9ddd6",
+                      background: gp.class_mode === m.v ? "#eaf6ec" : "#fff",
+                      color: gp.class_mode === m.v ? "#1e7a32" : "#5b6470",
+                    }}>
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {gpOffline && (
+              <>
+                <Field id="gp-loc" label="Class location (exact area / landmark)"
+                  value={gp.class_location} onChange={setGpField("class_location")}
+                  placeholder="Where the class is held" required />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <Field id="gp-city" label="City" value={gp.city} onChange={setGpField("city")} />
+                  <Field id="gp-pin" label="Pincode" value={gp.pincode} onChange={setGpField("pincode")} />
+                  <Field id="gp-dist" label="District" value={gp.district} onChange={setGpField("district")} />
+                  <Field id="gp-state" label="State" value={gp.state} onChange={setGpField("state")} />
+                </div>
+              </>
+            )}
+
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Creating your profile…</> : "Create profile & get listed"}
+              </button>
+            </div>
+          </form>
         </>
       )}
 
@@ -465,7 +613,7 @@ export default function Signup() {
               Your expert profile is active
             </div>
             <div style={{ fontSize: 13, color: "#5b6470", marginTop: 6, lineHeight: 1.5 }}>
-              Add your skills, bio, courses and rates any time from your dashboard.
+              Add a profile photo and fine-tune your details any time from your dashboard.
             </div>
           </div>
           <div className="af-spacer" />
@@ -560,16 +708,16 @@ export default function Signup() {
         <>
           <StatusChip icon={addTrack === "academy" ? "clock" : "check"}
             role={addTrack === "academy" ? "faculty" : "success"} />
-          <h1 className="af-heading">{addTrack === "academy" ? "Application submitted" : "Track added"}</h1>
+          <h1 className="af-heading">{addTrack === "academy" ? "Faculty track added" : "Track added"}</h1>
           <p className="af-sub">
             {addTrack === "academy"
-              ? "Your Faculty application is in the admin review queue. We'll email you the decision — your current track keeps working."
+              ? "One more step — fill in your qualifications, subjects and documents so the admin team can review your application. Your current track keeps working throughout."
               : "The Guest-expert track is live on your account. Use the dashboard switch to jump into it."}
           </p>
           <div className="af-spacer" />
           <div className="af-actions">
             <button type="button" className="af-btn af-btn--block" onClick={finishAddTrack}>
-              Back to dashboard
+              {addTrack === "academy" ? "Continue to application form" : "Back to dashboard"}
             </button>
           </div>
         </>

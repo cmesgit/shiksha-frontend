@@ -158,6 +158,11 @@ export default function Login() {
               show={showPw} onToggle={() => setShowPw((v) => !v)} />
             <Link to="/forgot-password" className="af-note">Forgot password?</Link>
             {error && <div className="af-error">{error}</div>}
+            {error && /verif/i.test(error) && (
+              <Link to="/resend-verification" className="af-note" style={{ display: "block", marginTop: 4 }}>
+                Email not verified? Resend verification link
+              </Link>
+            )}
             {statusMsg && !error && <div className="af-status">{statusMsg}</div>}
             <div className="af-spacer" />
             <div className="af-actions">

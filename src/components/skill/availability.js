@@ -13,7 +13,23 @@
 
    Slot key format: "<dayIndex>-<slotIndex>"  (e.g. "3-1"). */
 
-const DAYS  = ["Mon 23", "Tue 24", "Wed 25", "Thu 26", "Fri 27", "Sat 28"];
+// Mon–Sat of the CURRENT week with real date numbers, e.g. ["Mon 23", ...].
+// Must line up with the student app + backend _SLOT_HOURS [9,11,14,16,18,20].
+function mondayOfThisWeek() {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // back up to Monday
+  return d;
+}
+const DAYS = (() => {
+  const m = mondayOfThisWeek();
+  const names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return names.map((n, i) => {
+    const d = new Date(m);
+    d.setDate(m.getDate() + i);
+    return `${n} ${d.getDate()}`;
+  });
+})();
 const SLOTS = ["9 AM", "11 AM", "2 PM", "4 PM", "6 PM", "8 PM"];
 
 // Deterministic default open pattern so each teacher looks different.

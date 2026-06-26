@@ -21,6 +21,7 @@ import React, { useState, useEffect } from "react";
 import { Icon } from "./icons";
 import { Field, FormRow, TeacherMini, fmtDate, fmtTime } from "./ui";
 import { payForSession, fetchSkillPaymentConfig } from "../../api/skillApi";
+import { APP_URL } from "../../config/urls";
 import api from "../../api/apiClient";
 
 /* ════════════════ PAYMENT ════════════════ */
@@ -63,6 +64,7 @@ export function PaymentScreen({ t, draft, nav }) {
           ...draft,
           bookingId:  result.bookingId  || result.booking_id  || "",
           sessionId:  result.sessionId  || result.session_id  || "",
+          status:     result.status     || "requested",
         }
       });
     } catch {
@@ -241,6 +243,9 @@ function Price({ label, detail, amount }) {
 export function SessionConfirmed({ t, draft, nav }) {
   // FIX: use the real bookingId from the API response (passed via draft)
   const bookingId = draft.bookingId ? `#${draft.bookingId}` : "#SHK-000000";
+  // A new booking is a REQUEST until the expert accepts it.
+  const isConfirmed = draft.status === "confirmed";
+  const firstName = t.name.split(" ")[0];
 
   return (
     <div className="sd-screen" style={{ background: "var(--c-cream-2)", minHeight: 560 }}>
@@ -249,9 +254,9 @@ export function SessionConfirmed({ t, draft, nav }) {
           <div style={{ position: "relative", background: "linear-gradient(135deg, var(--c-forest-dk), var(--c-forest))", color: "#fff", padding: "36px 32px 30px", overflow: "hidden" }}>
             <div style={{ position: "absolute", width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(29,202,171,.35), transparent 70%)", top: -140, right: -100 }} />
             <div style={{ position: "relative" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(29,202,171,.22)", color: "var(--c-teal)", padding: "5px 12px", borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" }}><Icon.check size={13} /> Booking confirmed</div>
-              <h2 style={{ fontFamily: "var(--font-head)", fontSize: 32, fontWeight: 900, letterSpacing: "-1px", marginTop: 14 }}>You're booked with {t.name.split(" ")[0]}.</h2>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,.7)", marginTop: 6, lineHeight: 1.55 }}>A receipt and calendar invite are on their way to your email.</p>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(29,202,171,.22)", color: "var(--c-teal)", padding: "5px 12px", borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" }}><Icon.check size={13} /> {isConfirmed ? "Booking confirmed" : "Request sent"}</div>
+              <h2 style={{ fontFamily: "var(--font-head)", fontSize: 32, fontWeight: 900, letterSpacing: "-1px", marginTop: 14 }}>{isConfirmed ? `You're booked with ${firstName}.` : `Request sent to ${firstName}.`}</h2>
+              <p style={{ fontSize: 14, color: "rgba(255,255,255,.7)", marginTop: 6, lineHeight: 1.55 }}>{isConfirmed ? "A receipt and calendar invite are on their way to your email." : `${firstName} will review your request and confirm the slot. You'll be notified once it's accepted.`}</p>
             </div>
           </div>
           <div style={{ padding: 28 }}>
@@ -263,14 +268,26 @@ export function SessionConfirmed({ t, draft, nav }) {
               <Cell label="Mode" value="Online · Shiksha video room" />
               <Cell label="Booking ID" value={bookingId} mono />
             </div>
-            {/* FIX: pass sessionId forward so SessionRoom can call /join/ */}
-            {draft.sessionId && (
+            {/* Join only once the expert has ACCEPTED (status confirmed).
+                A pending request can't be joined yet. */}
+            {draft.sessionId && isConfirmed ? (
               <button onClick={() => nav("session-room")} className="sd-btn sd-btn-primary" style={{ marginTop: 24, width: "100%", justifyContent: "center", padding: "14px", fontSize: 14.5 }}>
                 <Icon.vid size={15} /> Join the session room
               </button>
+            ) : (
+              <div style={{ marginTop: 24, padding: "14px 16px", borderRadius: 12, background: "rgba(255,143,1,.08)", border: "1px solid rgba(255,143,1,.25)", color: "#b46a00", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                <Icon.cal size={15} /> Waiting for {firstName} to accept — the session room opens once they confirm.
+              </div>
             )}
-            <div style={{ fontSize: 11.5, color: "var(--c-ink-soft)", textAlign: "center", marginTop: 8 }}>The room becomes active 5 minutes before your session start time.</div>
-            <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
+            <div style={{ fontSize: 11.5, color: "var(--c-ink-soft)", textAlign: "center", marginTop: 8 }}>{isConfirmed ? "The room becomes active 5 minutes before your session start time." : "You can message " + firstName + " any time in the meantime."}</div>
+            <button
+              onClick={() => { window.location.href = `${APP_URL}/skill-dev/sessions`; }}
+              className="sd-btn sd-btn-primary"
+              style={{ marginTop: 14, width: "100%", justifyContent: "center", padding: "13px", fontSize: 14 }}
+            >
+              <Icon.arrow size={14} /> Go to my dashboard
+            </button>
+            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <button className="sd-btn sd-btn-ghost" style={{ flex: 1, justifyContent: "center" }}><Icon.cal size={13} /> Add to calendar</button>
               <button className="sd-btn sd-btn-ghost" style={{ flex: 1, justifyContent: "center" }}><Icon.msg size={13} /> Message {t.name.split(" ")[0]}</button>
               <button onClick={() => nav("hub")} className="sd-btn sd-btn-ghost" style={{ flex: 1, justifyContent: "center" }}><Icon.back size={13} /> Back to hub</button>

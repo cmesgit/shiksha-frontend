@@ -71,8 +71,19 @@ function AvailLegend() {
     </div>
   );
 }
-function AvailGrid({ tid, interactive, selected, onPick }) {
-  const d = SDAvail.get(tid);
+function AvailGrid({ tid, interactive, selected, onPick, onData }) {
+  // Real open/booked slots from the backend (the same record the expert edits
+  // and the student app reads). Falls back to empty until loaded / if unset.
+  const [d, setD] = useState({ open: [], booked: [] });
+  useEffect(() => {
+    let alive = true;
+    skillApi.fetchAvailability(tid).then(r => {
+      if (!alive) return;
+      setD(r);
+      if (onData) onData(r);
+    });
+    return () => { alive = false; };
+  }, [tid]);
   return (
     <div className="avgrid">
       <div />
@@ -108,6 +119,8 @@ export default function Profile({ t, nav, initialMode }) {
   const [mode, setMode]       = useState(initialMode === "course" ? "course" : "live");
   const [modal, setModal]     = useState(null);
   const [slot, setSlot]       = useState(null);
+  // null = not loaded yet; number once AvailGrid reports the tutor's open slots.
+  const [openSlotCount, setOpenSlotCount] = useState(null);
   const [allOpen, setAllOpen] = useState({ 0: true });
   const [bTopic, setBTopic]   = useState("");
   const [bDur, setBDur]       = useState(0);
@@ -203,7 +216,7 @@ export default function Profile({ t, nav, initialMode }) {
     }
   }
 
-  function openBook() { setSlot(null); setBTopic(""); setBDur(0); setModal("book"); }
+  function openBook() { setSlot(null); setBTopic(""); setBDur(0); setOpenSlotCount(null); setModal("book"); }
 
   return (
     <div className="sd-prof">
@@ -456,7 +469,12 @@ export default function Profile({ t, nav, initialMode }) {
         <>
           <div className="mh"><div><h3>Book a lesson with {first}</h3><div className="who">{t.title} · ₹{t.rate}/hr</div></div><CloseBtn /></div>
           <div className="field"><label>Topic / what you want to cover</label><input className="inp" value={bTopic} onChange={e => setBTopic(e.target.value)} placeholder={`e.g. Intro to ${t.skills?.[0] || "the basics"}`} /></div>
-          <div className="field"><label>Pick an open slot · {first}'s week</label><AvailLegend /><AvailGrid tid={t.id} interactive selected={slot} onPick={setSlot} /></div>
+          <div className="field"><label>Pick an open slot · {first}'s week</label><AvailLegend /><AvailGrid tid={t.id} interactive selected={slot} onPick={setSlot} onData={(d) => setOpenSlotCount((d.open || []).length)} /></div>
+          {openSlotCount === 0 && (
+            <div style={{ fontSize: 12, color: "#b46a00", background: "rgba(255,143,1,.08)", border: "1px solid rgba(255,143,1,.25)", borderRadius: 10, padding: "9px 12px", marginTop: -4, marginBottom: 4 }}>
+              {first} hasn't published open slots yet. You can still send a request and agree a time over chat.
+            </div>
+          )}
           <div className="row2">
             <div className="field"><label>Duration</label>
               <select className="inp" value={bDur} onChange={e => setBDur(+e.target.value)}>
@@ -468,8 +486,13 @@ export default function Profile({ t, nav, initialMode }) {
             <div className="field"><label>Mode</label><select className="inp"><option>Online · Shiksha room</option></select></div>
           </div>
           <div className="summary">First 15-min intro is <b>free</b>. {first} confirms your request, then the slot is locked. Rate: <b>₹{t.rate}/hr</b>.</div>
-          <button className="btn btn-accent" style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: 14 }} onClick={confirmBook}>
-            Continue to payment <Ic n="arrow" w={16} />
+          <button
+            className="btn btn-accent"
+            style={{ width: "100%", justifyContent: "center", fontSize: 15, padding: 14, opacity: (openSlotCount > 0 && !slot) ? 0.5 : 1, cursor: (openSlotCount > 0 && !slot) ? "not-allowed" : "pointer" }}
+            disabled={openSlotCount > 0 && !slot}
+            onClick={confirmBook}
+          >
+            {openSlotCount > 0 && !slot ? "Pick a slot to continue" : <>Continue to payment <Ic n="arrow" w={16} /></>}
           </button>
         </>
       );
