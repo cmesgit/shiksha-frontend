@@ -34,6 +34,7 @@ const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
+const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const About            = lazy(() => import("./About"));
 const About2           = lazy(() => import("./About2"));
 const Vision           = lazy(() => import("./Vision"));
@@ -205,6 +206,9 @@ function App() {
         <Route path="/skill-development" element={<Navigate to="/skill/browse" replace />} />
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
+        {/* Faculty intro — guest experts land here from the locked Academy tab.
+            Rendered bare: it ships its own nav/hero, so no <Page> chrome. */}
+        <Route path="/become-faculty" element={<FacultyIntro />} />
         <Route path="/upcoming"        element={<Upcoming />} />
         <Route path="/payment"         element={<Page><Payment /></Page>} />
         <Route path="/forum"           element={<Page><ThreadListPage /></Page>} />
