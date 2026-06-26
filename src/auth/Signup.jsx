@@ -350,10 +350,16 @@ export default function Signup() {
     }
   };
   const finishAddTrack = () => {
-    const msg = addTrack === "academy"
-      ? "Faculty application submitted. We'll email you when it's approved — your current track stays live."
-      : "Skill (Guest expert) track added. You can switch to it from your dashboard now.";
-    navigate("/login", { replace: true, state: { message: msg } });
+    if (addTrack === "academy") {
+      // Applying for Faculty now opens the application form so they can fill in
+      // qualifications, subjects and verification documents. They're already
+      // signed in (this is an add-track), so /form-fillup is reachable.
+      navigate("/form-fillup", { replace: true });
+      return;
+    }
+    navigate("/login", { replace: true, state: {
+      message: "Skill (Guest expert) track added. You can switch to it from your dashboard now.",
+    } });
   };
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
@@ -702,16 +708,16 @@ export default function Signup() {
         <>
           <StatusChip icon={addTrack === "academy" ? "clock" : "check"}
             role={addTrack === "academy" ? "faculty" : "success"} />
-          <h1 className="af-heading">{addTrack === "academy" ? "Application submitted" : "Track added"}</h1>
+          <h1 className="af-heading">{addTrack === "academy" ? "Faculty track added" : "Track added"}</h1>
           <p className="af-sub">
             {addTrack === "academy"
-              ? "Your Faculty application is in the admin review queue. We'll email you the decision — your current track keeps working."
+              ? "One more step — fill in your qualifications, subjects and documents so the admin team can review your application. Your current track keeps working throughout."
               : "The Guest-expert track is live on your account. Use the dashboard switch to jump into it."}
           </p>
           <div className="af-spacer" />
           <div className="af-actions">
             <button type="button" className="af-btn af-btn--block" onClick={finishAddTrack}>
-              Back to dashboard
+              {addTrack === "academy" ? "Continue to application form" : "Back to dashboard"}
             </button>
           </div>
         </>
