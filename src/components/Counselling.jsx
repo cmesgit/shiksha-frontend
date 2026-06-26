@@ -65,77 +65,31 @@ const Counselling = () => {
 
   <div className="steps-grid">
     <div className="step-card">
-      1. Take Assessment
+      <span className="step-icon">📝</span>
+      <h3>Assessment</h3>
+      <p>Answer questions about yourself.</p>
     </div>
 
     <div className="step-card">
-      2. AI Analysis
+      <span className="step-icon">🤖</span>
+      <h3>Analysis</h3>
+      <p>AI analyzes your preferences.</p>
     </div>
 
     <div className="step-card">
-      3. Career Matches
+      <span className="step-icon">🎯</span>
+      <h3>Careers</h3>
+      <p>Receive career recommendations.</p>
     </div>
 
     <div className="step-card">
-      4. Admission Guidance
-    </div>
-  </div>
-</div>
-<div className="why-counselling">
-  <h2>Why Use AI Counselling?</h2>
-
-  <div className="why-grid">
-    <div className="why-card">
-      <div className="why-icon">🎯</div>
-      <h3>Personalized Recommendations</h3>
-      <p>Careers tailored to your interests and strengths.</p>
-    </div>
-
-    <div className="why-card">
-      <div className="why-icon">🗺️</div>
-      <h3>Career Roadmap</h3>
-      <p>Clear guidance from school to your dream career.</p>
-    </div>
-
-    <div className="why-card">
-      <div className="why-icon">🏫</div>
-      <h3>College Suggestions</h3>
-      <p>Find universities and courses that fit you.</p>
-    </div>
-
-    <div className="why-card">
-      <div className="why-icon">🌍</div>
-      <h3>Admission Guidance</h3>
-      <p>Explore opportunities in India and abroad.</p>
+      <span className="step-icon">🎓</span>
+      <h3>Admissions</h3>
+      <p>Explore colleges and universities.</p>
     </div>
   </div>
 </div>
 
-<div className="popular-careers">
-  <h2>Explore Career Paths</h2>
-
-  <div className="careers-grid">
-    <div className="career-pill">💻 Software Engineer</div>
-    <div className="career-pill">🩺 Doctor</div>
-    <div className="career-pill">⚖️ Lawyer</div>
-    <div className="career-pill">📊 Data Scientist</div>
-    <div className="career-pill">🏛️ Civil Servant</div>
-    <div className="career-pill">🔬 Research Scientist</div>
-  </div>
-</div>
-          <div className="upcoming-cta-section">
-            <h2>Stay Updated</h2>
-            <p>Get notified when counselling services go live!</p>
-            <div className="upcoming-cta-buttons">
-              <button className="upcoming-notify-btn">Notify Me</button>
-              <button
-                className="upcoming-back-btn"
-                onClick={() => window.history.back()}
-              >
-                Back
-              </button>
-            </div>
-          </div>
         </div>
 
       </div>

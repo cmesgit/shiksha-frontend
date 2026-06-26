@@ -160,12 +160,13 @@ const styles = `
   }
   .section-title {
     font-family: 'Montserrat', sans-serif;
-    font-size: clamp(26px, 4vw, 36px);
+    font-size: 30px;
     font-weight: 800;
     color: var(--ink);
     line-height: 1.2;
     margin: 0 0 32px;
     letter-spacing: -0.01em;
+     margin-bottom: 20px;
   }
   .section-title .accent { color: var(--accent); }
 
