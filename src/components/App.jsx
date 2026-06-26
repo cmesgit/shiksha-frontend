@@ -25,6 +25,7 @@ const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
 const Counselling      = lazy(() => import("./Counselling"));
 const Explore          = lazy(() => import("./Explore"));
+const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
 // Retired: the old skill mini-app at /skill-development now redirects to
@@ -200,6 +201,7 @@ function App() {
         <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
         <Route path="/counselling"     element={<Page><Counselling /></Page>} />
         <Route path="/explore"         element={<Page><Explore /></Page>} />
+        <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
         {/* Legacy mini-app retired — redirect to the live, login-gated pages.
             Keeps old links/bookmarks working. The new canonical pages are

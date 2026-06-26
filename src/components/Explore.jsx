@@ -1,452 +1,133 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/Explore.css';
 
-const stripHtml = (html) => {
-  if (!html) return '';
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
-};
+const highlights = [
+  {
+    title: "Publish",
+    text: "Upload your research paper and share your knowledge.",
+    tone: "forest",
+    icon: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M12 6h18l6 6v30H12z" />
+        <path d="M30 6v8h8" />
+        <path d="M18 22h13M18 29h13M18 36h8" />
+        <path className="badge" d="M34 42V28m0 0-6 6m6-6 6 6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Read",
+    text: "Access a wide collection of research papers from various fields.",
+    tone: "mint",
+    icon: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M8 12c6-3 11-2 16 2 5-4 10-5 16-2v27c-6-3-11-2-16 2-5-4-10-5-16-2z" />
+        <path d="M24 14v27M14 19h6M14 26h6M28 19h6M28 26h6" />
+      </svg>
+    ),
+  },
+  {
+    title: "AI Review",
+    text: "Get intelligent reviews and suggestions to improve your research.",
+    tone: "teal",
+    icon: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M14 14h20v20H14z" />
+        <path d="M18 8v6M24 8v6M30 8v6M18 34v6M24 34v6M30 34v6M8 18h6M8 24h6M8 30h6M34 18h6M34 24h6M34 30h6" />
+        <text x="24" y="29" textAnchor="middle">AI</text>
+      </svg>
+    ),
+  },
+  {
+    title: "Collaborate",
+    text: "Connect with researchers and build meaningful collaborations.",
+    tone: "amber",
+    icon: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="19" cy="18" r="6" />
+        <circle cx="31" cy="19" r="5" />
+        <path d="M8 39c1.5-8 6-12 11-12s9.5 4 11 12zM27 38c.8-5 3.8-8 8-8 3.8 0 7 3 8 8z" />
+      </svg>
+    ),
+  },
+];
 
-const Explore = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [articleData, setArticleData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-
-    setLoading(true);
-    setError('');
-    setArticleData(null);
-
-    try {
-      const data = await fetchArticleData(searchQuery.trim());
-      setArticleData(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchArticleData = async (query) => {
-    try {
-      const wikipediaData = await fetchWikipediaSummary(query);
-      let description = null;
-      let introHtml = null;
-      let wikidataData = null;
-      let dbpediaData = null;
-      let relatedTopics = [];
-
-      // Fetch a short description for the sidebar
-      try {
-        const extractResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&format=json&titles=${encodeURIComponent(query)}&origin=*`);
-        if (extractResponse.ok) {
-          const extractData = await extractResponse.json();
-          const pages = extractData.query.pages;
-          const pageId = Object.keys(pages)[0];
-          const page = pages[pageId];
-          if (!page.missing) {
-            description = page.extract;
-          }
-        }
-      } catch (err) {
-        console.warn('Description fetch failed:', err);
-      }
-
-      // Fetch intro HTML for summary
-      try {
-        const introResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(query)}&prop=text&section=0&format=json&origin=*`);
-        if (introResponse.ok) {
-          const introData = await introResponse.json();
-          if (introData.parse && introData.parse.text) {
-            introHtml = introData.parse.text['*'];
-          }
-        }
-      } catch (err) {
-        console.warn('Intro HTML fetch failed:', err);
-      }
-
-      try {
-        wikidataData = await fetchWikidata(query);
-      } catch (err) {
-        console.warn('Wikidata fetch failed:', err);
-      }
-
-      try {
-        dbpediaData = await fetchDBpedia(query);
-      } catch (err) {
-        console.warn('DBpedia fetch failed:', err);
-      }
-
-      try {
-        relatedTopics = await fetchRelatedTopics(query);
-      } catch (err) {
-        console.warn('Related topics fetch failed:', err);
-      }
-
-      return {
-        title: wikipediaData.title,
-        summary: introHtml || description,
-        description: description,
-        sections: wikipediaData.sections || [],
-        infobox: wikidataData,
-        metadata: dbpediaData,
-        relatedTopics: relatedTopics,
-        originalExtract: wikipediaData.extract
-      };
-    } catch (err) {
-      throw new Error(`Failed to fetch article data: ${err.message}`);
-    }
-  };
-
-  const fetchWikipediaSummary = async (title) => {
-    try {
-      const parseResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&origin=*`);
-      if (parseResponse.ok) {
-        const parseData = await parseResponse.json();
-        if (parseData.parse && parseData.parse.text) {
-          const fullContent = parseData.parse.text['*'];
-
-          try {
-            const sectionsResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
-            if (sectionsResponse.ok) {
-              const sectionsData = await sectionsResponse.json();
-              const sections = sectionsData.remaining?.sections || [];
-              const filteredSections = sections.filter(section =>
-                !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
-              );
-              return {
-                title: parseData.parse.title,
-                extract: fullContent,
-                sections: filteredSections.slice(0, 20),
-                originalExtract: fullContent
-              };
-            }
-          } catch (sectionsErr) {
-            console.warn('Sections fetch failed, using full content only:', sectionsErr);
-          }
-
-          return {
-            title: parseData.parse.title,
-            extract: fullContent,
-            sections: [],
-            originalExtract: fullContent
-          };
-        }
-      }
-
-      const extractResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=false&explaintext&format=json&titles=${encodeURIComponent(title)}&origin=*`);
-      if (extractResponse.ok) {
-        const extractData = await extractResponse.json();
-        const pages = extractData.query.pages;
-        const pageId = Object.keys(pages)[0];
-        const page = pages[pageId];
-        if (!page.missing) {
-          const fullExtract = page.extract;
-          try {
-            const sectionsResponse = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
-            if (sectionsResponse.ok) {
-              const sectionsData = await sectionsResponse.json();
-              const sections = sectionsData.remaining?.sections || [];
-              const filteredSections = sections.filter(section =>
-                !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
-              );
-              return {
-                title: sectionsData.displaytitle || page.title,
-                extract: fullExtract,
-                sections: filteredSections.slice(0, 20),
-                originalExtract: fullExtract
-              };
-            }
-          } catch (sectionsErr) {
-            console.warn('Sections fetch failed, using extract only:', sectionsErr);
-          }
-          return {
-            title: page.title,
-            extract: fullExtract,
-            sections: [],
-            originalExtract: fullExtract
-          };
-        }
-      }
-
-      const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${encodeURIComponent(title)}`);
-      if (!response.ok) throw new Error('Failed to fetch Wikipedia content');
-      const data = await response.json();
-      const fullText = data.lead?.sections?.map(section => section.text).join(' ') || data.extract || '';
-      const sections = data.remaining?.sections || [];
-      const filteredSections = sections.filter(section =>
-        !['See also', 'References', 'External links', 'Bibliography', 'Further reading', 'Notes'].includes(section.line)
-      );
-      return {
-        title: data.displaytitle || title,
-        extract: fullText,
-        sections: filteredSections.slice(0, 20),
-        originalExtract: fullText
-      };
-    } catch (err) {
-      try {
-        const searchResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(title)}&format=json&origin=*`);
-        if (!searchResponse.ok) throw new Error('Page not found and search failed');
-        const searchData = await searchResponse.json();
-        if (searchData.query.search && searchData.query.search.length > 0) {
-          const bestMatch = searchData.query.search[0].title;
-          return await fetchWikipediaSummary(bestMatch);
-        } else {
-          throw new Error('Page not found');
-        }
-      } catch (fallbackErr) {
-        throw new Error(`Failed to fetch article: ${fallbackErr.message}`);
-      }
-    }
-  };
-
-  const fetchWikidata = async (title) => {
-    try {
-      const searchResponse = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(title)}&language=en&format=json&origin=*`);
-      if (!searchResponse.ok) throw new Error('Failed to search Wikidata');
-      const searchData = await searchResponse.json();
-
-      if (!searchData.search || searchData.search.length === 0) {
-        return null;
-      }
-
-      const qid = searchData.search[0].id;
-      const entityResponse = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`);
-      if (!entityResponse.ok) throw new Error('Failed to fetch Wikidata entity');
-      const entityData = await entityResponse.json();
-
-      return entityData.entities[qid];
-    } catch (err) {
-      console.warn('Wikidata fetch failed:', err);
-      return null;
-    }
-  };
-
-  const fetchDBpedia = async (title) => {
-    try {
-      const response = await fetch(`https://dbpedia.org/data/${encodeURIComponent(title)}.json`);
-      if (!response.ok) throw new Error('Failed to fetch DBpedia data');
-      return await response.json();
-    } catch (err) {
-      console.warn('DBpedia fetch failed:', err);
-      return null;
-    }
-  };
-
-  const fetchRelatedTopics = async (title) => {
-    try {
-      const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/related/${encodeURIComponent(title)}`);
-      if (!response.ok) throw new Error('Failed to fetch related topics');
-      const data = await response.json();
-      const topics = data.pages?.slice(0, 5) || [];
-      return topics;
-    } catch (err) {
-      console.warn('Related topics fetch failed:', err);
-      return [];
-    }
+function TinyIcon({ type }) {
+  const paths = {
+    cloud: "M16 32h16a7 7 0 0 0 .9-13.9A10 10 0 0 0 13.6 16 8 8 0 0 0 16 32Zm8-13v12m0-12-5 5m5-5 5 5",
+    book: "M10 12c5-2 10-1 14 3 4-4 9-5 14-3v25c-5-2-10-1-14 3-4-4-9-5-14-3zM24 15v25",
+    chip: "M15 15h18v18H15zM19 9v6M24 9v6M29 9v6M19 33v6M24 33v6M29 33v6M9 19h6M9 24h6M9 29h6M33 19h6M33 24h6M33 29h6",
+    users: "M18 22a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm12-1a5 5 0 1 0 0-10M8 38c1-8 5-12 10-12s9 4 10 12M27 35c1-5 4-8 8-8 3.5 0 6 3 7 8",
   };
 
   return (
-    <div className="explore-page">
-      {/* Header with Search Bar */}
-      <header className="explore-header">
-        <div className="explore-container">
-          <div className="explore-search-bar">
-            <input
-              type="text"
-              placeholder="Search topics to explore..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyPress}
-              disabled={loading}
-            />
-            <button onClick={handleSearch} disabled={loading || !searchQuery.trim()}>
-              {loading ? (
-                <div className="loading-spinner"></div>
-              ) : (
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-              )}
-            </button>
-          </div>
-          {error && <div className="error-message">{error}</div>}
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="explore-container">
-        <div className="explore-grid">
-          {/* Main Article */}
-          <main>
-            {loading ? (
-              <div className="loading-container">
-                <div className="loading-spinner large"></div>
-                <p>Loading article...</p>
-              </div>
-            ) : articleData ? (
-              <article className="explore-article-content">
-                <h1>{articleData.title}</h1>
-
-                {articleData.description && (
-                  <p>{articleData.description}</p>
-                )}
-
-                {articleData.sections && articleData.sections.length > 0 && (
-                  <div className="explore-toc">
-                    <h2>Contents</h2>
-                    <ol>
-                      {articleData.sections.map((section, index) => (
-                        <li key={index}>
-                          <a href={`#section-${index}`}>{section.line || section.anchor}</a>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-
-                {articleData.sections && articleData.sections.map((section, index) => {
-                  const text = stripHtml(section.text || '').trim();
-                  return (
-                    <section key={index} id={`section-${index}`}>
-                      <h2>{section.line || section.anchor}</h2>
-                      {text && <p>{text}</p>}
-                    </section>
-                  );
-                })}
-              </article>
-            ) : (
-              <article className="explore-article-content">
-                <h1>Welcome to ShikshaCom Explore</h1>
-                <p>
-                  Search for any topic above to get comprehensive information.
-                </p>
-                <p>
-                  Try searching for topics like "Albert Einstein" or "Ancient Rome" to see the full information.
-                </p>
-              </article>
-            )}
-          </main>
-
-          {/* Right Column */}
-          <div className="right-column">
-            {/* Left Sidebar */}
-            <aside>
-              <div className="explore-sidebar">
-                <h3>Categories</h3>
-                <ol>
-                  <li><a href="#">Education</a></li>
-                  <li><a href="#">Technology</a></li>
-                  <li><a href="#">Science</a></li>
-                  <li><a href="#">History</a></li>
-                </ol>
-
-                {articleData && articleData.sections && articleData.sections.length > 0 && (
-                  <>
-                    <h3>Table of Contents</h3>
-                    <ul>
-                      {articleData.sections.map((section, index) => (
-                        <li key={index}>
-                          <button onClick={() => scrollToSection(`section-${index}`)}>
-                            {section.line || section.anchor}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-              </div>
-            </aside>
-
-            {/* Right Sidebar - Infobox */}
-            <aside>
-              {articleData ? (
-                <div className="explore-infobox">
-                  <h3>{articleData.title}</h3>
-
-                  <h4>Article Information</h4>
-                  <ul>
-                    <li><strong>Topic:</strong> {articleData.title}</li>
-                    {articleData.sections && articleData.sections.length > 0 && (
-                      <li><strong>Sections:</strong> {articleData.sections.length}</li>
-                    )}
-                  </ul>
-
-                  <h4>Description</h4>
-                  <p>
-                    {articleData.description
-                      ? articleData.description.split('. ').slice(0, 3).join('. ') + '.'
-                      : 'No description available.'}
-                  </p>
-
-                  {articleData.infobox && articleData.infobox.aliases?.en && articleData.infobox.aliases.en.length > 0 && (
-                    <>
-                      <h4>Also Known As</h4>
-                      <ul>
-                        {articleData.infobox.aliases.en.slice(0, 3).map((alias, index) => (
-                          <li key={index}>{alias.value}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-
-                  <h4>Related Links</h4>
-                  <ul>
-                    {articleData.relatedTopics && articleData.relatedTopics.length > 0 ? (
-                      articleData.relatedTopics.slice(0, 10).map((topic, index) => (
-                        <li key={index}>
-                          <a
-                            href={`https://en.wikipedia.org/wiki/${encodeURIComponent(topic.title)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {topic.title}
-                          </a>
-                          {topic.description && <span> - {topic.description}</span>}
-                        </li>
-                      ))
-                    ) : (
-                      <li>No related links available for this topic.</li>
-                    )}
-                  </ul>
-                </div>
-              ) : (
-                <div className="explore-infobox">
-                  <h3>ShikshaCom Explore</h3>
-                  <img src="/Shiksha.png" alt="Shiksha" />
-                  <p>Search for any topic to see structured information.</p>
-                  <h4>Key Highlights</h4>
-                  <ul>
-                    <li>In-depth explanations of topics</li>
-                    <li>Clear summaries for quick understanding</li>
-                    <li>Sections and tables for structured learning</li>
-                    <li>Related topics for extended exploration</li>
-                  </ul>
-                </div>
-              )}
-            </aside>
-          </div>
-        </div>
-      </div>
-    </div>
+    <span className="benefit-icon">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d={paths[type]} />
+      </svg>
+    </span>
   );
-};
+}
 
-export default Explore;
+export default function Explore() {
+  const navigate = useNavigate();
+
+  return (
+    <main className="explore-page">
+      <section className="explore-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">
+            Welcome to Explore
+          </p>
+          <h1>
+            Discover. Share.
+            <br />
+            Learn. <span>Inspire.</span>
+          </h1>
+          <p className="intro">
+            Explore is your research hub, a place to publish your ideas, read
+            impactful research papers, and get AI-powered reviews to improve
+            your work and grow together.
+          </p>
+          <ul className="benefits">
+            <li><TinyIcon type="cloud" />Publish your research and contribute to the community</li>
+            <li><TinyIcon type="book" />Read and explore thousands of research papers</li>
+            <li><TinyIcon type="chip" />Get AI-powered reviews and constructive feedback</li>
+            <li><TinyIcon type="users" />Learn, collaborate and grow with researchers worldwide</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="feature-strip" aria-label="Explore features">
+        {highlights.map((item) => (
+          <article className="feature-item" key={item.title}>
+            <div className={`feature-icon ${item.tone}`}>{item.icon}</div>
+            <div>
+              <h2>{item.title}</h2>
+              <p>{item.text}</p>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="explore-cta">
+        <h2>Ready to explore the world of research?</h2>
+        <button type="button" onClick={() => navigate('/explore/research-hub')}>
+          Let's Get Started
+          <span aria-hidden="true">-&gt;</span>
+        </button>
+        <p>Join a community of curious minds and make an impact.</p>
+      </section>
+
+      <footer className="quote-box">
+        <span aria-hidden="true">"</span>
+        <blockquote>
+          Research is to see what everybody else has seen, and to think what
+          nobody else has thought.
+          <cite>- Albert Szent-Gyorgyi</cite>
+        </blockquote>
+        <span aria-hidden="true">"</span>
+      </footer>
+    </main>
+  );
+}

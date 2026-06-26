@@ -3,11 +3,11 @@ import "../css/About2.css";
 import { FaUsers, FaWrench, FaHome } from "react-icons/fa";
 import { GiSprout } from "react-icons/gi";
 
-import img1 from "../assets/teach1.jpeg";
-import img2 from "../assets/teach2.jpeg";
-import img3 from "../assets/teach3.jpeg";
-import img4 from "../assets/teach4.jpeg";
-import img5 from "../assets/teach5.jpeg";
+import img1 from "../assets/about-us/sticker_5.png";
+import img2 from "../assets/about-us/sticker_2.png";
+import img3 from "../assets/about-us/sticker_3.png";
+import img4 from "../assets/about-us/sticker_4.png";
+import img5 from "../assets/about-us/sticker_1.png";
 import visionImg from "../assets/meet.jpeg";
 import valuesImg from "../assets/studio.jpeg";
 
