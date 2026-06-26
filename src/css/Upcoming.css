@@ -10,7 +10,7 @@
   background-size: 60px 60px;
   font-family: "Poppins", sans-serif;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 /* Ambient glows */
@@ -45,7 +45,7 @@
 
 /* ── Container ── */
 .upcoming-container {
-  max-width: 1160px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 64px 28px 80px;
 }
@@ -187,6 +187,7 @@
    CTA SECTION
 ═══════════════════════════════════════════ */
 .upcoming-cta-section {
+  margin-top: 40px;
   text-align: center;
   background:
     linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
@@ -277,15 +278,395 @@
 }
 
 /* ═══════════════════════════════════════════
+   COUNSELLING HERO
+═══════════════════════════════════════════ */
+
+.counselling-hero {
+  text-align: center;
+  padding: 80px 0 80px;
+}
+
+.counselling-hero h1 {
+  margin-bottom: 18px;
+}
+
+.counselling-hero p {
+  max-width: 650px;
+  margin: 0 auto 32px;
+  font-size: 18px;
+  color: rgba(14, 28, 15, 0.6);
+  line-height: 1.8;
+}
+
+.counselling-start-btn {
+  padding: 15px 34px;
+  border: none;
+  border-radius: 14px;
+  background: #125027;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(18, 80, 39, 0.28);
+  transition: all 0.25s ease;
+}
+
+.counselling-start-btn:hover {
+  transform: translateY(-3px);
+  background: #166332;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION TITLE
+═══════════════════════════════════════════ */
+
+.section-title {
+  text-align: center;
+  font-size: 34px;
+  font-weight: 800;
+  color: #125027;
+  margin-bottom: 30px;
+}
+
+/* ═══════════════════════════════════════════
+   SERVICES GRID
+═══════════════════════════════════════════ */
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 80px;
+  margin-bottom: 100px;
+}
+.how-it-works {
+  margin-top: 80px;
+}
+
+.service-card {
+  min-height: 280px;
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%),
+    rgba(0, 50, 35, 0.82);
+  backdrop-filter: blur(18px);
+  border-radius: 22px;
+  padding: 36px 28px;
+  text-align: center;
+  color: white;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 42px rgba(0,0,0,.25);
+}
+
+.service-icon {
+  font-size: 48px;
+  margin-bottom: 18px;
+}
+
+.service-card h3 {
+  font-size: 22px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.service-card p {
+  color: rgba(255,255,255,.65);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════════ */
+
+.how-it-works {
+  margin-bottom: 80px;
+}
+
+.how-it-works h2 {
+  text-align: center;
+  color: #125027;
+  font-size: clamp(30px, 4vw, 42px);
+  margin-bottom: 40px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.step-card {
+  background: white;
+  border-radius: 20px;
+  padding: 35px 24px;
+  min-height: 180px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  transition: all .25s ease;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+}
+
+.step-icon {
+  font-size: 42px;
+  margin-bottom: 16px;
+}
+
+.step-card h3 {
+  color: #125027;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.step-card p {
+  color: rgba(14,28,15,.6);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+}
+.why-counselling {
+  margin-top: 80px;
+}
+
+.why-counselling h2 {
+  text-align: center;
+  color: #125027;
+  font-size: clamp(30px, 4vw, 42px);
+  margin-bottom: 40px;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 24px;
+}
+
+.why-card {
+  min-height: 260px;
+  background: white;
+  border-radius: 22px;
+  padding: 35px 28px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  transition: all .25s ease;
+}
+
+.why-card:hover {
+  transform: translateY(-5px);
+}
+
+.why-icon {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.why-card h3 {
+  color: #125027;
+  margin-bottom: 14px;
+}
+
+.why-card p {
+  color: rgba(14,28,15,.6);
+  line-height: 1.7;
+  margin-top: auto;
+}
+.popular-careers {
+  margin-top: 80px;
+  margin-bottom: 140px;
+}
+
+.popular-careers h2 {
+  text-align: center;
+  color: #125027;
+  font-size: clamp(30px, 4vw, 42px);
+  margin-bottom: 40px;
+}
+
+.careers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+}
+
+.career-pill {
+  background: rgba(18,80,39,.08);
+  color: #125027;
+  border: 1px solid rgba(18,80,39,.15);
+  padding: 16px 28px;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all .25s ease;
+}
+
+.career-pill:hover {
+  background: #125027;
+  color: white;
+}
+.assessment-card {
+  max-width: 700px;
+  margin: 60px auto;
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 15px 40px rgba(0,0,0,.08);
+}
+
+.assessment-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+}
+
+.assessment-field label {
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #125027;
+}
+
+.assessment-field input,
+.assessment-field select {
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.15);
+  font-size: 16px;
+}
+
+.assessment-next-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: #125027;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+}
+.assessment-progress {
+  max-width: 700px;
+  height: 10px;
+  margin: 40px auto 20px;
+  background: rgba(18,80,39,.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.assessment-progress-bar {
+  width: 20%;
+  height: 100%;
+  background: #125027;
+  border-radius: 999px;
+}
+
+.assessment-step {
+  text-align: center;
+  color: rgba(14,28,15,.6);
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+.assessment-subtitle {
+  text-align: center;
+  color: rgba(14,28,15,.6);
+  margin-bottom: 30px;
+}
+
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.interest-card {
+  background: white;
+  border: 2px solid rgba(18,80,39,.15);
+  border-radius: 18px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .25s ease;
+  font-weight: 600;
+}
+
+.interest-card:hover {
+  border-color: #125027;
+}
+
+.interest-card.selected {
+  background: #125027;
+  color: white;
+  border-color: #125027;
+}
+.results-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.results-card h3 {
+  color: #125027;
+  margin-bottom: 12px;
+}
+
+.results-card p {
+  color: rgba(14,28,15,.65);
+  line-height: 1.7;
+}
+/* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
 @media (max-width: 992px) {
   .upcoming-features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .services-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+.why-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+.steps-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
 }
 
 @media (max-width: 600px) {
+  .services-grid,
+.steps-grid {
+  grid-template-columns: 1fr;
+}
+.career-pill {
+  width: 100%;
+  text-align: center;
+}
+.why-grid {
+  grid-template-columns: 1fr;
+}
+.counselling-hero h1 {
+  font-size: 42px;
+}
+
+.counselling-hero p {
+  font-size: 16px;
+}
   .upcoming-container {
     padding: 48px 18px 64px;
   }
@@ -311,4 +692,7 @@
   .upcoming-back-btn {
     width: 220px;
   }
+  .interests-grid {
+  grid-template-columns: 1fr;
+}
 }

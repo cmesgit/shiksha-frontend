@@ -24,6 +24,7 @@ const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
 const Counselling      = lazy(() => import("./Counselling"));
+const CareerAssessment = lazy(() => import("./CareerAssessment"));
 const Explore          = lazy(() => import("./Explore"));
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
@@ -199,7 +200,12 @@ function App() {
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
         <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
+        
         <Route path="/counselling"     element={<Page><Counselling /></Page>} />
+        <Route
+               path="/counselling/assessment"
+               element={<Page><CareerAssessment /></Page>}
+/>
         <Route path="/explore"         element={<Page><Explore /></Page>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
