@@ -24,7 +24,9 @@ const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
 const Counselling      = lazy(() => import("./Counselling"));
+const CareerAssessment = lazy(() => import("./CareerAssessment"));
 const Explore          = lazy(() => import("./Explore"));
+const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
 // Retired: the old skill mini-app at /skill-development now redirects to
@@ -34,6 +36,7 @@ const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
+const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const About            = lazy(() => import("./About"));
 const About2           = lazy(() => import("./About2"));
 const Vision           = lazy(() => import("./Vision"));
@@ -198,8 +201,14 @@ function App() {
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
         <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
+        
         <Route path="/counselling"     element={<Page><Counselling /></Page>} />
+        <Route
+               path="/counselling/assessment"
+               element={<Page><CareerAssessment /></Page>}
+/>
         <Route path="/explore"         element={<Page><Explore /></Page>} />
+        <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
         {/* Legacy mini-app retired — redirect to the live, login-gated pages.
             Keeps old links/bookmarks working. The new canonical pages are
@@ -207,6 +216,27 @@ function App() {
         <Route path="/skill-development" element={<Navigate to="/skill/browse" replace />} />
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
+
+        {/*
+          Faculty / Academy entry points.
+
+          The teacher app's TrackSwitcher sends a Guest expert who taps the
+          locked "Academy" tab to `${HOME_URL}/become-faculty` (and the reverse
+          — a Faculty teacher tapping the locked "Skill Dev" tab — to
+          `${HOME_URL}/expert-apply`). Those routes lived nowhere on this app,
+          so the redirect landed on "No routes matched location".
+
+          • /become-faculty → the FacultyIntro landing page. It explains the
+            Faculty track and routes into the add-a-track signup
+            (?add_track=academy). It renders WITHOUT the marketing <Page>
+            chrome — it ships its own nav (see FacultyIntro.jsx).
+          • /expert-apply → adding the Skill (Guest) track. Faculty→Skill is
+            blocked by policy server-side, but we still send them into the
+            signup add-track flow so they get a clear in-product explanation
+            instead of a dead link.
+        */}
+        <Route path="/become-faculty" element={<FacultyIntro />} />
+        <Route path="/expert-apply"   element={<Navigate to="/signup?role=teacher&add_track=skill" replace />} />
         <Route path="/upcoming"        element={<Upcoming />} />
         <Route path="/payment"         element={<Page><Payment /></Page>} />
         <Route path="/forum"           element={<Page><ThreadListPage /></Page>} />

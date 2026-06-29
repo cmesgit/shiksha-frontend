@@ -8,7 +8,7 @@ import image5 from '../assets/shikshaCards/tutor2.png';
 import image6 from '../assets/shikshaCards/green.png';
 import '../css/Hero.css';
 
-const subjectCards = [
+const rotatingCards = [
   {
     id: 1,
     name: 'Academic Coaching',
@@ -16,7 +16,6 @@ const subjectCards = [
     accent: '#60a5fa',
     path: '/courses',
   },
-
   {
     id: 2,
     name: 'Live & Recorded Classes',
@@ -24,7 +23,6 @@ const subjectCards = [
     accent: '#34d399',
     path: '/courses',
   },
-
   {
     id: 3,
     name: 'Skill Development',
@@ -32,15 +30,13 @@ const subjectCards = [
     accent: '#fbbf24',
     path: '/skill/browse',
   },
-
   {
     id: 4,
     name: 'Book a Tutor',
     img: image4,
     accent: '#a78bfa',
-    path: "/skill/browse",
+    path: '/skill/browse',
   },
-
   {
     id: 5,
     name: 'Become a Tutor',
@@ -48,15 +44,14 @@ const subjectCards = [
     accent: '#f87171',
     path: '/signup?role=teacher&skill=true',
   },
-
-  {
-    id: 6,
-    name: 'English',
-    img: image6,
-    accent: '#fb923c',
-    //path: '/english',
-  },
 ];
+
+const fixedCard = {
+  id: 6,
+  name: 'English',
+  img: image6,
+  accent: '#fb923c',
+};
 
 const updates = [
   {
@@ -116,6 +111,8 @@ const Hero = () => {
 
   const navigate = useNavigate();
 
+  const [cards, setCards] = useState(rotatingCards);
+
   const [visible, setVisible] = useState(false);
   const [offset, setOffset] = useState(0);
   const [transitioning, setTransitioning] = useState(true);
@@ -128,6 +125,24 @@ const Hero = () => {
   useEffect(() => {
     setVisible(true);
   }, []);
+
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setCards((prev) => {
+      const next = [...prev];
+
+      const first = next.shift();
+
+      next.push(first);
+
+      return next;
+    });
+  }, 2000);   //change every 2 sec
+
+  return () => clearInterval(interval);
+}, []);
+
 
   const step = CARD_HEIGHT + GAP;
 
@@ -175,7 +190,7 @@ const Hero = () => {
       <div className="hero-inner">
         <div className="hero-left">
           <div className="subject-grid">
-            {subjectCards.map((card, i) => (
+            {[...cards, fixedCard].map((card, i) => (
   <div
     key={card.id}
     className={`scard ${visible ? 'scard-visible' : ''}`}
@@ -183,7 +198,9 @@ const Hero = () => {
       '--delay': `${i * 40}ms`,
       '--accent': card.accent
     }}
-    onClick={() => navigate(card.path)}
+    onClick={() => {
+      if (card.path) navigate(card.path);
+    }}
   >
     <img
       src={card.img}

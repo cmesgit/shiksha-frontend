@@ -1,73 +1,95 @@
 import "../css/Upcoming.css";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import { Link } from "react-router-dom";
+
 
 const Counselling = () => {
-  const counsellingFeatures = [
-    {
-      title: "Career Counselling",
-      description: "Personalized guidance to help students choose the right career path.",
-      status: "Coming Soon",
-    },
-    {
-      title: "Admission in India",
-      description: "Support & counselling for college admissions within India.",
-      status: "Coming Soon",
-    },
-    {
-      title: "Admission Abroad",
-      description: "Guidance for applying to international universities.",
-      status: "Coming Soon",
-    },
-  ];
+  const counsellingServices = [
+  {
+    title: "Career Assessment",
+    description:
+      "AI-powered career recommendations based on your interests and skills.",
+    icon: "🧠"
+  },
+  {
+    title: "Admission in India",
+    description:
+      "Explore colleges, courses and entrance exams in India.",
+    icon: "🎓"
+  },
+  {
+    title: "Admission Abroad",
+    description:
+      "Discover universities, scholarships and study abroad opportunities.",
+    icon: "✈️"
+  }
+];
 
   return (
     <div className="upcoming-page">
       <div className="upcoming-page-content">
 
+      <div className="upcoming-container">
+        <div className="counselling-hero">
+  <h1>Career Counselling</h1>
 
-        <div className="upcoming-container">
-          <h1>Coming Soon</h1>
-          <p className="upcoming-page-description">
-            Our counselling services are under development. Here's what we are preparing for you:
-          </p>
+  <p>
+    Discover careers that match your interests,
+    personality and goals.
+  </p>
 
-          <div className="upcoming-features-grid">
-            {counsellingFeatures.map((item, index) => (
-              <div key={index} className="upcoming-feature-card">
-                <div className="upcoming-feature-header">
-                  <h3>{item.title}</h3>
-                  <span
-                    className={`upcoming-status-badge ${item.status
-                      .toLowerCase()
-                      .replace(" ", "-")}`}
-                  >
-                    {item.status}
-                  </span>
-                </div>
+  <Link to="/counselling/assessment">
+  <button className="counselling-start-btn">
+    Start Career Assessment
+  </button>
+</Link>
+</div>
+<h2 className="section-title">
+  Our Services
+</h2>
 
-                <p className="upcoming-feature-description">
-                  {item.description}
-                </p>
+          <div className="services-grid">
+  {counsellingServices.map((service, index) => (
+    <div key={index} className="service-card">
+      <div className="service-icon">
+        {service.icon}
+      </div>
 
-                <div className="upcoming-feature-footer"></div>
-              </div>
-            ))}
-          </div>
+      <h3>{service.title}</h3>
 
-          <div className="upcoming-cta-section">
-            <h2>Stay Updated</h2>
-            <p>Get notified when counselling services go live!</p>
-            <div className="upcoming-cta-buttons">
-              <button className="upcoming-notify-btn">Notify Me</button>
-              <button
-                className="upcoming-back-btn"
-                onClick={() => window.history.back()}
-              >
-                Back
-              </button>
-            </div>
-          </div>
+      <p>{service.description}</p>
+    </div>
+  ))}
+</div>
+<div className="how-it-works">
+  <h2>How It Works</h2>
+
+  <div className="steps-grid">
+    <div className="step-card">
+      <span className="step-icon">📝</span>
+      <h3>Assessment</h3>
+      <p>Answer questions about yourself.</p>
+    </div>
+
+    <div className="step-card">
+      <span className="step-icon">🤖</span>
+      <h3>Analysis</h3>
+      <p>AI analyzes your preferences.</p>
+    </div>
+
+    <div className="step-card">
+      <span className="step-icon">🎯</span>
+      <h3>Careers</h3>
+      <p>Receive career recommendations.</p>
+    </div>
+
+    <div className="step-card">
+      <span className="step-icon">🎓</span>
+      <h3>Admissions</h3>
+      <p>Explore colleges and universities.</p>
+    </div>
+  </div>
+</div>
+
         </div>
 
       </div>
