@@ -39,6 +39,7 @@ const STEP_CONFIRM  = "confirm";   // existing account: account password (owners
 const STEP_PROFILE  = "profile";   // student: one profile name
 const STEP_TTYPE    = "ttype";     // teacher: guest | faculty
 const STEP_GUEST_PROFILE = "guest_profile"; // guest: spec profile details
+const STEP_FACULTY_PROFILE = "faculty_profile"; // faculty: academy application details
 const STEP_DONE_FAC = "done_fac";  // faculty: application submitted
 const STEP_DONE_GST = "done_gst";  // guest: you're live
 
@@ -48,6 +49,45 @@ const STEP_AT_CONFIRM = "at_confirm";
 const STEP_AT_DONE    = "at_done";
 
 const PAL = { student: "#13899b", faculty: "#425f7f", guest: "#2f9d42" };
+
+/* Faculty (Academy) application option lists.
+   Values MUST match the backend choices exactly (accounts/models.py:
+   HIGHEST_DEGREE_CHOICES, EXPERIENCE_CHOICES, EMPLOYMENT_STATUS_CHOICES,
+   SUBJECT_CHOICES, BOARD_CHOICES, class 8–12) or signup-time validation
+   silently drops them. Labels are display-only. */
+const FAC_DEGREES = [
+  ["10th_pass", "Class 10"], ["12th_pass", "Class 12"], ["diploma", "Diploma"],
+  ["bachelors", "Bachelor's"], ["masters", "Master's"], ["phd", "PhD"], ["other", "Other"],
+];
+const FAC_EXPERIENCE = [
+  ["0", "New (0 yrs)"], ["lt1", "< 1 yr"], ["1_3", "1–3 yrs"],
+  ["3_5", "3–5 yrs"], ["5_10", "5–10 yrs"], ["10plus", "10+ yrs"],
+];
+const FAC_EMPLOYMENT = [
+  ["fulltime", "Full-time"], ["parttime", "Part-time"], ["private_tutor", "Private tutor"],
+  ["unemployed", "Not employed"], ["retired", "Retired"],
+];
+const FAC_SUBJECTS = [
+  ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
+  ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
+  ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
+  ["economics", "Economics"], ["computer_science", "Computer Science"],
+  ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
+  ["political_science", "Political Science"], ["other", "Other"],
+];
+const FAC_BOARDS = [["cbse", "CBSE"], ["icse", "ICSE"], ["mbse", "MBSE"], ["nios", "NIOS"], ["other", "Other"]];
+const FAC_CLASSES = ["8", "9", "10", "11", "12"];
+const FAC_EMPLOYED = new Set(["fulltime", "parttime", "private_tutor"]);
+
+/* Selectable pill — matches the inline toggle style already used for the guest
+   "Where do you teach?" buttons, themed to the faculty (slate) palette. */
+const facPill = (active) => ({
+  padding: "8px 12px", borderRadius: 9, cursor: "pointer",
+  fontSize: 12.5, fontWeight: 600, fontFamily: "inherit",
+  border: active ? "1.5px solid #425f7f" : "1.5px solid #d9ddd6",
+  background: active ? "#eef2f7" : "#fff",
+  color: active ? "#33507a" : "#5b6470",
+});
 
 function readErr(err, fallback) {
   const raw = err?.message ?? err;
@@ -99,6 +139,28 @@ export default function Signup() {
   const setGpField = (k) => (e) => { setError(""); setGp((p) => ({ ...p, [k]: e.target.value })); };
   const gpOffline = gp.class_mode === "home" || gp.class_mode === "travel";
 
+  /* faculty (academy) application — scalar background captured at signup.
+     Personal details + ID/qualification documents are finished from the
+     dashboard via the full /form-fillup application (they need file uploads
+     and a verified, signed-in account the JSON signup call doesn't have). */
+  const [fp, setFp] = useState({
+    highest_degree: "", field_of_study: "", year_of_completion: "",
+    experience_range: "", employment_status: "",
+    current_institution: "", current_position: "",
+    subject: "", boards: [], classes: [],
+  });
+  const setFpField = (k) => (e) => { setError(""); setFp((p) => ({ ...p, [k]: e.target.value })); };
+  const setFpVal   = (k, v) => { setError(""); setFp((p) => ({ ...p, [k]: v })); };
+  const toggleFpArr = (k, v) => {
+    setError("");
+    setFp((p) => {
+      const set = new Set(p[k]);
+      set.has(v) ? set.delete(v) : set.add(v);
+      return { ...p, [k]: [...set] };
+    });
+  };
+  const fpEmployed = FAC_EMPLOYED.has(fp.employment_status);
+
   /* add-a-track */
   const [addTrack, setAddTrack] = useState("");  // "academy" | "skill" | ""
   const TRACK_LABEL = { academy: "Academy (Faculty)", skill: "Skill (Guest expert)" };
@@ -139,6 +201,7 @@ export default function Signup() {
     if (step === STEP_PROFILE)  go(isExisting ? STEP_CONFIRM : STEP_CREDS);
     if (step === STEP_TTYPE)    go(isExisting ? STEP_CONFIRM : STEP_CREDS);
     if (step === STEP_GUEST_PROFILE) go(STEP_TTYPE);
+    if (step === STEP_FACULTY_PROFILE) go(STEP_TTYPE);
     if (step === STEP_AT_CONFIRM) { navigate(-1); return; }
   };
 
@@ -253,7 +316,7 @@ export default function Signup() {
     doSignup({ profiles: [{ display_name: name, relationship: "SELF" }] });
   };
 
-  /* ── STEP: teacher type → guest collects profile first, faculty submits ── */
+  /* ── STEP: teacher type → guest collects profile, faculty collects application ── */
   const submitTeacher = (type) => {
     setTeacherType(type);
     setError("");
@@ -262,18 +325,21 @@ export default function Signup() {
       // details now instead of dropping them onto an empty dashboard.
       go(STEP_GUEST_PROFILE);
     } else {
-      // Faculty are reviewed by admin and fill their details after approval.
-      doSignupTeacher(type);
+      // Faculty go through admin review — collect the teaching background now
+      // so reviewers have something to assess. Documents/ID are added later
+      // from the dashboard (full /form-fillup application).
+      go(STEP_FACULTY_PROFILE);
     }
   };
-  const doSignupTeacher = async (type, expertProfile) => {
+  const doSignupTeacher = async (type, expertProfile, facultyProfile) => {
     const payload = {
       email,
       password: isExisting ? existingPassword : password,
       role: "TEACHER",
       teacher_type: type,
     };
-    if (expertProfile) payload.expert_profile = expertProfile;
+    if (expertProfile)  payload.expert_profile  = expertProfile;
+    if (facultyProfile) payload.faculty_profile = facultyProfile;
     setSubmitting(true);
     try {
       await signup(payload);
@@ -317,6 +383,33 @@ export default function Signup() {
       state:               gp.state.trim(),
     };
     doSignupTeacher("GUEST", expertProfile);
+  };
+
+  /* ── STEP: faculty application → submit with nested faculty_profile ── */
+  const submitFacultyProfile = (e) => {
+    e.preventDefault();
+    setError("");
+    if (!fp.highest_degree)         { setError("Select your highest qualification."); return; }
+    if (!fp.field_of_study.trim())  { setError("Enter your field of study / specialization."); return; }
+    if (!fp.experience_range)       { setError("Select your teaching experience."); return; }
+    if (!fp.employment_status)      { setError("Select your current employment status."); return; }
+    if (!fp.subject)                { setError("Choose the main subject you want to teach."); return; }
+    if (fp.boards.length === 0)     { setError("Select at least one board."); return; }
+    if (fp.classes.length === 0)    { setError("Select at least one class."); return; }
+    const facultyProfile = {
+      highest_degree:      fp.highest_degree,
+      field_of_study:      fp.field_of_study.trim(),
+      year_of_completion:  fp.year_of_completion ? Number(fp.year_of_completion) : null,
+      experience_range:    fp.experience_range,
+      employment_status:   fp.employment_status,
+      currently_employed:  fpEmployed,
+      current_institution: fpEmployed ? fp.current_institution.trim() : "",
+      current_position:    fpEmployed ? fp.current_position.trim() : "",
+      // One subject application — admins see what they're applying to teach.
+      // The dashboard form lets them add more subjects/boards later.
+      course_application: { subject: fp.subject, boards: fp.boards, classes: fp.classes },
+    };
+    doSignupTeacher("FACULTY", undefined, facultyProfile);
   };
 
   const finishTeacher = () => {
@@ -596,6 +689,105 @@ export default function Signup() {
             <div className="af-actions">
               <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
                 {submitting ? <><span className="af-spin" />Creating your profile…</> : "Create profile & get listed"}
+              </button>
+            </div>
+          </form>
+        </>
+      )}
+
+      {/* ── faculty (academy) application — normal signup ── */}
+      {step === STEP_FACULTY_PROFILE && (
+        <>
+          <h1 className="af-heading">Faculty application</h1>
+          <p className="af-sub">
+            Tell us about your teaching background. The academy team reviews this
+            before approval — you'll add your ID and qualification documents from
+            your dashboard once you're in.
+          </p>
+          <form onSubmit={submitFacultyProfile} style={{ display: "contents" }}>
+
+            <div className="af-field">
+              <label>Highest qualification</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {FAC_DEGREES.map(([v, label]) => (
+                  <button key={v} type="button" onClick={() => setFpVal("highest_degree", v)}
+                    style={facPill(fp.highest_degree === v)}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <Field id="fp-field" label="Field of study / specialization" value={fp.field_of_study}
+                onChange={setFpField("field_of_study")} placeholder="e.g. Physics, B.Ed" required autoFocus />
+              <Field id="fp-year" label="Year of completion" type="number" min="1950" max="2099"
+                value={fp.year_of_completion} onChange={setFpField("year_of_completion")} placeholder="e.g. 2018" />
+            </div>
+
+            <div className="af-field">
+              <label>Teaching experience</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {FAC_EXPERIENCE.map(([v, label]) => (
+                  <button key={v} type="button" onClick={() => setFpVal("experience_range", v)}
+                    style={facPill(fp.experience_range === v)}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="af-field">
+              <label>Current employment</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {FAC_EMPLOYMENT.map(([v, label]) => (
+                  <button key={v} type="button" onClick={() => setFpVal("employment_status", v)}
+                    style={facPill(fp.employment_status === v)}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            {fpEmployed && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <Field id="fp-inst" label="Current institution" value={fp.current_institution}
+                  onChange={setFpField("current_institution")} placeholder="School / college" />
+                <Field id="fp-pos" label="Current position" value={fp.current_position}
+                  onChange={setFpField("current_position")} placeholder="e.g. PGT Physics" />
+              </div>
+            )}
+
+            <div className="af-field">
+              <label htmlFor="fp-subject">Main subject you'll teach</label>
+              <select id="fp-subject" value={fp.subject} onChange={setFpField("subject")}
+                style={{ font: "inherit", padding: "10px 12px", borderRadius: 10,
+                         border: "1.5px solid #d9ddd6", background: "#fff", color: "#1a2c33" }}
+                required>
+                <option value="">Select a subject…</option>
+                {FAC_SUBJECTS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+              </select>
+            </div>
+
+            <div className="af-field">
+              <label>Boards</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {FAC_BOARDS.map(([v, label]) => (
+                  <button key={v} type="button" onClick={() => toggleFpArr("boards", v)}
+                    style={facPill(fp.boards.includes(v))}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="af-field">
+              <label>Classes</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {FAC_CLASSES.map((v) => (
+                  <button key={v} type="button" onClick={() => toggleFpArr("classes", v)}
+                    style={facPill(fp.classes.includes(v))}>Class {v}</button>
+                ))}
+              </div>
+            </div>
+
+            {error && <div className="af-error">{error}</div>}
+            <div className="af-spacer" />
+            <div className="af-actions">
+              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
+                {submitting ? <><span className="af-spin" />Submitting application…</> : "Submit faculty application"}
               </button>
             </div>
           </form>
