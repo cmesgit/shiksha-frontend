@@ -479,6 +479,7 @@ export default function Signup() {
           ]} />
           <div className="af-spacer" />
           <FooterLink>Already have an account? <Link to="/login">Sign in</Link></FooterLink>
+          <FooterLink>Applying as academic faculty? <Link to="/faculty/signup">Faculty sign-up</Link></FooterLink>
         </>
       )}
 

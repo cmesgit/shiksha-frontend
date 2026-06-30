@@ -59,6 +59,7 @@ const TEACHER_FIELDS = {
   id_number: "",
   id_proof_front: null,
   id_proof_back: null,
+  signed_agreement: null,
 };
 
 const STUDENT_STEPS = ["Basic Details", "Parent Information", "Academic Information"];
@@ -121,6 +122,7 @@ const FormFillup = ({ onSuccess } = {}) => {
           merged.qualification_certificate = null;
           merged.id_proof_front = null;
           merged.id_proof_back = null;
+          merged.signed_agreement = null;
         }
 
         setForm(merged);
@@ -129,6 +131,7 @@ const FormFillup = ({ onSuccess } = {}) => {
           qualification_certificate: formRes.data.qualification_certificate,
           id_proof_front: formRes.data.id_proof_front,
           id_proof_back: formRes.data.id_proof_back,
+          signed_agreement: formRes.data.signed_agreement,
         });
 
         // Load existing course/skill applications
@@ -262,8 +265,7 @@ if (
       const classes = app.classes.includes(classVal)
         ? app.classes.filter((c) => c !== classVal)
         : [...app.classes, classVal];
-      const streams = (classes.includes("11") || classes.includes("12")) ? app.streams : [];
-      return { ...app, classes, streams };
+      return { ...app, classes };
     }));
   };
 
@@ -320,13 +322,19 @@ if (
     return map[val] || val;
   };
 
+  const classLabel = (c) => ({
+    "1_5": "Class 1–5", "6_8": "Class 6–8", "9_10": "Class 9–10",
+    "11_12": "Class 11–12", ug: "Undergraduate", pg: "Postgraduate",
+  })[c] || c;
+
   const courseSummary = (app) => {
     const boards = app.boards.map(boardLabel).join(" & ");
-    const cls = app.classes.map((c) => {
-      const s = (["11", "12"].includes(c) && app.streams.length) ? ` (${app.streams.join(", ")})` : "";
-      return `Class ${c}${s}`;
-    }).join(" · ");
-    return { title: `${subjectLabel(app.subject)} - ${boards}`, subtitle: cls };
+    const cls = app.classes.map(classLabel).join(" · ");
+    const streamsTxt = app.streams.length ? ` — ${app.streams.join(", ")}` : "";
+    return {
+      title: boards ? `${subjectLabel(app.subject)} - ${boards}` : subjectLabel(app.subject),
+      subtitle: `${cls}${streamsTxt}`,
+    };
   };
 
 
@@ -399,11 +407,8 @@ if (!form.phone?.trim()) {
         }
         for (let i = 0; i < filled.length; i++) {
           const a = filled[i];
-          if (!a.boards.length) { errs.course_apps = `Entry ${i + 1}: Select at least one board.`; break; }
           if (!a.classes.length) { errs.course_apps = `Entry ${i + 1}: Select at least one class.`; break; }
-          if ((a.classes.includes("11") || a.classes.includes("12")) && !a.streams.length) {
-            errs.course_apps = `Entry ${i + 1}: Stream required for Class 11-12.`; break;
-          }
+          if (!a.streams.length) { errs.course_apps = `Entry ${i + 1}: Select at least one stream.`; break; }
         }
       }
       if (teacherFormType === "skill") {
@@ -463,7 +468,7 @@ if (
 } else {
   fd.append(key, value);
 }      }
-      const fileFields = ["profile_photo", "qualification_certificate", "id_proof_front", "id_proof_back"];
+      const fileFields = ["profile_photo", "qualification_certificate", "id_proof_front", "id_proof_back", "signed_agreement"];
       for (const field of fileFields) {
         if (form[field] instanceof File) fd.append(field, form[field]);
       }
@@ -1167,27 +1172,25 @@ if (
                           <div className="ff-field">
                             <label>Classes</label>
                             <div className="ff-multi-select">
-                              {["8", "9", "10", "11", "12"].map((c) => (
+                              {[["1_5", "Class 1–5"], ["6_8", "Class 6–8"], ["9_10", "Class 9–10"], ["11_12", "Class 11–12"], ["ug", "Undergraduate"], ["pg", "Postgraduate"]].map(([c, label]) => (
                                 <label key={c} className="ff-checkbox-row">
                                   <input type="checkbox" checked={app.classes.includes(c)} onChange={() => toggleCourseClass(idx, c)} />
-                                  Class {c}
+                                  {label}
                                 </label>
                               ))}
                             </div>
                           </div>
-                          {(app.classes.includes("11") || app.classes.includes("12")) && (
-                            <div className="ff-field">
-                              <label>Stream</label>
-                              <div className="ff-multi-select">
-                                {[{ value: "science", label: "Science" }, { value: "commerce", label: "Commerce" }, { value: "arts", label: "Arts" }].map((opt) => (
-                                  <label key={opt.value} className="ff-checkbox-row">
-                                    <input type="checkbox" checked={app.streams.includes(opt.value)} onChange={() => toggleCourseStream(idx, opt.value)} />
-                                    {opt.label}
-                                  </label>
-                                ))}
-                              </div>
+                          <div className="ff-field">
+                            <label>Streams</label>
+                            <div className="ff-multi-select">
+                              {[{ value: "science", label: "Science" }, { value: "commerce", label: "Commerce" }, { value: "arts", label: "Arts / Humanities" }, { value: "vocational", label: "Vocational" }, { value: "general", label: "General" }].map((opt) => (
+                                <label key={opt.value} className="ff-checkbox-row">
+                                  <input type="checkbox" checked={app.streams.includes(opt.value)} onChange={() => toggleCourseStream(idx, opt.value)} />
+                                  {opt.label}
+                                </label>
+                              ))}
                             </div>
-                          )}
+                          </div>
                           {app.subject && app.boards.length > 0 && app.classes.length > 0 && (
                             <button type="button" className="ff-app-collapse-btn" onClick={() => setExpandedCourseIdx(-1)}>Done</button>
                           )}
@@ -1319,6 +1322,12 @@ if (
                     <input type="file" name="id_proof_back" accept=".pdf,image/*" onChange={handleChange} className="ff-file-input" />
                     {existingFiles.id_proof_back && !form.id_proof_back && (<span className="ff-file-existing">Already uploaded</span>)}
                     {form.id_proof_back && <span className="ff-file-name">{form.id_proof_back.name}</span>}
+                  </div>
+                  <div className="ff-field">
+                    <label>Signed Faculty Agreement (PDF/Image, max 10MB)</label>
+                    <input type="file" name="signed_agreement" accept=".pdf,image/*" onChange={handleChange} className="ff-file-input" />
+                    {existingFiles.signed_agreement && !form.signed_agreement && (<span className="ff-file-existing">Agreement already uploaded</span>)}
+                    {form.signed_agreement && <span className="ff-file-name">{form.signed_agreement.name}</span>}
                   </div>
                   {errors.submit && <p className="ff-error-msg">{errors.submit}</p>}
                   {success && <p className="ff-success-msg">{success}</p>}
