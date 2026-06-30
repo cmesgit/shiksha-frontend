@@ -96,17 +96,51 @@ const Mail = () => (
 );
 
 const STEPS = [
-  { n: 1, label: "Account", desc: "Email & password" },
-  { n: 2, label: "Teacher Profile", desc: "Qualifications, experience & documents" },
-  { n: 3, label: "Agreement Letter", desc: "Download, sign & upload" },
-  { n: 4, label: "Verify Email", desc: "Confirm & await approval", icon: <Mail /> },
+  { n: 1, key: "account",   label: "Account", desc: "Email & password" },
+  { n: 2, key: "profile",   label: "Teacher Profile", desc: "Qualifications, experience & documents" },
+  { n: 3, key: "agreement", label: "Agreement Letter", desc: "Download, sign & upload" },
+  { n: 4, key: "verify",    label: "Verify Email", desc: "Confirm & await approval", icon: <Mail /> },
 ];
 
-export default function FacultySignup() {
+/**
+ * FacultySignup
+ *
+ * Two render modes:
+ *  • Standalone (default) at /faculty/signup — the full four-step flow that
+ *    creates the account itself (Account → Teaching profile → Agreement →
+ *    Verify). For applicants who land here directly.
+ *  • Embedded (`embedded`) — driven by the main sign-up flow AFTER the email +
+ *    password have already been collected. The "Account" step is dropped (so the
+ *    sidebar shows three steps) and, instead of creating the account itself, the
+ *    form hands the assembled faculty_profile to `onSubmitProfile`.
+ *
+ * Props (embedded mode):
+ *   presetEmail          email already entered upstream (shown on the Verify card)
+ *   onSubmitProfile      async (facultyProfile) => Promise — performs the signup
+ *   onBack               called when "Back" is pressed on the first visible step
+ *   showVerifyOnSuccess  advance to the Verify screen after a successful submit
+ *                        (true for brand-new accounts; false when the caller
+ *                        navigates away afterwards, e.g. add-a-track)
+ *   submitLabel          label for the submit button
+ */
+export default function FacultySignup({
+  embedded = false,
+  presetEmail = "",
+  onSubmitProfile,
+  onBack,
+  showVerifyOnSuccess = true,
+  submitLabel = "Submit application",
+} = {}) {
   const navigate = useNavigate();
   const { signup } = useAuth();
 
-  const [step, setStep] = useState(1);
+  /* Account is step 1; embedded flows start on the teaching profile (step 2). */
+  const FIRST_STEP = embedded ? 2 : 1;
+  const visibleSteps = embedded ? STEPS.filter((s) => s.key !== "account") : STEPS;
+  const totalSteps = visibleSteps.length;
+  const dispNum = (n) => visibleSteps.findIndex((s) => s.n === n) + 1; // 1-based display index
+
+  const [step, setStep] = useState(FIRST_STEP);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -116,6 +150,10 @@ export default function FacultySignup() {
   const [confirm, setConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [showCf, setShowCf] = useState(false);
+
+  /* The email to show on the Verify card / use for messaging. In embedded mode
+     it comes from the upstream sign-up step; standalone uses the step-1 input. */
+  const effectiveEmail = embedded ? presetEmail : email;
 
   /* teaching profile (text only — files are deferred to the dashboard) */
   const [f, setF] = useState({
@@ -207,15 +245,25 @@ export default function FacultySignup() {
     };
 
     try {
-      await signup({
-        email: email.trim(),
-        password,
-        role: "TEACHER",
-        teacher_type: "FACULTY",
-        faculty_profile,
-      });
-      setSubmitting(false);
-      go(4);
+      if (embedded) {
+        // The parent flow (Signup) owns the email/password and the account
+        // creation; we just hand over the assembled application.
+        await onSubmitProfile?.(faculty_profile);
+        setSubmitting(false);
+        // Brand-new accounts see the Verify screen here; callers that navigate
+        // away afterwards (e.g. add-a-track) pass showVerifyOnSuccess={false}.
+        if (showVerifyOnSuccess) go(4);
+      } else {
+        await signup({
+          email: email.trim(),
+          password,
+          role: "TEACHER",
+          teacher_type: "FACULTY",
+          faculty_profile,
+        });
+        setSubmitting(false);
+        go(4);
+      }
     } catch (err) {
       setError(readErr(err, "Signup failed. Please try again."));
       setSubmitting(false);
@@ -237,11 +285,11 @@ export default function FacultySignup() {
         {/* Sidebar stepper */}
         <aside className="fs-sidebar">
           <p className="fs-sidebar-title">Sign Up Steps</p>
-          {STEPS.map((s) => {
+          {visibleSteps.map((s) => {
             const state = step === s.n ? "fs-active" : step > s.n ? "fs-done" : "";
             return (
               <div className={`fs-step-item ${state}`} key={s.n}>
-                <div className="fs-step-dot">{step > s.n ? "✓" : (s.icon || s.n)}</div>
+                <div className="fs-step-dot">{step > s.n ? "✓" : (s.icon || dispNum(s.n))}</div>
                 <div className="fs-step-info">
                   <div className="fs-step-label">{s.label}</div>
                   <div className="fs-step-desc">{s.desc}</div>
@@ -258,10 +306,11 @@ export default function FacultySignup() {
         {/* Content */}
         <main className="fs-content">
 
-          {/* ── STEP 1: ACCOUNT ── */}
+          {/* ── STEP 1: ACCOUNT (standalone only — embedded flows already have it) ── */}
+          {!embedded && (
           <div className={`fs-screen ${step === 1 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 1 of 4</div>
+              <div className="fs-form-eyebrow">Step 1 of {totalSteps}</div>
               <h1 className="fs-form-title">Create your faculty account</h1>
               <p className="fs-form-subtitle">Enter your email and set a secure password to get started.</p>
             </div>
@@ -311,11 +360,12 @@ export default function FacultySignup() {
 
             <div className="fs-login-link">Already have an account? <Link to="/login">Log in</Link></div>
           </div>
+          )}
 
           {/* ── STEP 2: TEACHING PROFILE ── */}
           <div className={`fs-screen ${step === 2 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 2 of 4</div>
+              <div className="fs-form-eyebrow">Step {dispNum(2)} of {totalSteps}</div>
               <h1 className="fs-form-title">Teaching profile</h1>
               <p className="fs-form-subtitle">Tell us about your qualifications, experience, and the classes you want to teach.</p>
             </div>
@@ -472,7 +522,7 @@ export default function FacultySignup() {
             {error && <div className="fs-error">{error}</div>}
 
             <div className="fs-form-actions">
-              <button className="fs-btn-ghost" onClick={() => go(1)}><ArrowLeft /> Back</button>
+              <button className="fs-btn-ghost" onClick={() => (embedded ? onBack?.() : go(1))}><ArrowLeft /> Back</button>
               <button className="fs-btn-primary" onClick={next2}>Continue <ArrowRight /></button>
             </div>
           </div>
@@ -480,7 +530,7 @@ export default function FacultySignup() {
           {/* ── STEP 3: AGREEMENT LETTER ── */}
           <div className={`fs-screen ${step === 3 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 3 of 4</div>
+              <div className="fs-form-eyebrow">Step {dispNum(3)} of {totalSteps}</div>
               <h1 className="fs-form-title">Agreement letter</h1>
               <p className="fs-form-subtitle">Download the faculty agreement and read it carefully. You'll sign it and upload the signed copy from your dashboard after verifying your email.</p>
             </div>
@@ -533,7 +583,7 @@ export default function FacultySignup() {
             <div className="fs-form-actions">
               <button className="fs-btn-ghost" onClick={() => go(2)}><ArrowLeft /> Back</button>
               <button className="fs-btn-primary" onClick={submit} disabled={submitting}>
-                {submitting ? <><span className="fs-spin" /> Submitting…</> : <>Submit application <ArrowRight /></>}
+                {submitting ? <><span className="fs-spin" /> Submitting…</> : <>{submitLabel} <ArrowRight /></>}
               </button>
             </div>
           </div>
@@ -543,7 +593,7 @@ export default function FacultySignup() {
             <div className="fs-verify-card">
               <div className="fs-verify-icon"><Mail /></div>
               <h2 className="fs-verify-title">Check your inbox</h2>
-              <div className="fs-verify-email-label">{email || "your@email.com"}</div>
+              <div className="fs-verify-email-label">{effectiveEmail || "your@email.com"}</div>
               <p className="fs-verify-body">
                 We've sent a verification link to your email address. Click the link to verify your account —
                 then sit tight while our admin team reviews your application.
