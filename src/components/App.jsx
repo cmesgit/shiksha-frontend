@@ -17,6 +17,7 @@ import "../css/App.css";
 
 const Dashboard        = lazy(() => import("./Dashboard"));
 const FormFillup       = lazy(() => import("./FormFillup"));
+const FacultySignup    = lazy(() => import("./FacultySignup"));
 const Enroll           = lazy(() => import("./Enroll"));
 const Courses          = lazy(() => import("./Courses"));
 const Placements       = lazy(() => import("./Placements"));
@@ -201,6 +202,7 @@ function App() {
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
         <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
+        <Route path="/faculty/signup"  element={<FacultySignup />} />
         
         <Route path="/counselling"     element={<Page><Counselling /></Page>} />
         <Route
