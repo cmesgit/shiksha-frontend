@@ -48,9 +48,19 @@ const FEATURES = [
     icon: <><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></> },
 ];
 
-const STEPS = [
+/* "How to apply" steps.
+   - ADDTRACK: an existing Guest expert adding the Faculty track (the
+     /become-faculty → add_track=academy entry from the dashboard).
+   - SIGNUP: a brand-new teacher choosing Faculty inside the main sign-up flow
+     (no existing expert account, password already set a step earlier). */
+const STEPS_ADDTRACK = [
   { n: 1, h: "Apply for the Faculty track", p: "Confirm your account password to add a Faculty application. This sits alongside your Expert account — your expert listing stays live." },
   { n: 2, h: "Admin review", p: <>The academy team reviews your application and verifies your qualifications within <strong>3–5 working days</strong>. You'll be notified by email.</> },
+  { n: 3, h: "Get approved & start teaching", p: "Once approved, you're assigned classes, your faculty dashboard is activated, and you can start teaching right away." },
+];
+const STEPS_SIGNUP = [
+  { n: 1, h: "Fill in your faculty application", p: "Tell us about your qualifications, teaching experience and the subject, classes and streams you want to teach, then download, sign and upload the faculty agreement." },
+  { n: 2, h: "Verify your email & admin review", p: <>Verify your email, then the academy team reviews your application and qualifications within <strong>1–3 working days</strong>. You can't log in until you're approved.</> },
   { n: 3, h: "Get approved & start teaching", p: "Once approved, you're assigned classes, your faculty dashboard is activated, and you can start teaching right away." },
 ];
 
@@ -61,14 +71,33 @@ const FAQS = [
   { q: "What happens if my application is rejected?", a: "You'll be notified by email. You can re-apply after 30 days with updated credentials. Your Expert (Skill Dev) account is never affected." },
 ];
 
-export default function FacultyIntro() {
+/**
+ * FacultyIntro
+ *
+ * Two ways in:
+ *  • Standalone (default) at /become-faculty — a signed-in Guest expert adds the
+ *    Faculty track. "Apply" routes into the add-a-track signup; "Back" returns
+ *    to the dashboard. (Unchanged.)
+ *  • Embedded (`embedded` + `onApply`/`onBack`) — rendered by the main sign-up
+ *    flow when a brand-new teacher picks "Faculty". "Apply" advances to the
+ *    faculty application form (FacultySignup); "Back" returns to the teacher-type
+ *    choice. No password/dashboard language is shown.
+ */
+export default function FacultyIntro({ embedded = false, onApply, onBack } = {}) {
   const navigate = useNavigate();
 
   const goBack = () => {
+    if (embedded && onBack) { onBack(); return; }
     if (window.history.length > 1) window.history.back();
     else window.location.href = TEACHER_SKILL_URL;
   };
-  const apply = () => navigate("/signup?role=teacher&add_track=academy");
+  const apply = () => {
+    if (embedded && onApply) { onApply(); return; }
+    navigate("/signup?role=teacher&add_track=academy");
+  };
+
+  const STEPS = embedded ? STEPS_SIGNUP : STEPS_ADDTRACK;
+  const backLabel = embedded ? "Back" : "Back to dashboard";
 
   return (
     <div className="fi-root">
@@ -78,7 +107,7 @@ export default function FacultyIntro() {
         <span className="fi-brand">ShikshaCom</span>
         <button type="button" className="fi-back" onClick={goBack}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Back to dashboard
+          {backLabel}
         </button>
       </nav>
 
@@ -173,10 +202,16 @@ export default function FacultyIntro() {
         {/* CTA */}
         <section className="fi-cta-band">
           <h3>Ready to join the academy?</h3>
-          <p>Add the Faculty track and start teaching school students on a structured, curriculum-aligned platform. Your Expert account stays exactly as it is.</p>
+          <p>
+            {embedded
+              ? "Continue your faculty application — share your qualifications, the subjects and classes you want to teach, and sign the faculty agreement. It then goes to our team for review."
+              : "Add the Faculty track and start teaching school students on a structured, curriculum-aligned platform. Your Expert account stays exactly as it is."}
+          </p>
           <div className="fi-cta-btns">
-            <button type="button" className="fi-btn-primary" onClick={apply}>Apply as Faculty Teacher</button>
-            <button type="button" className="fi-btn-ghost" onClick={goBack}>Go back to dashboard</button>
+            <button type="button" className="fi-btn-primary" onClick={apply}>
+              {embedded ? "Continue to application" : "Apply as Faculty Teacher"}
+            </button>
+            <button type="button" className="fi-btn-ghost" onClick={goBack}>{backLabel}</button>
           </div>
         </section>
       </main>
