@@ -4,6 +4,8 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   AuthShell, Field, PasswordField, TileChoice, StatusChip, FooterLink, Icon,
 } from "./AuthKit";
+import FacultyIntro from "../pages/FacultyIntro";
+import FacultySignup from "../components/FacultySignup";
 
 /* ════════════════════════════════════════════════════════════════
    Signup — MINIMAL flow (email-first, single password)
@@ -39,8 +41,13 @@ const STEP_CONFIRM  = "confirm";   // existing account: account password (owners
 const STEP_PROFILE  = "profile";   // student: one profile name
 const STEP_TTYPE    = "ttype";     // teacher: guest | faculty
 const STEP_GUEST_PROFILE = "guest_profile"; // guest: spec profile details
-const STEP_FACULTY_PROFILE = "faculty_profile"; // faculty: academy application details
-const STEP_DONE_FAC = "done_fac";  // faculty: application submitted
+/* Faculty now runs through the polished standalone design instead of an inline
+   form: FacultyIntro (what the track is) → FacultySignup (teaching profile +
+   agreement + verify). Both are rendered full-bleed (outside AuthShell) but
+   still by THIS component, so they reuse the email + password already entered
+   above — that's why FacultySignup's own account step is dropped (embedded). */
+const STEP_FACULTY_INTRO   = "faculty_intro";   // faculty: what the track is
+const STEP_FACULTY_PROFILE = "faculty_profile"; // faculty: application (embedded FacultySignup)
 const STEP_DONE_GST = "done_gst";  // guest: you're live
 
 /* Add-a-track flow (existing account gains the OTHER teaching track). */
@@ -49,45 +56,6 @@ const STEP_AT_CONFIRM = "at_confirm";
 const STEP_AT_DONE    = "at_done";
 
 const PAL = { student: "#13899b", faculty: "#425f7f", guest: "#2f9d42" };
-
-/* Faculty (Academy) application option lists.
-   Values MUST match the backend choices exactly (accounts/models.py:
-   HIGHEST_DEGREE_CHOICES, EXPERIENCE_CHOICES, EMPLOYMENT_STATUS_CHOICES,
-   SUBJECT_CHOICES, BOARD_CHOICES, class 8–12) or signup-time validation
-   silently drops them. Labels are display-only. */
-const FAC_DEGREES = [
-  ["10th_pass", "Class 10"], ["12th_pass", "Class 12"], ["diploma", "Diploma"],
-  ["bachelors", "Bachelor's"], ["masters", "Master's"], ["phd", "PhD"], ["other", "Other"],
-];
-const FAC_EXPERIENCE = [
-  ["0", "New (0 yrs)"], ["lt1", "< 1 yr"], ["1_3", "1–3 yrs"],
-  ["3_5", "3–5 yrs"], ["5_10", "5–10 yrs"], ["10plus", "10+ yrs"],
-];
-const FAC_EMPLOYMENT = [
-  ["fulltime", "Full-time"], ["parttime", "Part-time"], ["private_tutor", "Private tutor"],
-  ["unemployed", "Not employed"], ["retired", "Retired"],
-];
-const FAC_SUBJECTS = [
-  ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
-  ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
-  ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
-  ["economics", "Economics"], ["computer_science", "Computer Science"],
-  ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
-  ["political_science", "Political Science"], ["other", "Other"],
-];
-const FAC_BOARDS = [["cbse", "CBSE"], ["icse", "ICSE"], ["mbse", "MBSE"], ["nios", "NIOS"], ["other", "Other"]];
-const FAC_CLASSES = ["8", "9", "10", "11", "12"];
-const FAC_EMPLOYED = new Set(["fulltime", "parttime", "private_tutor"]);
-
-/* Selectable pill — matches the inline toggle style already used for the guest
-   "Where do you teach?" buttons, themed to the faculty (slate) palette. */
-const facPill = (active) => ({
-  padding: "8px 12px", borderRadius: 9, cursor: "pointer",
-  fontSize: 12.5, fontWeight: 600, fontFamily: "inherit",
-  border: active ? "1.5px solid #425f7f" : "1.5px solid #d9ddd6",
-  background: active ? "#eef2f7" : "#fff",
-  color: active ? "#33507a" : "#5b6470",
-});
 
 function readErr(err, fallback) {
   const raw = err?.message ?? err;
@@ -139,28 +107,6 @@ export default function Signup() {
   const setGpField = (k) => (e) => { setError(""); setGp((p) => ({ ...p, [k]: e.target.value })); };
   const gpOffline = gp.class_mode === "home" || gp.class_mode === "travel";
 
-  /* faculty (academy) application — scalar background captured at signup.
-     Personal details + ID/qualification documents are finished from the
-     dashboard via the full /form-fillup application (they need file uploads
-     and a verified, signed-in account the JSON signup call doesn't have). */
-  const [fp, setFp] = useState({
-    highest_degree: "", field_of_study: "", year_of_completion: "",
-    experience_range: "", employment_status: "",
-    current_institution: "", current_position: "",
-    subject: "", boards: [], classes: [],
-  });
-  const setFpField = (k) => (e) => { setError(""); setFp((p) => ({ ...p, [k]: e.target.value })); };
-  const setFpVal   = (k, v) => { setError(""); setFp((p) => ({ ...p, [k]: v })); };
-  const toggleFpArr = (k, v) => {
-    setError("");
-    setFp((p) => {
-      const set = new Set(p[k]);
-      set.has(v) ? set.delete(v) : set.add(v);
-      return { ...p, [k]: [...set] };
-    });
-  };
-  const fpEmployed = FAC_EMPLOYED.has(fp.employment_status);
-
   /* add-a-track */
   const [addTrack, setAddTrack] = useState("");  // "academy" | "skill" | ""
   const TRACK_LABEL = { academy: "Academy (Faculty)", skill: "Skill (Guest expert)" };
@@ -201,7 +147,13 @@ export default function Signup() {
     if (step === STEP_PROFILE)  go(isExisting ? STEP_CONFIRM : STEP_CREDS);
     if (step === STEP_TTYPE)    go(isExisting ? STEP_CONFIRM : STEP_CREDS);
     if (step === STEP_GUEST_PROFILE) go(STEP_TTYPE);
-    if (step === STEP_FACULTY_PROFILE) go(STEP_TTYPE);
+    // Faculty intro can be reached from the teacher-type choice (new teacher) or
+    // straight from the ownership-confirm step (guest→faculty upgrade).
+    if (step === STEP_FACULTY_INTRO) go(isUpgrade ? STEP_CONFIRM : STEP_TTYPE);
+    // The faculty form + intro render full-bleed and carry their own Back
+    // buttons (wired to onBack below); these entries keep the AuthShell back
+    // arrow coherent for any edge case where it is shown.
+    if (step === STEP_FACULTY_PROFILE) go(addTrack === "academy" ? STEP_AT_CONFIRM : STEP_FACULTY_INTRO);
     if (step === STEP_AT_CONFIRM) { navigate(-1); return; }
   };
 
@@ -302,7 +254,10 @@ export default function Signup() {
     e.preventDefault();
     setError("");
     if (!existingPassword) { setError("Enter your account password."); return; }
-    if (isUpgrade) { doSignup({ teacher_type: "FACULTY" }); return; }
+    // Guest → Faculty upgrade: collect the faculty application via the form
+    // (intro first) instead of submitting an empty one, same as every other
+    // faculty path. submitFacultyApplication() reuses the password just entered.
+    if (isUpgrade) { go(STEP_FACULTY_INTRO); return; }
     if (role === "STUDENT") go(STEP_PROFILE);
     else go(STEP_TTYPE);
   };
@@ -316,7 +271,7 @@ export default function Signup() {
     doSignup({ profiles: [{ display_name: name, relationship: "SELF" }] });
   };
 
-  /* ── STEP: teacher type → guest collects profile, faculty collects application ── */
+  /* ── STEP: teacher type → guest collects profile, faculty sees the intro ── */
   const submitTeacher = (type) => {
     setTeacherType(type);
     setError("");
@@ -325,27 +280,25 @@ export default function Signup() {
       // details now instead of dropping them onto an empty dashboard.
       go(STEP_GUEST_PROFILE);
     } else {
-      // Faculty go through admin review — collect the teaching background now
-      // so reviewers have something to assess. Documents/ID are added later
-      // from the dashboard (full /form-fillup application).
-      go(STEP_FACULTY_PROFILE);
+      // Faculty: show the intro (what the track is), then the full application
+      // form (FacultySignup, embedded). Admin review happens after submit.
+      go(STEP_FACULTY_INTRO);
     }
   };
-  const doSignupTeacher = async (type, expertProfile, facultyProfile) => {
-    const payload = {
-      email,
-      password: isExisting ? existingPassword : password,
-      role: "TEACHER",
-      teacher_type: type,
-    };
-    if (expertProfile)  payload.expert_profile  = expertProfile;
-    if (facultyProfile) payload.faculty_profile = facultyProfile;
+  /* Guest expert signup. (Faculty has its own path — submitFacultyApplication —
+     driven by the embedded FacultySignup form.) */
+  const doSignupGuest = async (expertProfile) => {
     setSubmitting(true);
     try {
-      await signup(payload);
+      await signup({
+        email,
+        password: isExisting ? existingPassword : password,
+        role: "TEACHER",
+        teacher_type: "GUEST",
+        expert_profile: expertProfile,
+      });
       setSubmitting(false);
-      if (type === "GUEST") go(STEP_DONE_GST);
-      else go(STEP_DONE_FAC);
+      go(STEP_DONE_GST);
     } catch (err) {
       setError(readErr(err, "Signup failed. Please try again."));
       setSubmitting(false);
@@ -382,34 +335,37 @@ export default function Signup() {
       district:            gp.district.trim(),
       state:               gp.state.trim(),
     };
-    doSignupTeacher("GUEST", expertProfile);
+    doSignupGuest(expertProfile);
   };
 
-  /* ── STEP: faculty application → submit with nested faculty_profile ── */
-  const submitFacultyProfile = (e) => {
-    e.preventDefault();
-    setError("");
-    if (!fp.highest_degree)         { setError("Select your highest qualification."); return; }
-    if (!fp.field_of_study.trim())  { setError("Enter your field of study / specialization."); return; }
-    if (!fp.experience_range)       { setError("Select your teaching experience."); return; }
-    if (!fp.employment_status)      { setError("Select your current employment status."); return; }
-    if (!fp.subject)                { setError("Choose the main subject you want to teach."); return; }
-    if (fp.boards.length === 0)     { setError("Select at least one board."); return; }
-    if (fp.classes.length === 0)    { setError("Select at least one class."); return; }
-    const facultyProfile = {
-      highest_degree:      fp.highest_degree,
-      field_of_study:      fp.field_of_study.trim(),
-      year_of_completion:  fp.year_of_completion ? Number(fp.year_of_completion) : null,
-      experience_range:    fp.experience_range,
-      employment_status:   fp.employment_status,
-      currently_employed:  fpEmployed,
-      current_institution: fpEmployed ? fp.current_institution.trim() : "",
-      current_position:    fpEmployed ? fp.current_position.trim() : "",
-      // One subject application — admins see what they're applying to teach.
-      // The dashboard form lets them add more subjects/boards later.
-      course_application: { subject: fp.subject, boards: fp.boards, classes: fp.classes },
-    };
-    doSignupTeacher("FACULTY", undefined, facultyProfile);
+  /* ── Faculty application submit (driven by the embedded FacultySignup) ──
+     The form assembles the faculty_profile; we own the email + password and the
+     account creation. Rejects propagate so the form can surface the error.
+       · brand-new account     → resolve; the form shows its Verify screen
+       · existing account / add-track → we navigate away (form shows nothing more) */
+  const submitFacultyApplication = async (facultyProfile) => {
+    await signup({
+      email: (user?.email || email).trim(),
+      password: isExisting ? existingPassword : password,
+      role: "TEACHER",
+      teacher_type: "FACULTY",
+      faculty_profile: facultyProfile,
+    });
+    if (addTrack === "academy") {
+      navigate("/login", { replace: true, state: {
+        message: "Faculty application submitted! It's now with the admin team for review. Your current track stays live.",
+      } });
+      return;
+    }
+    if (isExisting) {
+      navigate("/login", { replace: true, state: {
+        message: isUpgrade
+          ? "Faculty application submitted! Your Guest expert profile is still live. Log in to check status."
+          : "Teacher identity added! Please log in.",
+      } });
+      return;
+    }
+    // brand-new account: fall through — FacultySignup advances to its Verify screen.
   };
 
   const finishTeacher = () => {
@@ -427,13 +383,22 @@ export default function Signup() {
     const emailToUse = (user?.email || email || "").trim();
     if (!emailToUse)       { setError("Enter your account email."); return; }
     if (!existingPassword) { setError("Enter your account password to confirm."); return; }
+
+    // Academy (Faculty): collect the full application via the embedded
+    // FacultySignup form, which submits it with the password we just confirmed.
+    if (addTrack === "academy") {
+      go(STEP_FACULTY_PROFILE);
+      return;
+    }
+
+    // Skill (Guest expert): no application form — add the track immediately.
     setSubmitting(true);
     try {
       await signup({
         email: emailToUse,
         password: existingPassword,
         role: "TEACHER",
-        teacher_type: addTrack === "academy" ? "FACULTY" : "GUEST",
+        teacher_type: "GUEST",
       });
       setSubmitting(false);
       go(STEP_AT_DONE);
@@ -443,17 +408,38 @@ export default function Signup() {
     }
   };
   const finishAddTrack = () => {
-    if (addTrack === "academy") {
-      // Applying for Faculty now opens the application form so they can fill in
-      // qualifications, subjects and verification documents. They're already
-      // signed in (this is an add-track), so /form-fillup is reachable.
-      navigate("/form-fillup", { replace: true });
-      return;
-    }
+    // Only the Skill (Guest expert) add-track reaches this screen now — Academy
+    // collects its application via the embedded form and navigates from there,
+    // so faculty no longer pass through /form-fillup.
     navigate("/login", { replace: true, state: {
       message: "Skill (Guest expert) track added. You can switch to it from your dashboard now.",
     } });
   };
+
+  /* ════════ Faculty sub-flow renders full-bleed (its own chrome) rather than
+     inside the narrow AuthShell, but is still driven by THIS component so it
+     reuses the email + password already entered above. ═══════════════════════ */
+  if (step === STEP_FACULTY_INTRO) {
+    return (
+      <FacultyIntro
+        embedded
+        onApply={() => go(STEP_FACULTY_PROFILE)}
+        onBack={back}
+      />
+    );
+  }
+  if (step === STEP_FACULTY_PROFILE) {
+    return (
+      <FacultySignup
+        embedded
+        presetEmail={user?.email || email}
+        showVerifyOnSuccess={!isExisting}
+        submitLabel="Submit application"
+        onBack={back}
+        onSubmitProfile={submitFacultyApplication}
+      />
+    );
+  }
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
   return (
@@ -696,104 +682,6 @@ export default function Signup() {
         </>
       )}
 
-      {/* ── faculty (academy) application — normal signup ── */}
-      {step === STEP_FACULTY_PROFILE && (
-        <>
-          <h1 className="af-heading">Faculty application</h1>
-          <p className="af-sub">
-            Tell us about your teaching background. The academy team reviews this
-            before approval — you'll add your ID and qualification documents from
-            your dashboard once you're in.
-          </p>
-          <form onSubmit={submitFacultyProfile} style={{ display: "contents" }}>
-
-            <div className="af-field">
-              <label>Highest qualification</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {FAC_DEGREES.map(([v, label]) => (
-                  <button key={v} type="button" onClick={() => setFpVal("highest_degree", v)}
-                    style={facPill(fp.highest_degree === v)}>{label}</button>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Field id="fp-field" label="Field of study / specialization" value={fp.field_of_study}
-                onChange={setFpField("field_of_study")} placeholder="e.g. Physics, B.Ed" required autoFocus />
-              <Field id="fp-year" label="Year of completion" type="number" min="1950" max="2099"
-                value={fp.year_of_completion} onChange={setFpField("year_of_completion")} placeholder="e.g. 2018" />
-            </div>
-
-            <div className="af-field">
-              <label>Teaching experience</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {FAC_EXPERIENCE.map(([v, label]) => (
-                  <button key={v} type="button" onClick={() => setFpVal("experience_range", v)}
-                    style={facPill(fp.experience_range === v)}>{label}</button>
-                ))}
-              </div>
-            </div>
-
-            <div className="af-field">
-              <label>Current employment</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {FAC_EMPLOYMENT.map(([v, label]) => (
-                  <button key={v} type="button" onClick={() => setFpVal("employment_status", v)}
-                    style={facPill(fp.employment_status === v)}>{label}</button>
-                ))}
-              </div>
-            </div>
-
-            {fpEmployed && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <Field id="fp-inst" label="Current institution" value={fp.current_institution}
-                  onChange={setFpField("current_institution")} placeholder="School / college" />
-                <Field id="fp-pos" label="Current position" value={fp.current_position}
-                  onChange={setFpField("current_position")} placeholder="e.g. PGT Physics" />
-              </div>
-            )}
-
-            <div className="af-field">
-              <label htmlFor="fp-subject">Main subject you'll teach</label>
-              <select id="fp-subject" value={fp.subject} onChange={setFpField("subject")}
-                style={{ font: "inherit", padding: "10px 12px", borderRadius: 10,
-                         border: "1.5px solid #d9ddd6", background: "#fff", color: "#1a2c33" }}
-                required>
-                <option value="">Select a subject…</option>
-                {FAC_SUBJECTS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
-              </select>
-            </div>
-
-            <div className="af-field">
-              <label>Boards</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {FAC_BOARDS.map(([v, label]) => (
-                  <button key={v} type="button" onClick={() => toggleFpArr("boards", v)}
-                    style={facPill(fp.boards.includes(v))}>{label}</button>
-                ))}
-              </div>
-            </div>
-
-            <div className="af-field">
-              <label>Classes</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {FAC_CLASSES.map((v) => (
-                  <button key={v} type="button" onClick={() => toggleFpArr("classes", v)}
-                    style={facPill(fp.classes.includes(v))}>Class {v}</button>
-                ))}
-              </div>
-            </div>
-
-            {error && <div className="af-error">{error}</div>}
-            <div className="af-spacer" />
-            <div className="af-actions">
-              <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
-                {submitting ? <><span className="af-spin" />Submitting application…</> : "Submit faculty application"}
-              </button>
-            </div>
-          </form>
-        </>
-      )}
 
       {/* ── guest live ── */}
       {step === STEP_DONE_GST && (
@@ -818,40 +706,13 @@ export default function Signup() {
         </>
       )}
 
-      {/* ── faculty waiting ── */}
-      {step === STEP_DONE_FAC && (
-        <>
-          <StatusChip icon="clock" role="faculty" />
-          <h1 className="af-heading">Application submitted</h1>
-          <p className="af-sub">Your Faculty application is with the admin team for review.</p>
-          <div className="af-wait-row" style={{ marginTop: 18 }}>
-            <div className="af-wait-spin" />
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>You're in the review queue</div>
-          </div>
-          <p style={{ fontSize: 13.5, color: "#5b6470", lineHeight: 1.6, margin: "12px 0 0", maxWidth: 460 }}>
-            We'll email you the decision within <strong style={{ color: "#15502a" }}>3–5 working days</strong>.
-            You can complete your profile details from your dashboard once approved.
-          </p>
-          <div className="af-banner-warn">
-            <Icon name="shield" size={16} color="#b9760f" />
-            <div><strong>Heads up:</strong> once approved, log in within <strong>3 days</strong> or the approval expires.</div>
-          </div>
-          <div className="af-spacer" />
-          <div className="af-actions">
-            <button type="button" className="af-btn af-btn--block" onClick={finishTeacher}>
-              {isExisting ? "Go to login" : "Verify email to continue"}
-            </button>
-          </div>
-        </>
-      )}
-
       {/* ── add-a-track confirm ── */}
       {step === STEP_AT_CONFIRM && (
         <>
           <h1 className="af-heading">Add {TRACK_LABEL[addTrack] || "a track"}</h1>
           <p className="af-sub">
             {addTrack === "academy"
-              ? "Apply to teach academic classes. Confirm your password — your current track stays live while admins review."
+              ? "Apply to teach academic classes. Confirm your password, then fill in your application — your current track stays live while admins review."
               : "Add the Guest-expert track. It goes live as soon as you confirm."}
           </p>
           <div className="af-banner-info">
@@ -889,7 +750,7 @@ export default function Signup() {
               <button type="submit" className="af-btn af-btn--block"
                 disabled={!existingPassword || submitting}>
                 {submitting ? <><span className="af-spin" />Adding…</>
-                  : addTrack === "academy" ? "Submit application" : "Add track"}
+                  : addTrack === "academy" ? "Continue" : "Add track"}
               </button>
             </div>
           </form>

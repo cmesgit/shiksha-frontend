@@ -28,9 +28,11 @@
  * and stream values use the FULL design taxonomy — no migration is needed because
  * TeacherCourseApplication.classes / .streams are choice-less JSONFields.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import api from "../api/apiClient";
+import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
 
 /* Where the blank faculty agreement PDF lives. Drop the file in /public so it is
@@ -71,7 +73,15 @@ const FAC_STREAMS = [
   ["science", "Science"], ["commerce", "Commerce"], ["arts", "Arts / Humanities"],
   ["vocational", "Vocational"], ["general", "General"],
 ];
-const FAC_EMPLOYED = new Set(["fulltime", "parttime", "private_tutor"]);
+
+/* Verification-document uploads (optional at sign-up). Read to base64 and sent
+   inside the JSON signup payload — the signup endpoint is JSON-only, so files
+   ride along encoded and the backend decodes + stores them. Kept modest so the
+   JSON body stays well under the server's 50 MB limit. */
+const MAX_DOC_MB = 5;
+const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
+const DOC_ACCEPT = ".pdf,.jpg,.jpeg,.png";
+const DOC_OK_RE = /\.(pdf|jpe?g|png)$/i;
 
 /* subject label -> stored value (e.g. "Social Science" -> "social_science") */
 const subjectValue = (label) => label.toLowerCase().replace(/ /g, "_");
@@ -96,17 +106,51 @@ const Mail = () => (
 );
 
 const STEPS = [
-  { n: 1, label: "Account", desc: "Email & password" },
-  { n: 2, label: "Teacher Profile", desc: "Qualifications, experience & documents" },
-  { n: 3, label: "Agreement Letter", desc: "Download, sign & upload" },
-  { n: 4, label: "Verify Email", desc: "Confirm & await approval", icon: <Mail /> },
+  { n: 1, key: "account",   label: "Account", desc: "Email & password" },
+  { n: 2, key: "profile",   label: "Teacher Profile", desc: "Qualifications, experience & documents" },
+  { n: 3, key: "agreement", label: "Agreement Letter", desc: "Download, sign & upload" },
+  { n: 4, key: "verify",    label: "Verify Email", desc: "Confirm & await approval", icon: <Mail /> },
 ];
 
-export default function FacultySignup() {
+/**
+ * FacultySignup
+ *
+ * Two render modes:
+ *  • Standalone (default) at /faculty/signup — the full four-step flow that
+ *    creates the account itself (Account → Teaching profile → Agreement →
+ *    Verify). For applicants who land here directly.
+ *  • Embedded (`embedded`) — driven by the main sign-up flow AFTER the email +
+ *    password have already been collected. The "Account" step is dropped (so the
+ *    sidebar shows three steps) and, instead of creating the account itself, the
+ *    form hands the assembled faculty_profile to `onSubmitProfile`.
+ *
+ * Props (embedded mode):
+ *   presetEmail          email already entered upstream (shown on the Verify card)
+ *   onSubmitProfile      async (facultyProfile) => Promise — performs the signup
+ *   onBack               called when "Back" is pressed on the first visible step
+ *   showVerifyOnSuccess  advance to the Verify screen after a successful submit
+ *                        (true for brand-new accounts; false when the caller
+ *                        navigates away afterwards, e.g. add-a-track)
+ *   submitLabel          label for the submit button
+ */
+export default function FacultySignup({
+  embedded = false,
+  presetEmail = "",
+  onSubmitProfile,
+  onBack,
+  showVerifyOnSuccess = true,
+  submitLabel = "Submit application",
+} = {}) {
   const navigate = useNavigate();
   const { signup } = useAuth();
 
-  const [step, setStep] = useState(1);
+  /* Account is step 1; embedded flows start on the teaching profile (step 2). */
+  const FIRST_STEP = embedded ? 2 : 1;
+  const visibleSteps = embedded ? STEPS.filter((s) => s.key !== "account") : STEPS;
+  const totalSteps = visibleSteps.length;
+  const dispNum = (n) => visibleSteps.findIndex((s) => s.n === n) + 1; // 1-based display index
+
+  const [step, setStep] = useState(FIRST_STEP);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -117,7 +161,11 @@ export default function FacultySignup() {
   const [showPw, setShowPw] = useState(false);
   const [showCf, setShowCf] = useState(false);
 
-  /* teaching profile (text only — files are deferred to the dashboard) */
+  /* The email to show on the Verify card / use for messaging. In embedded mode
+     it comes from the upstream sign-up step; standalone uses the step-1 input. */
+  const effectiveEmail = embedded ? presetEmail : email;
+
+  /* teaching profile (scalars; documents are the base64 uploads below) */
   const [f, setF] = useState({
     highest_degree: "", field_of_study: "", year_of_completion: "",
     teaching_certifications: "",
@@ -127,6 +175,61 @@ export default function FacultySignup() {
   });
   const set = (k) => (e) => { setError(""); setF((p) => ({ ...p, [k]: e.target.value })); };
   const setVal = (k, v) => { setError(""); setF((p) => ({ ...p, [k]: v })); };
+
+  /* verification documents — { name, type, data(base64) } | null each */
+  const [docs, setDocs] = useState({
+    qualification_certificate: null,
+    id_proof_front: null,
+    id_proof_back: null,
+  });
+  const pickDoc = (key) => (e) => {
+    setError("");
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";                       // allow re-picking the same file
+    if (!file) return;
+    const okType = DOC_OK_RE.test(file.name) ||
+      ["application/pdf", "image/jpeg", "image/png"].includes(file.type);
+    if (!okType) { setError("Upload a PDF, JPG, or PNG file."); return; }
+    if (file.size > MAX_DOC_BYTES) { setError(`That file is too large — keep it under ${MAX_DOC_MB} MB.`); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result || "");
+      const base64 = url.includes(",") ? url.split(",")[1] : url;
+      setDocs((p) => ({ ...p, [key]: { name: file.name, type: file.type || "application/octet-stream", data: base64 } }));
+    };
+    reader.onerror = () => setError("Could not read that file. Please try again.");
+    reader.readAsDataURL(file);
+  };
+  const clearDoc = (key) => () => { setError(""); setDocs((p) => ({ ...p, [key]: null })); };
+
+  /* Reusable file-upload control (uses the .fs-file-upload styles). */
+  const docField = (key, labelText, cta) => {
+    const d = docs[key];
+    return (
+      <div className="fs-field">
+        <label>{labelText} <span className="fs-opt">(optional)</span></label>
+        <label className={`fs-file-upload ${d ? "fs-selected" : ""}`}>
+          <input type="file" accept={DOC_ACCEPT} onChange={pickDoc(key)} />
+          <div className="fs-file-icon">
+            <svg viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <div className="fs-file-text">
+            <strong>{d ? d.name : cta}</strong>
+            <span>{d ? "Tap to replace · " : ""}PDF, JPG or PNG · up to {MAX_DOC_MB} MB</span>
+          </div>
+        </label>
+        {d && (
+          <button type="button" onClick={clearDoc(key)}
+            style={{ marginTop: 6, background: "none", border: "none", color: "var(--teal)",
+                     fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 0, fontFamily: "inherit" }}>
+            Remove file
+          </button>
+        )}
+      </div>
+    );
+  };
 
   /* course application */
   const [subject, setSubject] = useState("");      // single-select
@@ -138,8 +241,18 @@ export default function FacultySignup() {
   /* agreement */
   const [downloaded, setDownloaded] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [agreementText, setAgreementText] = useState(null);   // current published version
 
-  const employed = FAC_EMPLOYED.has(f.employment_status);
+  // Pull the live, admin-published Faculty Agreement so the applicant reads the
+  // exact current text (kept in sync with the admin editor). Falls back to the
+  // static PDF if nothing is published yet.
+  useEffect(() => {
+    let cancelled = false;
+    api.get("/accounts/agreements/faculty/")
+      .then((res) => { if (!cancelled) setAgreementText(res.data?.current_version || null); })
+      .catch(() => { if (!cancelled) setAgreementText(null); });
+    return () => { cancelled = true; };
+  }, []);
 
   /* password strength 0–4 */
   const pwScore = (() => {
@@ -196,9 +309,9 @@ export default function FacultySignup() {
         .split(",").map((s) => s.trim()).filter(Boolean),
       experience_range: f.experience_range,
       employment_status: f.employment_status,
-      currently_employed: employed,
-      current_institution: employed ? f.current_institution.trim() : "",
-      current_position: employed ? f.current_position.trim() : "",
+      currently_employed: f.currently_employed,
+      current_institution: f.currently_employed ? f.current_institution.trim() : "",
+      current_position: f.currently_employed ? f.current_position.trim() : "",
       govt_id_type: f.govt_id_type || "",
       id_number: f.id_number.trim(),
       // One subject application (no boards — the design omits them). More can be
@@ -206,16 +319,32 @@ export default function FacultySignup() {
       course_application: { subject, classes, streams },
     };
 
+    // Attach any uploaded documents (base64) — backend decodes + stores them.
+    // Only include a key when a file was actually chosen.
+    for (const key of ["qualification_certificate", "id_proof_front", "id_proof_back"]) {
+      if (docs[key]) faculty_profile[key] = docs[key];   // { name, type, data }
+    }
+
     try {
-      await signup({
-        email: email.trim(),
-        password,
-        role: "TEACHER",
-        teacher_type: "FACULTY",
-        faculty_profile,
-      });
-      setSubmitting(false);
-      go(4);
+      if (embedded) {
+        // The parent flow (Signup) owns the email/password and the account
+        // creation; we just hand over the assembled application.
+        await onSubmitProfile?.(faculty_profile);
+        setSubmitting(false);
+        // Brand-new accounts see the Verify screen here; callers that navigate
+        // away afterwards (e.g. add-a-track) pass showVerifyOnSuccess={false}.
+        if (showVerifyOnSuccess) go(4);
+      } else {
+        await signup({
+          email: email.trim(),
+          password,
+          role: "TEACHER",
+          teacher_type: "FACULTY",
+          faculty_profile,
+        });
+        setSubmitting(false);
+        go(4);
+      }
     } catch (err) {
       setError(readErr(err, "Signup failed. Please try again."));
       setSubmitting(false);
@@ -237,11 +366,11 @@ export default function FacultySignup() {
         {/* Sidebar stepper */}
         <aside className="fs-sidebar">
           <p className="fs-sidebar-title">Sign Up Steps</p>
-          {STEPS.map((s) => {
+          {visibleSteps.map((s) => {
             const state = step === s.n ? "fs-active" : step > s.n ? "fs-done" : "";
             return (
               <div className={`fs-step-item ${state}`} key={s.n}>
-                <div className="fs-step-dot">{step > s.n ? "✓" : (s.icon || s.n)}</div>
+                <div className="fs-step-dot">{step > s.n ? "✓" : (s.icon || dispNum(s.n))}</div>
                 <div className="fs-step-info">
                   <div className="fs-step-label">{s.label}</div>
                   <div className="fs-step-desc">{s.desc}</div>
@@ -258,10 +387,11 @@ export default function FacultySignup() {
         {/* Content */}
         <main className="fs-content">
 
-          {/* ── STEP 1: ACCOUNT ── */}
+          {/* ── STEP 1: ACCOUNT (standalone only — embedded flows already have it) ── */}
+          {!embedded && (
           <div className={`fs-screen ${step === 1 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 1 of 4</div>
+              <div className="fs-form-eyebrow">Step 1 of {totalSteps}</div>
               <h1 className="fs-form-title">Create your faculty account</h1>
               <p className="fs-form-subtitle">Enter your email and set a secure password to get started.</p>
             </div>
@@ -311,11 +441,12 @@ export default function FacultySignup() {
 
             <div className="fs-login-link">Already have an account? <Link to="/login">Log in</Link></div>
           </div>
+          )}
 
           {/* ── STEP 2: TEACHING PROFILE ── */}
           <div className={`fs-screen ${step === 2 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 2 of 4</div>
+              <div className="fs-form-eyebrow">Step {dispNum(2)} of {totalSteps}</div>
               <h1 className="fs-form-title">Teaching profile</h1>
               <p className="fs-form-subtitle">Tell us about your qualifications, experience, and the classes you want to teach.</p>
             </div>
@@ -353,6 +484,8 @@ export default function FacultySignup() {
               </div>
             </div>
 
+            {docField("qualification_certificate", "Qualification certificate", "Click to upload certificate")}
+
             {/* Section 2 — Teaching Experience */}
             <div className="fs-section-divider">
               <span className="fs-section-divider-label">Section 2 — Teaching Experience</span>
@@ -387,7 +520,7 @@ export default function FacultySignup() {
               </label>
             </div>
 
-            {employed && (
+            {f.currently_employed && (
               <div className="fs-row" style={{ marginTop: 16 }}>
                 <div className="fs-field">
                   <label htmlFor="fs-inst">Current institution <span className="fs-opt">(optional)</span></label>
@@ -402,14 +535,14 @@ export default function FacultySignup() {
               </div>
             )}
 
-            {/* Section 3 — Verification (text now; documents on the dashboard) */}
+            {/* Section 3 — Verification */}
             <div className="fs-section-divider">
               <span className="fs-section-divider-label">Section 3 — Verification</span>
               <div className="fs-section-divider-line" />
             </div>
             <p className="fs-hint fs-hint-box">
-              These fields are <strong>optional</strong> at sign-up. You'll upload your qualification
-              certificate and ID proof from your <strong>dashboard after verifying your email</strong>.
+              These fields are <strong>optional</strong> at sign-up, but adding them now speeds up review.
+              You can also add or replace them later from your <strong>dashboard after verifying your email</strong>.
             </p>
 
             <div className="fs-row">
@@ -425,6 +558,11 @@ export default function FacultySignup() {
                 <input id="fs-idnum" type="text" maxLength={50} placeholder="Enter ID number"
                   value={f.id_number} onChange={set("id_number")} />
               </div>
+            </div>
+
+            <div className="fs-row">
+              {docField("id_proof_front", "ID proof — front", "Upload front")}
+              {docField("id_proof_back", "ID proof — back", "Upload back")}
             </div>
 
             {/* Course Application */}
@@ -472,7 +610,7 @@ export default function FacultySignup() {
             {error && <div className="fs-error">{error}</div>}
 
             <div className="fs-form-actions">
-              <button className="fs-btn-ghost" onClick={() => go(1)}><ArrowLeft /> Back</button>
+              <button className="fs-btn-ghost" onClick={() => (embedded ? onBack?.() : go(1))}><ArrowLeft /> Back</button>
               <button className="fs-btn-primary" onClick={next2}>Continue <ArrowRight /></button>
             </div>
           </div>
@@ -480,10 +618,20 @@ export default function FacultySignup() {
           {/* ── STEP 3: AGREEMENT LETTER ── */}
           <div className={`fs-screen ${step === 3 ? "fs-active" : ""}`}>
             <div className="fs-form-header">
-              <div className="fs-form-eyebrow">Step 3 of 4</div>
+              <div className="fs-form-eyebrow">Step {dispNum(3)} of {totalSteps}</div>
               <h1 className="fs-form-title">Agreement letter</h1>
               <p className="fs-form-subtitle">Download the faculty agreement and read it carefully. You'll sign it and upload the signed copy from your dashboard after verifying your email.</p>
             </div>
+
+            {agreementText && (
+              <div className="fs-agreement-text"
+                style={{ border: "1px solid #e2d9d3", borderRadius: 12, padding: "18px 20px", margin: "0 0 18px", maxHeight: 320, overflowY: "auto", lineHeight: 1.6, background: "#fff" }}>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                  {agreementText.title} <span style={{ fontSize: 12, color: "#9a8478" }}>· v{agreementText.version_number}</span>
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdown(agreementText.body) }} />
+              </div>
+            )}
 
             <div className="fs-agreement-step-card">
               <div className="fs-agr-step-num">1</div>
@@ -533,7 +681,7 @@ export default function FacultySignup() {
             <div className="fs-form-actions">
               <button className="fs-btn-ghost" onClick={() => go(2)}><ArrowLeft /> Back</button>
               <button className="fs-btn-primary" onClick={submit} disabled={submitting}>
-                {submitting ? <><span className="fs-spin" /> Submitting…</> : <>Submit application <ArrowRight /></>}
+                {submitting ? <><span className="fs-spin" /> Submitting…</> : <>{submitLabel} <ArrowRight /></>}
               </button>
             </div>
           </div>
@@ -543,7 +691,7 @@ export default function FacultySignup() {
             <div className="fs-verify-card">
               <div className="fs-verify-icon"><Mail /></div>
               <h2 className="fs-verify-title">Check your inbox</h2>
-              <div className="fs-verify-email-label">{email || "your@email.com"}</div>
+              <div className="fs-verify-email-label">{effectiveEmail || "your@email.com"}</div>
               <p className="fs-verify-body">
                 We've sent a verification link to your email address. Click the link to verify your account —
                 then sit tight while our admin team reviews your application.
