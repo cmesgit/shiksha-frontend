@@ -28,9 +28,11 @@
  * and stream values use the FULL design taxonomy — no migration is needed because
  * TeacherCourseApplication.classes / .streams are choice-less JSONFields.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import api from "../api/apiClient";
+import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
 
 /* Where the blank faculty agreement PDF lives. Drop the file in /public so it is
@@ -176,6 +178,18 @@ export default function FacultySignup({
   /* agreement */
   const [downloaded, setDownloaded] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
+  const [agreementText, setAgreementText] = useState(null);   // current published version
+
+  // Pull the live, admin-published Faculty Agreement so the applicant reads the
+  // exact current text (kept in sync with the admin editor). Falls back to the
+  // static PDF if nothing is published yet.
+  useEffect(() => {
+    let cancelled = false;
+    api.get("/accounts/agreements/faculty/")
+      .then((res) => { if (!cancelled) setAgreementText(res.data?.current_version || null); })
+      .catch(() => { if (!cancelled) setAgreementText(null); });
+    return () => { cancelled = true; };
+  }, []);
 
   const employed = FAC_EMPLOYED.has(f.employment_status);
 
@@ -534,6 +548,16 @@ export default function FacultySignup({
               <h1 className="fs-form-title">Agreement letter</h1>
               <p className="fs-form-subtitle">Download the faculty agreement and read it carefully. You'll sign it and upload the signed copy from your dashboard after verifying your email.</p>
             </div>
+
+            {agreementText && (
+              <div className="fs-agreement-text"
+                style={{ border: "1px solid #e2d9d3", borderRadius: 12, padding: "18px 20px", margin: "0 0 18px", maxHeight: 320, overflowY: "auto", lineHeight: 1.6, background: "#fff" }}>
+                <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                  {agreementText.title} <span style={{ fontSize: 12, color: "#9a8478" }}>· v{agreementText.version_number}</span>
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdown(agreementText.body) }} />
+              </div>
+            )}
 
             <div className="fs-agreement-step-card">
               <div className="fs-agr-step-num">1</div>
