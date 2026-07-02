@@ -73,7 +73,15 @@ const FAC_STREAMS = [
   ["science", "Science"], ["commerce", "Commerce"], ["arts", "Arts / Humanities"],
   ["vocational", "Vocational"], ["general", "General"],
 ];
-const FAC_EMPLOYED = new Set(["fulltime", "parttime", "private_tutor"]);
+
+/* Verification-document uploads (optional at sign-up). Read to base64 and sent
+   inside the JSON signup payload — the signup endpoint is JSON-only, so files
+   ride along encoded and the backend decodes + stores them. Kept modest so the
+   JSON body stays well under the server's 50 MB limit. */
+const MAX_DOC_MB = 5;
+const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
+const DOC_ACCEPT = ".pdf,.jpg,.jpeg,.png";
+const DOC_OK_RE = /\.(pdf|jpe?g|png)$/i;
 
 /* subject label -> stored value (e.g. "Social Science" -> "social_science") */
 const subjectValue = (label) => label.toLowerCase().replace(/ /g, "_");
@@ -157,7 +165,7 @@ export default function FacultySignup({
      it comes from the upstream sign-up step; standalone uses the step-1 input. */
   const effectiveEmail = embedded ? presetEmail : email;
 
-  /* teaching profile (text only — files are deferred to the dashboard) */
+  /* teaching profile (scalars; documents are the base64 uploads below) */
   const [f, setF] = useState({
     highest_degree: "", field_of_study: "", year_of_completion: "",
     teaching_certifications: "",
@@ -167,6 +175,61 @@ export default function FacultySignup({
   });
   const set = (k) => (e) => { setError(""); setF((p) => ({ ...p, [k]: e.target.value })); };
   const setVal = (k, v) => { setError(""); setF((p) => ({ ...p, [k]: v })); };
+
+  /* verification documents — { name, type, data(base64) } | null each */
+  const [docs, setDocs] = useState({
+    qualification_certificate: null,
+    id_proof_front: null,
+    id_proof_back: null,
+  });
+  const pickDoc = (key) => (e) => {
+    setError("");
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";                       // allow re-picking the same file
+    if (!file) return;
+    const okType = DOC_OK_RE.test(file.name) ||
+      ["application/pdf", "image/jpeg", "image/png"].includes(file.type);
+    if (!okType) { setError("Upload a PDF, JPG, or PNG file."); return; }
+    if (file.size > MAX_DOC_BYTES) { setError(`That file is too large — keep it under ${MAX_DOC_MB} MB.`); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result || "");
+      const base64 = url.includes(",") ? url.split(",")[1] : url;
+      setDocs((p) => ({ ...p, [key]: { name: file.name, type: file.type || "application/octet-stream", data: base64 } }));
+    };
+    reader.onerror = () => setError("Could not read that file. Please try again.");
+    reader.readAsDataURL(file);
+  };
+  const clearDoc = (key) => () => { setError(""); setDocs((p) => ({ ...p, [key]: null })); };
+
+  /* Reusable file-upload control (uses the .fs-file-upload styles). */
+  const docField = (key, labelText, cta) => {
+    const d = docs[key];
+    return (
+      <div className="fs-field">
+        <label>{labelText} <span className="fs-opt">(optional)</span></label>
+        <label className={`fs-file-upload ${d ? "fs-selected" : ""}`}>
+          <input type="file" accept={DOC_ACCEPT} onChange={pickDoc(key)} />
+          <div className="fs-file-icon">
+            <svg viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <div className="fs-file-text">
+            <strong>{d ? d.name : cta}</strong>
+            <span>{d ? "Tap to replace · " : ""}PDF, JPG or PNG · up to {MAX_DOC_MB} MB</span>
+          </div>
+        </label>
+        {d && (
+          <button type="button" onClick={clearDoc(key)}
+            style={{ marginTop: 6, background: "none", border: "none", color: "var(--teal)",
+                     fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: 0, fontFamily: "inherit" }}>
+            Remove file
+          </button>
+        )}
+      </div>
+    );
+  };
 
   /* course application */
   const [subject, setSubject] = useState("");      // single-select
@@ -190,8 +253,6 @@ export default function FacultySignup({
       .catch(() => { if (!cancelled) setAgreementText(null); });
     return () => { cancelled = true; };
   }, []);
-
-  const employed = FAC_EMPLOYED.has(f.employment_status);
 
   /* password strength 0–4 */
   const pwScore = (() => {
@@ -248,15 +309,21 @@ export default function FacultySignup({
         .split(",").map((s) => s.trim()).filter(Boolean),
       experience_range: f.experience_range,
       employment_status: f.employment_status,
-      currently_employed: employed,
-      current_institution: employed ? f.current_institution.trim() : "",
-      current_position: employed ? f.current_position.trim() : "",
+      currently_employed: f.currently_employed,
+      current_institution: f.currently_employed ? f.current_institution.trim() : "",
+      current_position: f.currently_employed ? f.current_position.trim() : "",
       govt_id_type: f.govt_id_type || "",
       id_number: f.id_number.trim(),
       // One subject application (no boards — the design omits them). More can be
       // added later from the dashboard /form-fillup form.
       course_application: { subject, classes, streams },
     };
+
+    // Attach any uploaded documents (base64) — backend decodes + stores them.
+    // Only include a key when a file was actually chosen.
+    for (const key of ["qualification_certificate", "id_proof_front", "id_proof_back"]) {
+      if (docs[key]) faculty_profile[key] = docs[key];   // { name, type, data }
+    }
 
     try {
       if (embedded) {
@@ -417,6 +484,8 @@ export default function FacultySignup({
               </div>
             </div>
 
+            {docField("qualification_certificate", "Qualification certificate", "Click to upload certificate")}
+
             {/* Section 2 — Teaching Experience */}
             <div className="fs-section-divider">
               <span className="fs-section-divider-label">Section 2 — Teaching Experience</span>
@@ -451,7 +520,7 @@ export default function FacultySignup({
               </label>
             </div>
 
-            {employed && (
+            {f.currently_employed && (
               <div className="fs-row" style={{ marginTop: 16 }}>
                 <div className="fs-field">
                   <label htmlFor="fs-inst">Current institution <span className="fs-opt">(optional)</span></label>
@@ -466,14 +535,14 @@ export default function FacultySignup({
               </div>
             )}
 
-            {/* Section 3 — Verification (text now; documents on the dashboard) */}
+            {/* Section 3 — Verification */}
             <div className="fs-section-divider">
               <span className="fs-section-divider-label">Section 3 — Verification</span>
               <div className="fs-section-divider-line" />
             </div>
             <p className="fs-hint fs-hint-box">
-              These fields are <strong>optional</strong> at sign-up. You'll upload your qualification
-              certificate and ID proof from your <strong>dashboard after verifying your email</strong>.
+              These fields are <strong>optional</strong> at sign-up, but adding them now speeds up review.
+              You can also add or replace them later from your <strong>dashboard after verifying your email</strong>.
             </p>
 
             <div className="fs-row">
@@ -489,6 +558,11 @@ export default function FacultySignup({
                 <input id="fs-idnum" type="text" maxLength={50} placeholder="Enter ID number"
                   value={f.id_number} onChange={set("id_number")} />
               </div>
+            </div>
+
+            <div className="fs-row">
+              {docField("id_proof_front", "ID proof — front", "Upload front")}
+              {docField("id_proof_back", "ID proof — back", "Upload back")}
             </div>
 
             {/* Course Application */}
