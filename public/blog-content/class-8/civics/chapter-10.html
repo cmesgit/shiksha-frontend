@@ -1,0 +1,528 @@
+<style>
+  :root {
+    --lsj-smoke:     #292524;
+    --lsj-smoke2:    #44403c;
+    --lsj-orange:    #9a3412;
+    --lsj-orange2:   #c2410c;
+    --lsj-orange-lt: #ffedd5;
+    --lsj-red:       #991b1b;
+    --lsj-red2:      #dc2626;
+    --lsj-red-lt:    #fee2e2;
+    --lsj-green:     #166534;
+    --lsj-green2:    #15803d;
+    --lsj-green-lt:  #dcfce7;
+    --lsj-blue:      #1e3a8a;
+    --lsj-blue2:     #1d4ed8;
+    --lsj-blue-lt:   #dbeafe;
+    --lsj-amber:     #92400e;
+    --lsj-amber2:    #b45309;
+    --lsj-amber-lt:  #fef3c7;
+    --lsj-ink:       #0e1a2e;
+    --lsj-ink2:      #1e2d44;
+    --lsj-muted:     #5a6a82;
+    --lsj-rule:      #cdd8e8;
+    --lsj-off:       #f4f7fc;
+    --lsj-light:     #e8eef7;
+    --lsj-white:     #ffffff;
+    --lsj-black:     #060c18;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .lsj-root {
+    font-family: 'Inter', sans-serif;
+    background: var(--lsj-off);
+    color: var(--lsj-ink);
+    min-height: 100vh;
+  }
+
+  /* ══ HERO ══ */
+  .lsj-hero {
+    background: var(--lsj-black);
+    min-height: 100vh;
+    display: grid; grid-template-rows: auto 1fr auto;
+    position: relative; overflow: hidden; width: 100%;
+  }
+  .lsj-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -52deg, transparent, transparent 44px,
+      rgba(255,255,255,0.013) 44px, rgba(255,255,255,0.013) 45px
+    );
+    pointer-events: none;
+  }
+  .lsj-hero-glow {
+    position: absolute; top: -80px; right: -80px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(154,52,18,0.28) 0%, transparent 68%);
+    pointer-events: none;
+  }
+  .lsj-hero-glow2 {
+    position: absolute; bottom: -60px; left: -60px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(22,101,52,0.14) 0%, transparent 68%);
+    pointer-events: none;
+  }
+  .lsj-hero-nav {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 28px 52px 0; position: relative; z-index: 2;
+  }
+  .lsj-hero-nav-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: #fdba74; border: 1px solid #fdba74; padding: 4px 12px;
+  }
+  .lsj-hero-center {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 52px; position: relative; z-index: 2; min-width: 0;
+  }
+  .lsj-hero-eyebrow {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: #fdba74; margin-bottom: 28px;
+  }
+  .lsj-hero-h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(36px, 7.5vw, 108px);
+    font-weight: 900; line-height: 0.88;
+    letter-spacing: -0.04em; color: #fff;
+    margin-bottom: 40px;
+  }
+  .lsj-hero-h1 .or { color: #fdba74; }
+  .lsj-hero-h1 .gr { color: #6ee7b7; }
+  .lsj-hero-h1 .wh { color: rgba(255,255,255,0.5); }
+  .lsj-hero-deck {
+    max-width: 580px;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px; font-weight: 400;
+    line-height: 1.72; color: rgba(255,255,255,0.50);
+    border-left: 3px solid #fdba74;
+    padding-left: 20px; margin-bottom: 52px;
+  }
+  .lsj-hero-deck strong { color: rgba(255,255,255,0.80); font-weight: 500; }
+  .lsj-hero-stats {
+    display: flex; gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .lsj-hero-stat {
+    flex: 1; padding: 22px 28px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .lsj-hero-stat:last-child { border-right: none; }
+  .lsj-hero-stat-val {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 32px; font-weight: 900; color: #fff;
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px;
+  }
+  .lsj-hero-stat-val span { color: #fdba74; }
+  .lsj-hero-stat-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+  }
+  .lsj-hero-bottom {
+    padding: 22px 52px;
+    display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 2;
+  }
+  .lsj-hero-bottom-item {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lsj-hero-bottom-item::before {
+    content: ''; width: 4px; height: 4px;
+    border-radius: 50%; background: #fdba74; flex-shrink: 0;
+  }
+
+  /* ══ BODY ══ */
+  .lsj-body { max-width: 920px; margin: 0 auto; padding: 80px 32px 100px; }
+
+  .lsj-run-label {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 44px;
+    border-top: 3px solid var(--lsj-ink); padding-top: 14px;
+  }
+  .lsj-run-num {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 900; letter-spacing: 0.18em;
+    color: var(--lsj-white); background: var(--lsj-ink);
+    padding: 4px 10px; margin-right: 16px;
+  }
+  .lsj-run-title {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--lsj-muted); flex: 1;
+  }
+  .lsj-run-topic {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--lsj-orange2);
+  }
+  .lsj-sec-h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(28px, 4.5vw, 48px);
+    font-weight: 900; line-height: 1.0;
+    letter-spacing: -0.03em; color: var(--lsj-ink);
+    margin-bottom: 24px;
+  }
+  .lsj-sec-h2 em  { font-style: normal; color: var(--lsj-orange2); }
+  .lsj-sec-h2 .gr { color: var(--lsj-green2); }
+  .lsj-sec-h2 .bl { color: var(--lsj-blue2); }
+  .lsj-sec-h2 .rd { color: var(--lsj-red2); }
+  .lsj-prose {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px; color: var(--lsj-ink2);
+    line-height: 1.82; margin-bottom: 28px;
+  }
+  .lsj-prose strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--lsj-ink); }
+  .lsj-break {
+    display: flex; align-items: center; gap: 0; margin: 60px 0;
+  }
+  .lsj-break-line { flex: 1; height: 1px; background: var(--lsj-rule); }
+  .lsj-break-pill {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--lsj-muted); background: var(--lsj-light);
+    padding: 5px 16px; margin: 0 16px;
+  }
+
+  /* ── LEAD CARD ── */
+  .lsj-lead {
+    background: var(--lsj-smoke); padding: 40px 44px; margin-bottom: 52px;
+    display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: start;
+    position: relative; overflow: hidden;
+  }
+  .lsj-lead::after {
+    content: '⚖️';
+    position: absolute; right: 28px; top: 12px;
+    font-size: 110px; opacity: 0.06; line-height: 1; pointer-events: none;
+  }
+  .lsj-lead-badge {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; flex-shrink: 0;
+  }
+  .lsj-lead-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #fdba74; margin-bottom: 8px;
+  }
+  .lsj-lead-title {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(18px,3vw,28px);
+    font-weight: 900; color: #fff; letter-spacing: -0.02em; line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  .lsj-lead-title span { color: #fbbf24; }
+  .lsj-lead-body {
+    font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.80;
+    color: rgba(255,255,255,0.58); position: relative; z-index: 1;
+  }
+  .lsj-lead-body strong { color: rgba(255,255,255,0.88); font-family: 'Poppins', sans-serif; font-weight: 600; }
+  @media (max-width: 560px) { .lsj-lead { grid-template-columns: 1fr; padding: 28px 24px; } }
+
+  /* ── CONSTITUTIONAL PROTECTIONS — 2x2 grid ── */
+  .lsj-rights-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--lsj-rule); margin-bottom: 52px;
+  }
+  @media (max-width: 600px) { .lsj-rights-grid { grid-template-columns: 1fr; } }
+  .lsj-right-card {
+    background: var(--lsj-white); padding: 28px 28px;
+    position: relative; overflow: hidden;
+  }
+  .lsj-right-card::before {
+    content: attr(data-n);
+    position: absolute; bottom: -10px; right: -2px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 88px; font-weight: 900;
+    color: rgba(0,0,0,0.030); line-height: 1;
+    pointer-events: none; user-select: none;
+  }
+  .lsj-right-card:nth-child(1) { background: var(--lsj-orange); }
+  .lsj-right-card:nth-child(2) { background: var(--lsj-blue); }
+  .lsj-right-icon { font-size: 26px; margin-bottom: 12px; }
+  .lsj-right-head {
+    font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 900;
+    margin-bottom: 10px; letter-spacing: -0.01em; line-height: 1.2;
+  }
+  .lsj-right-card:nth-child(1) .lsj-right-head,
+  .lsj-right-card:nth-child(2) .lsj-right-head { color: #fff; }
+  .lsj-right-card:not(:nth-child(1)):not(:nth-child(2)) .lsj-right-head { color: var(--lsj-ink); }
+  .lsj-right-body {
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.70;
+  }
+  .lsj-right-card:nth-child(1) .lsj-right-body,
+  .lsj-right-card:nth-child(2) .lsj-right-body { color: rgba(255,255,255,0.65); }
+  .lsj-right-card:not(:nth-child(1)):not(:nth-child(2)) .lsj-right-body { color: var(--lsj-muted); }
+
+  /* ── BHOPAL GAS TRAGEDY — dark full-bleed ── */
+  .lsj-bhopal {
+    background: var(--lsj-smoke); padding: 40px 44px; margin-bottom: 52px;
+    position: relative; overflow: hidden;
+  }
+  .lsj-bhopal::after {
+    content: '☠️';
+    position: absolute; right: 32px; top: 16px;
+    font-size: 100px; opacity: 0.05; line-height: 1; pointer-events: none;
+  }
+  .lsj-bhopal-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(253,186,116,0.7); margin-bottom: 10px;
+  }
+  .lsj-bhopal-title {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(20px,3vw,30px);
+    font-weight: 900; color: #fff; letter-spacing: -0.02em; line-height: 1.1;
+    margin-bottom: 22px;
+  }
+  .lsj-bhopal-title span { color: #fbbf24; }
+  .lsj-bhopal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: rgba(255,255,255,0.07);
+  }
+  @media (max-width: 560px) { .lsj-bhopal-grid { grid-template-columns: 1fr; } }
+  .lsj-bhopal-fact { background: rgba(255,255,255,0.03); padding: 18px 22px; }
+  .lsj-bhopal-fact-head {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(253,186,116,0.65); margin-bottom: 7px;
+  }
+  .lsj-bhopal-fact-body {
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.68;
+    color: rgba(255,255,255,0.55);
+  }
+  .lsj-bhopal-fact-body strong { color: rgba(255,255,255,0.85); font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+  /* ── WORKER'S WORTH — 3 col ── */
+  .lsj-worker-cols {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 1px; background: var(--lsj-rule); margin-bottom: 52px;
+  }
+  @media (max-width: 620px) { .lsj-worker-cols { grid-template-columns: 1fr; } }
+  .lsj-worker-col { background: var(--lsj-white); padding: 26px 22px; }
+  .lsj-worker-col:nth-child(1) { background: var(--lsj-red); }
+  .lsj-worker-col:nth-child(2) { background: var(--lsj-orange); }
+  .lsj-worker-col:nth-child(3) { background: var(--lsj-green); }
+  .lsj-worker-icon { font-size: 28px; margin-bottom: 10px; }
+  .lsj-worker-head {
+    font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900;
+    color: #fff; margin-bottom: 8px; letter-spacing: -0.01em;
+  }
+  .lsj-worker-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.38); margin-bottom: 10px;
+  }
+  .lsj-worker-body {
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.70;
+    color: rgba(255,255,255,0.60);
+  }
+  .lsj-worker-body strong { color: rgba(255,255,255,0.88); font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+  /* ── SAFETY LAWS — numbered steps ── */
+  .lsj-steps { margin-bottom: 52px; }
+  .lsj-step-card {
+    border: 1px solid var(--lsj-rule); background: var(--lsj-white);
+    border-top: none; display: grid; grid-template-columns: 72px 1fr;
+  }
+  .lsj-step-card:first-child { border-top: 1px solid var(--lsj-rule); }
+  .lsj-step-num-col {
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 26px 10px; border-right: 1px solid var(--lsj-rule);
+  }
+  .lsj-step-num {
+    font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900;
+    letter-spacing: -0.03em; line-height: 1;
+  }
+  .lsj-step-card:nth-child(1) .lsj-step-num { color: var(--lsj-orange2); }
+  .lsj-step-card:nth-child(2) .lsj-step-num { color: var(--lsj-blue2); }
+  .lsj-step-card:nth-child(3) .lsj-step-num { color: var(--lsj-green2); }
+  .lsj-step-card:nth-child(4) .lsj-step-num { color: var(--lsj-amber2); }
+  .lsj-step-body-col { padding: 26px 28px; }
+  .lsj-step-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .lsj-step-card:nth-child(1) .lsj-step-tag { color: var(--lsj-orange2); }
+  .lsj-step-card:nth-child(2) .lsj-step-tag { color: var(--lsj-blue2); }
+  .lsj-step-card:nth-child(3) .lsj-step-tag { color: var(--lsj-green2); }
+  .lsj-step-card:nth-child(4) .lsj-step-tag { color: var(--lsj-amber2); }
+  .lsj-step-title {
+    font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 900;
+    letter-spacing: -0.02em; color: var(--lsj-ink); margin-bottom: 10px; line-height: 1.2;
+  }
+  .lsj-step-desc {
+    font-family: 'Inter', sans-serif; font-size: 15px;
+    color: var(--lsj-ink2); line-height: 1.75;
+  }
+  .lsj-step-desc strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--lsj-ink); }
+
+  /* ── ENVIRONMENT — tl ── */
+  .lsj-env-tl { margin-bottom: 52px; }
+  .lsj-env-header {
+    background: var(--lsj-green); padding: 26px 32px;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  }
+  .lsj-env-header-text { flex: 1; }
+  .lsj-env-header-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(134,239,172,0.6); margin-bottom: 6px;
+  }
+  .lsj-env-header-title {
+    font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900;
+    color: #fff; letter-spacing: -0.01em;
+  }
+  .lsj-env-header-sub {
+    margin-top: 6px; font-family: 'Inter', sans-serif;
+    font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.5;
+  }
+  .lsj-env-header-icon { font-size: 40px; line-height: 1; flex-shrink: 0; }
+  .lsj-env-body { border: 1px solid var(--lsj-rule); border-top: none; background: var(--lsj-white); }
+  .lsj-env-row {
+    display: grid; grid-template-columns: 100px 1fr;
+    border-bottom: 1px solid var(--lsj-light);
+  }
+  .lsj-env-row:last-child { border-bottom: none; }
+  .lsj-env-year {
+    background: var(--lsj-off); padding: 18px 10px;
+    font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 900;
+    display: flex; align-items: flex-start; justify-content: center;
+    color: var(--lsj-green2); line-height: 1.3; text-align: center; padding-top: 20px;
+  }
+  .lsj-env-content { padding: 18px 24px; }
+  .lsj-env-content-head {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--lsj-ink); margin-bottom: 5px;
+  }
+  .lsj-env-content-body {
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    color: var(--lsj-muted); line-height: 1.65;
+  }
+  .lsj-env-content-body strong { color: var(--lsj-ink2); font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+  /* ── ENV AS PUBLIC ── */
+  .lsj-env-public {
+    display: grid; grid-template-columns: 1fr 1fr;
+    background: var(--lsj-rule); gap: 1px; margin-bottom: 52px;
+  }
+  @media (max-width: 600px) { .lsj-env-public { grid-template-columns: 1fr; } }
+  .lsj-ep-col { background: var(--lsj-white); padding: 30px 26px; }
+  .lsj-ep-badge {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 12px; padding: 4px 12px;
+  }
+  .lsj-ep-col:nth-child(1) .lsj-ep-badge { color: var(--lsj-red); background: var(--lsj-red-lt); }
+  .lsj-ep-col:nth-child(2) .lsj-ep-badge { color: var(--lsj-green); background: var(--lsj-green-lt); }
+  .lsj-ep-head {
+    font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900;
+    color: var(--lsj-ink); margin-bottom: 14px; letter-spacing: -0.01em; line-height: 1.2;
+  }
+  .lsj-ep-col ul { padding-left: 0; list-style: none; }
+  .lsj-ep-col ul li {
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    color: var(--lsj-muted); line-height: 1.65;
+    padding: 10px 0 10px 18px; border-bottom: 1px solid var(--lsj-light);
+    position: relative;
+  }
+  .lsj-ep-col ul li::before {
+    content: ''; position: absolute; left: 0; top: 18px;
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .lsj-ep-col:nth-child(1) ul li::before { background: var(--lsj-red2); }
+  .lsj-ep-col:nth-child(2) ul li::before { background: var(--lsj-green2); }
+  .lsj-ep-col ul li:last-child { border-bottom: none; }
+  .lsj-ep-col ul li strong { color: var(--lsj-ink2); font-family: 'Poppins', sans-serif; font-weight: 600; }
+
+  /* ── EDITORIAL ── */
+  .lsj-editorial {
+    padding: 48px 0; margin-bottom: 52px;
+    border-top: 3px solid var(--lsj-ink);
+    border-bottom: 1px solid var(--lsj-rule);
+  }
+  .lsj-editorial-q {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(20px, 3vw, 32px);
+    font-weight: 900; line-height: 1.22;
+    letter-spacing: -0.02em; color: var(--lsj-ink); margin-bottom: 18px;
+  }
+  .lsj-editorial-q em { font-style: normal; color: var(--lsj-orange2); }
+  .lsj-editorial-attr {
+    font-family: 'Inter', sans-serif; font-size: 13px;
+    color: var(--lsj-muted); letter-spacing: 0.02em;
+  }
+
+  /* ── FAQ ── */
+  .lsj-faq-intro { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .lsj-faq-intro-line { flex: 1; height: 1px; background: var(--lsj-rule); }
+  .lsj-faq-intro-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--lsj-orange2); background: var(--lsj-orange-lt); padding: 5px 14px;
+  }
+  .lsj-faq-h2 {
+    font-family: 'Montserrat', sans-serif; font-size: 34px; font-weight: 900;
+    color: var(--lsj-ink); letter-spacing: -0.025em; margin-bottom: 30px;
+  }
+  .lsj-faq-item { border-bottom: 1px solid var(--lsj-rule); }
+  .lsj-faq-item:first-of-type { border-top: 1px solid var(--lsj-rule); }
+  .lsj-faq-q {
+    width: 100%; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;
+    padding: 20px 0; background: none; border: none; cursor: pointer; text-align: left;
+  }
+  .lsj-faq-q-text {
+    font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600;
+    color: var(--lsj-ink2); line-height: 1.45; flex: 1;
+  }
+  .lsj-faq-item.open .lsj-faq-q-text { color: var(--lsj-orange2); }
+  .lsj-faq-icon { font-size: 18px; color: var(--lsj-orange2); flex-shrink: 0; margin-top: 2px; }
+  .lsj-faq-ans { max-height: 0; overflow: hidden; transition: max-height 0.32s ease; }
+  .lsj-faq-ans.open { max-height: 1200px; }
+  .lsj-faq-ans-inner {
+    padding-bottom: 22px; font-family: 'Inter', sans-serif; font-size: 15px;
+    color: var(--lsj-muted); line-height: 1.78;
+  }
+  .lsj-faq-ans-inner strong { color: var(--lsj-ink2); font-family: 'Poppins', sans-serif; font-weight: 600; }
+  .lsj-faq-ans-inner ul { padding-left: 20px; margin: 10px 0; }
+  .lsj-faq-ans-inner ul li { margin-bottom: 8px; line-height: 1.65; }
+
+  @media (max-width: 900px) {
+    .lsj-hero-nav { padding: 22px 28px 0; }
+    .lsj-hero-center { padding: 36px 28px 0; }
+    .lsj-hero-bottom { padding: 18px 28px; gap: 18px; }
+  }
+  @media (max-width: 680px) {
+    .lsj-hero { min-height: auto; }
+    .lsj-hero-nav { padding: 16px 18px 0; justify-content: flex-start; }
+    .lsj-hero-center { padding: 28px 18px 0; }
+    .lsj-hero-h1 { font-size: clamp(36px,11vw,62px); letter-spacing:-0.03em; margin-bottom:20px; }
+    .lsj-hero-deck { font-size:14px; margin-bottom:28px; max-width:100%; }
+    .lsj-hero-stats { flex-wrap: wrap; }
+    .lsj-hero-stat { flex: 1 1 calc(50% - 1px); padding: 14px 14px; }
+    .lsj-hero-stat:nth-child(2n) { border-right: none; }
+    .lsj-hero-stat:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,0.06); }
+    .lsj-hero-stat-val { font-size: 22px; }
+    .lsj-hero-bottom { padding: 12px 18px; gap: 8px; }
+    .lsj-body { padding: 52px 18px 72px; }
+    .lsj-bhopal-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 400px) {
+    .lsj-hero-h1 { font-size: clamp(30px, 10vw, 48px); }
+    .lsj-hero-stat { flex: 1 1 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="lsj-root"><div class="lsj-hero"><div class="lsj-hero-glow"></div><div class="lsj-hero-glow2"></div><div class="lsj-hero-nav"><div class="lsj-hero-nav-tag">Political Science · Class 8</div></div><div class="lsj-hero-center"><div class="lsj-hero-eyebrow">Chapter 10 · Social &amp; Political Life</div><h1 class="lsj-hero-h1"><span class="or">Law</span> &amp;<br><span class="gr">Social</span><br><span class="wh">Justice</span></h1><div class="lsj-hero-deck">From the <strong>Bhopal Gas Tragedy</strong> to minimum wages and environment laws — how the government uses law to protect workers, communities, and the environment from exploitation and neglect.</div><div class="lsj-hero-stats"><div class="lsj-hero-stat"><div class="lsj-hero-stat-val"><span>8,000+</span></div><div class="lsj-hero-stat-label">Dead — Bhopal Gas Tragedy 1984</div></div><div class="lsj-hero-stat"><div class="lsj-hero-stat-val"><span>14</span></div><div class="lsj-hero-stat-label">Min age — no child labour in hazardous jobs</div></div><div class="lsj-hero-stat"><div class="lsj-hero-stat-val"><span>1986</span></div><div class="lsj-hero-stat-label">Environment Protection Act Passed</div></div><div class="lsj-hero-stat"><div class="lsj-hero-stat-val"><span>Art. 21</span></div><div class="lsj-hero-stat-label">Clean environment — part of Right to Life</div></div></div></div><div class="lsj-hero-bottom"><div class="lsj-hero-bottom-item">Right Against Exploitation</div><div class="lsj-hero-bottom-item">Bhopal — World&#x27;s Worst Industrial Disaster</div><div class="lsj-hero-bottom-item">Safety Laws Must Be Enforced</div><div class="lsj-hero-bottom-item">Environment as Constitutional Right</div></div></div><div class="lsj-body"><div class="lsj-run-label"><div class="lsj-run-num">01</div><div class="lsj-run-title">Foundation</div><div class="lsj-run-topic">Why Laws Are Needed for Social Justice</div></div><h2 class="lsj-sec-h2">When Markets <em>Exploit</em> —<br>Law Must Respond</h2><p class="lsj-prose">To protect people from exploitation, the government makes certain laws. These laws try to ensure that unfair practices are kept to a minimum in markets. <strong>Minimum wages</strong> ensure workers are paid fairly. There are laws protecting both producers and consumers. But laws are only as strong as their enforcement — the government must not just write laws but also ensure they are implemented.</p><div class="lsj-lead"><div class="lsj-lead-badge">⚖️</div><div><div class="lsj-lead-label">Core Principle · Social Justice</div><div class="lsj-lead-title">Law as the <span>Shield of the People</span></div><div class="lsj-lead-body"><strong>Fundamental Rights guaranteed by the Constitution</strong> — like the Right against Exploitation — say that no one can be forced to work for low wages or under bondage. The Constitution lays down that <strong>no child below 14 years</strong> shall be employed in any factory, mine, or hazardous employment. Through constitutional rights, government tries to ensure <strong>social justice to every section of society</strong>. But making laws is not enough — <strong>enforcement is the crucial test</strong>.</div></div></div><div class="lsj-rights-grid"><div class="lsj-right-card" data-n="I"><div class="lsj-right-icon">👷</div><div class="lsj-right-head">Minimum Wages</div><div class="lsj-right-body">Governments set minimum wages to ensure workers are not underpaid. No employer can legally pay below this floor — it is the baseline of worker dignity.</div></div><div class="lsj-right-card" data-n="II"><div class="lsj-right-icon">🚫</div><div class="lsj-right-head">Right Against Exploitation</div><div class="lsj-right-body">The Constitution&#x27;s Right against Exploitation prohibits forced labour, bonded labour, and child labour in hazardous industries. No one can be forced to work against their will.</div></div><div class="lsj-right-card" data-n="III"><div class="lsj-right-icon">🧒</div><div class="lsj-right-head">No Child Labour Under 14</div><div class="lsj-right-body">No child below 14 years of age shall be employed in any factory, mine, or other hazardous employment. Children deserve education, not exploitation.</div></div><div class="lsj-right-card" data-n="IV"><div class="lsj-right-icon">🔒</div><div class="lsj-right-head">Enforcement is Essential</div><div class="lsj-right-body">The government has to ensure that laws are enforced — not just written. Weak or unenforced laws leave workers and communities unprotected, as Bhopal tragically showed.</div></div></div><div class="lsj-break"><div class="lsj-break-line"></div><div class="lsj-break-pill">Case Study — Bhopal</div><div class="lsj-break-line"></div></div><div class="lsj-run-label"><div class="lsj-run-num">02</div><div class="lsj-run-title">World&#x27;s Worst Industrial Disaster</div><div class="lsj-run-topic">The Bhopal Gas Tragedy — 1984</div></div><h2 class="lsj-sec-h2">Bhopal <span class="rd">1984</span> —<br>When Law <em>Failed</em></h2><p class="lsj-prose">The world&#x27;s worst industrial tragedy is a story of what happens when safety laws are absent, companies are not held accountable, and government fails to protect its citizens. The Bhopal Gas Tragedy remains one of the most powerful arguments for strict, enforced industrial law.</p><div class="lsj-bhopal"><div class="lsj-bhopal-label">Industrial Disaster · Bhopal 1984</div><div class="lsj-bhopal-title">Union Carbide — <span>The Company That Left</span></div><div class="lsj-bhopal-grid"><div class="lsj-bhopal-fact"><div class="lsj-bhopal-fact-head">The Company</div><div class="lsj-bhopal-fact-body">Union Carbide (UC), an <strong>American company</strong>, had a factory in Bhopal that produced pesticides. It was a foreign company seeking cheaper production in India.</div></div><div class="lsj-bhopal-fact"><div class="lsj-bhopal-fact-head">The Leak — Dec 2, 1984</div><div class="lsj-bhopal-fact-body"><strong>MIC, a highly poisonous gas</strong>, started leaking at midnight from the factory on 2 December 1984. The deadly cloud spread silently across sleeping neighbourhoods.</div></div><div class="lsj-bhopal-fact"><div class="lsj-bhopal-fact-head">The Death Toll</div><div class="lsj-bhopal-fact-body">Within three days, <strong>more than 8,000 people were dead</strong>. Hundreds of thousands were maimed. Generations of victims continue to face the after-effects decades later.</div></div><div class="lsj-bhopal-fact"><div class="lsj-bhopal-fact-head">What the Company Did</div><div class="lsj-bhopal-fact-body">UC <strong>stopped operations but left behind tons of toxic chemicals</strong>. People were still fighting 24 years later for justice, safe drinking water, healthcare, and jobs.</div></div></div></div><div class="lsj-break"><div class="lsj-break-line"></div><div class="lsj-break-pill">Workers&#x27; Rights</div><div class="lsj-break-line"></div></div><div class="lsj-run-label"><div class="lsj-run-num">03</div><div class="lsj-run-title">Labour &amp; Safety</div><div class="lsj-run-topic">What Is a Worker&#x27;s Worth?</div></div><h2 class="lsj-sec-h2">The <em>Race to the Bottom</em> —<br>Worker <span class="rd">Exploitation</span></h2><p class="lsj-prose">Foreign companies come to India for cheaper labour. This creates a dangerous race to the bottom — where companies compete by cutting wages, extending hours, and reducing safety. It is workers who pay the price. And when there is unemployment, workers are forced to accept these conditions simply to survive.</p><div class="lsj-worker-cols"><div class="lsj-worker-col"><div class="lsj-worker-icon">💸</div><div class="lsj-worker-tag">The Lure</div><div class="lsj-worker-head">Cheaper Labour</div><div class="lsj-worker-body">Foreign companies come to India because wages are <strong>far lower than in the USA</strong>. For lower pay, companies get longer hours of work. This is the primary reason for industrial outsourcing.</div></div><div class="lsj-worker-col"><div class="lsj-worker-icon">⚠️</div><div class="lsj-worker-tag">The Danger</div><div class="lsj-worker-head">Cost-Cutting via Safety</div><div class="lsj-worker-body">Cost cutting is done by <strong>lowering working conditions</strong> and safety measures. Since unemployed workers are willing to work in unsafe conditions, companies exploit this desperation — just as UC did in Bhopal.</div></div><div class="lsj-worker-col"><div class="lsj-worker-icon">🛡️</div><div class="lsj-worker-tag">The Duty</div><div class="lsj-worker-head">Government Must Act</div><div class="lsj-worker-body">In the grave situation of unemployment where people work in dangerous conditions, it becomes the <strong>duty of government</strong> to ensure the safety of its citizens through proper safety laws and enforcement.</div></div></div><div class="lsj-steps"><div class="lsj-step-card"><div class="lsj-step-num-col"><div class="lsj-step-num">1</div></div><div class="lsj-step-body-col"><div class="lsj-step-tag">Obligation 01</div><div class="lsj-step-title">Enforce Safety Laws</div><div class="lsj-step-desc">As the lawmaker and enforcer, the government is supposed to ensure that <strong>safety laws are implemented</strong>. Writing laws is not enough — enforcement is the critical step.</div></div></div><div class="lsj-step-card"><div class="lsj-step-num-col"><div class="lsj-step-num">2</div></div><div class="lsj-step-body-col"><div class="lsj-step-tag">Obligation 02</div><div class="lsj-step-title">Protect the Right to Life — Article 21</div><div class="lsj-step-desc">It is the duty of the government to ensure that the <strong>Right to Life guaranteed under Article 21</strong> is not violated. This includes the right to safe working conditions.</div></div></div><div class="lsj-step-card"><div class="lsj-step-num-col"><div class="lsj-step-num">3</div></div><div class="lsj-step-body-col"><div class="lsj-step-tag">Obligation 03</div><div class="lsj-step-title">Stronger Laws for Growing Industry</div><div class="lsj-step-desc">With more industries being set up by local and foreign businesses, there is a great need for <strong>stronger laws protecting workers&#x27; rights</strong> and better enforcement. Industry growth must not come at the cost of worker safety.</div></div></div><div class="lsj-step-card"><div class="lsj-step-num-col"><div class="lsj-step-num">4</div></div><div class="lsj-step-body-col"><div class="lsj-step-tag">Obligation 04</div><div class="lsj-step-title">Pre-Approval Assessment</div><div class="lsj-step-desc">Before any industry is approved, <strong>laws and codes must be satisfied</strong>. Permission should be given only after a thorough safety assessment — not after disasters have occurred.</div></div></div></div><div class="lsj-break"><div class="lsj-break-line"></div><div class="lsj-break-pill">Environment Protection</div><div class="lsj-break-line"></div></div><div class="lsj-run-label"><div class="lsj-run-num">04</div><div class="lsj-run-title">From Free-for-All to Legal Protection</div><div class="lsj-run-topic">New Laws to Protect the Environment</div></div><h2 class="lsj-sec-h2">The Environment —<br>from <span class="rd">Free</span> to <em>Protected</em></h2><p class="lsj-prose">In 1984, there were very few laws protecting the environment in India, and hardly any enforcement. The environment was treated as a &#x27;free&#x27; entity — industry could pollute air and water without restriction. The Bhopal tragedy was a direct result of this attitude. Since then, India has taken major steps to make the <strong>right to a clean environment a constitutional right</strong>.</p><div class="lsj-env-tl"><div class="lsj-env-header"><div class="lsj-env-header-text"><div class="lsj-env-header-label">Timeline · Environmental Laws in India</div><div class="lsj-env-header-title">From Unregulated Pollution to Constitutional Protection</div><div class="lsj-env-header-sub">How India&#x27;s approach to environmental protection evolved after 1984</div></div><div class="lsj-env-header-icon">🌿</div></div><div class="lsj-env-body"><div class="lsj-env-row"><div class="lsj-env-year">Before 1984</div><div class="lsj-env-content"><div class="lsj-env-content-head">No protection — free pollution</div><div class="lsj-env-content-body">Very few laws existed protecting the environment and there was hardly any enforcement. Industry could pollute air and water without restriction. Rivers, air, and groundwater were being polluted freely.</div></div></div><div class="lsj-env-row"><div class="lsj-env-year">Dec 1984</div><div class="lsj-env-content"><div class="lsj-env-content-head">Bhopal Gas Tragedy — the wake-up call</div><div class="lsj-env-content-body">The world&#x27;s worst industrial disaster killed 8,000+ people and maimed hundreds of thousands. MIC gas from Union Carbide&#x27;s factory showed the deadly consequences of zero environmental and safety regulation.</div></div></div><div class="lsj-env-row"><div class="lsj-env-year">1986</div><div class="lsj-env-content"><div class="lsj-env-content-head">Environment Protection Act passed</div><div class="lsj-env-content-body">Directly triggered by Bhopal, the Environment Protection Act 1986 was passed. The polluter was now to be held accountable. The government took responsibility for setting up laws and procedures to check pollution and introduce heavy fines.</div></div></div><div class="lsj-env-row"><div class="lsj-env-year">Supreme Court</div><div class="lsj-env-content"><div class="lsj-env-content-head">Right to clean environment = Article 21</div><div class="lsj-env-content-body">The Supreme Court ruled that the right to a healthy life and safe drinking water is an essential part of Article 21 (Right to Life). Environmental protection became a constitutional matter.</div></div></div><div class="lsj-env-row"><div class="lsj-env-year">Recent</div><div class="lsj-env-content"><div class="lsj-env-content-head">Swachh Bharat, Namami Gange, Carbon Tax</div><div class="lsj-env-content-body">Government initiatives like Swachh Bharat Abhiyan, Namami Gange, and Rally for Rivers show commitment to environment protection. High carbon taxes and petroleum taxes deter misuse of resources. India is also showing commitment at international level.</div></div></div></div></div><div class="lsj-run-label"><div class="lsj-run-num">05</div><div class="lsj-run-title">Who Benefits from Clean Environment?</div><div class="lsj-run-topic">Environment as a Public Facility</div></div><h2 class="lsj-sec-h2">Environment as a<br><em>Public Facility</em></h2><p class="lsj-prose">The environment issue in India has highlighted a troubling inequality: the growing concern for the environment among the middle classes is often at the expense of the poor. The challenge is to find solutions where <strong>everyone can benefit from a clean environment</strong>.</p><div class="lsj-env-public"><div class="lsj-ep-col"><div class="lsj-ep-badge">The Problem</div><div class="lsj-ep-head">Who Bears the Cost?</div><ul><li>Rich class&#x27;s <strong>heavy dependency on AC and vehicles</strong> enhances pollution</li><li>The <strong>poor bear the burden</strong> of this pollution — they cannot escape it</li><li>Environmental concern of the middle class is often <strong>at the expense of the poor</strong></li><li>Factory pollution affects communities <strong>living around factories</strong> — mostly low-income</li></ul></div><div class="lsj-ep-col"><div class="lsj-ep-badge">The Solution</div><div class="lsj-ep-head">What Government Must Do</div><ul><li>Find solutions where <strong>everyone benefits</strong> from a clean environment</li><li>Encourage and support factories to <strong>move to cleaner technologies</strong></li><li>Ensure <strong>workers&#x27; livelihoods are protected</strong> during the transition</li><li>Both workers and communities near factories must enjoy a <strong>safe environment</strong></li></ul></div></div><div class="lsj-editorial"><div class="lsj-editorial-q">&quot;Laws that are weak and poorly enforced can cause <em>serious harm</em> — the government must make better policies and implement them effectively.&quot;</div><div class="lsj-editorial-attr">— Chapter 10: Law and Social Justice, Class 8 Political Science</div></div><div class="lsj-break"><div class="lsj-break-line"></div><div class="lsj-break-pill">Exam Prep</div><div class="lsj-break-line"></div></div><div class="lsj-faq-intro"><div class="lsj-faq-intro-line"></div><div class="lsj-faq-intro-tag">Frequently Asked Questions</div><div class="lsj-faq-intro-line"></div></div><h2 class="lsj-faq-h2">All You Need to Know</h2><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q1. What is law and social justice? Why do we need laws to protect people?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">To <strong>protect people from exploitation</strong>, governments make certain laws. These laws try to ensure that unfair practices are kept to a minimum in markets. Laws are necessary in many situations — whether in the market, office, or factory — to protect people from unfair practices. <strong>Laws that are weak and poorly enforced can cause serious harm</strong>. While the government has a leading role, people can also exert pressure so that both private companies and the government act in the interests of society.</div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q2. What Constitutional protections exist against exploitation of workers?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">The Indian Constitution provides specific protections:<ul><li><strong>Right against Exploitation</strong> — no one can be forced to work for low wages or under bondage</li><li><strong>No child below the age of 14</strong> shall be employed in any factory, mine, or any other hazardous employment</li><li>Provisions against <strong>any exploitation of human beings irrespective of gender and sex</strong></li><li><strong>Minimum wages</strong> have been set to ensure workers are not underpaid</li><li>The government must ensure these laws are <strong>implemented and enforced</strong></li></ul></div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q3. Describe the Bhopal Gas Tragedy. What lessons does it teach?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">The <strong>Bhopal Gas Tragedy</strong> was the world&#x27;s worst industrial disaster:<ul><li><strong>Union Carbide (UC)</strong>, an American company, had a pesticide factory in Bhopal</li><li>On <strong>2 December 1984 at midnight</strong>, MIC — a highly poisonous gas — began leaking from the factory</li><li>Within three days, <strong>more than 8,000 people were dead</strong>; hundreds of thousands were maimed</li><li>UC stopped its operations but <strong>left behind tons of toxic chemicals</strong></li><li>24 years later, people were still fighting for justice, safe drinking water, healthcare, and jobs</li><li>After-effects haunted generations of victims</li></ul><strong>Lesson:</strong> Developers and business must be made <strong>liable through strict laws</strong> so that such incidents cannot happen in the future.</div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q4. Why do foreign companies come to India? How does this affect workers?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">Foreign companies come to India primarily for <strong>cheaper labour</strong>:<ul><li>Wages in the USA are much higher than in poorer countries like India</li><li>For lower pay, companies can get <strong>longer hours of work</strong></li><li>Cost cutting is done through <strong>lower working conditions</strong> including reduced safety measures</li><li>Because of high unemployment, many workers are <strong>willing to work in unsafe conditions</strong> in return for a wage</li><li>In such a situation, it becomes the <strong>duty of the government to ensure the safety of its citizens</strong></li></ul></div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q5. What are the government&#x27;s responsibilities regarding safety laws?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">As the <strong>lawmaker and enforcer</strong>, the government is supposed to ensure that safety laws are implemented:<ul><li>It is the government&#x27;s duty to ensure that the <strong>Right to Life guaranteed under Article 21</strong> is not violated</li><li>Instead of protecting interests of people, safety was <strong>disregarded both by government and private companies</strong> — as Bhopal showed</li><li>With more industries being set up by local and foreign businesses, there is a great need for <strong>stronger laws protecting workers&#x27; rights</strong> and better enforcement</li><li><strong>Before approval of any industry</strong>, laws and codes must be satisfied; permission should be given only after assessment</li></ul></div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q6. What is the Environment Protection Act 1986? Why was it needed?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">In 1984 (the year of Bhopal), there were <strong>very few laws protecting the environment</strong> in India, and hardly any enforcement of these laws. The <strong>Environment Protection Act was passed in 1986</strong> as a direct response. Before it:<ul><li>The environment was treated as a <strong>&#x27;free&#x27; entity</strong> — industry could pollute air and water without restriction</li><li>Rivers, air, and groundwater were being polluted and the <strong>health of people disregarded</strong></li><li>The polluter was <strong>not held accountable</strong> for environmental damage</li></ul>The government is now responsible for setting up laws that <strong>check pollution, clean rivers, and introduce heavy fines</strong> for those who pollute.</div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q7. What does the Supreme Court say about the environment and Article 21?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">The Supreme Court, in many judgments, has held that the <strong>right to a healthy life and safe drinking water</strong> is an essential part of <strong>Article 21 — the Right to Life</strong>. This means:<ul><li>A clean environment is not just a wish — it is a <strong>constitutional right</strong></li><li>Polluters can be held liable for violating citizens&#x27; right to life</li><li>Government initiatives like <strong>Swachh Bharat Abhiyan, Namami Gange, and Rally for Rivers</strong> show commitment to environment protection</li><li>High carbon taxes and petroleum taxes <strong>deter misuse of resources</strong></li><li>India is also showing commitment at the <strong>international level</strong> on environmental issues</li></ul></div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q8. What does &#x27;Environment as a Public Facility&#x27; mean? Who bears the burden of pollution?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">The concept of environment as a public facility means that a <strong>clean environment must be accessible to all</strong>, not just the wealthy. The chapter highlights a key injustice:<ul><li>The growing concern for the environment among the <strong>middle classes is often at the expense of the poor</strong></li><li><strong>Heavy dependency of the rich</strong> on air conditioning and vehicles increases pollution — but the <strong>poor bear the burden</strong></li><li>The challenge is to find solutions where <strong>everyone can benefit from a clean environment</strong></li><li>Government must encourage factories to <strong>gradually move to cleaner technologies</strong></li><li>This will protect workers&#x27; livelihoods while also ensuring communities near factories enjoy a <strong>safe environment</strong></li></ul></div></div></details><details class="lsj-faq-item" data-faq><summary class="lsj-faq-q"><span class="lsj-faq-q-text">Q9. What does the chapter conclude about law and social justice?</span></summary><div class="lsj-faq-ans visible"><div class="lsj-faq-ans-inner">The chapter concludes with four key points:<ul><li>Laws are necessary in many situations — market, office, factory — to <strong>protect people from unfair practices</strong></li><li><strong>Laws that are weak and poorly enforced can cause serious harm</strong> — as Bhopal demonstrated tragically</li><li>While government has the leading role, <strong>people can exert pressure</strong> so that both private companies and government act in society&#x27;s interest</li><li>Government must make <strong>better policies and implement them effectively</strong> — not just write laws on paper</li></ul></div></div></details></div></div>

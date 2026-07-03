@@ -1,0 +1,288 @@
+<style>
+  :root {
+    --ink:        #00101a;
+    --ink2:       #001e30;
+    --muted:      #2a5068;
+    --paper:      #f0f9ff;
+    --paper2:     #daf0fc;
+    --accent:     #0284c7;
+    --accent2:    #0369a1;
+    --accent-lt:  #e0f2fe;
+    --cyan:       #0891b2;
+    --cyan-lt:    #cffafe;
+    --teal:       #0f766e;
+    --teal-lt:    #ccfbf1;
+    --violet:     #7c3aed;
+    --violet-lt:  #ede9fe;
+    --amber:      #b45309;
+    --amber-lt:   #fef3c7;
+    --red:        #be123c;
+    --red-lt:     #ffe4e6;
+    --green:      #166534;
+    --green-lt:   #dcfce7;
+    --indigo:     #4338ca;
+    --indigo-lt:  #e0e7ff;
+    --rule:       #7dd3fc;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .lgt-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO — deep space-navy / light-beam white ═══ */
+  .lgt-hero {
+    background: linear-gradient(135deg, #000810 0%, #001428 55%, #00203f 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) { .lgt-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; } }
+  .lgt-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #0284c7 0%, #0891b2 20%, #7c3aed 42%, #ec4899 60%, #f59e0b 78%, #22c55e 100%);
+  }
+  /* Light ray texture */
+  .lgt-hero-rays {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 500px 300px at 20% 50%, rgba(2,132,199,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 300px 500px at 80% 30%, rgba(124,58,237,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(60deg, rgba(125,211,252,0.03) 0px, rgba(125,211,252,0.03) 1px, transparent 1px, transparent 40px);
+  }
+  /* VIBGYOR prism beam */
+  .lgt-hero-prism {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    width: clamp(100px, 18vw, 240px); height: clamp(100px, 18vw, 240px);
+    pointer-events: none;
+    background: conic-gradient(
+      from 180deg,
+      rgba(124,58,237,0.18) 0deg, rgba(139,92,246,0.14) 40deg,
+      rgba(59,130,246,0.14) 80deg, rgba(34,197,94,0.12) 120deg,
+      rgba(234,179,8,0.12) 160deg, rgba(249,115,22,0.14) 200deg,
+      rgba(239,68,68,0.16) 240deg, rgba(124,58,237,0.18) 360deg
+    );
+    border-radius: 50%;
+    filter: blur(2px);
+  }
+  .lgt-glow-a { position: absolute; top: 12%; left: 5%; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(2,132,199,0.18) 0%, transparent 68%); pointer-events: none; }
+  .lgt-glow-b { position: absolute; bottom: 10%; right: 26%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%); pointer-events: none; }
+  .lgt-hero-bg-num { position: absolute; bottom: -80px; right: -20px; font-family: 'Montserrat', sans-serif; font-size: clamp(200px,34vw,480px); font-weight: 900; line-height: 1; color: rgba(255,255,255,0.018); letter-spacing: -0.04em; user-select: none; pointer-events: none; }
+  .lgt-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  @media (max-width: 600px) { .lgt-hero-inner { padding: 0 20px; } }
+  .lgt-overline { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #7dd3fc; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+  .lgt-overline::before, .lgt-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #7dd3fc; }
+  .lgt-hero-title { font-family: 'Montserrat', sans-serif; font-size: clamp(52px,11vw,108px); font-weight: 900; color: #fff; line-height: 0.88; letter-spacing: -0.04em; margin-bottom: 32px; }
+  .lgt-hero-title em   { font-style: normal; color: #7dd3fc; }
+  .lgt-hero-title .em2 { color: #d946ef; }
+  .lgt-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .lgt-hero-bar-item { flex: 1 1 140px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .lgt-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .lgt-bar-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .lgt-bar-value { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.72); }
+
+  /* ═══ BODY ═══ */
+  .lgt-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+  @media (max-width: 600px) { .lgt-body { padding: 48px 20px 64px; } }
+
+  /* ═══ INTRO CARD ═══ */
+  .lgt-intro-card { background: linear-gradient(135deg, #000810 0%, #00203f 100%); border-left: 5px solid #0284c7; border-radius: 4px; padding: 38px 42px; margin-bottom: 64px; position: relative; overflow: hidden; }
+  .lgt-intro-card::after { content: '💡'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 96px; opacity: 0.09; }
+  .lgt-intro-card p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .lgt-intro-card p:last-child { margin: 0; }
+  .lgt-intro-card strong { color: #7dd3fc; }
+  @media (max-width: 600px) { .lgt-intro-card { padding: 28px 24px; } .lgt-intro-card p { font-size: 16px; } }
+
+  /* ═══ DIVIDER ═══ */
+  .lgt-divider { margin: 60px 0; display: flex; align-items: center; gap: 16px; }
+  .lgt-divider::before, .lgt-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .lgt-divider-mark { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .lgt-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 34px; border-bottom: 2px solid var(--rule); padding-bottom: 20px; }
+  .lgt-sec-num { font-family: 'Montserrat', sans-serif; font-size: 58px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .lgt-sec-title-wrap { padding-top: 8px; }
+  .lgt-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .lgt-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px,3.5vw,32px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .lgt-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .lgt-body-text { font-family: 'Inter', sans-serif; font-size: 17px; color: var(--ink2); line-height: 1.85; margin-bottom: 28px; }
+  .lgt-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: LUMINOUS vs NON-LUMINOUS — split card ═══ */
+  .lgt-lumin-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .lgt-lumin-split { grid-template-columns: 1fr; } }
+  .lgt-lumin-card { border-radius: 12px; padding: 26px 22px; }
+  .lgt-lumin-card.lum { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; }
+  .lgt-lumin-card.nonlum { background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%); border: 2px solid #0284c7; }
+  .lgt-lumin-badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+  .lum .lgt-lumin-badge { background: rgba(245,158,11,0.18); color: #92400e; }
+  .nonlum .lgt-lumin-badge { background: rgba(2,132,199,0.12); color: #0369a1; }
+  .lgt-lumin-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .lgt-lumin-name { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .lum .lgt-lumin-name { color: #92400e; }
+  .nonlum .lgt-lumin-name { color: #0369a1; }
+  .lgt-lumin-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .lgt-lumin-eg { margin-top: 10px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; }
+  .lum .lgt-lumin-eg { color: #b45309; }
+  .nonlum .lgt-lumin-eg { color: #0284c7; }
+
+  /* ═══ S1: LAWS OF REFLECTION ═══ */
+  .lgt-laws-box { background: linear-gradient(135deg, #000810 0%, #001428 100%); border-radius: 12px; padding: 30px 32px; margin-bottom: 28px; border: 1.5px solid rgba(2,132,199,0.25); }
+  .lgt-laws-title { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; color: #7dd3fc; margin-bottom: 18px; letter-spacing: -0.01em; }
+  .lgt-law-item { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 14px; }
+  .lgt-law-item:last-child { margin-bottom: 0; }
+  .lgt-law-num { width: 34px; height: 34px; border-radius: 50%; background: rgba(2,132,199,0.25); border: 1.5px solid #7dd3fc; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 800; color: #7dd3fc; flex-shrink: 0; }
+  .lgt-law-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.68); line-height: 1.7; padding-top: 4px; }
+  .lgt-law-text strong { color: #bae6fd; }
+  .lgt-law-formula { margin-top: 16px; padding: 14px 20px; background: rgba(2,132,199,0.12); border-left: 3px solid #7dd3fc; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; color: #7dd3fc; letter-spacing: 0.04em; }
+
+  /* SVG DIAGRAM — reflection */
+  .lgt-svg-wrap { background: var(--white); border: 1.5px solid var(--rule); border-radius: 12px; padding: 24px; margin-bottom: 28px; overflow-x: auto; }
+  .lgt-svg-caption { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-top: 12px; text-align: center; }
+
+  /* ═══ S2: REGULAR vs DIFFUSED ═══ */
+  .lgt-ref-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .lgt-ref-compare { grid-template-columns: 1fr; } }
+  .lgt-ref-card { border-radius: 10px; padding: 24px 20px; border-top: 4px solid; }
+  .lgt-ref-card.reg { background: var(--cyan-lt); border-color: var(--cyan); border-top-color: var(--cyan); }
+  .lgt-ref-card.diff { background: var(--accent-lt); border-color: var(--accent); border-top-color: var(--accent); }
+  .lgt-ref-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .lgt-ref-name { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .reg .lgt-ref-name { color: var(--cyan); }
+  .diff .lgt-ref-name { color: var(--accent2); }
+  .lgt-ref-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .lgt-ref-eg { margin-top: 8px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; }
+  .reg .lgt-ref-eg { color: var(--cyan); }
+  .diff .lgt-ref-eg { color: var(--accent); }
+  .lgt-tip-note { background: var(--indigo-lt); border-left: 4px solid var(--indigo); border-radius: 4px; padding: 16px 20px; margin-bottom: 24px; }
+  .lgt-tip-note p { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .lgt-tip-note strong { color: var(--indigo); font-weight: 700; }
+
+  /* ═══ S3: PLANE MIRROR — 4 characteristic cards ═══ */
+  .lgt-mirror-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  @media (max-width: 540px) { .lgt-mirror-grid { grid-template-columns: 1fr; } }
+  .lgt-mirror-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 18px 16px; border-left: 5px solid; }
+  .lgt-mirror-card:nth-child(1) { border-left-color: #0284c7; }
+  .lgt-mirror-card:nth-child(2) { border-left-color: #0891b2; }
+  .lgt-mirror-card:nth-child(3) { border-left-color: #7c3aed; }
+  .lgt-mirror-card:nth-child(4) { border-left-color: #d946ef; }
+  .lgt-mirror-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .lgt-mirror-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .lgt-mirror-desc { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.65; }
+
+  /* ═══ S3: PERISCOPE — how it works ═══ */
+  .lgt-periscope-box { background: linear-gradient(135deg, #000810 0%, #001428 100%); border-radius: 12px; padding: 28px 30px; margin-bottom: 28px; border: 1.5px solid rgba(124,58,237,0.25); display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .lgt-periscope-icon { font-size: 52px; flex-shrink: 0; }
+  .lgt-periscope-content {}
+  .lgt-periscope-title { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; color: #c4b5fd; margin-bottom: 8px; }
+  .lgt-periscope-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.78; }
+  .lgt-periscope-text strong { color: #ddd6fe; }
+
+  /* ═══ S4: MULTIPLE IMAGES ═══ */
+  .lgt-multi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  @media (max-width: 540px) { .lgt-multi-row { grid-template-columns: 1fr; } }
+  .lgt-multi-card { border-radius: 10px; padding: 22px 20px; }
+  .lgt-multi-card.angled { background: var(--teal-lt); border: 2px solid var(--teal); }
+  .lgt-multi-card.parallel { background: var(--violet-lt); border: 2px solid var(--violet); }
+  .lgt-multi-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
+  .angled .lgt-multi-label { color: var(--teal); }
+  .parallel .lgt-multi-label { color: var(--violet); }
+  .lgt-multi-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+  .lgt-multi-title { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+  .angled .lgt-multi-title { color: var(--teal); }
+  .parallel .lgt-multi-title { color: var(--violet); }
+  .lgt-multi-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.68; }
+  .lgt-kaleid-box { background: var(--amber-lt); border-left: 5px solid var(--amber); border-radius: 4px; padding: 20px 24px; margin-bottom: 24px; }
+  .lgt-kaleid-box p { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.75; }
+  .lgt-kaleid-box strong { color: var(--amber); font-weight: 700; }
+
+  /* ═══ S5: VIBGYOR — spectrum strip ═══ */
+  .lgt-vibgyor-strip { display: flex; border-radius: 10px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+  .lgt-vib-band { flex: 1; padding: 20px 4px; text-align: center; }
+  .lgt-vib-band:nth-child(1) { background: #5b21b6; }
+  .lgt-vib-band:nth-child(2) { background: #4338ca; }
+  .lgt-vib-band:nth-child(3) { background: #2563eb; }
+  .lgt-vib-band:nth-child(4) { background: #16a34a; }
+  .lgt-vib-band:nth-child(5) { background: #ca8a04; }
+  .lgt-vib-band:nth-child(6) { background: #ea580c; }
+  .lgt-vib-band:nth-child(7) { background: #dc2626; }
+  .lgt-vib-letter { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; color: rgba(255,255,255,0.92); display: block; }
+  .lgt-vib-name { font-family: 'Inter', sans-serif; font-size: 9px; color: rgba(255,255,255,0.70); margin-top: 4px; display: block; }
+  .lgt-dispersion-note { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 18px 22px; margin-bottom: 24px; }
+  .lgt-dispersion-note p { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.75; }
+  .lgt-dispersion-note strong { color: var(--accent2); font-weight: 700; }
+
+  /* ═══ S6: HUMAN EYE — parts table ═══ */
+  .lgt-eye-parts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .lgt-eye-part { display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: start; background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 14px 18px; }
+  @media (max-width: 500px) { .lgt-eye-part { grid-template-columns: 1fr; } }
+  .lgt-eye-part:nth-child(odd) { background: var(--paper); }
+  .lgt-eye-part-name { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--accent2); display: flex; align-items: center; gap: 8px; }
+  .lgt-eye-part-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .lgt-eye-part-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.65; }
+  .lgt-eye-part-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S6: VISION DEFECTS — 4 cards ═══ */
+  .lgt-defects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+  @media (max-width: 540px) { .lgt-defects-grid { grid-template-columns: 1fr; } }
+  .lgt-defect-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 18px 16px; border-top: 4px solid; }
+  .lgt-defect-card:nth-child(1) { border-top-color: #7c3aed; }
+  .lgt-defect-card:nth-child(2) { border-top-color: #0891b2; }
+  .lgt-defect-card:nth-child(3) { border-top-color: #be123c; }
+  .lgt-defect-card:nth-child(4) { border-top-color: #d97706; }
+  .lgt-defect-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+  .lgt-defect-name { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .lgt-defect-desc { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.65; }
+
+  /* ═══ S7: EYE CARE TIPS ═══ */
+  .lgt-eyecare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  @media (max-width: 620px) { .lgt-eyecare-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 400px) { .lgt-eyecare-grid { grid-template-columns: 1fr; } }
+  .lgt-ec-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 16px 14px; text-align: center; }
+  .lgt-ec-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-lt); border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; color: var(--accent2); margin: 0 auto 8px; }
+  .lgt-ec-tip { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+  /* ═══ S8: BRAILLE & AIDS ═══ */
+  .lgt-aids-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  @media (max-width: 540px) { .lgt-aids-split { grid-template-columns: 1fr; } }
+  .lgt-aid-card { border-radius: 10px; padding: 22px 20px; }
+  .lgt-aid-card.optical { background: var(--green-lt); border: 2px solid var(--green); }
+  .lgt-aid-card.nonopt { background: var(--cyan-lt); border: 2px solid var(--cyan); }
+  .lgt-aid-badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; padding: 4px 11px; border-radius: 20px; margin-bottom: 10px; }
+  .optical .lgt-aid-badge { background: rgba(22,101,52,0.14); color: var(--green); }
+  .nonopt .lgt-aid-badge { background: rgba(8,145,178,0.12); color: var(--cyan); }
+  .lgt-aid-icon { font-size: 30px; margin-bottom: 8px; display: block; }
+  .lgt-aid-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .optical .lgt-aid-name { color: var(--green); }
+  .nonopt .lgt-aid-name { color: var(--cyan); }
+  .lgt-aid-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .lgt-braille-box { background: linear-gradient(135deg, #000810 0%, #001428 100%); border-radius: 12px; padding: 26px 30px; margin-bottom: 28px; border: 1.5px solid rgba(2,132,199,0.25); }
+  .lgt-braille-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: #7dd3fc; margin-bottom: 10px; }
+  .lgt-braille-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.78; }
+  .lgt-braille-text strong { color: #bae6fd; }
+
+  /* ═══ PULL QUOTE ═══ */
+  .lgt-pull-quote { background: linear-gradient(135deg, #000810 0%, #00203f 100%); border-radius: 4px; padding: 32px 40px; margin: 48px 0; border-left: 5px solid #7dd3fc; }
+  .lgt-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.82); line-height: 1.75; font-style: italic; }
+  @media (max-width: 600px) { .lgt-pull-quote { padding: 24px 22px; } .lgt-pull-quote p { font-size: 16px; } }
+
+  /* ═══ FAQ ═══ */
+  .lgt-faq-header { margin-bottom: 8px; }
+  .lgt-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.20em; text-transform: uppercase; color: var(--accent); background: var(--accent-lt); padding: 5px 14px; border-radius: 20px; }
+  .lgt-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(26px,4vw,38px); font-weight: 900; color: var(--ink); margin-bottom: 28px; margin-top: 14px; letter-spacing: -0.02em; }
+  .lgt-faq-item { border: 1.5px solid var(--rule); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: var(--white); }
+  .lgt-faq-item.open { border-color: var(--accent); }
+  .lgt-faq-q { width: 100%; background: none; border: none; cursor: pointer; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; text-align: left; }
+  .lgt-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+  .lgt-faq-item.open .lgt-faq-q-text { color: var(--accent2); }
+  .lgt-faq-icon { font-size: 18px; color: var(--accent); flex-shrink: 0; }
+  .lgt-faq-ans { padding: 0 20px 18px; }
+  .lgt-faq-ans-inner { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.78; border-top: 1px solid var(--rule); padding-top: 14px; }
+  .lgt-faq-ans-inner strong { color: var(--accent2); font-weight: 600; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="lgt-root"><div class="lgt-hero"><div class="lgt-hero-rays"></div><div class="lgt-hero-prism"></div><div class="lgt-glow-a"></div><div class="lgt-glow-b"></div><div class="lgt-hero-bg-num">16</div><div class="lgt-hero-inner"><div class="lgt-overline">Class 8 Science  ·  Chapter 16</div><h1 class="lgt-hero-title"><em>Light</em><br><span class="em2">Reflection</span><br>&amp; Vision</h1><div class="lgt-hero-bar"><div class="lgt-hero-bar-item"><div class="lgt-bar-label">Topic</div><div class="lgt-bar-value">Optics &amp; Human Eye</div></div><div class="lgt-hero-bar-item"><div class="lgt-bar-label">Key Law</div><div class="lgt-bar-value">∠i = ∠r</div></div><div class="lgt-hero-bar-item"><div class="lgt-bar-label">Spectrum</div><div class="lgt-bar-value">VIBGYOR</div></div><div class="lgt-hero-bar-item"><div class="lgt-bar-label">Class</div><div class="lgt-bar-value">NCERT Grade 8</div></div></div></div></div><div class="lgt-body"><div class="lgt-intro-card"><p>Light is a form of energy that enables us to see the world around us. When light falls on an object, it <strong>bounces back</strong> — this phenomenon is called reflection.</p><p>From the glint of a mirror to the rainbow split by a prism, from the intricate design of the human eye to Louis Braille&#x27;s revolutionary dot-alphabet — <strong>Chapter 16 explores how light travels, reflects, disperses, and is ultimately perceived by the eye</strong>.</p></div><div class="lgt-sec-head"><div class="lgt-sec-num">1</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">The Basics</div><h2 class="lgt-sec-title">Reflection &amp; <span>Laws of Light</span></h2></div></div><p class="lgt-body-text"><strong>Reflection</strong> occurs when light falls on an object and bounces back. Objects that produce their own light are <strong>luminous</strong>; those that only reflect received light are <strong>non-luminous</strong>. Non-luminous objects are visible because they redirect light from luminous sources into our eyes.</p><div class="lgt-lumin-split"><div class="lgt-lumin-card lum"><div class="lgt-lumin-badge">Luminous</div><span class="lgt-lumin-icon">🌟</span><div class="lgt-lumin-name">Luminous Objects</div><div class="lgt-lumin-desc">Objects that emit their own light. They are the original sources of light energy.</div><div class="lgt-lumin-eg">e.g. Sun, electric bulb, torch, candle flame</div></div><div class="lgt-lumin-card nonlum"><div class="lgt-lumin-badge">Non-Luminous</div><span class="lgt-lumin-icon">🌙</span><div class="lgt-lumin-name">Non-Luminous Objects</div><div class="lgt-lumin-desc">Objects that do not produce their own light. They become visible by reflecting light that falls on them.</div><div class="lgt-lumin-eg">e.g. Moon, mirror, diamond, book, table</div></div></div><div class="lgt-laws-box"><div class="lgt-laws-title">⚖️ The Two Laws of Reflection</div><div class="lgt-law-item"><div class="lgt-law-num">I</div><div class="lgt-law-text">The <strong>incident ray</strong>, the <strong>normal</strong> at the point of incidence, and the <strong>reflected ray</strong> all lie in the same plane.</div></div><div class="lgt-law-item"><div class="lgt-law-num">II</div><div class="lgt-law-text">The <strong>angle of incidence</strong> is always equal to the <strong>angle of reflection</strong>.</div></div><div class="lgt-law-formula">∠i = ∠r</div></div><div class="lgt-svg-wrap"><svg viewBox="0 0 480 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;display:block;margin:0 auto"><rect x="60" y="180" width="360" height="8" rx="2" fill="#7dd3fc" opacity="0.6"></rect><text x="230" y="208" text-anchor="middle" font-family="Poppins,sans-serif" font-size="11" fill="#0284c7" font-weight="700">MIRROR SURFACE</text><line x1="240" y1="30" x2="240" y2="180" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5,4"></line><text x="255" y="46" font-family="Poppins,sans-serif" font-size="11" fill="#94a3b8">Normal</text><line x1="100" y1="40" x2="240" y2="180" stroke="#f59e0b" stroke-width="2.5"></line><polygon points="240,180 224,164 232,176" fill="#f59e0b"></polygon><text x="104" y="52" font-family="Poppins,sans-serif" font-size="12" fill="#b45309" font-weight="600">Incident ray</text><line x1="240" y1="180" x2="380" y2="40" stroke="#38bdf8" stroke-width="2.5"></line><polygon points="380,40 366,56 372,44" fill="#38bdf8"></polygon><text x="292" y="52" font-family="Poppins,sans-serif" font-size="12" fill="#0284c7" font-weight="600">Reflected ray</text><path d="M 210,180 A 30,30 0 0,1 240,150" fill="none" stroke="#f59e0b" stroke-width="1.5"></path><text x="188" y="165" font-family="Poppins,sans-serif" font-size="12" fill="#b45309" font-weight="700">∠i</text><path d="M 240,150 A 30,30 0 0,1 270,180" fill="none" stroke="#38bdf8" stroke-width="1.5"></path><text x="262" y="165" font-family="Poppins,sans-serif" font-size="12" fill="#0284c7" font-weight="700">∠r</text></svg><div class="lgt-svg-caption">Fig: Incident ray, Normal &amp; Reflected ray at a plane mirror — ∠i = ∠r</div></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">2</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Types of Reflection</div><h2 class="lgt-sec-title">Regular vs <span>Diffused Reflection</span></h2></div></div><p class="lgt-body-text">The type of reflection depends on the surface texture. Both types obey the same laws of reflection — the difference lies in how parallel the surface is.</p><div class="lgt-ref-compare"><div class="lgt-ref-card reg"><span class="lgt-ref-icon">🪞</span><div class="lgt-ref-name">Regular (Specular) Reflection</div><div class="lgt-ref-desc">When light reflects from a smooth, polished surface, all parallel incoming rays reflect as parallel outgoing rays in one direction — producing a sharp, clear image.</div><div class="lgt-ref-eg">e.g. Reflection from a plane mirror, still water surface</div></div><div class="lgt-ref-card diff"><span class="lgt-ref-icon">🧱</span><div class="lgt-ref-name">Diffused (Irregular) Reflection</div><div class="lgt-ref-desc">When light reflects from a rough or uneven surface, parallel incoming rays scatter in many different directions — no clear image is formed, but the object becomes visible from all angles.</div><div class="lgt-ref-eg">e.g. Reflection from a wall, paper, rough wood</div></div></div><div class="lgt-tip-note"><p><strong>📌 Important:</strong> Both regular and diffused reflection obey the laws of reflection. The surface irregularities cause each tiny portion of the surface to be oriented differently, so each small reflected ray obeys the law — but collectively they scatter in all directions.</p></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">3</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Image Formation</div><h2 class="lgt-sec-title">Plane Mirror <span>&amp; Periscope</span></h2></div></div><p class="lgt-body-text">When you look into a plane mirror, you see your image — but this image has some specific characteristics that make it unique.</p><div class="lgt-mirror-grid"><div class="lgt-mirror-card"><span class="lgt-mirror-icon">👁️</span><div class="lgt-mirror-title">Virtual &amp; Erect</div><div class="lgt-mirror-desc">The image cannot be projected on a screen — it appears to exist behind the mirror. It always appears upright (not inverted top-to-bottom).</div></div><div class="lgt-mirror-card"><span class="lgt-mirror-icon">📏</span><div class="lgt-mirror-title">Same Size</div><div class="lgt-mirror-desc">The image formed is exactly the same size as the object in front of the mirror — neither magnified nor diminished.</div></div><div class="lgt-mirror-card"><span class="lgt-mirror-icon">↔️</span><div class="lgt-mirror-title">Same Distance</div><div class="lgt-mirror-desc">The distance of the image behind the mirror equals the distance of the object in front. If you stand 2 m away, the image appears 2 m behind the mirror.</div></div><div class="lgt-mirror-card"><span class="lgt-mirror-icon">🔄</span><div class="lgt-mirror-title">Laterally Inverted</div><div class="lgt-mirror-desc">Left and right are swapped in the image. When you raise your right hand, your mirror image raises its left. This is called lateral inversion.</div></div></div><div class="lgt-periscope-box"><div class="lgt-periscope-icon">🔭</div><div class="lgt-periscope-content"><div class="lgt-periscope-title">Periscope — Seeing Around Corners</div><div class="lgt-periscope-text">A periscope is a device used to see objects that are out of the direct line of sight. It is commonly used in submarines and to see over obstacles. It works on the principle that <strong>reflected light can be reflected again</strong>. Inside the periscope tube, two plane mirrors are fixed at <strong>45° angles</strong> — one at the top and one at the bottom. Light from the object enters the top mirror, reflects downward through the tube, then reflects again from the bottom mirror into the observer&#x27;s eye.</div></div></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">4</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Multiple Images</div><h2 class="lgt-sec-title">Inclined Mirrors <span>&amp; Kaleidoscope</span></h2></div></div><p class="lgt-body-text">When two plane mirrors are placed facing each other, an object between them creates multiple images — the number depends on the angle between the mirrors.</p><div class="lgt-multi-row"><div class="lgt-multi-card angled"><div class="lgt-multi-label">Inclined Mirrors</div><span class="lgt-multi-icon">📐</span><div class="lgt-multi-title">Multiple Images at an Angle</div><div class="lgt-multi-desc">When two plane mirrors are inclined at an angle θ, multiple images of the object are formed. The number of images = (360°/θ) − 1. At 90°, you see 3 images; at 60°, you see 5 images.</div></div><div class="lgt-multi-card parallel"><div class="lgt-multi-label">Parallel Mirrors</div><span class="lgt-multi-icon">♾️</span><div class="lgt-multi-title">Infinite Images (Parallel)</div><div class="lgt-multi-desc">When two plane mirrors face each other perfectly parallel (0° apart), theoretically an infinite number of images are formed — each reflection spawning another in the opposite mirror, stretching back endlessly.</div></div></div><div class="lgt-kaleid-box"><p><strong>🔮 Kaleidoscope:</strong> A kaleidoscope uses three plane mirrors inclined at angles to each other inside a tube. Small pieces of coloured glass placed at one end create beautiful, ever-changing symmetrical patterns through multiple reflections. Designers of wallpapers, tiles, and fabrics use kaleidoscopes to generate pattern ideas.</p></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">5</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Sunlight &amp; Dispersion</div><h2 class="lgt-sec-title">The <span>VIBGYOR Spectrum</span></h2></div></div><p class="lgt-body-text">Sunlight looks white but it is actually made up of <strong>seven colours</strong>. When white light passes through a glass prism, these colours separate — this is called <strong>dispersion of light</strong>. Each colour bends by a different amount as it enters and exits the prism.</p><div class="lgt-vibgyor-strip"><div class="lgt-vib-band"><span class="lgt-vib-letter">V</span><span class="lgt-vib-name">Violet</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">I</span><span class="lgt-vib-name">Indigo</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">B</span><span class="lgt-vib-name">Blue</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">G</span><span class="lgt-vib-name">Green</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">Y</span><span class="lgt-vib-name">Yellow</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">O</span><span class="lgt-vib-name">Orange</span></div><div class="lgt-vib-band"><span class="lgt-vib-letter">R</span><span class="lgt-vib-name">Red</span></div></div><div class="lgt-dispersion-note"><p><strong>Dispersion</strong> is the splitting of white light into its constituent colours by a prism. The rainbow we see after rain is a natural example of dispersion — tiny water droplets in the atmosphere act as tiny prisms. Violet bends the most; red bends the least.</p></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">6</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Optics of the Body</div><h2 class="lgt-sec-title">Inside the <span>Human Eye</span></h2></div></div><p class="lgt-body-text">The human eye is a remarkable optical instrument that detects light and converts it into signals the brain can interpret. The eye can see clearly when an object is at least <strong>25 cm away</strong> — this is the range of normal vision.</p><div class="lgt-eye-parts"><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Cornea</div><div class="lgt-eye-part-desc">The transparent front window of the eye through which light first enters. It provides most of the eye&#x27;s focusing power.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Iris</div><div class="lgt-eye-part-desc">The coloured muscular ring behind the cornea. It controls the size of the pupil and gives the eye its colour (brown, blue, green, etc.).</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Pupil</div><div class="lgt-eye-part-desc">The small black circular opening in the centre of the iris. Its size is regulated by the iris to control the amount of light entering the eye.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Lens</div><div class="lgt-eye-part-desc">The flexible transparent structure behind the pupil that focuses light precisely onto the retina. Ciliary muscles adjust its shape for near/far vision.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Retina</div><div class="lgt-eye-part-desc">The light-sensitive screen at the back of the eyeball. When light falls on it, an image is formed and nerve signals are sent to the brain via the optic nerve.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Cone Cells</div><div class="lgt-eye-part-desc">Nerve cells on the retina shaped like cones. They are sensitive to bright light and colour — allowing us to see colours clearly in daylight.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Rod Cells</div><div class="lgt-eye-part-desc">Nerve cells on the retina shaped like rods. They are sensitive to dim light — allowing us to see in low-light conditions but only in black-and-white.</div></div><div class="lgt-eye-part"><div class="lgt-eye-part-name"><span class="lgt-eye-part-dot"></span>Blind Spot</div><div class="lgt-eye-part-desc">The point on the retina where the optic nerve connects. There are no rod or cone cells here, so any image formed at this spot is not detected — it is invisible.</div></div></div><p class="lgt-body-text"><strong>Persistence of Vision:</strong> An image on the retina persists for about <strong>1/16th of a second</strong> after the object disappears. This is why cinema works — rapidly shown frames (at 24+ per second) appear as smooth, continuous motion.</p><p class="lgt-body-text" style="margin-bottom:20px"><strong>Common Defects of Vision:</strong></p><div class="lgt-defects-grid"><div class="lgt-defect-card"><span class="lgt-defect-icon">😶‍🌫️</span><div class="lgt-defect-name">Cataract</div><div class="lgt-defect-desc">Clouding of the eye lens, leading to blurred or reduced vision. It can be surgically corrected.</div></div><div class="lgt-defect-card"><span class="lgt-defect-icon">🌑</span><div class="lgt-defect-name">Night Blindness</div><div class="lgt-defect-desc">Inability to see in dim light. Caused by Vitamin A deficiency and lack of rod cells in the retina.</div></div><div class="lgt-defect-card"><span class="lgt-defect-icon">🎨</span><div class="lgt-defect-name">Colour Blindness</div><div class="lgt-defect-desc">Inability to distinguish between certain colours. Caused by deficiency or abnormality of cone cells.</div></div><div class="lgt-defect-card"><span class="lgt-defect-icon">👁️</span><div class="lgt-defect-name">Myopia &amp; Hypermetropia</div><div class="lgt-defect-desc">Myopia (short-sight): far objects blur. Hypermetropia (far-sight): near objects blur. Both corrected by suitable lenses.</div></div></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">7</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Health &amp; Safety</div><h2 class="lgt-sec-title">Care of <span>the Eyes</span></h2></div></div><p class="lgt-body-text">Your eyes are irreplaceable. Follow these essential precautions to protect your vision:</p><div class="lgt-eyecare-grid"><div class="lgt-ec-card"><div class="lgt-ec-num">1</div><div class="lgt-ec-tip">Wear spectacles if advised by a doctor</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">2</div><div class="lgt-ec-tip">Wash eyes frequently with clean water</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">3</div><div class="lgt-ec-tip">Never rub your eyes forcefully</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">4</div><div class="lgt-ec-tip">Do not look directly at the sun</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">5</div><div class="lgt-ec-tip">Avoid reading in very dim or very bright light</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">6</div><div class="lgt-ec-tip">Read at the correct distance — minimum 25 cm</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">7</div><div class="lgt-ec-tip">Consult a doctor for any eye infection promptly</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">8</div><div class="lgt-ec-tip">Limit TV and screen time to avoid strain</div></div><div class="lgt-ec-card"><div class="lgt-ec-num">9</div><div class="lgt-ec-tip">Eat Vitamin A rich food — carrots, greens, milk, eggs</div></div></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-sec-head"><div class="lgt-sec-num">8</div><div class="lgt-sec-title-wrap"><div class="lgt-sec-kicker">Inclusive Learning</div><h2 class="lgt-sec-title">Visually Impaired <span>Persons Can Read &amp; Write</span></h2></div></div><p class="lgt-body-text">Visually challenged persons can develop their capabilities using special resources divided into two types:</p><div class="lgt-aids-split"><div class="lgt-aid-card optical"><div class="lgt-aid-badge">Optical Aids</div><span class="lgt-aid-icon">🔍</span><div class="lgt-aid-name">Optical Aids</div><div class="lgt-aid-desc">Include bifocal lenses, contact lenses, tinted lenses, magnifiers, and telescopic aids. Lens combinations correct visual limitations; telescopic aids help view chalkboards and classroom demonstrations.</div></div><div class="lgt-aid-card nonopt"><div class="lgt-aid-badge">Non-Optical Aids</div><span class="lgt-aid-icon">🎧</span><div class="lgt-aid-name">Non-Optical Aids</div><div class="lgt-aid-desc">Include visual aids, tactual aids, auditory aids (spoken word), electronic aids, and tape recorders. These assist learning through channels other than direct vision.</div></div></div><div class="lgt-braille-box"><div class="lgt-braille-title">⠃⠗⠁⠊⠇⠇⠑ — The Braille System</div><div class="lgt-braille-text"><strong>Louis Braille</strong>, himself visually challenged, invented the Braille system in <strong>1821</strong>. It is a tactile reading and writing system where each character is represented by a unique pattern of raised dots felt by the fingertips. Learners begin with letters, then move to special characters and letter combinations. Braille texts can be produced by hand or by specialised printing machines and typewriter-like devices.</div></div><div class="lgt-pull-quote"><p>&quot;Light travels in straight lines, bounces off surfaces by precise laws, splits into a rainbow of colours through a prism, and finally forms an image on the retina of one of nature&#x27;s most complex optical instruments — the human eye.&quot;</p></div><div class="lgt-divider"><div class="lgt-divider-mark"></div></div><div class="lgt-faq-header"><span class="lgt-faq-kicker">Exam Preparation</span></div><h2 class="lgt-faq-title">Frequently Asked Questions</h2><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q1. What is reflection of light?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">Reflection is the process of bouncing back of a light ray when it falls on an object. The incoming ray is called the incident ray, and the bounced ray is the reflected ray. All objects that we see (other than luminous ones) are visible because they reflect light into our eyes.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q2. State the two laws of reflection.</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner"><strong>Law 1:</strong> The incident ray, the normal at the point of incidence, and the reflected ray all lie in the same plane. <strong>Law 2:</strong> The angle of incidence is always equal to the angle of reflection, i.e., ∠i = ∠r. These laws apply to both regular and diffused reflection.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q3. What is the difference between regular and diffused reflection?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">Regular (specular) reflection occurs from smooth, polished surfaces like mirrors — all reflected rays are parallel and the image is clear. Diffused (irregular) reflection occurs from rough surfaces like walls — reflected rays scatter in all directions. Importantly, both types obey the laws of reflection.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q4. List the characteristics of an image formed by a plane mirror.</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner"><strong>1. Virtual and erect</strong> — the image cannot be obtained on a screen. <strong>2. Same size</strong> as the object. <strong>3. Same distance</strong> behind the mirror as the object is in front of it. <strong>4. Laterally inverted</strong> — left and right are swapped in the image.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q5. What is a periscope and how does it work?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">A periscope is a device used to see objects that are out of the direct line of sight (e.g., in submarines or around corners). It uses two plane mirrors fixed at 45° angles at the top and bottom of a tube. Light enters from the top mirror, reflects downward, then reflects again from the bottom mirror toward the observer&#x27;s eye.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q6. What is a kaleidoscope?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">A kaleidoscope is an instrument containing three plane mirrors inclined at angles to each other. When small pieces of coloured glass are placed inside, multiple reflections create beautiful, symmetrical patterns. It uses the principle of multiple images formed by inclined mirrors. Designers of wallpapers and fabrics use kaleidoscopes for pattern inspiration.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q7. What is dispersion of light and what is VIBGYOR?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">Dispersion is the splitting of white light into its component colours when it passes through a prism. Sunlight (white light) contains seven colours: Violet, Indigo, Blue, Green, Yellow, Orange, and Red — remembered by the acronym VIBGYOR. Each colour bends by a different angle through the prism, separating them.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q8. Name and describe the main parts of the human eye.</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner"><strong>Cornea:</strong> transparent front part where light enters. <strong>Iris:</strong> muscular ring that gives the eye its colour. <strong>Pupil:</strong> adjustable opening in the iris that controls light intake. <strong>Lens:</strong> focuses light onto the retina. <strong>Retina:</strong> the screen at the back where images form. <strong>Cone cells:</strong> sensitive to bright/coloured light. <strong>Rod cells:</strong> sensitive to dim light. <strong>Blind spot:</strong> region with no nerve cells — images formed here are not detected.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q9. What is persistence of vision?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">Persistence of vision is the property of the human eye by which an image of an object continues to persist on the retina for about 1/16th of a second after the object has disappeared. This property is the basis of cinema — frames shown rapidly appear as continuous motion because each image persists until the next one appears.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q10. What are the common defects of vision?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner"><strong>Cataract:</strong> clouding of the eye lens, reducing vision. <strong>Night blindness:</strong> inability to see in dim light, caused by Vitamin A deficiency and lack of rod cells. <strong>Colour blindness:</strong> inability to distinguish colours, caused by deficient cone cells. <strong>Myopia (short-sightedness):</strong> near objects clear but distant objects blurred — corrected by concave lenses. <strong>Hypermetropia (far-sightedness):</strong> distant objects clear but nearby objects blurred — corrected by convex lenses.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q11. What is the Braille system?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">The Braille system was developed by Louis Braille (who was himself visually challenged) in 1821. It is a system of reading and writing for visually challenged persons that uses patterns of raised dots on paper, which are felt by fingertips. Each character is memorised through touch. Letters, numbers, and special characters all have unique dot patterns. Braille texts can be produced by hand or by specially designed printing machines.</div></div></details><details class="lgt-faq-item" data-faq><summary class="lgt-faq-q"><span class="lgt-faq-q-text">Q12. What are the precautions to protect our eyes?</span></summary><div class="lgt-faq-ans visible"><div class="lgt-faq-ans-inner">Key precautions include: wearing spectacles if advised; washing eyes with clean water regularly; never rubbing the eyes; not looking directly into the sun; avoiding reading in very dim or very bright light; maintaining the correct reading distance of 25 cm; consulting a doctor promptly for eye infections; limiting screen time; and eating a diet rich in Vitamin A (carrots, green vegetables, milk, eggs) as well as Vitamins C and E.</div></div></details></div></div>

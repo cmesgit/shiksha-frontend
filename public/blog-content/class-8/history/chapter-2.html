@@ -1,0 +1,501 @@
+<style>
+  :root {
+    --ink:        #0a080c;
+    --ink2:       #16121c;
+    --muted:      #6a6070;
+    --paper:      #f6f4fa;
+    --paper2:     #eceaf4;
+    --paper3:     #dedad0;
+    --navy:       #1a2050;
+    --navy2:      #10163a;
+    --gold:       #b8860b;
+    --gold2:      #8b6508;
+    --crimson:    #8b1a1a;
+    --crimson2:   #6b1010;
+    --teal:       #0d5c5c;
+    --teal2:      #094040;
+    --amber:      #c97a10;
+    --rule:       #c8c0d4;
+    --sage:       #2a5a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .ttt-root {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─── */
+  .ttt-hero {
+    background: linear-gradient(158deg, #06040e 0%, #100c1e 48%, #0a0810 100%);
+    min-height: 88vh;
+    display: flex; align-items: flex-end;
+    position: relative; overflow: hidden;
+    padding: 0 0 64px;
+  }
+  .ttt-hero-bg-num {
+    position: absolute; bottom: -40px; right: -20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(240px, 38vw, 520px); font-weight: 900; line-height: 1;
+    color: rgba(255,255,255,0.022); letter-spacing: -0.04em;
+    user-select: none; pointer-events: none;
+  }
+  /* Navy-gold top rule — trade and conquest */
+  .ttt-hero::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #10163a, #1a2050, #b8860b, #1a2050, #10163a);
+  }
+  .ttt-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.018);
+    pointer-events: none;
+  }
+  .ttt-hero-inner {
+    max-width: 900px; width: 100%;
+    margin: 0 auto; padding: 0 32px;
+    position: relative; z-index: 1;
+  }
+  .ttt-overline {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #8899d8; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ttt-overline::before, .ttt-overline::after {
+    content: ''; flex: 0 0 40px; height: 1px; background: #8899d8;
+  }
+  .ttt-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(42px, 7.5vw, 84px); font-weight: 900;
+    color: #fff; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px;
+  }
+  .ttt-hero-title em       { font-style: normal; color: #8899d8; }
+  .ttt-hero-title .gold-em { color: #e8c040; }
+  .ttt-hero-title .red-em  { color: #e87070; }
+  .ttt-hero-bar {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 24px; margin-top: 8px;
+  }
+  .ttt-hero-bar-item {
+    flex: 1 1 150px; padding: 0 24px 0 0;
+    border-right: 1px solid rgba(255,255,255,0.1); margin-right: 24px;
+  }
+  .ttt-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .ttt-bar-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 5px;
+  }
+  .ttt-bar-value {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ─── BODY ─── */
+  .ttt-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* LEAD */
+  .ttt-lead {
+    border-left: 5px solid var(--navy);
+    padding: 28px 36px; margin-bottom: 64px; background: var(--paper2);
+  }
+  .ttt-lead p {
+    font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 500;
+    color: var(--ink2); line-height: 1.78; margin: 0 0 14px;
+  }
+  .ttt-lead p:last-child { margin: 0; }
+  .ttt-lead strong { color: var(--navy); }
+
+  /* SECTION HEADER */
+  .ttt-sec-head {
+    display: flex; align-items: flex-start; gap: 20px;
+    margin-bottom: 28px; border-bottom: 2px solid var(--rule); padding-bottom: 18px;
+  }
+  .ttt-sec-num {
+    font-family: 'Montserrat', sans-serif; font-size: 56px; font-weight: 900;
+    color: var(--rule); line-height: 1; flex-shrink: 0; margin-top: 4px;
+  }
+  .ttt-sec-title-wrap { display: flex; flex-direction: column; justify-content: flex-end; }
+  .ttt-sec-kicker {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px;
+  }
+  .ttt-sec-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(22px, 3.5vw, 32px); font-weight: 900;
+    color: var(--ink); line-height: 1.15; letter-spacing: -0.01em;
+  }
+  .ttt-sec-title span      { color: var(--navy); }
+  .ttt-sec-title .gold     { color: var(--gold); }
+  .ttt-sec-title .red      { color: var(--crimson); }
+  .ttt-sec-title .teal     { color: var(--teal); }
+  .ttt-sec-title .amber    { color: var(--amber); }
+
+  /* BODY TEXT */
+  .ttt-body-text {
+    font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 400;
+    color: var(--ink2); line-height: 1.82; margin-bottom: 24px;
+  }
+  .ttt-body-text strong { color: var(--ink); font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* DIVIDER */
+  .ttt-divider { display: flex; align-items: center; gap: 16px; margin: 56px 0; }
+  .ttt-divider::before, .ttt-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .ttt-divider-mark { width: 10px; height: 10px; background: var(--navy); transform: rotate(45deg); flex-shrink: 0; }
+
+  /* BULLET LIST */
+  .ttt-list { margin: 0 0 28px; padding: 0; list-style: none; }
+  .ttt-list li {
+    font-size: 16px; line-height: 1.78; color: var(--ink2);
+    padding: 10px 0 10px 28px; position: relative;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ttt-list li:first-child { border-top: 1px solid var(--rule); }
+  .ttt-list li::before {
+    content: ''; position: absolute; left: 0; top: 18px;
+    width: 10px; height: 10px;
+    border: 2px solid var(--navy); transform: rotate(45deg);
+  }
+  .ttt-list li strong { color: var(--ink); font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* ── EIC CHARTER DARK BOX ── */
+  .ttt-charter {
+    background: var(--navy2); padding: 36px; margin-bottom: 48px;
+    border-top: 4px solid #8899d8; position: relative; overflow: hidden;
+  }
+  .ttt-charter::before {
+    content: '1600'; position: absolute; right: -12px; top: -18px;
+    font-family: 'Montserrat', sans-serif; font-size: 120px; font-weight: 900;
+    color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+  }
+  .ttt-charter-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.4);
+    margin-bottom: 10px; position: relative; z-index: 1;
+  }
+  .ttt-charter-head {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(18px, 2.8vw, 26px); font-weight: 900;
+    color: #fff; margin-bottom: 16px; position: relative; z-index: 1;
+  }
+  .ttt-charter-head span { color: #e8c040; }
+  .ttt-charter-body {
+    font-family: 'Inter', sans-serif; font-size: 16px;
+    color: rgba(255,255,255,0.7); line-height: 1.8; position: relative; z-index: 1; margin-bottom: 20px;
+  }
+  .ttt-charter-body strong { color: #8899d8; font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ttt-charter-chips { display: flex; flex-wrap: wrap; gap: 10px; position: relative; z-index: 1; }
+  .ttt-chip {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    background: rgba(136,153,216,0.14); color: #8899d8;
+    padding: 7px 16px; border: 1px solid rgba(136,153,216,0.3);
+  }
+  .ttt-chip.gold { background: rgba(184,134,11,0.14); color: #e8c040; border-color: rgba(184,134,11,0.3); }
+
+  /* ── TRADE GOODS GRID ── */
+  .ttt-goods-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2px; background: var(--rule); margin-bottom: 48px;
+  }
+  .ttt-good-card { background: var(--paper); padding: 20px 16px; text-align: center; }
+  .ttt-good-icon { font-size: 26px; margin-bottom: 8px; }
+  .ttt-good-name {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--ink); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .ttt-good-sub {
+    font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); margin-top: 4px;
+  }
+
+  /* ── BATTLE TIMELINE ── */
+  .ttt-timeline { margin-bottom: 48px; }
+  .ttt-tl-item {
+    display: grid; grid-template-columns: 110px 1fr;
+    gap: 0; border-bottom: 1px solid var(--rule);
+  }
+  .ttt-tl-item:first-child { border-top: 1px solid var(--rule); }
+  .ttt-tl-year-col {
+    padding: 20px 18px 20px 0;
+    border-right: 3px solid var(--crimson);
+    display: flex; align-items: flex-start; justify-content: flex-end;
+  }
+  .ttt-tl-year {
+    font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 900;
+    color: var(--crimson); letter-spacing: 0.04em; text-align: right; line-height: 1.3;
+  }
+  .ttt-tl-content { padding: 20px 0 20px 22px; }
+  .ttt-tl-head {
+    font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--ink); margin-bottom: 5px;
+  }
+  .ttt-tl-desc {
+    font-family: 'Inter', sans-serif; font-size: 15px;
+    color: var(--ink2); line-height: 1.74;
+  }
+  .ttt-tl-desc strong { color: var(--crimson); font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* ── BATTLE CARDS (Plassey & Buxar) ── */
+  .ttt-battle-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px; background: var(--rule); margin-bottom: 48px;
+  }
+  .ttt-battle-card { padding: 28px 26px; }
+  .ttt-battle-card.b1 { background: #1a0e0e; }
+  .ttt-battle-card.b2 { background: #0e101a; border-left: 1px solid rgba(255,255,255,0.06); }
+  .ttt-battle-year {
+    font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 900;
+    line-height: 1; margin-bottom: 6px; letter-spacing: -0.03em;
+  }
+  .ttt-battle-card.b1 .ttt-battle-year { color: rgba(232,112,112,0.25); }
+  .ttt-battle-card.b2 .ttt-battle-year { color: rgba(136,153,216,0.25); }
+  .ttt-battle-name {
+    font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .ttt-battle-card.b1 .ttt-battle-name { color: #e87070; }
+  .ttt-battle-card.b2 .ttt-battle-name { color: #8899d8; }
+  .ttt-battle-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 16px;
+    color: rgba(255,255,255,0.35);
+  }
+  .ttt-battle-card ul { padding-left: 18px; margin: 0; }
+  .ttt-battle-card ul li {
+    font-size: 14px; line-height: 1.74; color: rgba(255,255,255,0.65); margin-bottom: 7px;
+  }
+  .ttt-battle-card.b1 ul li strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: #e87070; }
+  .ttt-battle-card.b2 ul li strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: #8899d8; }
+
+  /* ── SUBSIDIARY ALLIANCE DEF BOX ── */
+  .ttt-def-box {
+    background: var(--ink); padding: 32px 36px;
+    margin-bottom: 48px; border-top: 4px solid var(--gold);
+  }
+  .ttt-def-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #e8c040; margin-bottom: 10px;
+  }
+  .ttt-def-term {
+    font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900;
+    color: #fff; letter-spacing: -0.02em; margin-bottom: 14px;
+  }
+  .ttt-def-text {
+    font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 400;
+    color: rgba(255,255,255,0.72); line-height: 1.8; margin-bottom: 20px;
+  }
+  .ttt-def-text strong { color: #e8c040; font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ttt-def-steps { display: flex; flex-direction: column; gap: 10px; }
+  .ttt-def-step {
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .ttt-def-step-num {
+    font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900;
+    color: #e8c040; line-height: 1.3; flex-shrink: 0; width: 28px;
+  }
+  .ttt-def-step-text {
+    font-family: 'Inter', sans-serif; font-size: 15px;
+    color: rgba(255,255,255,0.7); line-height: 1.68;
+  }
+  .ttt-def-step-text strong { color: #fff; font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* ── TIPU SULTAN CARD ── */
+  .ttt-tipu {
+    background: #0a1a10; border-top: 4px solid #3a8c50;
+    padding: 32px 36px; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+  }
+  .ttt-tipu::before {
+    content: '🐯'; position: absolute; right: 24px; top: 16px;
+    font-size: 80px; opacity: 0.12; line-height: 1; pointer-events: none;
+  }
+  .ttt-tipu-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.4);
+    margin-bottom: 10px; position: relative; z-index: 1;
+  }
+  .ttt-tipu-head {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(20px, 3vw, 28px); font-weight: 900;
+    color: #fff; margin-bottom: 4px; position: relative; z-index: 1;
+  }
+  .ttt-tipu-sub {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.16em; color: #3a8c50;
+    margin-bottom: 18px; position: relative; z-index: 1;
+  }
+  .ttt-tipu-body { position: relative; z-index: 1; }
+  .ttt-tipu-body ul { padding-left: 20px; }
+  .ttt-tipu-body ul li {
+    font-size: 15px; line-height: 1.76; color: rgba(255,255,255,0.72); margin-bottom: 9px;
+  }
+  .ttt-tipu-body ul li strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: #5ab870; }
+  .ttt-tipu-wars {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; position: relative; z-index: 1;
+  }
+  .ttt-war-badge {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    background: rgba(58,140,80,0.18); color: #5ab870;
+    padding: 6px 14px; border: 1px solid rgba(58,140,80,0.35);
+  }
+
+  /* ── DOCTRINE OF LAPSE ── */
+  .ttt-lapse {
+    background: var(--crimson2); padding: 32px 36px; margin-bottom: 48px;
+    border-top: 4px solid #e87070; position: relative; overflow: hidden;
+  }
+  .ttt-lapse::before {
+    content: '⚖'; position: absolute; right: 20px; top: 10px;
+    font-size: 110px; opacity: 0.08; line-height: 1; pointer-events: none;
+  }
+  .ttt-lapse-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2em; color: rgba(255,255,255,0.45);
+    margin-bottom: 10px; position: relative; z-index: 1;
+  }
+  .ttt-lapse-head {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(18px, 2.8vw, 24px); font-weight: 900;
+    color: #fff; margin-bottom: 16px; position: relative; z-index: 1;
+  }
+  .ttt-lapse-body {
+    font-family: 'Inter', sans-serif; font-size: 16px;
+    color: rgba(255,255,255,0.75); line-height: 1.8; position: relative; z-index: 1;
+    margin-bottom: 16px;
+  }
+  .ttt-lapse-body strong { color: #f0a0a0; font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ttt-lapse-states {
+    display: flex; flex-wrap: wrap; gap: 10px; position: relative; z-index: 1;
+  }
+  .ttt-lapse-state {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700;
+    background: rgba(255,255,255,0.1); color: #fff;
+    padding: 7px 16px; border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  /* ── COMPANY EXPANSION MAP STATS ── */
+  .ttt-stat-row { display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 48px; background: var(--rule); }
+  .ttt-stat-box { flex: 1 1 130px; background: var(--paper); padding: 24px 18px; text-align: center; }
+  .ttt-stat-val {
+    font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900;
+    color: var(--navy); line-height: 1.1; margin-bottom: 6px; letter-spacing: -0.02em;
+  }
+  .ttt-stat-val.red  { color: var(--crimson); }
+  .ttt-stat-val.gold { color: var(--gold); }
+  .ttt-stat-val.teal { color: var(--teal); }
+  .ttt-stat-label {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.4;
+  }
+
+  /* ── PULL QUOTE ── */
+  .ttt-pull-quote {
+    margin: 40px 0; padding: 32px 40px;
+    background: var(--ink); position: relative;
+  }
+  .ttt-pull-quote::before {
+    content: '"'; position: absolute; top: -18px; left: 28px;
+    font-family: 'Montserrat', sans-serif; font-size: 120px; font-weight: 900;
+    color: var(--navy); line-height: 1;
+  }
+  .ttt-pull-quote p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(17px, 2.4vw, 22px); font-weight: 800;
+    color: #fff; line-height: 1.45; letter-spacing: -0.01em;
+    position: relative; z-index: 1; margin-bottom: 12px;
+  }
+  .ttt-pull-quote cite {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    color: #8899d8; text-transform: uppercase; letter-spacing: 0.12em; font-style: normal;
+  }
+
+  /* ── 3-COL GOVERNORS GRID ── */
+  .ttt-gov-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px; background: var(--rule); margin-bottom: 48px;
+  }
+  .ttt-gov-card { background: var(--paper2); padding: 26px 22px; }
+  .ttt-gov-initial {
+    width: 52px; height: 52px; background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; color: #fff;
+    margin-bottom: 14px;
+  }
+  .ttt-gov-card:nth-child(2) .ttt-gov-initial { background: var(--crimson); }
+  .ttt-gov-card:nth-child(3) .ttt-gov-initial { background: var(--gold2); }
+  .ttt-gov-name {
+    font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 900;
+    color: var(--ink); margin-bottom: 4px;
+  }
+  .ttt-gov-role {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--navy); margin-bottom: 12px;
+  }
+  .ttt-gov-card:nth-child(2) .ttt-gov-role { color: var(--crimson); }
+  .ttt-gov-card:nth-child(3) .ttt-gov-role { color: var(--gold2); }
+  .ttt-gov-desc {
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.72;
+  }
+  .ttt-gov-desc strong { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--navy); }
+  .ttt-gov-card:nth-child(2) .ttt-gov-desc strong { color: var(--crimson); }
+  .ttt-gov-card:nth-child(3) .ttt-gov-desc strong { color: var(--gold2); }
+
+  /* ── FAQ ── */
+  .ttt-faq-header {
+    border-bottom: 3px solid var(--ink); padding-bottom: 14px; margin-bottom: 0;
+    display: flex; align-items: baseline; gap: 16px;
+  }
+  .ttt-faq-kicker {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--navy);
+  }
+  .ttt-faq-title {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(24px, 4vw, 34px); font-weight: 900;
+    color: var(--ink); letter-spacing: -0.01em; margin: 20px 0 32px;
+  }
+  .ttt-faq-item { border-bottom: 1px solid var(--rule); overflow: hidden; }
+  .ttt-faq-item.open { background: var(--paper2); }
+  .ttt-faq-q {
+    width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+    padding: 20px 0; display: grid; grid-template-columns: 1fr 32px;
+    gap: 16px; align-items: start;
+  }
+  .ttt-faq-q-text {
+    font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+    color: var(--ink); line-height: 1.5; text-align: left; padding-left: 4px;
+  }
+  .ttt-faq-item.open .ttt-faq-q-text { color: var(--navy2); }
+  .ttt-faq-icon {
+    width: 28px; height: 28px; border: 1.5px solid var(--rule);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--navy); flex-shrink: 0; margin-top: 2px;
+  }
+  .ttt-faq-item.open .ttt-faq-icon { background: var(--ink); border-color: var(--ink); color: #8899d8; }
+  .ttt-faq-ans {
+    display: none; padding: 0 4px 22px;
+    font-size: 16px; line-height: 1.82; color: #374151;
+  }
+  .ttt-faq-ans.visible { display: block; }
+  .ttt-faq-ans ul { padding-left: 20px; margin: 8px 0; }
+  .ttt-faq-ans ul li { margin-bottom: 7px; }
+  .ttt-faq-ans strong { color: var(--ink); font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .ttt-faq-ans p { margin: 0 0 10px; }
+  .ttt-faq-ans p:last-child { margin: 0; }
+
+  @media (max-width: 620px) {
+    .ttt-hero        { min-height: auto; padding: 80px 0 48px; }
+    .ttt-goods-grid  { grid-template-columns: 1fr 1fr; }
+    .ttt-battle-row  { grid-template-columns: 1fr; }
+    .ttt-gov-grid    { grid-template-columns: 1fr; }
+    .ttt-tl-item     { grid-template-columns: 80px 1fr; }
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="ttt-root"><div class="ttt-hero"><div class="ttt-hero-bg-num">02</div><div class="ttt-ring" style="width:500px;height:500px;top:-180px;left:-120px"></div><div class="ttt-ring" style="width:320px;height:320px;top:60px;right:80px"></div><div class="ttt-ring" style="width:200px;height:200px;bottom:60px;left:240px"></div><div class="ttt-hero-inner"><div class="ttt-overline">Class 8 · History · Our Pasts – III</div><h1 class="ttt-hero-title">From <em>Trade</em><br>to <span class="gold-em">Territory</span></h1><div class="ttt-hero-bar"><div class="ttt-hero-bar-item"><div class="ttt-bar-label">Chapter</div><div class="ttt-bar-value">02</div></div><div class="ttt-hero-bar-item"><div class="ttt-bar-label">Subject</div><div class="ttt-bar-value">History</div></div><div class="ttt-hero-bar-item"><div class="ttt-bar-label">Focus</div><div class="ttt-bar-value">EIC &amp; Conquest</div></div><div class="ttt-hero-bar-item"><div class="ttt-bar-label">Board</div><div class="ttt-bar-value">CBSE / NCERT</div></div></div></div></div><div class="ttt-body"><div class="ttt-lead"><p>The East India Company arrived in India in 1608 as a group of merchants seeking <strong>profit from spice and textile trade</strong>. By 1857, it had become the ruler of almost the entire subcontinent.</p><p>This chapter traces that astonishing — and violent — transformation: how a trading company used <strong>battles, betrayals, subsidiary alliances, and annexation policies</strong> to convert commercial interest into territorial empire.</p></div><div class="ttt-sec-head"><div class="ttt-sec-num">1</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">1600 — The Royal Charter</div><h2 class="ttt-sec-title">East India Company <span>Comes East</span></h2></div></div><p class="ttt-body-text">In 1600, the English East India Company received a royal charter granting it the sole right to trade with the East. What began as a commercial venture would, within 250 years, become the most powerful colonial empire the world had ever seen.</p><div class="ttt-charter"><div class="ttt-charter-tag">Royal Charter — 1600</div><div class="ttt-charter-head">The Company That <span>Became an Empire</span></div><div class="ttt-charter-body">The East India Company bought goods cheaply in India and sold them at <strong>vastly higher prices in Europe</strong>, accumulating enormous wealth. Cotton and silk from India were the finest available anywhere. Spices — pepper, cloves, cardamom, and cinnamon — were worth fortunes. The Company&#x27;s success drew the attention of rival European powers, leading to a fierce commercial war for monopoly of the Asian trade.<br><br>The English won that competition principally through <strong>naval superiority</strong> — defeating the Portuguese, Dutch, and French to become the dominant European power in Indian Ocean trade. The first English factory opened at <strong>Surat in 1608</strong>; by 1651, the Company had established its presence in Bengal on the banks of the river Hugli.</div><div class="ttt-charter-chips"><div class="ttt-chip">Royal Charter 1600</div><div class="ttt-chip">Surat Factory 1608</div><div class="ttt-chip">Bengal Factory 1651</div><div class="ttt-chip gold">Defeated French, Dutch &amp; Portuguese</div></div></div><div class="ttt-goods-grid"><div class="ttt-good-card"><div class="ttt-good-icon">🌶️</div><div class="ttt-good-name">Pepper</div><div class="ttt-good-sub">Worth its weight in silver</div></div><div class="ttt-good-card"><div class="ttt-good-icon">🌸</div><div class="ttt-good-name">Cloves</div><div class="ttt-good-sub">Spice islands trade</div></div><div class="ttt-good-card"><div class="ttt-good-icon">🧵</div><div class="ttt-good-name">Cotton &amp; Silk</div><div class="ttt-good-sub">Finest in the world</div></div><div class="ttt-good-card"><div class="ttt-good-icon">🍂</div><div class="ttt-good-name">Cardamom &amp; Cinnamon</div><div class="ttt-good-sub">High European demand</div></div></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-sec-head"><div class="ttt-sec-num">2</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">When Commerce Became Conquest</div><h2 class="ttt-sec-title">How <span>Trade Led</span> to Battles</h2></div></div><p class="ttt-body-text">The East India Company did not set out to conquer India. But its hunger for profit — for duty-free trade, exclusive privileges, and ever-greater concessions — brought it into direct conflict with the Nawabs of Bengal, who refused to be dictated to by a trading company.</p><div class="ttt-battle-row"><div class="ttt-battle-card b1"><div class="ttt-battle-year">1757</div><div class="ttt-battle-name">Battle of Plassey</div><div class="ttt-battle-tag">23 June 1757 · First Major Victory</div><ul><li><strong>Nawab:</strong> Sirajuddaulah, grandson of Alivardi Khan (d. 1756)</li><li><strong>Company commander:</strong> Robert Clive</li><li><strong>The betrayal:</strong> Mir Jafar, Sirajuddaulah&#x27;s own commander, secretly promised the Nawabship in return for <strong>not fighting</strong> — and stood his forces down during the battle</li><li><strong>Result:</strong> Sirajuddaulah defeated and assassinated. Mir Jafar installed as <strong>puppet Nawab</strong>. Real power passed to the British</li><li><strong>Significance:</strong> First major British victory in India — opened the door to Bengal and beyond</li></ul></div><div class="ttt-battle-card b2"><div class="ttt-battle-year">1764</div><div class="ttt-battle-name">Battle of Buxar</div><div class="ttt-battle-tag">1764 · A Real Military Test</div><ul><li><strong>Coalition against British:</strong> Mir Qasim (Bengal) + Shujauddaula (Awadh) + Shah Alam (Mughal emperor) — three of India&#x27;s most powerful rulers united</li><li><strong>Cause:</strong> Mir Qasim abolished trade duties for <em>everyone</em> — eliminating the Company&#x27;s unfair advantage. British declared war</li><li><strong>Company commander:</strong> Hector Munro</li><li><strong>Result:</strong> British won a decisive victory. The coalition collapsed. The Company gained the <strong>Diwani rights of Bengal, Bihar, and Odisha in 1765</strong></li><li><strong>Significance:</strong> Confirmed British military supremacy — no Indian coalition could defeat them</li></ul></div></div><div class="ttt-pull-quote"><p>Mir Jafar did not just betray Sirajuddaulah at Plassey. He betrayed the independence of Bengal — and with it, the independence of India for nearly two centuries.</p><cite>— The Cost of Plassey&#x27;s Betrayal</cite></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-sec-head"><div class="ttt-sec-num">3</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">1757–1857 — The Century of Conquest</div><h2 class="ttt-sec-title">Company Rule <span>Expands</span></h2></div></div><p class="ttt-body-text">After Buxar, the Company rarely needed to fight head-on battles to expand. It had a far more efficient tool: the <strong>Subsidiary Alliance</strong> — a mechanism that ensnared Indian rulers in debt and dependence until they had no choice but to surrender their independence.</p><div class="ttt-def-box"><div class="ttt-def-label">The Key Mechanism of Expansion</div><div class="ttt-def-term">The Subsidiary Alliance</div><div class="ttt-def-text">The Subsidiary Alliance was a <strong>diplomatic trap</strong> that converted Indian rulers from independent sovereigns into dependent clients of the Company — without always firing a shot. Devised systematically under Lord Wellesley, it worked in three steps:</div><div class="ttt-def-steps"><div class="ttt-def-step"><div class="ttt-def-step-num">1</div><div class="ttt-def-step-text">An Indian ruler was <strong>&quot;invited&quot; to sign</strong> a Subsidiary Alliance — under which he agreed to maintain a British army within his territory at his own expense, and to accept a British Resident at his court</div></div><div class="ttt-def-step"><div class="ttt-def-step-num">2</div><div class="ttt-def-step-text">If the ruler <strong>could not pay</strong> for the British troops (which was almost inevitable given the costs), he was forced to <strong>cede a portion of his territory</strong> to the Company as payment — permanently reducing his kingdom</div></div><div class="ttt-def-step"><div class="ttt-def-step-num">3</div><div class="ttt-def-step-text">The ruler was <strong>forbidden from negotiating</strong> with any other foreign power without British permission — cutting him off from potential allies and making him entirely dependent on British goodwill for his survival</div></div></div></div><div class="ttt-stat-row"><div class="ttt-stat-box"><div class="ttt-stat-val">1757</div><div class="ttt-stat-label">Plassey — conquest begins</div></div><div class="ttt-stat-box"><div class="ttt-stat-val red">1764</div><div class="ttt-stat-label">Buxar — supremacy confirmed</div></div><div class="ttt-stat-box"><div class="ttt-stat-val gold">1843</div><div class="ttt-stat-label">Sindh annexed</div></div><div class="ttt-stat-box"><div class="ttt-stat-val teal">1849</div><div class="ttt-stat-label">Punjab annexed</div></div></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-sec-head"><div class="ttt-sec-num">4</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">Mysore&#x27;s Fierce Resistance</div><h2 class="ttt-sec-title">Tipu Sultan — <span class="teal">Tiger of Mysore</span></h2></div></div><p class="ttt-body-text">Not every Indian ruler accepted the Company&#x27;s advances with submission. Tipu Sultan of Mysore fought four wars against the British — and gave them their most formidable military challenge in 18th-century India.</p><div class="ttt-tipu"><div class="ttt-tipu-tag">Mysore · 1782–1799</div><div class="ttt-tipu-head">Tipu Sultan</div><div class="ttt-tipu-sub">The Tiger of Mysore · Son of Haidar Ali · Killed at Seringapatam 1799</div><div class="ttt-tipu-body"><ul><li><strong>Son of Haidar Ali:</strong> Tipu Sultan inherited the throne of Mysore from his father Haidar Ali — already a formidable adversary of the British — and proved even more dangerous</li><li><strong>Military modernisation:</strong> Tipu was a visionary who <strong>took French help to modernise his army</strong> — introducing European military organisation, advanced weaponry, and war rockets that were feared even by European armies</li><li><strong>Diplomatic strategy:</strong> He sent envoys to France and other foreign powers seeking alliances against British expansion — the first Indian ruler to actively pursue international diplomacy as a counter to British power</li><li><strong>Restricts British trade:</strong> Tipu refused to grant the Company trading privileges in his kingdom, cutting off their access to Mysore&#x27;s valuable commodities</li><li><strong>Died fighting:</strong> In 1799, when the British finally stormed his capital Seringapatam, Tipu Sultan was <strong>killed in the defence of the city</strong> — refusing to surrender or flee. His death marked the end of Mysore&#x27;s independence</li></ul></div><div class="ttt-tipu-wars"><div class="ttt-war-badge">1st Anglo-Mysore War · 1767–69</div><div class="ttt-war-badge">2nd Anglo-Mysore War · 1780–84</div><div class="ttt-war-badge">3rd Anglo-Mysore War · 1790–92</div><div class="ttt-war-badge">4th Anglo-Mysore War · 1799 ✕</div></div></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-sec-head"><div class="ttt-sec-num">5</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">The Last Great Resistance</div><h2 class="ttt-sec-title">Marathas, <span class="amber">Paramountcy</span> &amp; Lapse</h2></div></div><p class="ttt-body-text">After defeating Tipu Sultan, the British turned their attention to the Marathas — once the most powerful military confederation in India — and then to the north-west, systematically annexing every remaining independent territory.</p><div class="ttt-timeline"><div class="ttt-tl-item"><div class="ttt-tl-year-col"><div class="ttt-tl-year">1761</div></div><div class="ttt-tl-content"><div class="ttt-tl-head">Marathas Divided at Panipat</div><div class="ttt-tl-desc">After the Maratha defeat at the Third Battle of Panipat, the Maratha Confederacy <strong>split into smaller dynasties</strong> — Sindhia, Holkars, Gaikwad, Bhonsle — weakening their ability to resist the British collectively.</div></div></div><div class="ttt-tl-item"><div class="ttt-tl-year-col"><div class="ttt-tl-year">1782<br>1803–05<br>1817–19</div></div><div class="ttt-tl-content"><div class="ttt-tl-head">Three Anglo-Maratha Wars</div><div class="ttt-tl-desc">Three wars were fought between the British and the Maratha confederacy. The <strong>third war (1817–19) was decisive</strong> — the Peshwa was deposed, pensioned off, and sent to northern India. The Company now controlled all territory south of the Vindhyas.</div></div></div><div class="ttt-tl-item"><div class="ttt-tl-year-col"><div class="ttt-tl-year">1813–23</div></div><div class="ttt-tl-content"><div class="ttt-tl-head">Claim to Paramountcy — Lord Hastings</div><div class="ttt-tl-desc">Under Lord Hastings, the British formally claimed <strong>paramountcy</strong> — the right to be the supreme power in India and to intervene in the affairs of any Indian state. Direct conquest replaced the more indirect approach of earlier decades.</div></div></div><div class="ttt-tl-item"><div class="ttt-tl-year-col"><div class="ttt-tl-year">1843<br>&amp; 1849</div></div><div class="ttt-tl-content"><div class="ttt-tl-head">Sindh and Punjab Annexed</div><div class="ttt-tl-desc">To secure the <strong>north-western frontier</strong> of their empire, the British fought wars with Afghanistan and Punjab. <strong>Sindh was annexed in 1843</strong> and <strong>Punjab in 1849</strong> — bringing almost the entire subcontinent under Company control.</div></div></div><div class="ttt-tl-item"><div class="ttt-tl-year-col"><div class="ttt-tl-year">1848–56</div></div><div class="ttt-tl-content"><div class="ttt-tl-head">Doctrine of Lapse — Lord Dalhousie</div><div class="ttt-tl-desc">The most controversial annexation policy — any ruler who died without a <strong>natural male heir could not adopt a successor</strong>. His kingdom automatically passed to the British. Satara (1848), Sambhalpur (1850), and <strong>Jhansi (1854)</strong> were annexed this way — directly triggering the 1857 uprising.</div></div></div></div><div class="ttt-lapse"><div class="ttt-lapse-tag">Lord Dalhousie · 1848–56</div><div class="ttt-lapse-head">The Doctrine of Lapse — Annexation by Policy</div><div class="ttt-lapse-body">Under the Doctrine of Lapse, any Indian ruler who died without a <strong>natural (biological) male heir</strong> could not adopt a successor — as had been the accepted Indian custom for centuries. The kingdom would automatically <strong>&quot;lapse&quot;</strong> to the Company. This was naked theft disguised as policy — and it directly contributed to the fury that erupted in 1857.</div><div class="ttt-lapse-states"><div class="ttt-lapse-state">Satara — 1848</div><div class="ttt-lapse-state">Sambhalpur — 1850</div><div class="ttt-lapse-state">Jhansi — 1854 ⚔️</div></div></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-sec-head"><div class="ttt-sec-num">6</div><div class="ttt-sec-title-wrap"><div class="ttt-sec-kicker">The Men Who Built the Empire</div><h2 class="ttt-sec-title">Administration Under <span class="gold">British</span></h2></div></div><p class="ttt-body-text">As the Company transitioned from trader to ruler, it needed an administrative structure. Key British officials shaped how colonial India was governed — from courts and revenue to the exercise of supreme power.</p><div class="ttt-gov-grid"><div class="ttt-gov-card"><div class="ttt-gov-initial">RC</div><div class="ttt-gov-name">Robert Clive</div><div class="ttt-gov-role">Governor of Bengal · 1764</div><div class="ttt-gov-desc">The architect of British military supremacy in India. Led the Company to victory at <strong>Plassey (1757)</strong> through the betrayal of Mir Jafar. Appointed <strong>Governor of Bengal in 1764</strong>. British officials who enriched themselves like he did were called <strong>&quot;Nabobs&quot;</strong> — an anglicised version of Nawab.</div></div><div class="ttt-gov-card"><div class="ttt-gov-initial">WH</div><div class="ttt-gov-name">Warren Hastings</div><div class="ttt-gov-role">First Governor-General · 1773</div><div class="ttt-gov-desc">Became the <strong>first Governor-General of Bengal in 1773</strong>, with authority to supervise the governors of Madras and Bombay. Established the framework of colonial administration — including <strong>separate civil and criminal courts</strong> supervised by collectors, and new legal codes compiled with help from muftis and Brahmins.</div></div><div class="ttt-gov-card"><div class="ttt-gov-initial">LD</div><div class="ttt-gov-name">Lord Dalhousie</div><div class="ttt-gov-role">Governor-General · 1848–56</div><div class="ttt-gov-desc">The most aggressive of Britain&#x27;s annexing governors-general. Introduced the <strong>Doctrine of Lapse</strong> — annexing Satara, Sambhalpur, and Jhansi. Also introduced railways, telegraph, and the post office in India. His policies were so resentment-generating that they were a <strong>direct cause of the 1857 revolt</strong>.</div></div></div><div class="ttt-divider"><div class="ttt-divider-mark"></div></div><div class="ttt-faq-header"><span class="ttt-faq-kicker">Exam Preparation</span></div><h2 class="ttt-faq-title">Frequently Asked Questions</h2><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q1. How did the East India Company first come to India? What goods did it trade in?</span></summary><div class="ttt-faq-ans visible"><p>The East India Company&#x27;s arrival in India was driven purely by the enormous profits available in the Asian trade:</p><ul><li><strong>Royal Charter of 1600:</strong> The English East India Company was granted a royal charter by Queen Elizabeth I in 1600, giving it the exclusive right to trade with the East — meaning all of Asia</li><li><strong>The profit motive:</strong> The Company bought goods cheaply in India and sold them at much higher prices in Europe — making enormous profits on each voyage</li><li><strong>Key trade goods:</strong> Cotton and silk textiles from India had a huge market in Europe. Spices — pepper, cloves, cardamom, and cinnamon — were extraordinarily valuable (sometimes worth more than gold by weight)</li><li><strong>Competition:</strong> The English Company had to compete fiercely with other European trading companies — French, Dutch, and Portuguese — all of whom wanted a share of the same profitable Asian trade</li><li><strong>British naval superiority:</strong> The English Company eventually defeated its European rivals largely because of Britain&#x27;s powerful naval force, which allowed it to dominate sea routes and monopolise trade</li><li><strong>First factory in India:</strong> The first English factory was opened at <strong>Surat in 1608</strong>. In 1651, the first English factory in Bengal was set up on the banks of the river Hugli</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q2. How did trade lead to battles? What was the background of the Battle of Plassey?</span></summary><div class="ttt-faq-ans visible"><p>The shift from trade to warfare was not sudden — it grew out of a series of disputes over trade privileges that escalated into military conflict:</p><ul><li><strong>Nawabs assert independence:</strong> After the death of Aurangzeb, the Nawabs of Bengal asserted their power and autonomy. They were no longer willing to simply grant the Company whatever concessions it demanded</li><li><strong>Duty disputes:</strong> The Company wanted all trade duties abolished so it could trade freely without paying taxes to the Nawab. The Bengal Nawabs refused — these duties were a major source of their own revenue</li><li><strong>Misuse of privileges:</strong> Company officials had been granted passes (dastaks) for duty-free trade, but they misused these passes for private trade — costing the Nawab&#x27;s treasury enormous sums</li><li><strong>Alivardi Khan&#x27;s death:</strong> When Nawab Alivardi Khan died in 1756, his young grandson <strong>Sirajuddaulah</strong> became Nawab of Bengal — and the Company saw an opportunity</li><li><strong>Company&#x27;s military response:</strong> The British decided to use military force to secure their commercial interests. Robert Clive led the Company&#x27;s army to settle the dispute at Plassey</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q3. What was the Battle of Plassey (1757)? Why is it so important?</span></summary><div class="ttt-faq-ans visible"><p>The Battle of Plassey is considered one of the most decisive moments in Indian history — the moment that truly began British colonial rule:</p><ul><li><strong>Date and location:</strong> Fought on <strong>23 June 1757</strong> at Plassey (Palashi) in Bengal — between the forces of Nawab Sirajuddaulah and the East India Company&#x27;s army led by <strong>Robert Clive</strong></li><li><strong>The betrayal:</strong> The decisive factor was not military superiority but treachery. <strong>Mir Jafar</strong>, one of Sirajuddaulah&#x27;s most trusted commanders, had secretly made a deal with Robert Clive — he was promised the Nawabship of Bengal in return for betraying his own ruler during the battle</li><li><strong>How it was &quot;won&quot;:</strong> Mir Jafar&#x27;s forces — a large section of the Nawab&#x27;s army — simply did not fight. They stood aside while the Company&#x27;s forces engaged Sirajuddaulah&#x27;s divided and confused army. Without Mir Jafar&#x27;s betrayal, the Company could not have won</li><li><strong>Aftermath:</strong> Sirajuddaulah was defeated, captured, and assassinated. As promised, <strong>Mir Jafar became Nawab of Bengal</strong> — but he was a puppet with no real power</li><li><strong>Why it matters:</strong> Plassey was the <strong>first major military victory of the British in India</strong>. It gave the Company effective control over Bengal — the richest province in India — and opened the door to the entire subcontinent</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q4. What was the Battle of Buxar (1764)? How was it different from Plassey?</span></summary><div class="ttt-faq-ans visible"><p>The Battle of Buxar was in many ways more significant than Plassey — it was a real military test for the British, not a pre-arranged betrayal:</p><ul><li><strong>Background:</strong> After Plassey, Mir Jafar proved to be an unreliable puppet. The Company replaced him with <strong>Mir Qasim</strong> as Nawab of Bengal — but Mir Qasim turned out to be far more capable and independent</li><li><strong>The dispute:</strong> Mir Qasim, to create a level playing field, <strong>abolished trade duties for everyone</strong> — not just Company officials. This removed the Company&#x27;s unfair advantage. He also moved his capital from Murshidabad to Mungair to distance himself from Company pressure</li><li><strong>A united opposition:</strong> Mir Qasim allied with <strong>Shujauddaula (Nawab of Awadh)</strong> and <strong>Shah Alam (the Mughal emperor)</strong> — creating a powerful coalition against the British</li><li><strong>The battle:</strong> Fought in <strong>1764</strong>, the coalition faced the Company&#x27;s forces led by <strong>Hector Munro</strong>. Despite the combined strength of three major Indian powers, the British won decisively</li><li><strong>Significance:</strong> Buxar confirmed British military superiority beyond doubt. After this victory, the Company decided to directly control territory rather than rule through puppet nawabs. In 1765, the Mughal emperor granted the Company the <strong>Diwani rights of Bengal, Bihar, and Odisha</strong></li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q5. What was the Subsidiary Alliance system? How did it help the Company expand?</span></summary><div class="ttt-faq-ans visible"><p>The Subsidiary Alliance was one of the most clever and ruthless tools the British used to expand their empire without always fighting battles:</p><ul><li><strong>How it worked:</strong> Indian rulers were forced to sign an agreement under which they had to maintain a <strong>British army within their territory</strong> — at their own expense</li><li><strong>The payment trap:</strong> If a ruler could not pay for this British army, he had to <strong>hand over a portion of his territory</strong> to the Company as payment — permanently reducing his kingdom</li><li><strong>Residents appointed:</strong> After the Battle of Buxar, the Company began placing <strong>British Residents</strong> at Indian courts — officials who monitored and effectively controlled the ruler&#x27;s decisions</li><li><strong>No direct attack needed:</strong> The Company rarely needed to launch a direct military attack on an unknown territory. Through subsidiary alliances, it could dominate a kingdom through debt and dependency without a single battle</li><li><strong>Victims:</strong> The Nawab of Awadh and the Nizam of Hyderabad were among the most prominent Indian rulers forced to cede territories and accept subsidiary alliances</li><li><strong>The brilliant trap:</strong> Once a ruler accepted, he was trapped — he had to maintain a British army he couldn&#x27;t really afford, leading inevitably to territorial losses that further weakened him</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q6. Who was Tipu Sultan? Why is he called &#x27;The Tiger of Mysore&#x27;?</span></summary><div class="ttt-faq-ans visible"><p>Tipu Sultan was one of the most formidable opponents the East India Company ever faced in India:</p><ul><li><strong>Background:</strong> Tipu Sultan was the son of <strong>Haidar Ali</strong>, the powerful ruler of Mysore. He ruled Mysore from <strong>1782 to 1799</strong> — a reign of 17 years marked by constant resistance to British expansion</li><li><strong>&quot;Tiger of Mysore&quot;:</strong> Tipu earned this title because of his fierce, aggressive military tactics and his personal bravery. The tiger was his royal symbol — appearing on his throne, weapons, and personal belongings</li><li><strong>Military modernisation:</strong> Tipu Sultan was far ahead of his time. He <strong>took French help to modernise his army</strong> — introducing new weaponry, military organisation, and rocket technology (his rockets were a precursor to modern military rockets)</li><li><strong>Diplomatic efforts:</strong> Tipu sent foreign delegates to France and other powers to build alliances against the British. He understood that Indian rulers needed international support to resist British expansion</li><li><strong>Four Anglo-Mysore Wars:</strong> Four wars were fought between Mysore and the British — 1767–69, 1780–84, 1790–92, and 1799. Tipu won some and lost some, but never stopped resisting</li><li><strong>Death at Seringapatam:</strong> In 1799, the British stormed his capital <strong>Seringapatam</strong> and Tipu Sultan was <strong>killed fighting in its defence</strong> — refusing to surrender even as the battle was lost. His death was the end of Mysore as an independent power</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q7. What was the Doctrine of Lapse? Which states were annexed under it?</span></summary><div class="ttt-faq-ans visible"><p>The Doctrine of Lapse was one of the most controversial and blatantly unjust policies used by the British to annex Indian states:</p><ul><li><strong>Introduced by:</strong> <strong>Lord Dalhousie</strong>, Governor-General of India from 1848 to 1856</li><li><strong>What it said:</strong> If an Indian ruler died without a <strong>natural (biological) male heir</strong>, his kingdom would automatically be &quot;lapsed&quot; — meaning it would be taken over by the British. The ruler could <strong>not adopt an heir</strong> to continue his dynasty without British permission</li><li><strong>Why it was unjust:</strong> Adoption was a completely accepted and legitimate practice under Indian law and custom. The Doctrine overrode centuries of Indian tradition with a new British rule designed purely to grab territory</li><li><strong>States annexed:</strong><ul><li><strong>Satara (1848)</strong> — one of the earliest and most significant annexations</li><li><strong>Sambhalpur (1850)</strong></li><li><strong>Jhansi (1854)</strong> — the annexation of Jhansi directly led to the uprising of Rani Lakshmibai during the 1857 revolt</li></ul></li><li><strong>Role in 1857:</strong> The Doctrine of Lapse created enormous anger and resentment among Indian rulers and their subjects — and was one of the major causes of the great uprising of 1857</li></ul></div></details><details class="ttt-faq-item" data-faq><summary class="ttt-faq-q"><span class="ttt-faq-q-text">Q8. How was British administration organised in India? Who was Warren Hastings?</span></summary><div class="ttt-faq-ans visible"><p>As the Company expanded from a trading organisation to a governing power, it gradually built an administrative structure to manage its vast territories:</p><ul><li><strong>Warren Hastings (1773):</strong> Warren Hastings became the <strong>first Governor-General of Bengal in 1773</strong>, and was given authority to supervise and control the governors of the other two presidencies — Madras and Bombay. This created a unified chain of command across British India</li><li><strong>Courts and justice:</strong> Separate civil and criminal courts were established, supervised by a Collector — a British official who combined revenue collection and judicial authority in each district</li><li><strong>Laws compiled:</strong> New sets of laws were compiled with the help of muftis and Brahmins for religious interpretation — since Hindu and Muslim personal law governed different communities</li><li><strong>Robert Clive as Nabobs:</strong> In 1764, Robert Clive was appointed Governor of Bengal. British officials who grew enormously rich from their positions in India were called <strong>&quot;Nabobs&quot;</strong> — an anglicised version of the Indian word Nawab — because they lived lavishly like Indian princes</li><li><strong>Claim to paramountcy:</strong> Under Lord Hastings (1813–23), the British formally claimed <strong>paramountcy</strong> — the right to assert supremacy over all Indian states. This gave them the legal justification to intervene in the affairs of any Indian ruler they considered a threat</li><li><strong>Annexation of Sindh and Punjab:</strong> To secure their north-western frontier, the British fought wars with Afghanistan and Punjab, finally annexing <strong>Sindh in 1843</strong> and <strong>Punjab in 1849</strong></li></ul></div></details></div></div>

@@ -1,0 +1,385 @@
+<style>
+  :root {
+    --ink:        #1a1200;
+    --ink2:       #2d2200;
+    --muted:      #6b5a30;
+    --paper:      #fdf8ee;
+    --paper2:     #f5eccf;
+    --accent:     #b45309;
+    --accent2:    #92400e;
+    --accent-lt:  #fef3c7;
+    --teal:       #0f766e;
+    --teal-lt:    #ccfbf1;
+    --blue:       #1d4ed8;
+    --blue-lt:    #dbeafe;
+    --purple:     #7c3aed;
+    --purple-lt:  #ede9fe;
+    --red:        #be123c;
+    --red-lt:     #ffe4e6;
+    --green:      #15803d;
+    --green-lt:   #dcfce7;
+    --rule:       #e4c97a;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .imp-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO — rich amber / dark amber-night ═══ */
+  .imp-hero {
+    background: linear-gradient(135deg, #120900 0%, #1e1000 50%, #2a1800 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) {
+    .imp-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; }
+  }
+  .imp-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #b45309 0%, #0f766e 38%, #7c3aed 72%, #be123c 100%);
+  }
+  /* Hex grid bg */
+  .imp-hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(180,83,9,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(180,83,9,0.07) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  /* Molecule ring */
+  .imp-hero-ring {
+    position: absolute; top: 50%; right: 5%; transform: translateY(-50%);
+    width: clamp(140px, 22vw, 280px); height: clamp(140px, 22vw, 280px);
+    border-radius: 50%; border: 1.5px solid rgba(180,83,9,0.14); pointer-events: none;
+  }
+  .imp-hero-ring::before {
+    content: ''; position: absolute; inset: 18%; border-radius: 50%;
+    border: 1px dashed rgba(180,83,9,0.10);
+  }
+  .imp-hero-ring::after {
+    content: ''; position: absolute; inset: 40%; border-radius: 50%;
+    background: rgba(180,83,9,0.06);
+  }
+  /* Glow blobs */
+  .imp-glow-a {
+    position: absolute; top: 18%; left: 6%; width: 280px; height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(180,83,9,0.16) 0%, transparent 68%);
+    pointer-events: none;
+  }
+  .imp-glow-b {
+    position: absolute; bottom: 8%; right: 22%; width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(15,118,110,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .imp-hero-bg-num {
+    position: absolute; bottom: -80px; right: -20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(200px, 34vw, 480px); font-weight: 900;
+    line-height: 1; color: rgba(255,255,255,0.018);
+    letter-spacing: -0.04em; user-select: none; pointer-events: none;
+  }
+  .imp-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .imp-overline {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #fbbf24;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .imp-overline::before, .imp-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #fbbf24; }
+  .imp-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(32px, 7vw, 74px); font-weight: 900; color: #fff;
+    line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px;
+  }
+  .imp-hero-title em   { font-style: normal; color: #fbbf24; }
+  .imp-hero-title .em2 { color: #6ee7b7; }
+  .imp-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .imp-hero-bar-item { flex: 1 1 150px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .imp-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .imp-bar-label { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .imp-bar-value { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.72); }
+
+  /* ═══ BODY ═══ */
+  .imp-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* ═══ INTRO CARD ═══ */
+  .imp-intro-card {
+    background: linear-gradient(135deg, #120900 0%, #2a1800 100%);
+    border-left: 5px solid #b45309; border-radius: 4px; padding: 36px 40px;
+    margin-bottom: 64px; position: relative; overflow: hidden;
+  }
+  .imp-intro-card::after { content: '🧫'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 88px; opacity: 0.08; }
+  .imp-intro-card p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .imp-intro-card p:last-child { margin: 0; }
+  .imp-intro-card strong { color: #fbbf24; }
+
+  /* ═══ DIVIDER ═══ */
+  .imp-divider { margin: 56px 0; display: flex; align-items: center; gap: 16px; }
+  .imp-divider::before, .imp-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .imp-divider-mark { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .imp-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 32px; border-bottom: 2px solid var(--rule); padding-bottom: 18px; }
+  .imp-sec-num { font-family: 'Montserrat', sans-serif; font-size: 56px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .imp-sec-title-wrap { padding-top: 8px; }
+  .imp-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .imp-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(20px, 3.5vw, 30px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .imp-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .imp-body-text { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 400; color: var(--ink2); line-height: 1.85; margin-bottom: 28px; }
+  .imp-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: MIXTURE vs SUBSTANCE — big split banner ═══ */
+  .imp-split-banner { display: grid; grid-template-columns: 1fr 1fr; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--rule); margin-bottom: 32px; }
+  @media (max-width: 580px) { .imp-split-banner { grid-template-columns: 1fr; } }
+  .imp-split-col { padding: 26px 24px; }
+  .imp-split-col:first-child { background: linear-gradient(160deg, #1e1000, #2a1800); }
+  .imp-split-col:last-child  { background: var(--white); border-left: 1.5px solid var(--rule); }
+  @media (max-width: 580px) { .imp-split-col:last-child { border-left: none; border-top: 1.5px solid var(--rule); } }
+  .imp-split-tag { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+  .imp-split-col:first-child .imp-split-tag { color: rgba(251,191,36,0.6); }
+  .imp-split-col:last-child  .imp-split-tag { color: var(--teal); }
+  .imp-split-title { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; margin-bottom: 14px; }
+  .imp-split-col:first-child .imp-split-title { color: #fff; }
+  .imp-split-col:last-child  .imp-split-title { color: var(--teal); }
+  .imp-split-point { font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.65; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; gap: 8px; }
+  .imp-split-col:last-child .imp-split-point { border-bottom-color: var(--rule); color: var(--ink2); }
+  .imp-split-col:first-child .imp-split-point { color: rgba(255,255,255,0.72); }
+  .imp-split-point:last-child { border-bottom: none; }
+  .imp-split-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+  .imp-split-col:first-child .imp-split-dot { background: #fbbf24; }
+  .imp-split-col:last-child  .imp-split-dot { background: var(--teal); }
+  .imp-split-point strong { font-weight: 600; }
+  .imp-split-col:first-child .imp-split-point strong { color: #fbbf24; }
+  .imp-split-col:last-child  .imp-split-point strong  { color: var(--teal); }
+
+  /* ═══ S1: Homogeneous vs Heterogeneous — badge cards ═══ */
+  .imp-mix-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .imp-mix-pair { grid-template-columns: 1fr; } }
+  .imp-mix-card { border-radius: 8px; overflow: hidden; border: 1.5px solid var(--rule); }
+  .imp-mix-hdr { padding: 16px 20px; }
+  .imp-mix-hdr.homo  { background: linear-gradient(135deg, #0d2e26, #0f766e); }
+  .imp-mix-hdr.hetro { background: linear-gradient(135deg, #2e1800, #b45309); }
+  .imp-mix-hdr-tag { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+  .imp-mix-hdr-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; color: #fff; }
+  .imp-mix-body { padding: 16px 20px; background: var(--white); }
+  .imp-mix-def { font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink2); line-height: 1.7; margin-bottom: 12px; }
+  .imp-mix-def strong { font-weight: 600; color: var(--ink); }
+  .imp-mix-examples { display: flex; flex-wrap: wrap; gap: 6px; }
+  .imp-mix-tag-pill { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; }
+  .homo  .imp-mix-tag-pill { background: var(--teal-lt); color: var(--teal); }
+  .hetro .imp-mix-tag-pill { background: var(--accent-lt); color: var(--accent); }
+
+  /* 3-type subgrid */
+  .imp-subtype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 580px) { .imp-subtype-grid { grid-template-columns: 1fr; } }
+  .imp-subtype-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 6px; padding: 14px 16px; }
+  .imp-subtype-card.homo-sub  { border-top: 3px solid var(--teal); }
+  .imp-subtype-card.hetro-sub { border-top: 3px solid var(--accent); }
+  .imp-subtype-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .imp-subtype-name { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .imp-subtype-ex { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ═══ S2: SOLUTION — solvent/solute layout ═══ */
+  .imp-sol-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .imp-sol-split { grid-template-columns: 1fr; } }
+  .imp-sol-half { border-radius: 8px; overflow: hidden; border: 1.5px solid var(--rule); }
+  .imp-sol-hdr.solvent { background: linear-gradient(135deg, #1e1460, #1d4ed8); padding: 16px 20px; }
+  .imp-sol-hdr.solute  { background: linear-gradient(135deg, #4a0030, #be123c); padding: 16px 20px; }
+  .imp-sol-hdr-tag  { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+  .imp-sol-hdr-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; color: #fff; }
+  .imp-sol-body { padding: 16px 20px; background: var(--white); font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+  .imp-sol-body strong { font-weight: 600; color: var(--ink); }
+
+  /* Properties of solution — 4 icon chips */
+  .imp-prop-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .imp-prop-row { grid-template-columns: repeat(2, 1fr); } }
+  .imp-prop-chip { background: var(--white); border: 1.5px solid var(--rule); border-radius: 6px; padding: 14px 12px; text-align: center; border-bottom: 3px solid var(--accent); }
+  .imp-prop-chip:nth-child(2) { border-bottom-color: var(--teal); }
+  .imp-prop-chip:nth-child(3) { border-bottom-color: var(--blue); }
+  .imp-prop-chip:nth-child(4) { border-bottom-color: var(--purple); }
+  .imp-prop-chip-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+  .imp-prop-chip-text { font-family: 'Poppins', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--ink2); line-height: 1.4; }
+
+  /* ═══ S2: Concentration formulas — formula cards ═══ */
+  .imp-formula-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .imp-formula-grid { grid-template-columns: 1fr; } }
+  .imp-formula-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 6px; padding: 18px 20px; }
+  .imp-formula-card:nth-child(1) { border-left: 4px solid var(--accent); }
+  .imp-formula-card:nth-child(2) { border-left: 4px solid var(--teal); }
+  .imp-formula-card:nth-child(3) { border-left: 4px solid var(--blue); }
+  .imp-formula-card:nth-child(4) { border-left: 4px solid var(--purple); }
+  .imp-formula-card:nth-child(5) { border-left: 4px solid var(--red); }
+  .imp-formula-card:nth-child(6) { border-left: 4px solid var(--green); }
+  .imp-formula-label { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 8px; }
+  .imp-formula-card:nth-child(2) .imp-formula-label { color: var(--teal); }
+  .imp-formula-card:nth-child(3) .imp-formula-label { color: var(--blue); }
+  .imp-formula-card:nth-child(4) .imp-formula-label { color: var(--purple); }
+  .imp-formula-card:nth-child(5) .imp-formula-label { color: var(--red); }
+  .imp-formula-card:nth-child(6) .imp-formula-label { color: var(--green); }
+  .imp-formula-abbr { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+  .imp-formula-frac { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .imp-formula-num { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); font-weight: 500; text-align: center; padding-bottom: 3px; border-bottom: 1.5px solid var(--ink2); line-height: 1.4; }
+  .imp-formula-den { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); font-weight: 500; text-align: center; padding-top: 3px; line-height: 1.4; }
+  .imp-formula-mult { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); margin-left: 8px; align-self: center; }
+  .imp-formula-frac-row { display: flex; align-items: center; }
+
+  /* ═══ S3: SOLUTION vs SUSPENSION vs COLLOID — 3-col comparison ═══ */
+  .imp-three-compare { border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+  .imp-three-hdr { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+  .imp-three-hdr-cell { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 14px; color: #fff; }
+  .imp-three-hdr-cell:nth-child(1) { background: var(--ink2); }
+  .imp-three-hdr-cell:nth-child(2) { background: #0f766e; }
+  .imp-three-hdr-cell:nth-child(3) { background: #1d4ed8; }
+  .imp-three-hdr-cell:nth-child(4) { background: #7c3aed; }
+  .imp-three-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; border-top: 1px solid var(--rule); }
+  .imp-three-row:nth-child(even) { background: var(--paper2); }
+  .imp-three-cell { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--ink2); padding: 10px 14px; border-right: 1px solid var(--rule); line-height: 1.5; }
+  .imp-three-cell:first-child { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--ink); font-size: 12px; }
+  .imp-three-cell:last-child { border-right: none; }
+  .imp-three-cell.yes { color: var(--green); font-weight: 600; }
+  .imp-three-cell.no  { color: var(--red);   font-weight: 600; }
+  @media (max-width: 640px) {
+    .imp-three-hdr, .imp-three-row { grid-template-columns: 1.1fr 0.85fr 0.85fr 0.85fr; }
+    .imp-three-cell { font-size: 11px; padding: 8px 8px; }
+    .imp-three-hdr-cell { font-size: 9px; padding: 12px 8px; }
+  }
+
+  /* ═══ COLLOID TYPES — 3×3 matrix ═══ */
+  .imp-colloid-section-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; padding: 8px 14px; background: var(--accent-lt); border-radius: 4px; display: inline-block; }
+  .imp-colloid-table { border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 28px; }
+  .imp-colloid-hdr { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; }
+  .imp-colloid-hdr-cell { font-family: 'Poppins', sans-serif; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; padding: 12px 12px; }
+  .imp-colloid-hdr-cell:nth-child(1) { background: var(--ink); color: #fff; }
+  .imp-colloid-hdr-cell:nth-child(2) { background: #2a1800; color: #fbbf24; }
+  .imp-colloid-hdr-cell:nth-child(3) { background: #0d2e26; color: #6ee7b7; }
+  .imp-colloid-hdr-cell:nth-child(4) { background: #1e1460; color: #93c5fd; }
+  .imp-colloid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; border-top: 1px solid var(--rule); }
+  .imp-colloid-row:nth-child(even) { background: var(--paper2); }
+  .imp-colloid-cell { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--ink2); padding: 10px 12px; border-right: 1px solid var(--rule); line-height: 1.5; }
+  .imp-colloid-cell:first-child { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--ink); font-size: 12px; }
+  .imp-colloid-cell:last-child { border-right: none; }
+  @media (max-width: 640px) {
+    .imp-colloid-hdr, .imp-colloid-row { grid-template-columns: 1fr 0.9fr 0.9fr 0.9fr; }
+    .imp-colloid-cell, .imp-colloid-hdr-cell { font-size: 10px; padding: 8px 8px; }
+  }
+
+  /* Tyndall effect callout */
+  .imp-tyndall { background: linear-gradient(135deg, #120900 0%, #2a1800 100%); border-radius: 8px; padding: 22px 28px; margin-bottom: 28px; display: flex; align-items: center; gap: 20px; }
+  @media (max-width: 540px) { .imp-tyndall { flex-direction: column; text-align: center; } }
+  .imp-tyndall-icon { font-size: 48px; flex-shrink: 0; }
+  .imp-tyndall-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+  .imp-tyndall-text { font-family: 'Inter', sans-serif; font-size: 13.5px; color: rgba(255,255,255,0.70); line-height: 1.7; }
+  .imp-tyndall-text strong { color: #fbbf24; font-weight: 600; }
+
+  /* ═══ S4: SEPARATION METHODS — timeline / strip layout ═══ */
+  .imp-sep-list { margin-bottom: 32px; }
+  .imp-sep-item {
+    display: grid; grid-template-columns: 180px 1fr;
+    border: 1.5px solid var(--rule); border-radius: 6px; overflow: hidden; margin-bottom: 10px; background: var(--white);
+  }
+  @media (max-width: 580px) { .imp-sep-item { grid-template-columns: 1fr; } }
+  .imp-sep-method { padding: 18px 16px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; }
+  .imp-sep-method.evap   { background: linear-gradient(160deg, #2a1800, #92400e); }
+  .imp-sep-method.centri { background: linear-gradient(160deg, #0d2e26, #0f766e); }
+  .imp-sep-method.funnel { background: linear-gradient(160deg, #1e1460, #1d4ed8); }
+  .imp-sep-method.subli  { background: linear-gradient(160deg, #4a0030, #be123c); }
+  .imp-sep-method.chrom  { background: linear-gradient(160deg, #1a0060, #7c3aed); }
+  .imp-sep-method.distil { background: linear-gradient(160deg, #0a2e00, #15803d); }
+  .imp-sep-method.fdist  { background: linear-gradient(160deg, #1a1200, #b45309); }
+  .imp-sep-method.cryst  { background: linear-gradient(160deg, #00293a, #0284c7); }
+  .imp-sep-method-icon { font-size: 22px; }
+  .imp-sep-method-name { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 900; color: #fff; line-height: 1.2; }
+  .imp-sep-desc { padding: 18px 20px; font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink2); line-height: 1.7; border-left: 1px solid var(--rule); }
+  @media (max-width: 580px) { .imp-sep-desc { border-left: none; border-top: 1px solid var(--rule); } }
+  .imp-sep-desc strong { color: var(--accent2); font-weight: 600; }
+  .imp-sep-desc .imp-sep-use { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 6px; padding: 4px 10px; background: var(--paper2); border-radius: 4px; display: inline-block; }
+
+  /* ═══ S5: PHYSICAL vs CHEMICAL CHANGE — two independent cards ═══ */
+  .imp-change-box { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+  @media (max-width: 560px) { .imp-change-box { grid-template-columns: 1fr; } }
+  .imp-change-card { border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .imp-change-hdr-cell { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 14px 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+  .imp-change-card:first-child .imp-change-hdr-cell { background: linear-gradient(90deg, #0d2e26, #0f766e); }
+  .imp-change-card:last-child  .imp-change-hdr-cell { background: linear-gradient(90deg, #2a1800, #b45309); }
+  .imp-change-hdr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .imp-change-card:first-child .imp-change-hdr-dot { background: #6ee7b7; }
+  .imp-change-card:last-child  .imp-change-hdr-dot { background: #fbbf24; }
+  .imp-change-col { padding: 16px 20px; background: var(--white); }
+  .imp-change-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+  .imp-change-row:last-child { border-bottom: none; }
+  .imp-change-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .imp-change-card:first-child .imp-change-dot { background: var(--teal); }
+  .imp-change-card:last-child  .imp-change-dot { background: var(--accent); }
+  .imp-change-text { font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink2); line-height: 1.65; }
+  .imp-change-text strong { font-weight: 600; color: var(--ink); }
+
+  /* ═══ S5: Mixture vs Compound — table ═══ */
+  .imp-mc-table { border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 28px; }
+  .imp-mc-hdr { display: grid; grid-template-columns: 1fr 1fr; }
+  .imp-mc-hdr-cell { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 13px 18px; color: #fff; }
+  .imp-mc-hdr-cell:first-child { background: #0f766e; }
+  .imp-mc-hdr-cell:last-child  { background: #7c3aed; }
+  .imp-mc-row { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+  .imp-mc-row:nth-child(even) { background: var(--paper2); }
+  .imp-mc-cell { font-family: 'Inter', sans-serif; font-size: 13.5px; color: var(--ink2); padding: 12px 18px; border-right: 1px solid var(--rule); line-height: 1.55; }
+  .imp-mc-cell:last-child { border-right: none; }
+  .imp-mc-cell strong { font-weight: 600; color: var(--ink); }
+  @media (max-width: 520px) { .imp-mc-cell { padding: 10px 12px; font-size: 12px; } }
+
+  /* ═══ S6: ELEMENTS & COMPOUNDS — classification strip ═══ */
+  .imp-elem-intro { background: var(--accent-lt); border-left: 5px solid var(--accent); border-radius: 0 6px 6px 0; padding: 18px 24px; margin-bottom: 24px; }
+  .imp-elem-intro p { font-family: 'Poppins', sans-serif; font-size: 15.5px; font-weight: 600; color: var(--accent2); line-height: 1.7; margin: 0; }
+
+  .imp-elem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .imp-elem-grid { grid-template-columns: repeat(2, 1fr); } }
+  .imp-elem-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 6px; padding: 16px 14px; text-align: center; }
+  .imp-elem-card:nth-child(1) { border-top: 3px solid var(--accent); }
+  .imp-elem-card:nth-child(2) { border-top: 3px solid var(--teal); }
+  .imp-elem-card:nth-child(3) { border-top: 3px solid var(--blue); }
+  .imp-elem-card:nth-child(4) { border-top: 3px solid var(--purple); }
+  .imp-elem-icon { font-size: 26px; display: block; margin-bottom: 8px; }
+  .imp-elem-name { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .imp-elem-ex { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* pull quote */
+  .imp-pull-quote { border-left: 5px solid var(--accent); background: var(--accent-lt); padding: 20px 28px; margin: 28px 0; border-radius: 0 4px 4px 0; }
+  .imp-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 15.5px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; margin: 0; }
+
+  /* ═══ FAQ ═══ */
+  .imp-faq-header { margin-bottom: 12px; }
+  .imp-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); background: var(--accent-lt); padding: 6px 16px; border-radius: 100px; }
+  .imp-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(24px, 4vw, 34px); font-weight: 900; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 28px; margin-top: 16px; }
+  .imp-faq-item { border: 1.5px solid var(--rule); border-radius: 6px; margin-bottom: 12px; overflow: hidden; background: var(--white); transition: border-color 0.2s; }
+  .imp-faq-item.open { border-color: var(--accent); }
+  .imp-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; text-align: left; gap: 16px; }
+  .imp-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+  .imp-faq-item.open .imp-faq-q-text { color: var(--accent); }
+  .imp-faq-icon { font-size: 20px; font-weight: 700; color: var(--accent); flex-shrink: 0; line-height: 1; }
+  .imp-faq-ans { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); line-height: 1.85; padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
+  .imp-faq-ans.visible { max-height: 1000px; padding: 0 24px 22px; }
+  .imp-faq-ans strong { color: var(--accent2); font-weight: 600; }
+
+  @media (max-width: 700px) {
+    .imp-body { padding: 48px 18px 72px; }
+    .imp-hero-inner { padding: 0 18px; }
+    .imp-intro-card { padding: 24px 20px; }
+    .imp-faq-q { padding: 16px 18px; }
+    .imp-faq-ans.visible { padding: 0 18px 18px; }
+    .imp-hero-bar { gap: 12px; }
+    .imp-hero-bar-item { flex: 1 1 120px; padding: 0 14px 0 0; margin-right: 14px; border-right: 1px solid rgba(255,255,255,0.08); }
+    .imp-bar-label { font-size: 9px; letter-spacing: 0.12em; margin-bottom: 4px; }
+    .imp-bar-value { font-size: 13px; }
+    .imp-overline { font-size: 10px; letter-spacing: 0.16em; }
+    .imp-hero-title { font-size: clamp(36px, 10vw, 56px); margin-bottom: 24px; }
+    .imp-intro-card p { font-size: 15px; }
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="imp-root"><div class="imp-hero"><div class="imp-hero-grid"></div><div class="imp-hero-ring"></div><div class="imp-glow-a"></div><div class="imp-glow-b"></div><div class="imp-hero-bg-num">2</div><div class="imp-hero-inner"><div class="imp-overline">Class 9 · Science · Chapter 2</div><h1 class="imp-hero-title">Is Matter Around<br><em>Us Pure?</em></h1><div class="imp-hero-bar"><div class="imp-hero-bar-item"><div class="imp-bar-label">Subject</div><div class="imp-bar-value">Science — Chemistry</div></div><div class="imp-hero-bar-item"><div class="imp-bar-label">Topics</div><div class="imp-bar-value">Mixtures · Solutions · Colloids</div></div><div class="imp-hero-bar-item"><div class="imp-bar-label">Board</div><div class="imp-bar-value">CBSE · NCERT</div></div><div class="imp-hero-bar-item"><div class="imp-bar-label">FAQs</div><div class="imp-bar-value">11 Questions</div></div></div></div></div><div class="imp-body"><div class="imp-intro-card"><p>Not everything around us is <strong>pure</strong>. Most substances we encounter daily — air, seawater, milk, alloys — are <strong>mixtures</strong>. This chapter explores how matter is classified, the types of mixtures, how solutions, suspensions, and colloids differ, how we separate mixtures, and what makes something a pure substance versus a compound.</p><p>Understanding purity in chemistry forms the foundation of analytical science — from purifying medicines to separating petroleum products and testing blood in diagnostic labs.</p></div><div class="imp-sec-head"><div class="imp-sec-num">1</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Classification</div><h2 class="imp-sec-title">Pure Substance <span>vs Mixture</span></h2></div></div><p class="imp-body-text">All matter can be broadly classified into <strong>pure substances</strong> (elements and compounds) and <strong>mixtures</strong>. A pure substance has a fixed composition and definite properties. A mixture consists of two or more substances combined in variable proportions.</p><div class="imp-split-banner"><div class="imp-split-col"><div class="imp-split-tag">Mixture</div><div class="imp-split-title">Mixed, Variable</div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Two or more substances combined in — <strong>any ratio</strong></span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>No fixed melting / boiling point</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>No new compound is formed</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Constituents retain their own properties</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Separated by physical methods</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Examples: sea water, air, soil</span></div></div><div class="imp-split-col"><div class="imp-split-tag">Pure Substance</div><div class="imp-split-title" style="color:var(--teal)">Fixed, Definite</div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Fixed composition and definite properties</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Has a definite melting / boiling point</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Cannot be separated by physical methods</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Elements: simplest form, one type of atom</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Compounds: fixed ratio of two or more elements</span></div><div class="imp-split-point"><div class="imp-split-dot"></div><span>Examples: water, gold, sugar, NaCl</span></div></div></div><div class="imp-mix-pair"><div class="imp-mix-card homo"><div class="imp-mix-hdr homo"><div class="imp-mix-hdr-tag">Type 1 · Single Phase</div><div class="imp-mix-hdr-name">Homogeneous Mixture</div></div><div class="imp-mix-body"><div class="imp-mix-def"><strong>Same composition throughout</strong>. Only one phase — no visible line of separation between constituents. Also called a <strong>solution</strong> when liquid.</div><div class="imp-mix-examples"><span class="imp-mix-tag-pill">Sugar solution</span><span class="imp-mix-tag-pill">Vinegar</span><span class="imp-mix-tag-pill">Alloys</span><span class="imp-mix-tag-pill">Air</span></div></div></div><div class="imp-mix-card hetro"><div class="imp-mix-hdr hetro"><div class="imp-mix-hdr-tag">Type 2 · Multiple Phases</div><div class="imp-mix-hdr-name">Heterogeneous Mixture</div></div><div class="imp-mix-body"><div class="imp-mix-def"><strong>Non-uniform composition</strong>. More than one phase with a <strong>visible boundary of separation</strong> between components.</div><div class="imp-mix-examples"><span class="imp-mix-tag-pill">Sand + sugar</span><span class="imp-mix-tag-pill">Chalk in water</span><span class="imp-mix-tag-pill">Smoke in air</span></div></div></div></div><p class="imp-body-text" style="margin-bottom:14px">Each type has three physical-state subtypes:</p><div class="imp-subtype-grid"><div class="imp-subtype-card homo-sub"><span class="imp-subtype-icon">🏗️</span><div class="imp-subtype-name">Solid Homogeneous</div><div class="imp-subtype-ex">Alloys (brass, bronze)</div></div><div class="imp-subtype-card homo-sub"><span class="imp-subtype-icon">🫗</span><div class="imp-subtype-name">Liquid Homogeneous</div><div class="imp-subtype-ex">Alcohol in water</div></div><div class="imp-subtype-card homo-sub"><span class="imp-subtype-icon">🌬️</span><div class="imp-subtype-name">Gas Homogeneous</div><div class="imp-subtype-ex">Air (N₂ + O₂ + others)</div></div><div class="imp-subtype-card hetro-sub"><span class="imp-subtype-icon">⚗️</span><div class="imp-subtype-name">Solid Heterogeneous</div><div class="imp-subtype-ex">Sand + sugar mixture</div></div><div class="imp-subtype-card hetro-sub"><span class="imp-subtype-icon">🥛</span><div class="imp-subtype-name">Solid-Liquid Hetero</div><div class="imp-subtype-ex">Chalk in water</div></div><div class="imp-subtype-card hetro-sub"><span class="imp-subtype-icon">💨</span><div class="imp-subtype-name">Gaseous Heterogeneous</div><div class="imp-subtype-ex">Smoke in air</div></div></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-sec-head"><div class="imp-sec-num">2</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Homogeneous Mixture</div><h2 class="imp-sec-title">Solutions &amp; <span>Concentration</span></h2></div></div><p class="imp-body-text">A <strong>solution</strong> is a homogeneous mixture of two or more substances. Every solution has a solvent and a solute, and its &quot;strength&quot; is described by its concentration.</p><div class="imp-sol-split"><div class="imp-sol-half"><div class="imp-sol-hdr solvent"><div class="imp-sol-hdr-tag">Larger component · Dissolves the solute</div><div class="imp-sol-hdr-name">🫙 Solvent</div></div><div class="imp-sol-body">The component present in <strong>larger amount</strong> that dissolves the other component. It determines the state of the solution. In salt water, <strong>water is the solvent</strong>.</div></div><div class="imp-sol-half"><div class="imp-sol-hdr solute"><div class="imp-sol-hdr-tag">Smaller component · Gets dissolved</div><div class="imp-sol-hdr-name">🧂 Solute</div></div><div class="imp-sol-body">The component present in <strong>lesser quantity</strong> that dissolves in the solvent. In salt water, <strong>salt is the solute</strong>. It can be solid, liquid, or gas.</div></div></div><p class="imp-body-text" style="margin-bottom:14px">Properties that identify a true solution:</p><div class="imp-prop-row"><div class="imp-prop-chip"><span class="imp-prop-chip-icon">🔬</span><div class="imp-prop-chip-text">Homogeneous throughout</div></div><div class="imp-prop-chip"><span class="imp-prop-chip-icon">👁️</span><div class="imp-prop-chip-text">Particles not visible to naked eye</div></div><div class="imp-prop-chip"><span class="imp-prop-chip-icon">🔦</span><div class="imp-prop-chip-text">Light path NOT visible</div></div><div class="imp-prop-chip"><span class="imp-prop-chip-icon">🪣</span><div class="imp-prop-chip-text">Cannot separate by filtration</div></div></div><p class="imp-body-text" style="margin-bottom:14px">Ways to express <strong>concentration of a solution</strong>:</p><div class="imp-formula-grid"><div class="imp-formula-card"><div class="imp-formula-label">Mass % (w/w)</div><div class="imp-formula-abbr">Mass percentage</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Mass of component in solution × 100%</div><div class="imp-formula-den">Total mass of solution</div></div></div></div><div class="imp-formula-card"><div class="imp-formula-label">Volume % (v/v)</div><div class="imp-formula-abbr">Volume percentage</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Volume of component × 100%</div><div class="imp-formula-den">Total volume of solution</div></div></div></div><div class="imp-formula-card"><div class="imp-formula-label">Mass by Volume % (w/v)</div><div class="imp-formula-abbr">Weight / volume</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Mass of solute × 100%</div><div class="imp-formula-den">Total volume of solution</div></div></div></div><div class="imp-formula-card"><div class="imp-formula-label">Parts per Million</div><div class="imp-formula-abbr">ppm</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Parts of component × 10⁶</div><div class="imp-formula-den">Total parts of all components</div></div></div></div><div class="imp-formula-card"><div class="imp-formula-label">Mole Fraction (x)</div><div class="imp-formula-abbr">Σ mole fractions = 1</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Moles of component</div><div class="imp-formula-den">Total moles of all components</div></div></div></div><div class="imp-formula-card"><div class="imp-formula-label">Molarity (M)</div><div class="imp-formula-abbr">mol / L of solution</div><div class="imp-formula-frac-row"><div class="imp-formula-frac"><div class="imp-formula-num">Moles of solute</div><div class="imp-formula-den">Volume of solution in litres</div></div></div></div></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-sec-head"><div class="imp-sec-num">3</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Types of Mixtures</div><h2 class="imp-sec-title">Solution · Suspension · <span>Colloid</span></h2></div></div><p class="imp-body-text">Based on particle size and the visibility of components, liquid mixtures are classified into three types: solutions, suspensions, and colloids.</p><div class="imp-three-compare"><div class="imp-three-hdr"><div class="imp-three-hdr-cell">Property</div><div class="imp-three-hdr-cell">🫗 Solution</div><div class="imp-three-hdr-cell">🌊 Suspension</div><div class="imp-three-hdr-cell">🥛 Colloid</div></div><div class="imp-three-row"><div class="imp-three-cell">Mixture type</div><div class="imp-three-cell ">Homogeneous</div><div class="imp-three-cell ">Heterogeneous</div><div class="imp-three-cell ">Heterogeneous</div></div><div class="imp-three-row"><div class="imp-three-cell">Particle size</div><div class="imp-three-cell ">&lt;1 nm</div><div class="imp-three-cell ">&gt;100 nm</div><div class="imp-three-cell ">1–100 nm</div></div><div class="imp-three-row"><div class="imp-three-cell">Visible to eye</div><div class="imp-three-cell no">no</div><div class="imp-three-cell yes">yes</div><div class="imp-three-cell no">no</div></div><div class="imp-three-row"><div class="imp-three-cell">Tyndall effect</div><div class="imp-three-cell no">no</div><div class="imp-three-cell yes">yes</div><div class="imp-three-cell yes">yes</div></div><div class="imp-three-row"><div class="imp-three-cell">Settles down</div><div class="imp-three-cell no">no</div><div class="imp-three-cell yes">yes</div><div class="imp-three-cell no">no</div></div><div class="imp-three-row"><div class="imp-three-cell">Filterable</div><div class="imp-three-cell no">no</div><div class="imp-three-cell yes">yes</div><div class="imp-three-cell no">no</div></div><div class="imp-three-row"><div class="imp-three-cell">Example</div><div class="imp-three-cell ">Salt water</div><div class="imp-three-cell ">Sand+water</div><div class="imp-three-cell ">Milk, fog</div></div></div><div class="imp-colloid-section-label">Colloid Classification — Dispersed Phase × Dispersion Medium</div><div class="imp-colloid-table"><div class="imp-colloid-hdr"><div class="imp-colloid-hdr-cell">Dispersion Medium ↓</div><div class="imp-colloid-hdr-cell">Dispersed: Solid</div><div class="imp-colloid-hdr-cell">Dispersed: Liquid</div><div class="imp-colloid-hdr-cell">Dispersed: Gas</div></div><div class="imp-colloid-row"><div class="imp-colloid-cell">Solid</div><div class="imp-colloid-cell">Solid sol (ruby glass)</div><div class="imp-colloid-cell">Gel (cheese, jelly)</div><div class="imp-colloid-cell">Foam (sponge, rubber)</div></div><div class="imp-colloid-row"><div class="imp-colloid-cell">Liquid</div><div class="imp-colloid-cell">Sol (mud, milk of mag.)</div><div class="imp-colloid-cell">Emulsion (milk, cream)</div><div class="imp-colloid-cell">Foam (shaving cream)</div></div><div class="imp-colloid-row"><div class="imp-colloid-cell">Gas</div><div class="imp-colloid-cell">Aerosol (smoke, exhaust)</div><div class="imp-colloid-cell">Aerosol (fog, cloud)</div><div class="imp-colloid-cell">All gases miscible</div></div></div><div class="imp-tyndall"><div class="imp-tyndall-icon">🔦</div><div><div class="imp-tyndall-title">The Tyndall Effect</div><div class="imp-tyndall-text">When a beam of light passes through a colloid, the <strong>colloidal particles scatter the light</strong>, making the path of the beam visible. This is called the Tyndall effect. It is seen in <strong>milk, fog, and smoke</strong> — but not in true solutions, where particles are too small to scatter light. This is also why a beam of sunlight appears visible through a dusty room.</div></div></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-sec-head"><div class="imp-sec-num">4</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Techniques</div><h2 class="imp-sec-title">Methods of <span>Separation</span></h2></div></div><p class="imp-body-text">Mixtures can be separated using physical methods that exploit differences in physical properties — boiling point, solubility, density, particle size, or the ability to sublime.</p><div class="imp-sep-list"><div class="imp-sep-item"><div class="imp-sep-method evap"><span class="imp-sep-method-icon">♨️</span><div class="imp-sep-method-name">Evaporation</div></div><div class="imp-sep-desc">Used to separate a <strong>volatile solvent from a non-volatile solute</strong>. When the solution is heated, the solvent evaporates leaving the solute behind. <span class="imp-sep-use">Use: salt from seawater</span></div></div><div class="imp-sep-item"><div class="imp-sep-method centri"><span class="imp-sep-method-icon">🌀</span><div class="imp-sep-method-name">Centrifugation</div></div><div class="imp-sep-desc">Based on the principle of <strong>density differences</strong>. The centrifuge spins the mixture at high speed, causing denser particles to settle. <span class="imp-sep-use">Use: cream from milk, blood tests, urine tests</span></div></div><div class="imp-sep-item"><div class="imp-sep-method funnel"><span class="imp-sep-method-icon">🫙</span><div class="imp-sep-method-name">Separating Funnel</div></div><div class="imp-sep-desc">Used to separate <strong>immiscible liquids</strong> that form two distinct layers. The denser liquid settles at the bottom and is drained. <span class="imp-sep-use">Use: oil and water, slag in iron extraction</span></div></div><div class="imp-sep-item"><div class="imp-sep-method subli"><span class="imp-sep-method-icon">🌫️</span><div class="imp-sep-method-name">Sublimation</div></div><div class="imp-sep-desc">Used when one component can <strong>sublime directly from solid to gas</strong> on heating. The vapour is collected and condensed elsewhere. <span class="imp-sep-use">Use: ammonium chloride, camphor, naphthalene, anthracene</span></div></div><div class="imp-sep-item"><div class="imp-sep-method chrom"><span class="imp-sep-method-icon">🎨</span><div class="imp-sep-method-name">Chromatography</div></div><div class="imp-sep-desc">Separates solutes that <strong>dissolve in the same solvent</strong> based on their different rates of movement on a stationary phase. <span class="imp-sep-use">Use: colours in dye, pigments, drugs from blood</span></div></div><div class="imp-sep-item"><div class="imp-sep-method distil"><span class="imp-sep-method-icon">⚗️</span><div class="imp-sep-method-name">Distillation</div></div><div class="imp-sep-desc">Separates two <strong>miscible liquids with different boiling points</strong> by heating then condensing the vapours. <span class="imp-sep-use">Use: acetone + water, purifying water</span></div></div><div class="imp-sep-item"><div class="imp-sep-method fdist"><span class="imp-sep-method-icon">🛢️</span><div class="imp-sep-method-name">Fractional Distillation</div></div><div class="imp-sep-desc">Used when the <strong>boiling point difference is less than 25 K</strong>. A fractionating column allows gradual separation. <span class="imp-sep-use">Use: petroleum refining, separating air into N₂, O₂, Ar</span></div></div><div class="imp-sep-item"><div class="imp-sep-method cryst"><span class="imp-sep-method-icon">💎</span><div class="imp-sep-method-name">Crystallisation</div></div><div class="imp-sep-desc">Separates pure solids from a solution by <strong>forming crystals on slow cooling</strong>. Impurities remain in solution. <span class="imp-sep-use">Use: purifying salt, copper sulphate, alum</span></div></div></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-sec-head"><div class="imp-sec-num">5</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Types of Change</div><h2 class="imp-sec-title">Physical vs <span>Chemical Change</span></h2></div></div><p class="imp-body-text">Changes in matter are of two kinds. <strong>Physical changes</strong> alter only appearance or state; <strong>chemical changes</strong> alter the chemical composition to produce entirely new substances.</p><div class="imp-change-box"><div class="imp-change-card"><div class="imp-change-hdr-cell"><div class="imp-change-hdr-dot"></div>Physical Change</div><div class="imp-change-col"><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Change in physical properties only — shape, size, state</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">No new substance formed</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Chemical composition stays the same</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Usually reversible (e.g., melting, dissolving)</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">No energy change required</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Examples: cutting paper, melting ice, boiling water</div></div></div></div><div class="imp-change-card"><div class="imp-change-hdr-cell"><div class="imp-change-hdr-dot"></div>Chemical Change</div><div class="imp-change-col"><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Change in chemical composition of the substance</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">One or more new substances formed</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Chemical composition is different from original</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Usually irreversible (e.g., burning, rusting)</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Always accompanied by an energy change</div></div><div class="imp-change-row"><div class="imp-change-dot"></div><div class="imp-change-text">Examples: burning wood, rusting iron, cooking</div></div></div></div></div><p class="imp-body-text" style="margin-top:28px">Closely related distinction — <strong>mixture vs compound</strong>:</p><div class="imp-mc-table"><div class="imp-mc-hdr"><div class="imp-mc-hdr-cell">🫗 Mixture</div><div class="imp-mc-hdr-cell">⚗️ Compound</div></div><div class="imp-mc-row"><div class="imp-mc-cell">No new compound formed</div><div class="imp-mc-cell">New compound is formed</div></div><div class="imp-mc-row"><div class="imp-mc-cell">Elements or compounds just mix</div><div class="imp-mc-cell">Elements react chemically</div></div><div class="imp-mc-row"><div class="imp-mc-cell">Properties of constituents unchanged</div><div class="imp-mc-cell">New substance has totally new properties</div></div><div class="imp-mc-row"><div class="imp-mc-cell">Any ratio of mixing</div><div class="imp-mc-cell">Fixed ratio (by mass)</div></div><div class="imp-mc-row"><div class="imp-mc-cell">Separated by physical methods</div><div class="imp-mc-cell">Separated only by chemical methods / electrolysis</div></div></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-sec-head"><div class="imp-sec-num">6</div><div class="imp-sec-title-wrap"><div class="imp-sec-kicker">Pure Substances</div><h2 class="imp-sec-title">Elements &amp; <span>Compounds</span></h2></div></div><div class="imp-elem-intro"><p>A <strong>pure substance</strong> can be classified as either an element or a compound. Elements are the simplest — they cannot be broken down further by chemical reactions. Compounds are formed when two or more elements combine in a <strong>fixed chemical proportion</strong>.</p></div><p class="imp-body-text" style="margin-bottom:14px">Elements are classified into four categories:</p><div class="imp-elem-grid"><div class="imp-elem-card"><span class="imp-elem-icon">🔩</span><div class="imp-elem-name">Metals</div><div class="imp-elem-ex">Iron, copper, gold, silver — lustrous, malleable, ductile, conductors</div></div><div class="imp-elem-card"><span class="imp-elem-icon">🌑</span><div class="imp-elem-name">Non-metals</div><div class="imp-elem-ex">Oxygen, carbon, sulphur — brittle, insulators, usually dull</div></div><div class="imp-elem-card"><span class="imp-elem-icon">🔲</span><div class="imp-elem-name">Metalloids</div><div class="imp-elem-ex">Silicon, germanium — properties of both metals and non-metals</div></div><div class="imp-elem-card"><span class="imp-elem-icon">🫧</span><div class="imp-elem-name">Noble Gases</div><div class="imp-elem-ex">Helium, neon, argon — inert, extremely stable, do not react</div></div></div><div class="imp-pull-quote"><p>&quot;Pure chemistry begins with recognising what is pure. Most everyday substances are mixtures — and the power to separate and purify them underpins everything from medicine to metallurgy to environmental science.&quot;</p></div><div class="imp-divider"><div class="imp-divider-mark"></div></div><div class="imp-faq-header"><span class="imp-faq-kicker">Exam Preparation</span></div><h2 class="imp-faq-title">Frequently Asked Questions</h2><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q1. What is a mixture? What are its key characteristics?</span></summary><div class="imp-faq-ans visible">A <strong>mixture</strong> is a combination of two or more elements or compounds mixed together in any ratio, without forming a new compound.<br><br>Key characteristics:<br>• Composition is <strong>variable</strong> — no fixed ratio of components.<br>• <strong>No new substance</strong> is formed; constituents retain their original properties.<br>• <strong>No fixed melting or boiling point</strong>.<br>• Components can be separated by <strong>physical methods</strong> (filtration, evaporation, etc.).<br>• Examples: sea water, air, chocolate milk, alloys.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q2. What is the difference between homogeneous and heterogeneous mixtures?</span></summary><div class="imp-faq-ans visible"><strong>Homogeneous mixtures</strong> have a uniform composition throughout — they exist as a single phase with no visible boundary between components. Examples: sugar solution, vinegar, salt water, alloys.<br><br><strong>Heterogeneous mixtures</strong> have more than one phase. The components are not uniformly distributed and there is a <strong>visible boundary of separation</strong>. Examples: sand + sugar, chalk in water, smoke in air.<br><br>Each type has three subtypes: solid, liquid, and gaseous. For example, alloys are solid homogeneous mixtures; milk is a liquid heterogeneous mixture (emulsion).</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q3. What is a solution? What are its properties?</span></summary><div class="imp-faq-ans visible">A <strong>solution</strong> is a homogeneous mixture of two or more substances.<br><br>Components:<br>• <strong>Solvent</strong> — the component present in larger amount that dissolves the other (e.g., water in salt water).<br>• <strong>Solute</strong> — the component present in smaller amount that gets dissolved (e.g., salt in salt water).<br><br>Properties of a solution:<br>• Homogeneous mixture with <strong>uniform composition</strong>.<br>• Particles are <strong>extremely small</strong> (&lt;1 nm) — not visible to the naked eye.<br>• <strong>Light path not visible</strong> (no Tyndall effect).<br>• Solute <strong>cannot be separated by filtration</strong> — particles pass through filter paper.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q4. What are the different ways to express the concentration of a solution?</span></summary><div class="imp-faq-ans visible">Concentration tells us how much solute is present in a given amount of solution. Methods:<br><br>• <strong>Mass % (w/w)</strong> = (Mass of component ÷ Total mass of solution) × 100<br>• <strong>Volume % (v/v)</strong> = (Volume of component ÷ Total volume of solution) × 100<br>• <strong>Mass by volume % (w/v)</strong> = (Mass of solute ÷ Total volume of solution) × 100<br>• <strong>Parts per million (ppm)</strong> = (Parts of component ÷ Total parts of all components) × 10⁶<br>• <strong>Mole fraction (x)</strong> = Moles of component ÷ Total moles of all components (sum of all mole fractions = 1)<br>• <strong>Molarity (M)</strong> = Moles of solute ÷ Volume of solution in litres<br>• <strong>Molality (m)</strong> = Moles of solute ÷ Mass of solvent in kg</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q5. What is a suspension? How is it different from a solution?</span></summary><div class="imp-faq-ans visible">A <strong>suspension</strong> is a heterogeneous mixture of a solid and a liquid, where solid particles are suspended in the liquid medium (e.g., sand in water, chalk in water).<br><br>Differences from a solution:<br>• Suspension particles are <strong>visible to the naked eye</strong>; solution particles are not.<br>• Suspension particles <strong>settle down</strong> on standing; solution is stable.<br>• Light path <strong>is visible</strong> in suspension; not in solution.<br>• Suspension can be separated by <strong>filtration</strong>; solution cannot.<br>• Suspension is <strong>heterogeneous</strong>; solution is homogeneous.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q6. What is a colloid? What is the Tyndall effect?</span></summary><div class="imp-faq-ans visible">A <strong>colloid</strong> is a type of mixture where one substance is dispersed evenly throughout another, but the particle size (1–100 nm) is intermediate — larger than a solution but smaller than a suspension.<br><br>Properties:<br>• Heterogeneous mixture, but <strong>particles not visible</strong> to the naked eye.<br>• <strong>Light path visible</strong> (Tyndall effect).<br>• Particles do <strong>not settle down</strong> on standing.<br>• <strong>Cannot be separated by filtration</strong>.<br><br><strong>Tyndall effect</strong>: The scattering of a beam of light by colloidal particles. When a beam of light is passed through a colloid, the path of light becomes visible due to scattering. Example: milk, fog. This is how we see a beam of sunlight through a dusty room.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q7. How are colloids classified? Give examples.</span></summary><div class="imp-faq-ans visible">Colloids are classified based on the states of the <strong>dispersed phase</strong> and the <strong>dispersion medium</strong>:<br><br>• <strong>Solid in liquid</strong> (Sol): Mud, milk of magnesia<br>• <strong>Liquid in liquid</strong> (Emulsion): Milk, cream<br>• <strong>Gas in liquid</strong> (Foam): Shaving cream<br>• <strong>Solid in solid</strong> (Solid sol): Coloured gemstone, ruby glass<br>• <strong>Liquid in solid</strong> (Gel): Cheese, jelly<br>• <strong>Gas in solid</strong> (Foam/solid): Sponge, foam rubber<br>• <strong>Solid in gas</strong> (Aerosol): Smoke, automobile exhaust<br>• <strong>Liquid in gas</strong> (Aerosol): Fog, cloud<br><br>Also classified by interaction: <strong>hydrophilic</strong> (water-attracting) and <strong>hydrophobic</strong> (water-repelling) colloids.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q8. What are the main methods of separation and when are they used?</span></summary><div class="imp-faq-ans visible">Each method suits specific types of mixtures:<br><br>• <strong>Evaporation</strong>: Volatile solvent + non-volatile solute (e.g., salt from seawater).<br>• <strong>Centrifugation</strong>: Cream from milk; blood cells from plasma in labs.<br>• <strong>Separating funnel</strong>: Immiscible liquids like oil and water; slag in iron extraction.<br>• <strong>Sublimation</strong>: Substances that sublime directly — ammonium chloride, camphor, naphthalene.<br>• <strong>Chromatography</strong>: Solutes that dissolve in the same solvent — separating dyes, pigments, drugs from blood.<br>• <strong>Distillation</strong>: Two miscible liquids with different boiling points (acetone + water).<br>• <strong>Fractional distillation</strong>: Boiling point difference &lt;25 K (petroleum products; liquid air into nitrogen, oxygen, etc.).<br>• <strong>Crystallisation</strong>: Purifying solids from solutions (copper sulphate, salt, alum).</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q9. What is the difference between a physical change and a chemical change?</span></summary><div class="imp-faq-ans visible"><strong>Physical change</strong>: Only the physical properties of a substance change. No new substance is formed, chemical composition stays the same, and most changes are reversible. Example: melting ice, dissolving sugar, cutting paper.<br><br><strong>Chemical change</strong>: The chemical composition of the substance changes. One or more new substances are formed with different properties. Most chemical changes are irreversible and always accompanied by a <strong>change in energy</strong>. Example: burning wood, rusting iron, cooking food.<br><br>Key test: If new substance forms → chemical change. If only appearance/state changes → physical change.</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q10. What is the difference between a mixture and a compound?</span></summary><div class="imp-faq-ans visible"><strong>Mixture</strong>:<br>• Components mixed in any ratio; no new compound formed.<br>• Elements or compounds just mix — no chemical reaction.<br>• Properties of constituents remain unchanged.<br>• Can be separated by physical methods (filtration, distillation, etc.).<br><br><strong>Compound</strong>:<br>• Elements combine in a fixed definite proportion by a chemical reaction.<br>• A new substance with entirely new properties is formed.<br>• Cannot be separated by physical methods — requires chemical methods or electrolysis.<br><br>Example: Air is a mixture (N₂ and O₂ in variable amounts); Water (H₂O) is a compound (H and O in fixed 2:1 ratio).</div></details><details class="imp-faq-item" data-faq><summary class="imp-faq-q"><span class="imp-faq-q-text">Q11. What are elements and compounds? How are elements classified?</span></summary><div class="imp-faq-ans visible">An <strong>element</strong> is the basic form of matter that <strong>cannot be broken down into simpler substances</strong> by chemical reactions. Elements are the simplest pure substances. Examples: iron (Fe), oxygen (O), gold (Au), carbon (C).<br><br>Elements are classified into four types:<br>• <strong>Metals</strong>: Lustrous, malleable, ductile, good conductors (iron, copper, gold).<br>• <strong>Non-metals</strong>: Brittle, poor conductors, usually gases or dull solids (oxygen, sulphur, carbon).<br>• <strong>Metalloids</strong>: Have properties of both metals and non-metals (silicon, germanium).<br>• <strong>Noble gases</strong>: Inert, extremely stable, do not react under normal conditions (helium, neon, argon).<br><br>A <strong>compound</strong> is formed when two or more elements combine chemically in a <strong>fixed proportion</strong>. The properties of a compound are completely different from its constituent elements.</div></details></div></div>

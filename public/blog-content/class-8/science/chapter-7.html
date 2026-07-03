@@ -1,0 +1,231 @@
+<style>
+  :root {
+    --ink:        #020f04;
+    --ink2:       #071a0a;
+    --muted:      #3a6040;
+    --paper:      #f2fbf4;
+    --paper2:     #d8f0de;
+    --accent:     #15803d;
+    --accent2:    #166534;
+    --accent-lt:  #dcfce7;
+    --lime:       #4d7c0f;
+    --lime-lt:    #ecfccb;
+    --teal:       #0f766e;
+    --teal-lt:    #ccfbf1;
+    --amber:      #b45309;
+    --amber-lt:   #fef3c7;
+    --red:        #be123c;
+    --red-lt:     #ffe4e6;
+    --blue:       #1e40af;
+    --blue-lt:    #dbeafe;
+    --brown:      #78350f;
+    --rule:       #86efac;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .cpa-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO — deep forest-earth night ═══ */
+  .cpa-hero {
+    background: linear-gradient(135deg, #010802 0%, #031408 50%, #051e0c 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) { .cpa-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; } }
+  .cpa-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #15803d 0%, #4d7c0f 28%, #0f766e 55%, #b45309 80%, #be123c 100%);
+  }
+  .cpa-hero-canopy {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 60px 80px at 15% 20%, rgba(21,128,61,0.06) 0%, transparent 100%),
+      radial-gradient(ellipse 40px 60px at 35% 10%, rgba(77,124,15,0.05) 0%, transparent 100%),
+      radial-gradient(ellipse 50px 70px at 70% 15%, rgba(21,128,61,0.07) 0%, transparent 100%),
+      radial-gradient(ellipse 30px 50px at 88% 25%, rgba(15,118,110,0.04) 0%, transparent 100%),
+      repeating-linear-gradient(180deg, transparent 0px, transparent 60px, rgba(21,128,61,0.03) 60px, rgba(21,128,61,0.03) 61px);
+  }
+  .cpa-hero-ring { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); width: clamp(140px,22vw,290px); height: clamp(140px,22vw,290px); border-radius: 50%; border: 1.5px solid rgba(21,128,61,0.16); pointer-events: none; }
+  .cpa-hero-ring::before { content: ''; position: absolute; inset: 18%; border-radius: 50%; border: 1px dashed rgba(77,124,15,0.14); }
+  .cpa-hero-ring::after  { content: ''; position: absolute; inset: 40%; border-radius: 50%; background: rgba(21,128,61,0.07); }
+  .cpa-glow-a { position: absolute; top: 14%; left: 6%; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(21,128,61,0.18) 0%, transparent 68%); pointer-events: none; }
+  .cpa-glow-b { position: absolute; bottom: 8%; right: 22%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(77,124,15,0.12) 0%, transparent 70%); pointer-events: none; }
+  .cpa-hero-bg-num { position: absolute; bottom: -80px; right: -20px; font-family: 'Montserrat', sans-serif; font-size: clamp(200px,34vw,480px); font-weight: 900; line-height: 1; color: rgba(255,255,255,0.018); letter-spacing: -0.04em; user-select: none; pointer-events: none; }
+  .cpa-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .cpa-overline { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #86efac; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+  .cpa-overline::before, .cpa-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #86efac; }
+  .cpa-hero-title { font-family: 'Montserrat', sans-serif; font-size: clamp(34px,7vw,76px); font-weight: 900; color: #fff; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px; }
+  .cpa-hero-title em   { font-style: normal; color: #86efac; }
+  .cpa-hero-title .em2 { color: #6ee7b7; }
+  .cpa-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .cpa-hero-bar-item { flex: 1 1 150px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .cpa-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .cpa-bar-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .cpa-bar-value { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72); }
+
+  /* ═══ BODY ═══ */
+  .cpa-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* ═══ INTRO CARD ═══ */
+  .cpa-intro-card { background: linear-gradient(135deg, #010802 0%, #051e0c 100%); border-left: 5px solid #15803d; border-radius: 4px; padding: 38px 42px; margin-bottom: 64px; position: relative; overflow: hidden; }
+  .cpa-intro-card::after { content: '🌳'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 96px; opacity: 0.09; }
+  .cpa-intro-card p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .cpa-intro-card p:last-child { margin: 0; }
+  .cpa-intro-card strong { color: #86efac; }
+
+  /* ═══ DIVIDER ═══ */
+  .cpa-divider { margin: 60px 0; display: flex; align-items: center; gap: 16px; }
+  .cpa-divider::before, .cpa-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .cpa-divider-mark { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .cpa-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 34px; border-bottom: 2px solid var(--rule); padding-bottom: 20px; }
+  .cpa-sec-num { font-family: 'Montserrat', sans-serif; font-size: 58px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .cpa-sec-title-wrap { padding-top: 8px; }
+  .cpa-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .cpa-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px,3.5vw,32px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .cpa-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .cpa-body-text { font-family: 'Inter', sans-serif; font-size: 17px; color: var(--ink2); line-height: 1.85; margin-bottom: 28px; }
+  .cpa-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: DEFORESTATION CAUSES — icon row ═══ */
+  .cpa-causes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .cpa-causes { grid-template-columns: 1fr; } }
+  .cpa-cause-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 20px 18px; text-align: center; border-top: 4px solid var(--red); }
+  .cpa-cause-card:nth-child(2) { border-top-color: var(--amber); }
+  .cpa-cause-card:nth-child(3) { border-top-color: var(--brown); }
+  .cpa-cause-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .cpa-cause-title { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .cpa-cause-desc { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ═══ S1: CONSEQUENCES — numbered accordion strips ═══ */
+  .cpa-conseq-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .cpa-conseq-item { display: grid; grid-template-columns: 52px 1fr; gap: 0; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--rule); background: var(--white); }
+  .cpa-conseq-num { background: linear-gradient(180deg, #031408 0%, #051e0c 100%); color: #86efac; font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .cpa-conseq-body { padding: 16px 20px; }
+  .cpa-conseq-title { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .cpa-conseq-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--muted); line-height: 1.65; }
+  .cpa-conseq-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S2: CONSERVATION — 3 protected area cards ═══ */
+  .cpa-protected-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+  @media (max-width: 620px) { .cpa-protected-grid { grid-template-columns: 1fr; } }
+  .cpa-pa-card { background: linear-gradient(160deg, #031408 0%, #051e0c 100%); border: 1.5px solid rgba(21,128,61,0.22); border-radius: 10px; padding: 24px 20px; }
+  .cpa-pa-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+  .cpa-pa-name { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; color: #86efac; margin-bottom: 6px; }
+  .cpa-pa-tag { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; }
+  .cpa-pa-desc { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(255,255,255,0.58); line-height: 1.65; }
+  .cpa-pa-desc strong { color: rgba(255,255,255,0.82); }
+  .cpa-pa-eg { margin-top: 10px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: rgba(134,239,172,0.7); }
+
+  /* ═══ S2: BIOSPHERE RESERVE HIGHLIGHT ═══ */
+  .cpa-biosphere-box { background: var(--teal-lt); border-left: 4px solid var(--teal); border-radius: 4px; padding: 20px 24px; margin-bottom: 24px; }
+  .cpa-biosphere-box p { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.75; }
+  .cpa-biosphere-box strong { color: var(--teal); font-weight: 700; }
+
+  /* ═══ S3: FLORA & FAUNA + ENDEMIC ═══ */
+  .cpa-ff-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 580px) { .cpa-ff-split { grid-template-columns: 1fr; } }
+  .cpa-ff-card { border-radius: 10px; padding: 24px 22px; }
+  .cpa-ff-card.flora  { background: var(--lime-lt); border: 2px solid var(--lime); }
+  .cpa-ff-card.fauna  { background: var(--amber-lt); border: 2px solid var(--amber); }
+  .cpa-ff-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .cpa-ff-name { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  .flora .cpa-ff-name  { color: var(--lime); }
+  .fauna .cpa-ff-name  { color: var(--amber); }
+  .cpa-ff-desc { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.7; }
+
+  .cpa-endemic-box { background: linear-gradient(135deg, #031408 0%, #051e0c 100%); border-radius: 10px; padding: 24px 28px; margin-bottom: 24px; border: 1.5px solid rgba(21,128,61,0.25); }
+  .cpa-endemic-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: #86efac; margin-bottom: 10px; }
+  .cpa-endemic-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.78; }
+  .cpa-endemic-text strong { color: #bbf7d0; }
+
+  /* ═══ S3: WILDLIFE SANCTUARY vs NATIONAL PARK ═══ */
+  .cpa-wp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 12px; overflow: hidden; border: 1.5px solid var(--rule); margin-bottom: 24px; }
+  @media (max-width: 580px) { .cpa-wp-split { grid-template-columns: 1fr; } }
+  .cpa-wp-col { padding: 24px 22px; }
+  .cpa-wp-col.sanctuary { background: var(--accent-lt); }
+  .cpa-wp-col.natpark   { background: var(--teal-lt); border-left: 2px solid var(--rule); }
+  @media (max-width: 580px) { .cpa-wp-col.natpark { border-left: none; border-top: 2px solid var(--rule); } }
+  .cpa-wp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .cpa-wp-icon { font-size: 26px; }
+  .cpa-wp-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; }
+  .sanctuary .cpa-wp-title { color: var(--accent2); }
+  .natpark   .cpa-wp-title { color: var(--teal); }
+  .cpa-wp-text { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.72; }
+  .cpa-wp-text strong { font-weight: 700; }
+  .sanctuary .cpa-wp-text strong { color: var(--accent2); }
+  .natpark   .cpa-wp-text strong { color: var(--teal); }
+  .cpa-wp-eg { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; }
+  .sanctuary .cpa-wp-eg { color: var(--accent); }
+  .natpark   .cpa-wp-eg { color: var(--teal); }
+
+  /* ═══ S4: EXTINCT & ENDANGERED ═══ */
+  .cpa-species-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  @media (max-width: 580px) { .cpa-species-split { grid-template-columns: 1fr; } }
+  .cpa-species-card { border-radius: 10px; padding: 24px 22px; }
+  .cpa-species-card.extinct    { background: linear-gradient(135deg, #1a0208 0%, #280310 100%); border: 1.5px solid rgba(190,18,60,0.25); }
+  .cpa-species-card.endangered { background: var(--amber-lt); border: 2px solid var(--amber); }
+  .cpa-species-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .cpa-species-name { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .extinct    .cpa-species-name { color: #fda4af; }
+  .endangered .cpa-species-name { color: var(--amber); }
+  .cpa-species-def { font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.68; margin-bottom: 10px; }
+  .extinct    .cpa-species-def { color: rgba(255,255,255,0.65); }
+  .endangered .cpa-species-def { color: var(--ink2); }
+  .cpa-species-eg { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; font-style: italic; }
+  .extinct    .cpa-species-eg { color: rgba(253,164,175,0.7); }
+  .endangered .cpa-species-eg { color: var(--amber); }
+
+  .cpa-red-data { background: var(--red-lt); border-left: 4px solid var(--red); border-radius: 4px; padding: 18px 22px; margin-bottom: 24px; }
+  .cpa-red-data p { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.72; }
+  .cpa-red-data strong { color: var(--red); font-weight: 700; }
+
+  /* ═══ S5: MIGRATION ═══ */
+  .cpa-migration-box { background: var(--blue-lt); border: 1.5px solid var(--blue); border-radius: 10px; padding: 24px 26px; margin-bottom: 24px; }
+  .cpa-migration-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+  .cpa-migration-text { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.75; }
+  .cpa-migration-text strong { color: var(--blue); font-weight: 700; }
+
+  /* ═══ S6: PAPER RECYCLING + REFORESTATION ═══ */
+  .cpa-paper-reforest { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 580px) { .cpa-paper-reforest { grid-template-columns: 1fr; } }
+  .cpa-pr-card { border-radius: 10px; padding: 24px 22px; }
+  .cpa-pr-card.paper  { background: var(--lime-lt); border: 2px solid var(--lime); }
+  .cpa-pr-card.reforest { background: var(--accent-lt); border: 2px solid var(--accent); }
+  .cpa-pr-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .cpa-pr-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .paper    .cpa-pr-title { color: var(--lime); }
+  .reforest .cpa-pr-title { color: var(--accent2); }
+  .cpa-pr-text { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.72; }
+  .cpa-pr-text strong { font-weight: 700; }
+  .paper    .cpa-pr-text strong { color: var(--lime); }
+  .reforest .cpa-pr-text strong { color: var(--accent2); }
+
+  /* ═══ PULL QUOTE ═══ */
+  .cpa-pull-quote { border-left: 4px solid var(--accent); padding: 22px 30px; margin: 36px 0; background: var(--accent-lt); border-radius: 0 6px 6px 0; }
+  .cpa-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; }
+
+  /* ═══ FAQ ═══ */
+  .cpa-faq-header { margin-bottom: 8px; }
+  .cpa-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+  .cpa-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(24px,4vw,34px); font-weight: 800; color: var(--ink); margin-bottom: 28px; letter-spacing: -0.02em; }
+  .cpa-faq-item { border: 1.5px solid var(--rule); border-radius: 8px; margin-bottom: 12px; overflow: hidden; background: var(--white); }
+  .cpa-faq-item.open { border-color: var(--accent); }
+  .cpa-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; text-align: left; gap: 16px; }
+  .cpa-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+  .cpa-faq-icon { color: var(--accent); font-size: 20px; flex-shrink: 0; }
+  .cpa-faq-ans { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .cpa-faq-ans.visible { max-height: 700px; }
+  .cpa-faq-ans-inner { padding: 0 24px 22px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.82; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .cpa-faq-ans-inner strong { color: var(--accent2); font-weight: 600; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="cpa-root"><div class="cpa-hero"><div class="cpa-hero-canopy"></div><div class="cpa-hero-ring"></div><div class="cpa-glow-a"></div><div class="cpa-glow-b"></div><div class="cpa-hero-bg-num">7</div><div class="cpa-hero-inner"><div class="cpa-overline">Class 8 Science — Chapter 7</div><h1 class="cpa-hero-title">Conservation of<br><em>Plants</em> and <span class="em2">Animals</span></h1><div class="cpa-hero-bar"><div class="cpa-hero-bar-item"><div class="cpa-bar-label">Chapter</div><div class="cpa-bar-value">07 — Environment</div></div><div class="cpa-hero-bar-item"><div class="cpa-bar-label">Topics</div><div class="cpa-bar-value">Deforestation · Wildlife · Migration · Reforestation</div></div><div class="cpa-hero-bar-item"><div class="cpa-bar-label">Board</div><div class="cpa-bar-value">NCERT / CBSE</div></div></div></div></div><div class="cpa-body"><div class="cpa-intro-card"><p>Forests are the lungs of our planet — home to millions of species, regulators of climate, and guardians of our water cycle. Yet they are disappearing at an alarming rate.</p><p>This chapter explores the causes and consequences of <strong>deforestation</strong>, the protected areas established to conserve wildlife, concepts of <strong>biodiversity, endemic species, extinction,</strong> and what each of us can do to protect our natural world.</p></div><div class="cpa-sec-head"><div class="cpa-sec-num">1</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">The Threat</div><h2 class="cpa-sec-title">Deforestation &amp; Its <span>Consequences</span></h2></div></div><p class="cpa-body-text">Clearing forests by cutting trees on a large scale is called <strong>deforestation</strong>. The three main causes:</p><div class="cpa-causes"><div class="cpa-cause-card"><span class="cpa-cause-icon">🪚</span><div class="cpa-cause-title">Obtaining Wood</div><div class="cpa-cause-desc">Trees cut for timber, furniture, construction, and fuel use.</div></div><div class="cpa-cause-card"><span class="cpa-cause-icon">🏭</span><div class="cpa-cause-title">Urbanisation</div><div class="cpa-cause-desc">Land cleared for building houses, factories, and industries.</div></div><div class="cpa-cause-card"><span class="cpa-cause-icon">🌾</span><div class="cpa-cause-title">Agriculture</div><div class="cpa-cause-desc">Forest land converted for farming and crop cultivation.</div></div></div><p class="cpa-body-text">The consequences of deforestation are severe and far-reaching:</p><div class="cpa-conseq-list"><div class="cpa-conseq-item"><div class="cpa-conseq-num">1</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">🌡️ Global Warming</div><div class="cpa-conseq-desc">Less CO₂ absorbed by trees → CO₂ traps heat rays from the sun → Earth surface temperature rises → global warming.</div></div></div><div class="cpa-conseq-item"><div class="cpa-conseq-num">2</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">☁️ Increased CO₂ in Air</div><div class="cpa-conseq-desc">Fewer trees means less photosynthesis. CO₂ levels in the atmosphere keep rising, intensifying climate change.</div></div></div><div class="cpa-conseq-item"><div class="cpa-conseq-num">3</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">💧 Decrease in Underground Water</div><div class="cpa-conseq-desc">Trees release water vapour during transpiration → forms clouds → rain → water percolates underground. Fewer trees = less rain = lower underground water levels.</div></div></div><div class="cpa-conseq-item"><div class="cpa-conseq-num">4</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">🌊 Floods</div><div class="cpa-conseq-desc">Deforestation reduces soil&#x27;s water-holding capacity. Rainwater runs off the surface instead of percolating → causes floods. Paradoxically, deforestation causes both less rainfall AND more flooding.</div></div></div><div class="cpa-conseq-item"><div class="cpa-conseq-num">5</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">🏜️ Desertification</div><div class="cpa-conseq-desc">Without trees, fertile topsoil is eroded by wind and rain. Hard, rocky, infertile lower layers get exposed. Fertile land gradually converts to desert.</div></div></div><div class="cpa-conseq-item"><div class="cpa-conseq-num">6</div><div class="cpa-conseq-body"><div class="cpa-conseq-title">🐾 Loss of Animal Life</div><div class="cpa-conseq-desc">Forests are the natural habitats of wild animals and birds. Deforestation destroys these habitats, displacing and killing countless species.</div></div></div></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-sec-head"><div class="cpa-sec-num">2</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">Protection Zones</div><h2 class="cpa-sec-title">Conservation of Forest <span>&amp; Wildlife</span></h2></div></div><p class="cpa-body-text">We must conserve forests and wildlife to <strong>preserve biodiversity</strong>, prevent endangered species from becoming extinct, and maintain ecological balance. The government has established three types of protected areas:</p><div class="cpa-protected-grid"><div class="cpa-pa-card"><span class="cpa-pa-icon">🦁</span><div class="cpa-pa-name">Wildlife Sanctuary</div><div class="cpa-pa-tag">Animal Protection Zone</div><div class="cpa-pa-desc">Protected area where animals are safe in their <strong>natural habitat</strong>. Hunting strictly prohibited. Trees cannot be cut.</div><div class="cpa-pa-eg">Ex: Sanjay Gandhi (MH), Bharatpur (RJ)</div></div><div class="cpa-pa-card"><span class="cpa-pa-icon">🏔️</span><div class="cpa-pa-name">National Park</div><div class="cpa-pa-tag">Larger Preservation Area</div><div class="cpa-pa-desc">Larger area preserving wild animals, environment, <strong>scenic beauty, and historical objects</strong>. Even stricter protection than sanctuary.</div><div class="cpa-pa-eg">Ex: Corbett (UK), Gir (GJ)</div></div><div class="cpa-pa-card"><span class="cpa-pa-icon">🌐</span><div class="cpa-pa-name">Biosphere Reserve</div><div class="cpa-pa-tag">Largest Protected Area</div><div class="cpa-pa-desc">Vast area for conservation of <strong>biodiversity and traditional lifestyle</strong>. Contains national parks and sanctuaries within it.</div><div class="cpa-pa-eg">Ex: Pachmarhi Biosphere (MP)</div></div></div><div class="cpa-biosphere-box"><p>🌿 <strong>Pachmarhi Biosphere Reserve</strong> in Madhya Pradesh contains: 1 National Park (Satpura) + 2 Wildlife Sanctuaries (Bori and Pachmarhi). Its endemic fauna include Giant squirrel, Flying squirrel, and Bison. Its endemic flora include Sal and Wild mango.</p></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-sec-head"><div class="cpa-sec-num">3</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">Biodiversity</div><h2 class="cpa-sec-title">Flora, Fauna &amp; <span>Endemic Species</span></h2></div></div><div class="cpa-ff-split"><div class="cpa-ff-card flora"><span class="cpa-ff-icon">🌿</span><div class="cpa-ff-name">Flora</div><div class="cpa-ff-desc">The plants that grow naturally in a particular area are called the <strong>flora</strong> of that area. Example: The plants of a forest, grassland, or wetland constitute its flora.</div></div><div class="cpa-ff-card fauna"><span class="cpa-ff-icon">🐘</span><div class="cpa-ff-name">Fauna</div><div class="cpa-ff-desc">The animals that live naturally in a particular area are called the <strong>fauna</strong> of that area. Together, the plants and animals of an area make its flora and fauna.</div></div></div><div class="cpa-endemic-box"><div class="cpa-endemic-title">📌 What Are Endemic Species?</div><div class="cpa-endemic-text">Species of plants and animals found <strong>exclusively in a particular area</strong> and not found naturally anywhere else in the world are called <strong>endemic species</strong>. Example from Pachmarhi Biosphere Reserve: Endemic fauna — Giant squirrel, Flying squirrel, Bison. Endemic flora — Sal, Wild mango.</div></div><p class="cpa-body-text">The difference between Wildlife Sanctuary and National Park:</p><div class="cpa-wp-split"><div class="cpa-wp-col sanctuary"><div class="cpa-wp-head"><span class="cpa-wp-icon">🦓</span><div class="cpa-wp-title">Wildlife Sanctuary</div></div><div class="cpa-wp-text">A protected area where animals are protected in their <strong>natural habitat</strong>. Hunting is strictly prohibited and punishable by law. Trees cannot be cut for any purpose.</div><div class="cpa-wp-eg">Examples: Sanjay Gandhi Wildlife Sanctuary (Maharashtra) · Bharatpur Bird Sanctuary (Rajasthan)</div></div><div class="cpa-wp-col natpark"><div class="cpa-wp-head"><span class="cpa-wp-icon">🏞️</span><div class="cpa-wp-title">National Park</div></div><div class="cpa-wp-text">A <strong>larger area</strong> that preserves wild animals, their environment, scenic beauty, and historical objects. Has stricter and broader conservation mandate than a sanctuary.</div><div class="cpa-wp-eg">Examples: Corbett National Park (Uttarakhand) · Gir National Park (Gujarat)</div></div></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-sec-head"><div class="cpa-sec-num">4</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">Species Status</div><h2 class="cpa-sec-title">Extinct &amp; <span>Endangered</span> Species</h2></div></div><div class="cpa-species-split"><div class="cpa-species-card extinct"><span class="cpa-species-icon">💀</span><div class="cpa-species-name">Extinct Species</div><div class="cpa-species-def">Species which no longer exist on Earth — they have completely died out — are called extinct species.</div><div class="cpa-species-eg">Examples: Dinosaur, Dodo, Cave lion, Iris deer, Caspian tiger</div></div><div class="cpa-species-card endangered"><span class="cpa-species-icon">⚠️</span><div class="cpa-species-name">Endangered Species</div><div class="cpa-species-def">Species which are at serious risk of extinction due to habitat loss, poaching, or other threats. They still exist but in dangerously low numbers.</div><div class="cpa-species-eg">Examples: Great Indian rhinoceros, Tiger, Snow leopard, Asiatic lion, Lion-tailed macaque</div></div></div><div class="cpa-red-data"><p>📕 The <strong>Red Data Book</strong> keeps a complete record of all endangered animals and plants. It is maintained internationally by an organisation and is also maintained by India. It is an essential tool for global wildlife conservation efforts.</p></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-sec-head"><div class="cpa-sec-num">5</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">Seasonal Movement</div><h2 class="cpa-sec-title"><span>Migration</span> of Birds</h2></div></div><div class="cpa-migration-box"><div class="cpa-migration-title">🕊️ What is Migration?</div><div class="cpa-migration-text">Birds which move from <strong>extremely cold places to warmer places in winter</strong> and return when winter is over are called <strong>migratory birds</strong>. They migrate to survive extreme cold conditions and to breed (lay eggs) in more favourable environments. The most famous example is the <strong>Siberian crane</strong> — it travels from Siberia (Russia) to India (Bharatpur in Rajasthan and Sultanpur in Haryana) every year for a few months during winter.</div></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-sec-head"><div class="cpa-sec-num">6</div><div class="cpa-sec-title-wrap"><div class="cpa-sec-kicker">What We Can Do</div><h2 class="cpa-sec-title">Paper Recycling &amp; <span>Reforestation</span></h2></div></div><div class="cpa-paper-reforest"><div class="cpa-pr-card paper"><span class="cpa-pr-icon">♻️</span><div class="cpa-pr-title">Recycle Paper</div><div class="cpa-pr-text"><strong>17 full-grown trees</strong> are needed to make just 1 tonne of paper. By saving, reusing, and recycling paper we save trees from being cut and save the large amounts of water and electricity used in paper manufacturing.</div></div><div class="cpa-pr-card reforest"><span class="cpa-pr-icon">🌱</span><div class="cpa-pr-title">Reforestation</div><div class="cpa-pr-text">Reforestation means <strong>planting trees in areas where forests were destroyed</strong>. Planted trees should ideally be the same species as those cut during deforestation. Reforestation can also happen naturally if deforested areas are left undisturbed.</div></div></div><div class="cpa-pull-quote"><p>&quot;A nation that destroys its soils destroys itself. Forests are the lungs of our land, purifying the air and giving fresh strength to our people — and we must conserve them before they are gone.&quot;</p></div><div class="cpa-divider"><div class="cpa-divider-mark"></div></div><div class="cpa-faq-header"><span class="cpa-faq-kicker">Exam Preparation</span></div><h2 class="cpa-faq-title">Frequently Asked Questions</h2><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q1. What is deforestation? What are its causes?</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Clearing forests by cutting down trees on a large scale is called deforestation. Causes: (1) Trees are cut to obtain wood — for furniture, construction, fuel. (2) To get land for building houses, factories, and industries as human population grows. (3) Trees are cut to get land for cultivation (agriculture). These activities destroy entire ecosystems in pursuit of short-term economic gain.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q2. What are the six consequences of deforestation?</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">(1) Global Warming — Fewer trees means less CO₂ is absorbed. CO₂ traps heat rays reflected by Earth, raising surface temperature. (2) Increased CO₂ levels — less photosynthesis occurs, increasing atmospheric CO₂. (3) Decrease in underground water level — trees release water vapour through transpiration, forming clouds and rain. Fewer trees → less rainfall → less underground water. (4) Floods — deforestation reduces soil water-holding capacity, so rainwater runs off instead of percolating — causing floods. (5) Desertification — removal of top fertile soil through erosion exposes hard, rocky, infertile layers. Fertile land gradually turns into desert. (6) Loss of animal life — forests are natural habitats of wild animals and birds; their destruction displaces and kills wildlife.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q3. What is biodiversity? Why should we conserve forests and wildlife?</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Biodiversity refers to the variety of organisms existing on Earth, their interrelationships, and their relationship with the environment. We should conserve forests and wildlife: (1) To preserve biodiversity — a variety of species is essential for a balanced ecosystem. (2) To prevent endangered species from becoming extinct. (3) To maintain ecological balance in nature — every organism has a role in the food chain and ecosystem.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q4. What are the three protected areas established by the government? Define each.</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">(1) Wildlife Sanctuary — a protected area where animals are protected in their natural habitat. Hunting is strictly prohibited and punishable by law. Trees cannot be cut. Examples: Sanjay Gandhi Wildlife Sanctuary (Maharashtra), Bharatpur Bird Sanctuary (Rajasthan). (2) National Park — a larger area than a sanctuary that preserves wild animals and their environment, as well as scenic beauty and historical objects. Examples: Corbett National Park (Uttarakhand), Gir National Park (Gujarat). (3) Biosphere Reserve — the largest protected area meant for the conservation of biodiversity and the traditional lifestyle of people living in the area. It can contain both national parks and wildlife sanctuaries. Example: Pachmarhi Biosphere Reserve (Madhya Pradesh).</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q5. What is a Biosphere Reserve? Give an example with its components.</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">A biosphere reserve is a large protected area meant for the conservation of biodiversity and the traditional lifestyle of people living in the area. It is a very large area that may contain other protected areas like wildlife sanctuaries and national parks within it. Example: Pachmarhi Biosphere Reserve in Madhya Pradesh consists of one National Park (Satpura) and two Wildlife Sanctuaries (Bori and Pachmarhi). It is an umbrella protection zone that covers both biological and cultural conservation.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q6. What are flora and fauna? What are endemic species?</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Flora: The plants that grow naturally in a particular area are called the flora of that area. Fauna: The animals that live naturally in a particular area are called the fauna of that area. Together, the plants and animals of a particular area are called its flora and fauna. Endemic species: The species of plants and animals found exclusively in a particular area and not found naturally anywhere else are called endemic species. Example: Giant squirrel, flying squirrel, and bison are endemic fauna of Pachmarhi Biosphere Reserve. Sal and wild mango are its endemic flora.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q7. What are extinct species and endangered species? Give examples.</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Extinct species: Species which no longer exist on Earth — they have completely died out — are called extinct species. Examples: Dinosaur, Dodo, Cave lion, Iris deer, Caspian tiger. Endangered species: Species which are at risk of extinction due to habitat loss, hunting, or other factors are called endangered species. They still exist but in dangerously low numbers. Examples: Great Indian rhinoceros, Tiger, Snow leopard, Asiatic lion, Lion-tailed macaque. The Red Data Book keeps a record of all endangered animals and plants. It is maintained internationally and also by India.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q8. What is migration? Give an example of a migratory bird.</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Migration is the seasonal movement of birds (and some animals) from one place to another. Migratory birds move from extremely cold places to warmer places during winter and return when winter is over. They migrate to survive extreme cold and to breed (lay eggs) in more favourable conditions. Example: The Siberian crane is the most well-known migratory bird. It comes from Siberia (Russia) to India every year — to Bharatpur in Rajasthan and Sultanpur in Haryana — for a few months during winter.</div></div></details><details class="cpa-faq-item" data-faq><summary class="cpa-faq-q"><span class="cpa-faq-q-text">Q9. Why should paper be recycled? What is reforestation?</span></summary><div class="cpa-faq-ans visible"><div class="cpa-faq-ans-inner">Paper Recycling: 17 full-grown trees are needed to make just 1 tonne of paper. By saving, reusing, and recycling paper, we can: (1) Save trees from being cut down. (2) Save the large amounts of water and electricity needed for manufacturing paper from raw wood. Reforestation: Reforestation means planting trees in an area where forests were previously destroyed. The planted trees should ideally be of the same species as those cut during deforestation. Reforestation can also take place naturally if the deforested area is left undisturbed — as forests have the capacity to regenerate on their own.</div></div></details></div></div>

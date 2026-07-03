@@ -1,0 +1,585 @@
+<style>
+  :root {
+    --ink:        #0f172a;
+    --ink2:       #1e293b;
+    --muted:      #64748b;
+    --ember:      #c2410c;
+    --ember2:     #ea580c;
+    --ember-bg:   #fff7ed;
+    --ember-bd:   #fed7aa;
+    --gold:       #b45309;
+    --gold2:      #d97706;
+    --gold-bg:    #fffbeb;
+    --gold-bd:    #fde68a;
+    --teal:       #0f766e;
+    --teal2:      #0d9488;
+    --teal-bg:    #f0fdfa;
+    --teal-bd:    #99f6e4;
+    --pine:       #166534;
+    --pine2:      #15803d;
+    --pine-bg:    #f0fdf4;
+    --pine-bd:    #86efac;
+    --slate:      #334155;
+    --slate2:     #475569;
+    --slate-bg:   #f8fafc;
+    --slate-bd:   #cbd5e1;
+    --card:       #ffffff;
+  }
+
+  .blog-root {
+    font-family: 'Inter', sans-serif;
+    background: #fdf8f0;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Hero ── */
+  .rnd-hero {
+    background: linear-gradient(135deg, #1c0a00 0%, #431407 35%, #7c2d12 68%, #c2410c 100%);
+    padding: 80px 24px 96px;
+    position: relative; overflow: hidden;
+  }
+  .rnd-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 10% 65%, rgba(217,119,6,0.22) 0%, transparent 50%),
+      radial-gradient(circle at 88% 18%, rgba(194,65,12,0.28) 0%, transparent 52%),
+      radial-gradient(circle at 52% 94%, rgba(21,128,61,0.12) 0%, transparent 40%);
+  }
+  .rnd-hero::after {
+    content: '🌍';
+    position: absolute; right: 44px; top: 32px;
+    font-size: 130px; opacity: 0.08; line-height: 1;
+  }
+  .rnd-hero-inner {
+    max-width: 820px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .rnd-hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(217,119,6,0.18);
+    border: 1px solid rgba(217,119,6,0.38);
+    color: #fde68a;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 6px 16px; border-radius: 100px;
+    margin-bottom: 28px;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .rnd-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900; line-height: 1.07;
+    color: #ffffff; margin: 0 0 20px;
+    letter-spacing: -0.02em;
+  }
+  .rnd-hero-title span { color: #fdba74; }
+  .rnd-hero-sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px; font-weight: 500;
+    color: #fed7aa; line-height: 1.7;
+    max-width: 620px; margin: 0 0 40px;
+  }
+  .rnd-hero-meta { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .rnd-meta-chip { color: #fdba74; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+  .rnd-meta-dot  { width: 4px; height: 4px; background: #fb923c; border-radius: 50%; display: inline-block; }
+
+  /* ── Body ── */
+  .rnd-body {
+    max-width: 820px; margin: 0 auto;
+    padding: 64px 24px 80px;
+  }
+
+  /* ── Intro card ── */
+  .rnd-intro-card {
+    background: linear-gradient(135deg, #1c0a00, #431407);
+    border-radius: 20px; padding: 40px 44px;
+    margin-bottom: 56px;
+    position: relative; overflow: hidden;
+  }
+  .rnd-intro-card::after {
+    content: '⚙️';
+    position: absolute; top: 10px; right: 28px;
+    font-size: 120px; opacity: 0.07; line-height: 1;
+  }
+  .rnd-intro-card p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 19px; font-weight: 500;
+    color: #fed7aa; line-height: 1.75;
+    margin: 0 0 16px; position: relative; z-index: 1;
+  }
+  .rnd-intro-card p:last-child { margin: 0; }
+  .rnd-intro-card strong { color: #fdba74; }
+
+  /* ── Key concept strip ── */
+  .rnd-concept-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; border-radius: 14px; overflow: hidden;
+    border: 1.5px solid var(--ember-bd);
+    margin-bottom: 56px;
+    box-shadow: 0 4px 18px rgba(194,65,12,0.09);
+  }
+  @media (max-width: 560px) { .rnd-concept-strip { grid-template-columns: 1fr; } }
+  .rnd-cs-box {
+    padding: 26px 20px; text-align: center;
+    background: var(--card);
+    border-right: 1.5px solid var(--ember-bd);
+  }
+  .rnd-cs-box:last-child { border-right: none; }
+  @media (max-width: 560px) {
+    .rnd-cs-box { border-right: none; border-bottom: 1.5px solid var(--ember-bd); }
+    .rnd-cs-box:last-child { border-bottom: none; }
+  }
+  .rnd-cs-icon { font-size: 30px; margin-bottom: 10px; }
+  .rnd-cs-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px; font-weight: 800;
+    color: var(--ember); margin-bottom: 6px;
+  }
+  .rnd-cs-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted); line-height: 1.5;
+  }
+
+  /* ── Labels & titles ── */
+  .rnd-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .rnd-label.emb  { color: var(--ember2); }
+  .rnd-label.gld  { color: var(--gold2); }
+  .rnd-label.tl   { color: var(--teal2); }
+  .rnd-label.pin  { color: var(--pine2); }
+  .rnd-label.slt  { color: var(--slate2); }
+
+  .rnd-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(26px, 4vw, 36px); font-weight: 800;
+    color: var(--ink); line-height: 1.2;
+    margin: 0 0 28px; letter-spacing: -0.01em;
+  }
+  .rnd-title .emb  { color: var(--ember2); }
+  .rnd-title .gld  { color: var(--gold2); }
+  .rnd-title .tl   { color: var(--teal2); }
+  .rnd-title .pin  { color: var(--pine2); }
+  .rnd-title .slt  { color: var(--slate2); }
+
+  /* ── Divider ── */
+  .rnd-divider { border: none; border-top: 1.5px solid #fed7aa; margin: 52px 0; }
+
+  /* ── Resource type trio (Natural / Human-Made / Human) ── */
+  .rnd-type-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-bottom: 40px;
+  }
+  @media (max-width: 600px) { .rnd-type-cards { grid-template-columns: 1fr; } }
+  .rnd-type-card {
+    border-radius: 18px; padding: 28px 24px;
+    border: 1.5px solid; position: relative; overflow: hidden;
+  }
+  .rnd-type-card::after {
+    position: absolute; top: 8px; right: 14px;
+    font-size: 72px; opacity: 0.08; line-height: 1;
+  }
+  .rnd-type-card.nat  { background: var(--pine-bg);  border-color: var(--pine-bd); }
+  .rnd-type-card.nat::after  { content: '🌿'; }
+  .rnd-type-card.hm   { background: var(--teal-bg);  border-color: var(--teal-bd); }
+  .rnd-type-card.hm::after   { content: '🏗️'; }
+  .rnd-type-card.hr   { background: var(--ember-bg); border-color: var(--ember-bd); }
+  .rnd-type-card.hr::after   { content: '👤'; }
+  .rnd-type-card .tc-num {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px; font-weight: 900; margin-bottom: 4px;
+  }
+  .rnd-type-card.nat  .tc-num { color: var(--pine2); }
+  .rnd-type-card.hm   .tc-num { color: var(--teal2); }
+  .rnd-type-card.hr   .tc-num { color: var(--ember2); }
+  .rnd-type-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 10px;
+  }
+  .rnd-type-card.nat h3  { color: var(--pine); }
+  .rnd-type-card.hm  h3  { color: var(--teal); }
+  .rnd-type-card.hr  h3  { color: var(--ember); }
+  .rnd-type-card p {
+    font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0;
+    position: relative; z-index: 1;
+  }
+  .rnd-type-card strong { color: var(--ink); }
+
+  /* ── Classification comparison blocks ── */
+  .rnd-compare {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-radius: 16px; overflow: hidden;
+    border: 1.5px solid var(--ember-bd);
+    margin-bottom: 28px;
+  }
+  @media (max-width: 540px) { .rnd-compare { grid-template-columns: 1fr; } }
+  .rnd-compare-col { padding: 28px 26px; }
+  .rnd-compare-col.left  { background: var(--card); }
+  .rnd-compare-col.right { background: var(--slate-bg); border-left: 1.5px solid var(--ember-bd); }
+  @media (max-width: 540px) {
+    .rnd-compare-col.right { border-left: none; border-top: 1.5px solid var(--ember-bd); }
+  }
+  .rnd-compare-badge {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 12px; border-radius: 100px;
+    letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .rnd-compare-col.left  .rnd-compare-badge { background: #fef3c7; color: var(--gold); }
+  .rnd-compare-col.right .rnd-compare-badge { background: #e2e8f0; color: var(--slate); }
+  .rnd-compare-col h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px; font-weight: 800; margin: 0 0 10px;
+  }
+  .rnd-compare-col.left  h3 { color: var(--gold); }
+  .rnd-compare-col.right h3 { color: var(--slate); }
+  .rnd-compare-col p  { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0 0 8px; }
+  .rnd-compare-col p:last-child { margin: 0; }
+  .rnd-compare-col strong { color: var(--ink); }
+  .rnd-compare-col .eg-tag {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--muted); font-style: italic;
+  }
+
+  /* ── Classification heading chips ── */
+  .rnd-classify-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .rnd-classify-num {
+    background: var(--ember2); color: #fff;
+    font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 900;
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .rnd-classify-basis {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--ember); text-transform: uppercase; letter-spacing: 0.07em;
+  }
+
+  /* ── Biotic/Abiotic cards ── */
+  .rnd-bio-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 28px;
+  }
+  @media (max-width: 500px) { .rnd-bio-grid { grid-template-columns: 1fr; } }
+  .rnd-bio-card {
+    border-radius: 14px; padding: 22px 22px;
+    border: 1.5px solid;
+  }
+  .rnd-bio-card.bio   { background: var(--pine-bg);  border-color: var(--pine-bd); border-left: 4px solid var(--pine2); }
+  .rnd-bio-card.abio  { background: var(--gold-bg);  border-color: var(--gold-bd); border-left: 4px solid var(--gold2); }
+  .rnd-bio-card .bc-icon { font-size: 26px; margin-bottom: 8px; }
+  .rnd-bio-card h4 {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px;
+  }
+  .rnd-bio-card.bio  h4 { color: var(--pine); }
+  .rnd-bio-card.abio h4 { color: var(--gold); }
+  .rnd-bio-card p { font-size: 14px; color: var(--ink2); line-height: 1.65; margin: 0; }
+  .rnd-bio-card strong { color: var(--ink); }
+
+  /* ── Renewable / Non-renewable contrast strip ── */
+  .rnd-renew-block {
+    border-radius: 18px; overflow: hidden;
+    border: 1.5px solid var(--ember-bd); margin-bottom: 28px;
+  }
+  .rnd-renew-head {
+    display: grid; grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 520px) { .rnd-renew-head { grid-template-columns: 1fr; } }
+  .rnd-renew-col { padding: 28px 26px; }
+  .rnd-renew-col.yes { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+  .rnd-renew-col.no  { background: linear-gradient(135deg, #fff7ed, #fed7aa40); border-left: 1.5px solid var(--ember-bd); }
+  @media (max-width: 520px) {
+    .rnd-renew-col.no { border-left: none; border-top: 1.5px solid var(--ember-bd); }
+  }
+  .rnd-renew-tag {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    padding: 3px 12px; border-radius: 100px;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;
+  }
+  .rnd-renew-col.yes .rnd-renew-tag { background: #dcfce7; color: var(--pine2); }
+  .rnd-renew-col.no  .rnd-renew-tag { background: #fed7aa; color: var(--ember); }
+  .rnd-renew-col h3 {
+    font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; margin: 0 0 10px;
+  }
+  .rnd-renew-col.yes h3 { color: var(--pine2); }
+  .rnd-renew-col.no  h3 { color: var(--ember); }
+  .rnd-renew-col p  { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0 0 8px; }
+  .rnd-renew-col p:last-child { margin: 0; }
+  .rnd-renew-col strong { color: var(--ink); }
+  .rnd-renew-also {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+    font-style: italic;
+  }
+  .rnd-renew-col.yes .rnd-renew-also { color: var(--pine); }
+  .rnd-renew-col.no  .rnd-renew-also { color: var(--ember); }
+
+  /* ── Ubiquitous / Localized split ── */
+  .rnd-dist-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 28px;
+  }
+  @media (max-width: 500px) { .rnd-dist-row { grid-template-columns: 1fr; } }
+  .rnd-dist-card {
+    border-radius: 14px; padding: 24px 22px;
+    border: 1.5px solid;
+  }
+  .rnd-dist-card.ubiq { background: var(--teal-bg);  border-color: var(--teal-bd); }
+  .rnd-dist-card.loca { background: var(--gold-bg);  border-color: var(--gold-bd); }
+  .rnd-dist-card .dc-icon { font-size: 28px; margin-bottom: 10px; }
+  .rnd-dist-card h4 {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px;
+  }
+  .rnd-dist-card.ubiq h4 { color: var(--teal); }
+  .rnd-dist-card.loca h4 { color: var(--gold); }
+  .rnd-dist-card p { font-size: 14px; color: var(--ink2); line-height: 1.65; margin: 0; }
+  .rnd-dist-card strong { color: var(--ink); }
+
+  /* ── Physical factors banner ── */
+  .rnd-factors-banner {
+    background: linear-gradient(135deg, var(--ember), #b45309);
+    border-radius: 14px; padding: 22px 28px;
+    margin-bottom: 52px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  @media (max-width: 480px) {
+    .rnd-factors-banner { flex-direction: column; text-align: center; }
+  }
+  .rnd-factors-banner .fb-icon { font-size: 36px; flex-shrink: 0; }
+  .rnd-factors-banner h4 {
+    font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800;
+    color: #fff; margin: 0 0 6px;
+  }
+  .rnd-factors-banner p {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+    color: #fed7aa; line-height: 1.6; margin: 0;
+  }
+  .rnd-factors-banner strong { color: #fff; }
+
+  /* ── Human Made resources visual row ── */
+  .rnd-hm-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 40px;
+  }
+  @media (max-width: 580px) { .rnd-hm-grid { grid-template-columns: repeat(2, 1fr); } }
+  .rnd-hm-box {
+    background: var(--card);
+    border: 1.5px solid var(--teal-bd);
+    border-radius: 12px; padding: 18px 12px;
+    text-align: center;
+  }
+  .rnd-hm-box .hb-icon { font-size: 28px; margin-bottom: 8px; }
+  .rnd-hm-box p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--teal); margin: 0; line-height: 1.3;
+  }
+
+  /* ── Human Resources split card ── */
+  .rnd-hr-split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-radius: 16px; overflow: hidden;
+    border: 1.5px solid var(--ember-bd); margin-bottom: 40px;
+  }
+  @media (max-width: 540px) { .rnd-hr-split { grid-template-columns: 1fr; } }
+  .rnd-hr-col { padding: 28px 26px; }
+  .rnd-hr-col.people { background: var(--ember-bg); }
+  .rnd-hr-col.dev    { background: var(--teal-bg); border-left: 1.5px solid var(--ember-bd); }
+  @media (max-width: 540px) {
+    .rnd-hr-col.dev { border-left: none; border-top: 1.5px solid var(--ember-bd); }
+  }
+  .rnd-hr-col h3 {
+    font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; margin: 0 0 12px;
+  }
+  .rnd-hr-col.people h3 { color: var(--ember); }
+  .rnd-hr-col.dev    h3 { color: var(--teal); }
+  .rnd-hr-col p  { font-size: 14px; color: var(--ink2); line-height: 1.75; margin: 0 0 10px; }
+  .rnd-hr-col p:last-child { margin: 0; }
+  .rnd-hr-col strong { color: var(--ink); }
+  .rnd-hr-col ul { margin: 0; padding-left: 18px; }
+  .rnd-hr-col ul li { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 6px; }
+
+  /* ── Discovery chain timeline ── */
+  .rnd-timeline { margin-bottom: 40px; }
+  .rnd-tl-item {
+    display: flex; gap: 18px; margin-bottom: 0;
+    position: relative;
+  }
+  .rnd-tl-item:not(:last-child)::before {
+    content: '';
+    position: absolute; left: 15px; top: 38px;
+    width: 2px; height: calc(100% + 0px);
+    background: linear-gradient(to bottom, var(--ember-bd), transparent);
+  }
+  .rnd-tl-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--ember-bg); border: 2px solid var(--ember);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 4px;
+    font-size: 14px;
+  }
+  .rnd-tl-content {
+    background: var(--card);
+    border: 1.5px solid var(--ember-bd);
+    border-radius: 14px; padding: 18px 20px;
+    margin-bottom: 16px; flex: 1;
+  }
+  .rnd-tl-content h4 {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--ember2); margin: 0 0 6px;
+  }
+  .rnd-tl-content p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0; }
+  .rnd-tl-content strong { color: var(--ink); }
+
+  /* ── Conservation section ── */
+  .rnd-conserve-card {
+    background: linear-gradient(135deg, #052e16, #14532d);
+    border-radius: 20px; padding: 36px 40px;
+    margin-bottom: 32px; position: relative; overflow: hidden;
+  }
+  .rnd-conserve-card::after {
+    content: '♻️';
+    position: absolute; top: 8px; right: 24px;
+    font-size: 110px; opacity: 0.08; line-height: 1;
+  }
+  .rnd-conserve-card h3 {
+    font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800;
+    color: #86efac; margin: 0 0 14px; position: relative; z-index: 1;
+  }
+  .rnd-conserve-card p {
+    font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500;
+    color: #bbf7d0; line-height: 1.75; margin: 0 0 12px;
+    position: relative; z-index: 1;
+  }
+  .rnd-conserve-card p:last-child { margin: 0; }
+  .rnd-conserve-card strong { color: #fde68a; }
+
+  /* ── 3R boxes ── */
+  .rnd-3r {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; margin-bottom: 40px;
+  }
+  @media (max-width: 540px) { .rnd-3r { grid-template-columns: 1fr; } }
+  .rnd-3r-box {
+    border-radius: 14px; padding: 24px 18px;
+    border: 2px solid; text-align: center;
+  }
+  .rnd-3r-box.red   { background: #fff1f2; border-color: #fecdd3; }
+  .rnd-3r-box.yel   { background: var(--gold-bg);  border-color: var(--gold-bd); }
+  .rnd-3r-box.grn   { background: var(--pine-bg);  border-color: var(--pine-bd); }
+  .rnd-3r-letter {
+    font-family: 'Montserrat', sans-serif; font-size: 44px; font-weight: 900;
+    margin-bottom: 4px; line-height: 1;
+  }
+  .rnd-3r-box.red .rnd-3r-letter  { color: #e11d48; }
+  .rnd-3r-box.yel .rnd-3r-letter  { color: var(--gold); }
+  .rnd-3r-box.grn .rnd-3r-letter  { color: var(--pine2); }
+  .rnd-3r-word {
+    font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; margin-bottom: 8px;
+  }
+  .rnd-3r-box.red .rnd-3r-word  { color: #be123c; }
+  .rnd-3r-box.yel .rnd-3r-word  { color: var(--gold); }
+  .rnd-3r-box.grn .rnd-3r-word  { color: var(--pine); }
+  .rnd-3r-box p {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--muted); margin: 0; line-height: 1.5;
+  }
+
+  /* ── Conservation duties list ── */
+  .rnd-duty-list { margin-bottom: 40px; }
+  .rnd-duty-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 16px 18px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background: var(--card); border: 1.5px solid var(--pine-bd);
+    border-left: 4px solid var(--pine2);
+  }
+  .rnd-duty-check {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--pine-bg); border: 2px solid var(--pine2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 12px; margin-top: 1px;
+  }
+  .rnd-duty-item p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0; }
+  .rnd-duty-item strong { color: var(--pine); }
+
+  /* ── Info callout box ── */
+  .rnd-callout {
+    background: var(--gold-bg);
+    border: 1.5px solid var(--gold-bd);
+    border-left: 4px solid var(--gold2);
+    border-radius: 14px; padding: 22px 24px;
+    display: flex; gap: 16px; align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .rnd-callout-icon { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+  .rnd-callout h4 {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--gold); margin: 0 0 6px;
+  }
+  .rnd-callout p { font-size: 14px; color: var(--ink2); line-height: 1.7; margin: 0; }
+  .rnd-callout strong { color: var(--ink); }
+
+  /* ── FAQ ── */
+  .rnd-faq-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--ember2);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .rnd-faq-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(24px, 3.5vw, 32px); font-weight: 800;
+    color: var(--ink); margin: 0 0 28px; letter-spacing: -0.01em;
+  }
+  .faq-item {
+    border: 1.5px solid var(--ember-bd);
+    border-radius: 14px; margin-bottom: 12px;
+    background: var(--card); overflow: hidden;
+  }
+  .faq-item.open { border-color: var(--ember2); }
+  .faq-q {
+    width: 100%; background: none; border: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 22px; gap: 12px;
+    text-align: left;
+  }
+  .faq-q-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.5;
+  }
+  .faq-item.open .faq-q-text { color: var(--ember2); }
+  .faq-icon {
+    font-size: 18px; color: var(--ember2); flex-shrink: 0;
+    font-family: 'Poppins', sans-serif; font-weight: 700;
+  }
+  .faq-ans {
+    display: none;
+    padding: 0 22px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: var(--ink2); line-height: 1.8;
+  }
+  .faq-ans.visible { display: block; }
+  .faq-ans strong { color: var(--ember2); }
+  .faq-ans ul { padding-left: 20px; margin: 8px 0; }
+  .faq-ans ul li { margin-bottom: 6px; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="blog-root"><div class="rnd-hero"><div class="rnd-hero-inner"><div class="rnd-hero-tag">📚 Geography · Class 8 · Chapter 1</div><h1 class="rnd-hero-title">Resources &amp;<br><span>Development</span></h1><p class="rnd-hero-sub">Everything in our environment that satisfies a need is a resource. Understand how nature, human skill, and technology combine to create, classify, and conserve the resources that sustain civilisation.</p><div class="rnd-hero-meta"><span class="rnd-meta-chip"><span class="rnd-meta-dot"></span>Geography</span><span class="rnd-meta-chip"><span class="rnd-meta-dot"></span>NCERT Class 8</span><span class="rnd-meta-chip"><span class="rnd-meta-dot"></span>Chapter 1</span><span class="rnd-meta-chip"><span class="rnd-meta-dot"></span>10 FAQs</span></div></div></div><div class="rnd-body"><div class="rnd-intro-card"><p><strong>What is a resource?</strong> Anything in our environment that can be used to satisfy a need — and has value — is a resource. Resources are not just physical things; even <strong>time and technology</strong> can transform ordinary substances into valuable resources.</p><p>At the heart of resource creation are <strong>people</strong> — the most important resource of all. Their ideas, knowledge, inventions and discoveries keep expanding what counts as a resource. Every discovery opens the door to dozens more.</p></div><div class="rnd-concept-strip"><div class="rnd-cs-box"><div class="rnd-cs-icon">🌿</div><div class="rnd-cs-title">Natural Resources</div><div class="rnd-cs-desc">Drawn from nature, used with little modification</div></div><div class="rnd-cs-box"><div class="rnd-cs-icon">🏗️</div><div class="rnd-cs-title">Human-Made Resources</div><div class="rnd-cs-desc">Created by people from natural resources</div></div><div class="rnd-cs-box"><div class="rnd-cs-icon">👥</div><div class="rnd-cs-title">Human Resources</div><div class="rnd-cs-desc">People — their knowledge, skill &amp; abilities</div></div></div><hr class="rnd-divider"><div class="rnd-label emb">Types of Resources</div><h2 class="rnd-title">Natural, Human-Made &amp; <span class="emb">Human Resources</span></h2><div class="rnd-type-cards"><div class="rnd-type-card nat"><div class="tc-num">01</div><h3>Natural Resources</h3><p>Resources drawn from nature and used <strong>without much modification</strong>. Air, water, soils and minerals are natural resources — often called <strong>&quot;gifts of nature.&quot;</strong> Their distribution depends on terrain, climate, and altitude.</p></div><div class="rnd-type-card hm"><div class="tc-num">02</div><h3>Human-Made Resources</h3><p>Resources <strong>created by human beings</strong> from natural resources — roads, machinery, vehicles, buildings. <strong>Technology</strong> is also a human-made resource. They are the product of knowledge, skill, and ingenuity applied to nature.</p></div><div class="rnd-type-card hr"><div class="tc-num">03</div><h3>Human Resources</h3><p>The <strong>number and abilities</strong> of people — both mental and physical. People with knowledge, skill, and technology make the best use of nature. Improving these skills is called <strong>Human Resource Development.</strong></p></div></div><hr class="rnd-divider"><div class="rnd-label gld">Natural Resources</div><h2 class="rnd-title">Classifying <span class="gld">Natural Resources</span></h2><div class="rnd-classify-head"><div class="rnd-classify-num">i</div><div class="rnd-classify-basis">On the basis of Level of Development &amp; Use</div></div><div class="rnd-compare" style="margin-bottom:36px"><div class="rnd-compare-col left"><div class="rnd-compare-badge">Actual Resources</div><h3>⚡ Being Used Now</h3><p>Resources whose <strong>quantity is known</strong> and which are currently being used.</p><p class="eg-tag">e.g. Coal in Germany, Petroleum in West Asia</p></div><div class="rnd-compare-col right"><div class="rnd-compare-badge">Potential Resources</div><h3>🔮 For the Future</h3><p>Resources whose entire quantity <strong>may not be known</strong> — not yet used but could be in the future.</p><p class="eg-tag">e.g. Uranium in Ladakh</p></div></div><div class="rnd-classify-head"><div class="rnd-classify-num">ii</div><div class="rnd-classify-basis">On the basis of Origin</div></div><div class="rnd-bio-grid"><div class="rnd-bio-card bio"><div class="bc-icon">🌱</div><h4>Biotic Resources</h4><p>Include <strong>all living things</strong>. Examples: plants and animals. They are derived from the biosphere and have life.</p></div><div class="rnd-bio-card abio"><div class="bc-icon">🪨</div><h4>Abiotic Resources</h4><p>Include <strong>all non-living things</strong>. Examples: soil, rocks, minerals. They do not have life but are essential.</p></div></div><div class="rnd-classify-head" style="margin-top:28px"><div class="rnd-classify-num">iii</div><div class="rnd-classify-basis">On the basis of Renewability</div></div><div class="rnd-renew-block"><div class="rnd-renew-head"><div class="rnd-renew-col yes"><div class="rnd-renew-tag">♻️ Renewable</div><h3>Inexhaustible Resources</h3><p>Can be <strong>renewed or replenished quickly</strong>. Their supply is not permanently exhausted by use.</p><p><span class="rnd-renew-also">Also called: Inexhaustible resources</span></p><p>e.g. Solar energy, wind energy, water, forests</p></div><div class="rnd-renew-col no"><div class="rnd-renew-tag">⏳ Non-Renewable</div><h3>Exhaustible Resources</h3><p>Have <strong>limited stock</strong>. Once exhausted, may take <strong>thousands of years</strong> to be renewed.</p><p><span class="rnd-renew-also">Also called: Exhaustible resources</span></p><p>e.g. Coal, petroleum, natural gas</p></div></div></div><div class="rnd-classify-head" style="margin-top:28px"><div class="rnd-classify-num">iv</div><div class="rnd-classify-basis">On the basis of Distribution</div></div><div class="rnd-dist-row"><div class="rnd-dist-card ubiq"><div class="dc-icon">🌐</div><h4>Ubiquitous Resources</h4><p>Found <strong>everywhere on Earth</strong>. Examples: land, water, air. Available to all — no single region has exclusive access.</p></div><div class="rnd-dist-card loca"><div class="dc-icon">📍</div><h4>Localized Resources</h4><p>Found <strong>only in certain places</strong>. Examples: copper and iron ore. Their unequal distribution shapes economies and trade.</p></div></div><div class="rnd-factors-banner"><div class="fb-icon">🏔️</div><div><h4>Physical Factors Governing Resource Distribution</h4><p>The distribution of natural resources across the Earth is <strong>unequal</strong> and depends on physical factors: <strong>terrain</strong> (type of land surface), <strong>climate</strong> (temperature &amp; rainfall), and <strong>altitude</strong> (height above sea level). These determine what forms where.</p></div></div><hr class="rnd-divider"><div class="rnd-label tl">Human-Made Resources</div><h2 class="rnd-title">What Humans <span class="tl">Build &amp; Create</span></h2><p style="font-family:&#x27;Poppins&#x27;,sans-serif;font-size:15px;color:var(--ink2);line-height:1.7;margin-bottom:24px">Human-made resources are created by transforming natural resources using knowledge, skill, and technology. They are the tangible outputs of human ingenuity applied to nature&#x27;s raw materials.</p><div class="rnd-hm-grid"><div class="rnd-hm-box"><div class="hb-icon">🛣️</div><p>Roads</p></div><div class="rnd-hm-box"><div class="hb-icon">⚙️</div><p>Machinery</p></div><div class="rnd-hm-box"><div class="hb-icon">🚗</div><p>Vehicles</p></div><div class="rnd-hm-box"><div class="hb-icon">💻</div><p>Technology</p></div></div><div class="rnd-callout"><div class="rnd-callout-icon">💡</div><div><h4>Technology is also a Human-Made Resource</h4><p>Technology — the application of knowledge to create tools and systems — is itself a <strong>human-made resource</strong>. It is created by human beings and is used to further transform natural resources into even more useful products. It represents the <strong>knowledge layer</strong> of resource creation.</p></div></div><hr class="rnd-divider"><div class="rnd-label emb">Human Resources</div><h2 class="rnd-title">People — The Most <span class="emb">Important Resource</span></h2><div class="rnd-hr-split"><div class="rnd-hr-col people"><h3>👤 What are Human Resources?</h3><p>Human resources refer to the <strong>number (quantity)</strong> and <strong>abilities (mental and physical)</strong> of people.</p><p>People can make the best use of nature to create more resources when they have <strong>knowledge, skill, and technology</strong>.</p><ul><li>Ideas → new inventions</li><li>Inventions → new resources</li><li>Resources → further discoveries</li></ul></div><div class="rnd-hr-col dev"><h3>📈 Human Resource Development</h3><p>Improving the quality of people&#x27;s skills so that they are able to <strong>create more resources</strong> is called <strong>Human Resource Development</strong>.</p><p>A skilled, knowledgeable population transforms a country&#x27;s natural wealth into real prosperity — making human development the foundation of all other development.</p></div></div><div class="rnd-label emb" style="margin-top:8px">Discovery Chain</div><h2 class="rnd-title">How One Discovery <span class="emb">Leads to Another</span></h2><div class="rnd-timeline"><div class="rnd-tl-item"><div class="rnd-tl-dot">🔥</div><div class="rnd-tl-content"><h4>Discovery of Fire</h4><p>Led to the practice of <strong>cooking</strong> — which improved nutrition, enabled food preservation, and fundamentally changed how human societies lived and organised themselves.</p></div></div><div class="rnd-tl-item"><div class="rnd-tl-dot">⚙️</div><div class="rnd-tl-content"><h4>Invention of the Wheel</h4><p>Resulted in the development of <strong>newer modes of transport</strong> — from ox carts to steam engines to modern vehicles — connecting people and enabling trade across distances.</p></div></div><div class="rnd-tl-item"><div class="rnd-tl-dot">💡</div><div class="rnd-tl-content"><h4>The Ongoing Chain</h4><p>Each discovery or invention leads to <strong>many others</strong>. This is why people — with their capacity to imagine, create and improve — are considered the <strong>most important resource</strong> on Earth.</p></div></div></div><hr class="rnd-divider"><div class="rnd-label pin">Conserving Resources</div><h2 class="rnd-title">Why &amp; How We <span class="pin">Conserve Resources</span></h2><div class="rnd-conserve-card"><h3>🌱 What is Conservation?</h3><p><strong>Conservation of resources</strong> means using natural resources carefully so that they can be <strong>renewed and continue to be used in the future</strong>. It is about striking a balance between the present and the future.</p><p><strong>Sustainable use of resources</strong> means carefully utilizing resources — balancing the need to use them now with the responsibility to <strong>conserve them for future generations</strong>.</p></div><div class="rnd-label pin">Individual Action</div><h2 class="rnd-title">The <span class="pin">3 R&#x27;s</span> of Conservation</h2><div class="rnd-3r"><div class="rnd-3r-box red"><div class="rnd-3r-letter">R</div><div class="rnd-3r-word">Reduce</div><p>Use less. Cut down on unnecessary consumption of natural resources and energy.</p></div><div class="rnd-3r-box yel"><div class="rnd-3r-letter">R</div><div class="rnd-3r-word">Recycle</div><p>Convert used materials back into new products rather than discarding them as waste.</p></div><div class="rnd-3r-box grn"><div class="rnd-3r-letter">R</div><div class="rnd-3r-word">Reuse</div><p>Use items again and again instead of throwing them away after a single use.</p></div></div><div class="rnd-label pin">Our Duties</div><h2 class="rnd-title">Principles of <span class="pin">Responsible Use</span></h2><div class="rnd-duty-list"><div class="rnd-duty-item"><div class="rnd-duty-check">✓</div><p><strong>Ensure renewable resources are used sustainably</strong> — it is our duty to make sure renewables are not consumed faster than they can replenish.</p></div><div class="rnd-duty-item"><div class="rnd-duty-check">✓</div><p><strong>Conserve the diversity of life</strong> on Earth — biodiversity supports all ecosystems and must be protected for ecological balance.</p></div><div class="rnd-duty-item"><div class="rnd-duty-check">✓</div><p><strong>Minimise damage to natural environmental systems</strong> — pollution, deforestation and over-extraction all harm the systems that support life.</p></div><div class="rnd-duty-item"><div class="rnd-duty-check">✓</div><p><strong>Each person can contribute</strong> by reducing consumption, recycling materials, and reusing items — individual actions add up to collective impact.</p></div></div><hr class="rnd-divider"><div class="rnd-faq-label">Practice Questions</div><h2 class="rnd-faq-title">Frequently Asked Questions</h2><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q1. What are resources? What makes something a resource?</span></summary><div class="faq-ans visible">All materials available in our environment that <strong>satisfy our needs</strong> are called resources. A substance becomes a resource when it has <strong>value</strong> — the worth to satisfy a need. Some resources have economic value, while others do not, but both are important. Key factors that can transform substances into resources include <strong>time and technology</strong>.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q2. Why are people considered the most important resource?</span></summary><div class="faq-ans visible">People are considered the most important resource because it is their <strong>ideas, knowledge, inventions and discoveries</strong> that lead to the creation of more resources. When people possess knowledge, skill, and technology, they can make the best use of nature to create even more resources. <strong>Human resource development</strong> — improving the quality of people&#x27;s skills — is therefore central to a nation&#x27;s growth.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q3. What are natural resources? How are they classified?</span></summary><div class="faq-ans visible">Natural resources are those resources drawn from nature and used <strong>without much modification</strong> — air, water, soils, and minerals are examples. They are also called <strong>&quot;gifts of nature.&quot;</strong> They are classified on four bases:<ul><li><strong>Level of development/use:</strong> Actual resources (quantity known, currently used) vs Potential resources (quantity not fully known, for future use)</li><li><strong>Origin:</strong> Biotic (living — plants, animals) vs Abiotic (non-living — soil, rocks, minerals)</li><li><strong>Renewability:</strong> Renewable/Inexhaustible (solar, wind) vs Non-renewable/Exhaustible (coal, petroleum)</li><li><strong>Distribution:</strong> Ubiquitous (found everywhere — air, water) vs Localized (found in specific places — copper, iron ore)</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q4. What is the difference between actual and potential resources? Give examples.</span></summary><div class="faq-ans visible"><strong>Actual resources</strong> are those whose quantity is known and which are being used in the present. Examples: <em>coal deposits in Germany</em> and <em>petroleum in West Asia</em>. <strong>Potential resources</strong> are those whose entire quantity may not be known and which are not being used at present but could be used in the future. Example: <em>Uranium found in Ladakh</em> — the technology to harness it may not yet be fully developed.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q5. Distinguish between renewable and non-renewable resources.</span></summary><div class="faq-ans visible"><strong>Renewable resources</strong> can be renewed or replenished quickly; they are also called <strong>Inexhaustible resources</strong>. Examples: solar energy, wind energy, water, forests (if managed well). <strong>Non-renewable resources</strong> have a limited stock — once exhausted, they may take thousands of years to form again; they are also called <strong>Exhaustible resources</strong>. Examples: coal, petroleum, natural gas, most minerals. It is our duty to use renewable resources sustainably and to minimize our dependence on non-renewable ones.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q6. What are human-made resources? Give examples.</span></summary><div class="faq-ans visible"><strong>Human-made resources</strong> are created from natural resources by human beings to produce useful products. They are the result of transforming natural resources using knowledge, skill, and technology. Examples include <strong>roads, buildings, machinery, vehicles</strong>, and <strong>technology</strong> itself. Technology is also classified as a human-made resource because it is created by humans and is used to further create other resources.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q7. What is the difference between human resources and human-made resources?</span></summary><div class="faq-ans visible"><strong>Human resources</strong> refer to the <em>people themselves</em> — their number (quantity) and their abilities (mental and physical). Human resources are the driving force behind all resource creation. <strong>Human-made resources</strong>, on the other hand, are the <em>things people create</em> — roads, machines, technology. In short: human resources are the creators; human-made resources are what they create.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q8. What is conservation of resources? What is sustainable use?</span></summary><div class="faq-ans visible"><strong>Conservation of resources</strong> means using natural resources carefully so that they can be renewed and continue to be available for future generations. <strong>Sustainable use</strong> means balancing the need to use resources now with the responsibility to conserve them for the future. Key principles include:<ul><li>Ensure all uses of renewable resources are <strong>sustainable</strong></li><li>Conserve the <strong>diversity of life</strong> on Earth</li><li>Minimize <strong>damage to natural environmental systems</strong></li><li>Each person can contribute by <strong>Reducing, Recycling, and Reusing</strong> (the 3 Rs)</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q9. What factors affect the distribution of natural resources?</span></summary><div class="faq-ans visible">The distribution of natural resources is <strong>unequal across the Earth</strong> and depends on a number of physical factors:<ul><li><strong>Terrain</strong> — the shape and type of land surface</li><li><strong>Climate</strong> — temperature, rainfall, humidity</li><li><strong>Altitude (height)</strong> — how high above sea level an area is</li></ul>These physical conditions determine which resources are found where. For example, mineral-rich areas depend on geological formations, while forest resources depend on rainfall and temperature.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q10. Give examples of how discovery/invention leads to more resources.</span></summary><div class="faq-ans visible">The PDF gives two classic examples of how one discovery or invention leads to a chain of further resource creation:<ul><li><strong>Discovery of fire</strong> → led to the practice of cooking, which enabled better nutrition, food safety, and human development</li><li><strong>Invention of the wheel</strong> → resulted in the development of newer and newer modes of transport, from carts to modern vehicles</li></ul>This illustrates that human knowledge and creativity are the most powerful force in resource creation — which is why <strong>people are considered the most important resource</strong>.</div></details></div></div>

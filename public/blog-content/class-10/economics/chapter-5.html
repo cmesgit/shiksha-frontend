@@ -1,0 +1,328 @@
+<style>
+  :root {
+    --ink:        #0f1820;
+    --ink2:       #1c2d3a;
+    --muted:      #4a6275;
+    --paper:      #f2f8fc;
+    --paper2:     #e3f0f8;
+    --accent:     #0070b8;
+    --accent2:    #004f85;
+    --accent-lt:  #d6eeff;
+    --orange:     #d4600a;
+    --orange-lt:  #fff0e3;
+    --red:        #c0301e;
+    --red-lt:     #fde8e5;
+    --green:      #0a7a4a;
+    --green-lt:   #d8f5e8;
+    --rule:       #c0d8ea;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .cr-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO ═══ */
+  .cr-hero {
+    background: linear-gradient(135deg, #020c14 0%, #051828 55%, #072035 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  .cr-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #0070b8 0%, #d4600a 50%, #0a7a4a 100%);
+  }
+  .cr-hero-bg-num {
+    position: absolute; bottom: -60px; right: -30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(220px, 36vw, 500px); font-weight: 900;
+    line-height: 1; color: rgba(255,255,255,0.022);
+    letter-spacing: -0.04em; user-select: none; pointer-events: none;
+  }
+  /* Shield watermark */
+  .cr-hero-shield {
+    position: absolute; top: 50%; right: 6%; transform: translateY(-50%);
+    width: clamp(140px, 20vw, 260px); height: clamp(160px, 23vw, 300px);
+    opacity: 0.04; pointer-events: none;
+    font-size: clamp(140px, 20vw, 260px); line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+  }
+  /* Diagonal lines */
+  .cr-hero-lines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(-50deg, transparent, transparent 60px, rgba(0,112,184,0.03) 60px, rgba(0,112,184,0.03) 61px);
+    pointer-events: none;
+  }
+  .cr-glow {
+    position: absolute; bottom: 20%; left: 8%;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,112,184,0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cr-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .cr-overline {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #7dd3fc;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .cr-overline::before, .cr-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #7dd3fc; }
+  .cr-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(42px, 8vw, 86px); font-weight: 900; color: #fff;
+    line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px;
+  }
+  .cr-hero-title em   { font-style: normal; color: #7dd3fc; }
+  .cr-hero-title .em2 { color: #fdba74; }
+  .cr-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 24px; margin-top: 8px; }
+  .cr-hero-bar-item { flex: 1 1 180px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.1); margin-right: 24px; }
+  .cr-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .cr-bar-label { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 5px; }
+  .cr-bar-value { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75); }
+
+  /* ═══ BODY ═══ */
+  .cr-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* ═══ DARK INTRO CARD ═══ */
+  .cr-intro-card {
+    background: linear-gradient(135deg, #020c14 0%, #072035 100%);
+    border-left: 5px solid #0070b8; border-radius: 4px; padding: 36px 40px;
+    margin-bottom: 64px; position: relative; overflow: hidden;
+  }
+  .cr-intro-card::after { content: '🛡️'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.08; }
+  .cr-intro-card p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.88); line-height: 1.78; margin: 0 0 14px; }
+  .cr-intro-card p:last-child { margin: 0; }
+  .cr-intro-card strong { color: #7dd3fc; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .cr-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 32px; border-bottom: 2px solid var(--rule); padding-bottom: 18px; }
+  .cr-sec-num { font-family: 'Montserrat', sans-serif; font-size: 56px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .cr-sec-title-wrap { padding-top: 8px; }
+  .cr-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .cr-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px, 3.5vw, 30px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .cr-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .cr-body-text { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 400; color: var(--ink2); line-height: 1.85; margin-bottom: 32px; }
+  .cr-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ DIVIDER ═══ */
+  .cr-divider { margin: 60px 0; display: flex; align-items: center; gap: 16px; }
+  .cr-divider::before, .cr-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .cr-divider-mark { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ WHY MARKETS FAIL — PROSE PANEL ═══ */
+  .cr-prose-panel { display: flex; gap: 0; border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 36px; }
+  @media (max-width: 600px) { .cr-prose-panel { flex-direction: column; } }
+  .cr-prose-bar { width: 6px; flex-shrink: 0; background: linear-gradient(to bottom, var(--accent), var(--orange)); }
+  @media (max-width: 600px) { .cr-prose-bar { width: auto; height: 6px; } }
+  .cr-prose-body { padding: 28px 28px; background: var(--white); flex: 1; }
+  .cr-prose-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .cr-prose-heading { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; color: var(--ink); margin-bottom: 16px; letter-spacing: -0.01em; }
+  .cr-prose-text { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); line-height: 1.8; margin-bottom: 14px; }
+  .cr-prose-text:last-child { margin-bottom: 0; }
+  .cr-prose-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ CONSUMER MOVEMENT TIMELINE ═══ */
+  .cr-timeline { position: relative; padding-left: 56px; margin-bottom: 36px; }
+  .cr-timeline::before { content: ''; position: absolute; left: 20px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--accent), var(--orange), var(--green)); }
+  .cr-tl-item { position: relative; margin-bottom: 34px; }
+  .cr-tl-item:last-child { margin-bottom: 0; }
+  .cr-tl-dot { position: absolute; left: -43px; top: 6px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--paper); box-shadow: 0 0 0 2px var(--accent); }
+  .cr-tl-item:nth-child(2) .cr-tl-dot { background: var(--orange); box-shadow: 0 0 0 2px var(--orange); }
+  .cr-tl-item:nth-child(3) .cr-tl-dot { background: var(--green);  box-shadow: 0 0 0 2px var(--green); }
+  .cr-tl-item:nth-child(4) .cr-tl-dot { background: #7c3aed;       box-shadow: 0 0 0 2px #7c3aed; }
+  .cr-tl-era { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 5px; }
+  .cr-tl-item:nth-child(1) .cr-tl-era { color: var(--accent); }
+  .cr-tl-item:nth-child(2) .cr-tl-era { color: var(--orange); }
+  .cr-tl-item:nth-child(3) .cr-tl-era { color: var(--green); }
+  .cr-tl-item:nth-child(4) .cr-tl-era { color: #7c3aed; }
+  .cr-tl-head { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.01em; }
+  .cr-tl-desc { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); line-height: 1.75; }
+  .cr-tl-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ SIX RIGHTS — BIG NUMBERED CARDS ═══ */
+  .cr-rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 36px; }
+  @media (max-width: 600px) { .cr-rights-grid { grid-template-columns: 1fr; } }
+  .cr-right-card { border-radius: 8px; overflow: hidden; border: 1.5px solid var(--rule); background: var(--white); }
+  .cr-right-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; }
+  .cr-right-card:nth-child(1) .cr-right-header { background: linear-gradient(135deg, #003d6b, #004f85); }
+  .cr-right-card:nth-child(2) .cr-right-header { background: linear-gradient(135deg, #5a2800, #7a3800); }
+  .cr-right-card:nth-child(3) .cr-right-header { background: linear-gradient(135deg, #004d30, #006640); }
+  .cr-right-card:nth-child(4) .cr-right-header { background: linear-gradient(135deg, #4a1060, #6b1880); }
+  .cr-right-card:nth-child(5) .cr-right-header { background: linear-gradient(135deg, #6b1a10, #8a2218); }
+  .cr-right-card:nth-child(6) .cr-right-header { background: linear-gradient(135deg, #1a3a6b, #243f7a); }
+  .cr-right-num {
+    font-family: 'Montserrat', sans-serif; font-size: 28px; font-weight: 900;
+    color: rgba(255,255,255,0.2); line-height: 1; flex-shrink: 0;
+  }
+  .cr-right-icon { font-size: 24px; flex-shrink: 0; }
+  .cr-right-name { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900; color: #fff; line-height: 1.2; }
+  .cr-right-body { padding: 16px 20px; }
+  .cr-right-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--ink2); line-height: 1.7; }
+  .cr-right-text strong { color: var(--accent2); font-weight: 600; }
+  .cr-right-tag {
+    display: inline-block; margin-top: 10px;
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px;
+    background: var(--accent-lt); color: var(--accent2);
+  }
+  .cr-right-card:nth-child(2) .cr-right-tag { background: var(--orange-lt); color: var(--orange); }
+  .cr-right-card:nth-child(3) .cr-right-tag { background: var(--green-lt); color: var(--green); }
+  .cr-right-card:nth-child(4) .cr-right-tag { background: #ede9fe; color: #6d28d9; }
+  .cr-right-card:nth-child(5) .cr-right-tag { background: var(--red-lt); color: var(--red); }
+  .cr-right-card:nth-child(6) .cr-right-tag { background: #dbeafe; color: #1d4ed8; }
+
+  /* ═══ FACTORS — ICON FEATURE ROWS ═══ */
+  .cr-factor-rows { margin-bottom: 36px; }
+  .cr-factor-row { display: flex; gap: 0; margin-bottom: 14px; border: 1.5px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .cr-factor-row:last-child { margin-bottom: 0; }
+  .cr-factor-icon-col { width: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .cr-factor-row:nth-child(1) .cr-factor-icon-col { background: var(--accent-lt); }
+  .cr-factor-row:nth-child(2) .cr-factor-icon-col { background: var(--orange-lt); }
+  .cr-factor-row:nth-child(3) .cr-factor-icon-col { background: var(--green-lt); }
+  .cr-factor-row:nth-child(4) .cr-factor-icon-col { background: var(--red-lt); }
+  .cr-factor-body { flex: 1; padding: 15px 20px; background: var(--white); border-left: 1.5px solid var(--rule); }
+  .cr-factor-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .cr-factor-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--ink2); line-height: 1.65; }
+  .cr-factor-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ DUTIES — HORIZONTAL STRIP ═══ */
+  .cr-duties-strip { display: flex; gap: 0; border: 1.5px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 36px; }
+  @media (max-width: 640px) { .cr-duties-strip { flex-direction: column; } }
+  .cr-duty-item { flex: 1; padding: 22px 18px; border-right: 1.5px solid var(--rule); background: var(--white); text-align: center; }
+  .cr-duty-item:last-child { border-right: none; }
+  @media (max-width: 640px) { .cr-duty-item { border-right: none; border-bottom: 1.5px solid var(--rule); text-align: left; } .cr-duty-item:last-child { border-bottom: none; } }
+  .cr-duty-icon { font-size: 28px; display: block; margin-bottom: 10px; }
+  .cr-duty-num { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 900; color: var(--rule); letter-spacing: 0.08em; margin-bottom: 4px; }
+  .cr-duty-title { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent2); margin-bottom: 6px; line-height: 1.3; }
+  .cr-duty-text { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; color: var(--muted); line-height: 1.6; }
+
+  /* ═══ COPRA — BIG DARK BOX ═══ */
+  .cr-copra-box {
+    background: linear-gradient(135deg, #020c14 0%, #072035 100%);
+    border-radius: 8px; padding: 32px 36px; margin-bottom: 36px;
+    position: relative; overflow: hidden;
+  }
+  .cr-copra-box::after { content: '⚖️'; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); font-size: 80px; opacity: 0.08; }
+  .cr-copra-badge { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #7dd3fc; background: rgba(125,211,252,0.1); padding: 5px 14px; border-radius: 100px; display: inline-block; margin-bottom: 16px; }
+  .cr-copra-title { font-family: 'Montserrat', sans-serif; font-size: clamp(18px, 3vw, 24px); font-weight: 900; color: #fff; margin-bottom: 6px; letter-spacing: -0.01em; line-height: 1.2; }
+  .cr-copra-sub { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 24px; }
+  .cr-copra-ul { list-style: none; padding: 0; }
+  .cr-copra-ul li { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.8); padding: 8px 0 8px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; line-height: 1.65; }
+  .cr-copra-ul li:last-child { border-bottom: none; }
+  .cr-copra-ul li::before { content: '✓'; position: absolute; left: 0; top: 8px; color: #7dd3fc; font-size: 12px; font-weight: 700; }
+  .cr-copra-ul li strong { color: #7dd3fc; }
+
+  /* ═══ THREE TIER COURTS — VISUAL PYRAMID STEPS ═══ */
+  .cr-courts { margin-bottom: 36px; }
+  .cr-courts-title { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .cr-court-item {
+    display: flex; gap: 0; margin-bottom: 12px;
+    border: 1.5px solid var(--rule); border-radius: 6px; overflow: visible;
+  }
+  .cr-court-item:last-child { margin-bottom: 0; }
+  .cr-court-level {
+    width: 110px; flex-shrink: 0; padding: 18px 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+  .cr-court-level-blue   { background: #004f85; }
+  .cr-court-level-green  { background: #006640; }
+  .cr-court-level-brown  { background: #7a3800; }
+  .cr-court-tier { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+  .cr-court-name { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 900; color: #fff; line-height: 1.1; }
+  .cr-court-body { flex: 1; padding: 18px 22px; background: var(--white); border-left: 1.5px solid var(--rule); border-radius: 0 4px 4px 0; }
+  .cr-court-limit { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+  .cr-court-limit-blue  { color: var(--accent2); }
+  .cr-court-limit-green { color: var(--green); }
+  .cr-court-limit-brown { color: var(--orange); }
+  .cr-court-desc { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--ink2); line-height: 1.6; }
+  .cr-court-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ KEY FACTS — STAT BOXES ═══ */
+  .cr-facts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
+  @media (max-width: 600px) { .cr-facts-row { grid-template-columns: 1fr; } }
+  .cr-fact-box { background: var(--white); border: 1.5px solid var(--rule); border-top: 4px solid var(--accent); border-radius: 4px; padding: 20px 16px; text-align: center; }
+  .cr-fact-box:nth-child(2) { border-top-color: var(--orange); }
+  .cr-fact-box:nth-child(3) { border-top-color: var(--green); }
+  .cr-fact-num { font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 900; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .cr-fact-box:nth-child(2) .cr-fact-num { color: var(--orange); }
+  .cr-fact-box:nth-child(3) .cr-fact-num { color: var(--green); }
+  .cr-fact-label { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+  .cr-fact-sub { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+  /* ═══ DEMERITS — RED ALERT ROWS ═══ */
+  .cr-demerits { margin-bottom: 36px; }
+  .cr-demerit-item { display: flex; gap: 16px; align-items: flex-start; padding: 16px 20px; border: 1.5px solid #f5bcbc; border-radius: 6px; margin-bottom: 10px; background: var(--red-lt); }
+  .cr-demerit-item:last-child { margin-bottom: 0; }
+  .cr-demerit-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .cr-demerit-text { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: #7a1a1a; line-height: 1.7; }
+  .cr-demerit-text strong { color: var(--red); font-weight: 600; }
+
+  /* ═══ PULL QUOTE ═══ */
+  .cr-pull-quote { border-left: 5px solid var(--accent); background: var(--accent-lt); padding: 26px 34px; margin: 36px 0; border-radius: 0 4px 4px 0; }
+  .cr-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; margin: 0 0 10px; }
+  .cr-pull-quote cite { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); font-style: normal; }
+
+  /* ═══ QUALITY MARKS BAND ═══ */
+  .cr-marks-band { background: var(--paper2); border: 1.5px solid var(--rule); border-radius: 8px; padding: 22px 28px; margin-bottom: 36px; }
+  .cr-marks-band-title { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .cr-marks-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .cr-mark-pill {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 10px 20px; border-radius: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cr-mark-pill.blue   { background: var(--accent-lt); color: var(--accent2); border: 1.5px solid #a8d8f5; }
+  .cr-mark-pill.orange { background: var(--orange-lt); color: var(--orange);  border: 1.5px solid #f5c8a0; }
+  .cr-mark-pill.green  { background: var(--green-lt);  color: var(--green);   border: 1.5px solid #9ad8ba; }
+  .cr-mark-pill.purple { background: #ede9fe; color: #5b21b6; border: 1.5px solid #c4b5fd; }
+  .cr-mark-pill.red    { background: var(--red-lt);  color: var(--red);   border: 1.5px solid #f5bcbc; }
+  .cr-mark-desc { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 2px; display: block; }
+
+  /* ═══ NATIONAL DAY CALLOUT ═══ */
+  .cr-day-callout {
+    background: linear-gradient(135deg, #020c14, #072035);
+    border-radius: 8px; padding: 28px 32px; margin-bottom: 36px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  }
+  .cr-day-icon { font-size: 48px; flex-shrink: 0; }
+  .cr-day-content { flex: 1; min-width: 200px; }
+  .cr-day-tag { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #7dd3fc; background: rgba(125,211,252,0.1); padding: 4px 12px; border-radius: 100px; display: inline-block; margin-bottom: 10px; }
+  .cr-day-title { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .cr-day-text { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.72); line-height: 1.7; }
+  .cr-day-text strong { color: #fdba74; }
+
+  /* ═══ FAQ ═══ */
+  .cr-faq-header { margin-bottom: 12px; }
+  .cr-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); background: var(--accent-lt); padding: 6px 16px; border-radius: 100px; }
+  .cr-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(26px, 4vw, 36px); font-weight: 900; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 28px; margin-top: 16px; }
+  .cr-faq-item { border: 1.5px solid var(--rule); border-radius: 6px; margin-bottom: 12px; overflow: hidden; background: var(--white); transition: border-color 0.2s; }
+  .cr-faq-item.open { border-color: var(--accent); }
+  .cr-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; text-align: left; gap: 16px; }
+  .cr-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+  .cr-faq-item.open .cr-faq-q-text { color: var(--accent); }
+  .cr-faq-icon { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); flex-shrink: 0; transition: transform 0.2s; }
+  .cr-faq-item.open .cr-faq-icon { transform: rotate(45deg); }
+  .cr-faq-ans { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); line-height: 1.8; padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
+  .cr-faq-ans.visible { max-height: 700px; padding: 0 24px 20px; }
+  .cr-faq-ans strong { color: var(--accent2); font-weight: 600; }
+
+  @media (max-width: 700px) {
+    .cr-body { padding: 48px 20px 72px; }
+    .cr-hero-inner { padding: 0 20px; }
+    .cr-intro-card { padding: 24px 22px; }
+    .cr-copra-box { padding: 24px 22px; }
+    .cr-day-callout { padding: 22px 22px; }
+    .cr-court-level { width: 82px; padding: 14px 10px; }
+    .cr-court-name { font-size: 11px; }
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="cr-root"><div class="cr-hero"><div class="cr-hero-lines"></div><div class="cr-glow"></div><div class="cr-hero-shield">🛡️</div><div class="cr-hero-bg-num">05</div><div class="cr-hero-inner"><div class="cr-overline">Economics · Class 10 · Chapter 5</div><h1 class="cr-hero-title"><em>Consumer</em><br><span class="em2">Rights</span></h1><div class="cr-hero-bar"><div class="cr-hero-bar-item"><div class="cr-bar-label">Subject</div><div class="cr-bar-value">Economics</div></div><div class="cr-hero-bar-item"><div class="cr-bar-label">Class</div><div class="cr-bar-value">10th Standard</div></div><div class="cr-hero-bar-item"><div class="cr-bar-label">Chapter</div><div class="cr-bar-value">Chapter 5</div></div><div class="cr-hero-bar-item"><div class="cr-bar-label">Board</div><div class="cr-bar-value">CBSE / NCERT</div></div></div></div></div><div class="cr-body"><div class="cr-intro-card"><p>Every time you buy something — a packet of chips, a medicine, an electric appliance — you are a consumer. But are you protected if that product is defective, adulterated, or overpriced?</p><p><strong>Consumer Rights</strong> exist to answer exactly that question. India has built a dedicated legal system — COPRA, consumer courts, and a growing movement — to ensure <strong>every buyer has rights, and every seller has accountability</strong>.</p></div><div class="cr-sec-head"><div class="cr-sec-num">1</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">The Problem</div><h2 class="cr-sec-title">The Consumer in the <span>Marketplace</span></h2></div></div><div class="cr-prose-panel"><div class="cr-prose-bar"></div><div class="cr-prose-body"><div class="cr-prose-label">Why Consumers Need Protection</div><div class="cr-prose-heading">An Unequal Playing Field</div><div class="cr-prose-text">Rules and regulations are required for the <strong>protection of consumers in the marketplace</strong> because exploitation happens often. Markets do not work fairly when <strong>producers are few and powerful</strong> while consumers purchase in small amounts and are scattered.</div><div class="cr-prose-text">Large companies with <strong>huge wealth, power, and reach</strong> can manipulate the market. They can set unfair prices, sell substandard goods, or withhold important information. At times, <strong>false information is passed through media</strong> and other sources to attract consumers who don&#x27;t know better.</div><div class="cr-prose-text">This power imbalance — large producers versus individual buyers — is precisely why <strong>a strong legal framework and consumer awareness are essential</strong> to ensure fair markets.</div></div></div><div class="cr-facts-row"><div class="cr-fact-box"><div class="cr-fact-num">700+</div><div class="cr-fact-label">Consumer Groups in India</div><div class="cr-fact-sub">Only 20–25 are well-organised</div></div><div class="cr-fact-box"><div class="cr-fact-num">1986</div><div class="cr-fact-label">COPRA Enacted</div><div class="cr-fact-sub">24 December — National Consumers&#x27; Day</div></div><div class="cr-fact-box"><div class="cr-fact-num">3-Tier</div><div class="cr-fact-label">Consumer Court System</div><div class="cr-fact-sub">District, State &amp; National levels</div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">2</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">History</div><h2 class="cr-sec-title">The <span>Consumer Movement</span> in India</h2></div></div><p class="cr-body-text">The consumer movement did not emerge overnight — it grew out of decades of struggle against exploitation, black marketing, and adulteration. Here is how it evolved over time.</p><div class="cr-timeline"><div class="cr-tl-item"><div class="cr-tl-dot"></div><div class="cr-tl-era">1960s</div><div class="cr-tl-head">Birth of the Movement</div><div class="cr-tl-desc">Rampant <strong>food shortages, hoarding, black marketing, and adulteration of food and edible oil</strong> gave birth to the consumer movement in an organised form. It began as a social force to protect consumers against unethical and unfair trade practices.</div></div><div class="cr-tl-item"><div class="cr-tl-dot"></div><div class="cr-tl-era">Until 1970s</div><div class="cr-tl-head">Articles &amp; Exhibitions</div><div class="cr-tl-desc">Consumer organisations were largely engaged in <strong>writing articles and holding exhibitions</strong>. They formed consumer groups to look into <strong>malpractices in ration shops</strong> and overcrowding in road passenger transport — the everyday issues affecting ordinary Indians.</div></div><div class="cr-tl-item"><div class="cr-tl-dot"></div><div class="cr-tl-era">1980s</div><div class="cr-tl-head">COPRA — A Legal Milestone</div><div class="cr-tl-desc">India enacted the <strong>Consumer Protection Act (COPRA) in 1986</strong> — a landmark law that established dedicated consumer courts at the district, state, and national levels. <strong>24 December</strong> was declared National Consumers&#x27; Day to mark this achievement.</div></div><div class="cr-tl-item"><div class="cr-tl-dot"></div><div class="cr-tl-era">Recent Years</div><div class="cr-tl-head">Upsurge in Consumer Groups</div><div class="cr-tl-desc">India witnessed an <strong>upsurge in the number of consumer groups</strong>. Today, there are more than <strong>700 consumer groups</strong>, though only about 20–25 are well organised and recognised nationally. Consumer awareness has grown significantly.</div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">3</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">Provided by Law</div><h2 class="cr-sec-title">Six <span>Rights of Consumers</span></h2></div></div><p class="cr-body-text">These rights are legally guaranteed to every consumer in India. Knowing them is the first step to exercising them — and to holding sellers and producers accountable.</p><div class="cr-rights-grid"><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">01</div><span class="cr-right-icon">🛡️</span><div class="cr-right-name">Right to Safety</div></div><div class="cr-right-body"><div class="cr-right-text">Protected against the marketing of goods and services that are <strong>hazardous to life and property</strong>. Producers must strictly follow safety rules. Special attention applies to goods like electrical appliances, medicines, and food.</div><span class="cr-right-tag">Protection</span></div></div><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">02</div><span class="cr-right-icon">ℹ️</span><div class="cr-right-name">Right to be Informed</div></div><div class="cr-right-body"><div class="cr-right-text">Right to know the <strong>particulars of goods and services</strong> purchased. Can complain and seek compensation for defective products. Can protest if sold above the <strong>printed MRP (Maximum Retail Price)</strong>.</div><span class="cr-right-tag">Transparency</span></div></div><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">03</div><span class="cr-right-icon">✅</span><div class="cr-right-name">Right to Choose</div></div><div class="cr-right-body"><div class="cr-right-text">Any consumer — <strong>regardless of age, gender, or nature of service</strong> — has the right to choose whether to continue receiving a service. No coercion or forced bundling of services.</div><span class="cr-right-tag">Freedom</span></div></div><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">04</div><span class="cr-right-icon">🗣️</span><div class="cr-right-name">Right to be Heard</div></div><div class="cr-right-body"><div class="cr-right-text">Consumers have the right to <strong>be heard in case of a grievance</strong>. Their complaints must be acknowledged and taken seriously by sellers, companies, and relevant authorities.</div><span class="cr-right-tag">Voice</span></div></div><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">05</div><span class="cr-right-icon">⚖️</span><div class="cr-right-name">Right to Seek Redressal</div></div><div class="cr-right-body"><div class="cr-right-text">Right to seek redressal against <strong>unfair trade practices and exploitation</strong>. If damage is done, the consumer has the right to get <strong>compensation depending on the degree of damage</strong>.</div><span class="cr-right-tag">Compensation</span></div></div><div class="cr-right-card"><div class="cr-right-header"><div class="cr-right-num">06</div><span class="cr-right-icon">🏛️</span><div class="cr-right-name">Right to Represent</div></div><div class="cr-right-body"><div class="cr-right-text">Consumer forums and protection councils <strong>guide consumers on how to file cases</strong> in consumer courts and also represent them. These voluntary organisations receive <strong>financial support from the government</strong>.</div><span class="cr-right-tag">Legal Access</span></div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">4</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">Root Causes</div><h2 class="cr-sec-title">Factors Causing <span>Exploitation of Consumers</span></h2></div></div><p class="cr-body-text">Consumer exploitation does not happen in a vacuum. Four key structural factors make consumers vulnerable to being cheated, overcharged, or misled.</p><div class="cr-factor-rows"><div class="cr-factor-row"><div class="cr-factor-icon-col">📉</div><div class="cr-factor-body"><div class="cr-factor-title">Limited Information</div><div class="cr-factor-text">Consumers often lack complete knowledge about <strong>product quality, ingredients, pricing, or their own rights</strong>. This information gap allows sellers to mislead buyers, pass off substandard goods, or charge more than the fair price.</div></div></div><div class="cr-factor-row"><div class="cr-factor-icon-col">📦</div><div class="cr-factor-body"><div class="cr-factor-title">Limited Supplies</div><div class="cr-factor-text">When goods are scarce, <strong>sellers can hoard products</strong> and create artificial shortages. This drives up prices and forces consumers to buy at inflated rates — a form of exploitation that was especially common in the 1960s with essential food items.</div></div></div><div class="cr-factor-row"><div class="cr-factor-icon-col">🏭</div><div class="cr-factor-body"><div class="cr-factor-title">Limited Competition</div><div class="cr-factor-text">When a market has <strong>only a few producers</strong> (monopoly or oligopoly), companies can dictate unfair terms, charge high prices, and deliver poor quality without losing customers who have no alternatives.</div></div></div><div class="cr-factor-row"><div class="cr-factor-icon-col">📚</div><div class="cr-factor-body"><div class="cr-factor-title">Low Literacy</div><div class="cr-factor-text">Illiterate or poorly educated consumers <strong>cannot read product labels, expiry dates, or ingredient lists</strong>. They may not understand MRP, quality marks, or even know their rights exist — making them easy targets for exploitation.</div></div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">5</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">Responsibilities</div><h2 class="cr-sec-title">Duties <span>of Consumers</span></h2></div></div><p class="cr-body-text">Rights come with responsibilities. A consumer who does not exercise their duties makes the marketplace weaker for everyone. Here are the key duties every consumer should follow.</p><div class="cr-duties-strip"><div class="cr-duty-item"><span class="cr-duty-icon">🏷️</span><div class="cr-duty-num">DUTY 01</div><div class="cr-duty-title">Buy Quality-Marked Products</div><div class="cr-duty-text">Always look for ISI, AGMARK, Hallmark etc. marks before buying — they certify safety and quality.</div></div><div class="cr-duty-item"><span class="cr-duty-icon">🧾</span><div class="cr-duty-num">DUTY 02</div><div class="cr-duty-title">Always Ask for a Cash Memo</div><div class="cr-duty-text">A cash memo is proof of purchase. Without it, you have no evidence to file a complaint.</div></div><div class="cr-duty-item"><span class="cr-duty-icon">📣</span><div class="cr-duty-num">DUTY 03</div><div class="cr-duty-title">Complain When Wronged</div><div class="cr-duty-text">Know your rights and actively use them. Filing complaints makes sellers accountable.</div></div></div><div class="cr-marks-band"><div class="cr-marks-band-title">🏅 Quality Certification Marks — Know Before You Buy</div><div class="cr-marks-row"><div class="cr-mark-pill blue"><div><strong>ISI Mark</strong><span class="cr-mark-desc">Industrial products — electricals, cement, LPG</span></div></div><div class="cr-mark-pill orange"><div><strong>AGMARK</strong><span class="cr-mark-desc">Agricultural &amp; food products</span></div></div><div class="cr-mark-pill green"><div><strong>Hallmark</strong><span class="cr-mark-desc">Gold &amp; silver jewellery purity</span></div></div><div class="cr-mark-pill purple"><div><strong>FPO Mark</strong><span class="cr-mark-desc">Fruit &amp; vegetable products</span></div></div><div class="cr-mark-pill red"><div><strong>Eco Mark</strong><span class="cr-mark-desc">Environment-friendly products</span></div></div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">6</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">The Law</div><h2 class="cr-sec-title">Consumer Protection Act — <span>COPRA 1986</span></h2></div></div><div class="cr-copra-box"><div class="cr-copra-badge">Central Legislation · 1986</div><div class="cr-copra-title">Consumer Protection Act, 1986 (COPRA)</div><div class="cr-copra-sub">Enacted on 24 December 1986 · Observed as National Consumers&#x27; Day</div><ul class="cr-copra-ul"><li>Purpose: to <strong>protect and promote the interests of consumers</strong> against exploitation</li><li>Set up a <strong>three-tier quasi-judicial machinery</strong> at the district, state and national levels</li><li>Enabled consumers to have the <strong>right to represent in consumer courts</strong></li><li>If a case is dismissed at district level, consumer can <strong>appeal at state and then national level</strong></li><li>India is one of very few countries with <strong>exclusive courts for consumer redressal</strong></li><li>Supported by <strong>voluntary consumer organisations</strong> that receive government financial aid</li></ul></div><div class="cr-courts"><div class="cr-courts-title">⚖️ Three-Tier Consumer Court System Under COPRA</div><div class="cr-court-item"><div class="cr-court-level cr-court-level-blue"><div class="cr-court-tier">Tier 1</div><div class="cr-court-name">District Level Court</div></div><div class="cr-court-body"><div class="cr-court-limit cr-court-limit-blue">Up to ₹20 Lakhs</div><div class="cr-court-desc">Handles consumer disputes involving claims <strong>up to Rs. 20 lakhs</strong>. The first point of complaint for most consumers. If dismissed here, the case can be appealed upward.</div></div></div><div class="cr-court-item"><div class="cr-court-level cr-court-level-green"><div class="cr-court-tier">Tier 2</div><div class="cr-court-name">State Level Court</div></div><div class="cr-court-body"><div class="cr-court-limit cr-court-limit-green">₹20 Lakhs – ₹1 Crore</div><div class="cr-court-desc">Handles cases involving claims between <strong>Rs. 20 lakhs and Rs. 1 crore</strong>. Also hears appeals from district-level decisions.</div></div></div><div class="cr-court-item"><div class="cr-court-level cr-court-level-brown"><div class="cr-court-tier">Tier 3</div><div class="cr-court-name">National Level Court</div></div><div class="cr-court-body"><div class="cr-court-limit cr-court-limit-brown">Above ₹1 Crore</div><div class="cr-court-desc">Handles cases involving claims <strong>exceeding Rs. 1 crore</strong>. The highest consumer court — final appeal before regular civil courts. Deals with the most serious consumer disputes.</div></div></div></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-sec-head"><div class="cr-sec-num">7</div><div class="cr-sec-title-wrap"><div class="cr-sec-kicker">Challenges</div><h2 class="cr-sec-title">Demerits of the <span>Consumer Redressal Process</span></h2></div></div><p class="cr-body-text">Despite the strong legal framework, the consumer redressal system in India has significant shortcomings that prevent many consumers from actually getting justice.</p><div class="cr-demerits"><div class="cr-demerit-item"><span class="cr-demerit-icon">⏳</span><div class="cr-demerit-text">The Consumer Redressal Process is becoming <strong>cumbersome, expensive, and time-consuming</strong> — discouraging many consumers from pursuing their complaints.</div></div><div class="cr-demerit-item"><span class="cr-demerit-icon">👨‍⚖️</span><div class="cr-demerit-text">Many times, consumers are required to <strong>engage lawyers</strong>. Cases require significant time for filing and attending multiple court proceedings.</div></div><div class="cr-demerit-item"><span class="cr-demerit-icon">🧾</span><div class="cr-demerit-text">In most purchases, <strong>cash memos are not issued</strong>, which means evidence of the transaction is absent — making it hard to file or prove a complaint.</div></div><div class="cr-demerit-item"><span class="cr-demerit-icon">🛒</span><div class="cr-demerit-text">Most purchases in the market are <strong>small retail sales</strong> — the low value of individual transactions makes legal action economically unviable for most consumers.</div></div><div class="cr-demerit-item"><span class="cr-demerit-icon">⚠️</span><div class="cr-demerit-text">The <strong>enforcement of laws protecting workers</strong>, especially in the unorganised sector, remains weak — leaving a large section of the population vulnerable.</div></div><div class="cr-demerit-item"><span class="cr-demerit-icon">📋</span><div class="cr-demerit-text"><strong>Rules and regulations for the working of markets are often not followed</strong> in practice — meaning legal protections exist on paper but are not always enforced on the ground.</div></div></div><div class="cr-day-callout"><div class="cr-day-icon">📅</div><div class="cr-day-content"><div class="cr-day-tag">National Observance</div><div class="cr-day-title">24 December — National Consumers&#x27; Day</div><div class="cr-day-text">India has been observing <strong>24 December as National Consumers&#x27; Day</strong>. It was on this day that the Indian Parliament enacted the Consumer Protection Act in 1986. India is one of the few countries in the world that has <strong>exclusive courts for consumer redressal</strong> — a testament to how seriously consumer rights are taken.</div></div></div><div class="cr-pull-quote"><p>&quot;The consumer movement in India has led to the formation of various organisations locally known as consumer forums or consumer protection councils — they guide and represent consumers in courts.&quot;</p><cite>— NCERT Economics, Chapter 5</cite></div><div class="cr-divider"><div class="cr-divider-mark"></div></div><div class="cr-faq-header"><span class="cr-faq-kicker">Exam Preparation</span></div><h2 class="cr-faq-title">Frequently Asked Questions</h2><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q1. Why are rules and regulations needed to protect consumers in the marketplace?</span></summary><div class="cr-faq-ans visible">Rules and regulations are needed because <strong>markets do not work fairly</strong> when producers are few and powerful while consumers purchase in small amounts and are scattered. Large companies with <strong>huge wealth, power, and reach can manipulate the market</strong>. At times, <strong>false information is passed through media</strong> and other sources to attract consumers. Without rules, exploitation is common — through hoarding, black marketing, adulteration, and overcharging.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q2. How did the Consumer Movement begin in India?</span></summary><div class="cr-faq-ans visible">The consumer movement in India began as a <strong>&#x27;social force&#x27;</strong> to protect and promote the interests of consumers against unethical and unfair trade practices. <strong>Rampant food shortages, hoarding, black marketing, adulteration of food and edible oil</strong> gave birth to the movement in an organised form in the <strong>1960s</strong>. Till the 1970s, consumer organisations wrote articles and held exhibitions. They also formed consumer groups to look into malpractices in <strong>ration shops</strong> and overcrowding in road transport. More recently, India witnessed an <strong>upsurge in the number of consumer groups</strong>.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q3. What are the six rights of consumers?</span></summary><div class="cr-faq-ans visible">The six consumer rights are:<br><br>1. <strong>Right to Safety</strong> — protected against goods and services hazardous to life and property.<br>2. <strong>Right to be Informed</strong> — know the particulars of goods and services purchased; complain if product is defective; protest if sold above MRP.<br>3. <strong>Right to Choose</strong> — choose whether to continue receiving a service, regardless of age, gender, or nature of service.<br>4. <strong>Right to be Heard</strong> — grievances must be listened to.<br>5. <strong>Right to Seek Redressal</strong> — compensation depending on the degree of damage from unfair trade practices.<br>6. <strong>Right to Represent in Consumer Courts</strong> — consumer forums guide and represent individual consumers in consumer courts.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q4. What factors cause exploitation of consumers?</span></summary><div class="cr-faq-ans visible">Four main factors cause consumer exploitation:<br><br>• <strong>Limited information</strong> — consumers lack full knowledge about products, ingredients, or pricing.<br>• <strong>Limited supplies</strong> — scarcity allows sellers to hoard and overcharge.<br>• <strong>Limited competition</strong> — monopolies or oligopolies can dictate unfair terms.<br>• <strong>Low literacy</strong> — illiterate or less-educated consumers cannot read labels, understand rights, or effectively complain.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q5. What are the duties of a consumer?</span></summary><div class="cr-faq-ans visible">Consumers also have responsibilities, not just rights:<br><br>• Purchase <strong>quality-marked products</strong> such as ISI, AGMARK, Hallmark etc. — these certify that products meet safety and quality standards.<br>• Always <strong>ask for a cash memo</strong> for items purchased — it serves as proof of purchase and evidence in case of a complaint.<br>• <strong>Complain for genuine grievances</strong> — consumers must know their rights and actively exercise them to make the system work.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q6. What is COPRA 1986? What is the three-tier judicial machinery under it?</span></summary><div class="cr-faq-ans visible">The <strong>Consumer Protection Act, 1986 (COPRA)</strong> was enacted to protect and promote the interests of consumers. It set up a <strong>three-tier quasi-judicial machinery</strong> for redressal of consumer disputes:<br><br>• <strong>District Level Court</strong> — handles cases involving claims up to <strong>Rs. 20 lakhs</strong>.<br>• <strong>State Level Court</strong> — handles cases between <strong>Rs. 20 lakhs and Rs. 1 crore</strong>.<br>• <strong>National Level Court</strong> — handles cases involving claims <strong>exceeding Rs. 1 crore</strong>.<br><br>If a case is dismissed at the district level, the consumer can appeal at the state level and then the national level. India is one of the countries that have <strong>exclusive courts for consumer redressal</strong>.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q7. What are the demerits of the Consumer Redressal Process?</span></summary><div class="cr-faq-ans visible">The Consumer Redressal Process has several shortcomings:<br><br>• It is becoming <strong>cumbersome, expensive, and time-consuming</strong>.<br>• Consumers often need to <strong>engage lawyers</strong> and attend multiple court proceedings.<br>• In most purchases, <strong>cash memos are not issued</strong>, so evidence is absent.<br>• Most market purchases are <strong>small retail sales</strong> — not worth the effort of legal action.<br>• <strong>Enforcement of laws protecting workers</strong>, especially in unorganised sectors, is weak.<br>• <strong>Rules and regulations for markets are often not followed</strong> in practice.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q8. What is the significance of 24 December in India?</span></summary><div class="cr-faq-ans visible">India observes <strong>24 December as National Consumers&#x27; Day</strong>. It was on this day that the Indian Parliament enacted the <strong>Consumer Protection Act in 1986</strong>. This day is observed to raise consumer awareness and celebrate the rights guaranteed under COPRA. India is one of the countries in the world that has <strong>exclusive courts dedicated to consumer redressal</strong>.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q9. What are consumer forums and consumer protection councils?</span></summary><div class="cr-faq-ans visible">The consumer movement in India has led to the formation of various organisations locally known as <strong>consumer forums or consumer protection councils</strong>. They:<br><br>• <strong>Guide consumers</strong> on how to file cases in the consumer court.<br>• <strong>Represent individual consumers</strong> in consumer courts on many occasions.<br>• Receive <strong>financial support from the government</strong> for creating awareness among people.<br><br>There are today <strong>more than 700 consumer groups</strong> in India, of which only about <strong>20–25 are well organised and recognised</strong> for their work.</div></details><details class="cr-faq-item" data-faq><summary class="cr-faq-q"><span class="cr-faq-q-text">Q10. What are quality certification marks? Why should consumers look for them?</span></summary><div class="cr-faq-ans visible">Quality certification marks are symbols placed on products that certify they meet certain safety and quality standards set by authorised bodies. Consumers should buy products with these marks because they offer <strong>assurance of quality and safety</strong>:<br><br>• <strong>ISI mark</strong> — for industrial products like electrical goods, cement, LPG cylinders.<br>• <strong>AGMARK</strong> — for agricultural and food products.<br>• <strong>Hallmark</strong> — for gold and silver jewellery purity.<br>• <strong>FPO</strong> — for fruit and vegetable products.<br>• <strong>Eco Mark</strong> — for environment-friendly products.<br><br>It is a <strong>consumer&#x27;s duty</strong> to look for these marks before purchasing.</div></details></div></div>

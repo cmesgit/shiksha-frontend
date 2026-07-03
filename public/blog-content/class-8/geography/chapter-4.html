@@ -1,0 +1,361 @@
+<style>
+  :root {
+    --ink:        #0f172a;
+    --ink2:       #1e293b;
+    --muted:      #64748b;
+    --wheat:      #92400e;
+    --wheat2:     #b45309;
+    --wheat-bg:   #fffbeb;
+    --wheat-bd:   #fde68a;
+    --lime:       #4d7c0f;
+    --lime2:      #65a30d;
+    --lime-bg:    #f7fee7;
+    --lime-bd:    #d9f99d;
+    --forest:     #166534;
+    --forest2:    #15803d;
+    --forest-bg:  #f0fdf4;
+    --forest-bd:  #86efac;
+    --rust:       #b91c1c;
+    --rust-bg:    #fef2f2;
+    --rust-bd:    #fecaca;
+    --sky:        #0369a1;
+    --sky2:       #0284c7;
+    --sky-bg:     #f0f9ff;
+    --sky-bd:     #bae6fd;
+    --amber:      #d97706;
+    --amber-bg:   #fffbeb;
+    --amber-bd:   #fde68a;
+    --card:       #ffffff;
+  }
+
+  .blog-root {
+    font-family: 'Inter', sans-serif;
+    background: #fefdf7;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Hero ── */
+  .agr-hero {
+    background: linear-gradient(135deg, #1a0e00 0%, #3b1f00 35%, #713f12 66%, #92400e 100%);
+    padding: 80px 24px 96px;
+    position: relative; overflow: hidden;
+  }
+  .agr-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 8% 65%, rgba(101,163,13,0.20) 0%, transparent 50%),
+      radial-gradient(circle at 87% 16%, rgba(146,64,14,0.28) 0%, transparent 52%),
+      radial-gradient(circle at 52% 95%, rgba(21,128,61,0.12) 0%, transparent 40%);
+  }
+  .agr-hero::after {
+    content: '🌾';
+    position: absolute; right: 44px; top: 32px;
+    font-size: 130px; opacity: 0.08; line-height: 1;
+  }
+  .agr-hero-inner { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+  .agr-hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(101,163,13,0.18); border: 1px solid rgba(101,163,13,0.38);
+    color: #d9f99d; font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 100px;
+    margin-bottom: 28px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .agr-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(36px, 6vw, 64px); font-weight: 900; line-height: 1.07;
+    color: #ffffff; margin: 0 0 20px; letter-spacing: -0.02em;
+  }
+  .agr-hero-title span { color: #fde68a; }
+  .agr-hero-sub {
+    font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 500;
+    color: #fef9c3; line-height: 1.7; max-width: 620px; margin: 0 0 40px;
+  }
+  .agr-hero-meta { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .agr-meta-chip { color: #fde68a; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+  .agr-meta-dot  { width: 4px; height: 4px; background: #fbbf24; border-radius: 50%; display: inline-block; }
+
+  /* ── Body ── */
+  .agr-body { max-width: 820px; margin: 0 auto; padding: 64px 24px 80px; }
+
+  /* ── Intro card ── */
+  .agr-intro-card {
+    background: linear-gradient(135deg, #1a0e00, #3b1f00);
+    border-radius: 20px; padding: 40px 44px; margin-bottom: 56px;
+    position: relative; overflow: hidden;
+  }
+  .agr-intro-card::after {
+    content: '🚜'; position: absolute; top: 10px; right: 28px;
+    font-size: 120px; opacity: 0.07; line-height: 1;
+  }
+  .agr-intro-card p {
+    font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 500;
+    color: #fef9c3; line-height: 1.75; margin: 0 0 16px; position: relative; z-index: 1;
+  }
+  .agr-intro-card p:last-child { margin: 0; }
+  .agr-intro-card strong { color: #fde68a; }
+
+  /* ── Stat strip ── */
+  .agr-stat-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; border-radius: 14px; overflow: hidden;
+    border: 1.5px solid var(--wheat-bd); margin-bottom: 56px;
+    box-shadow: 0 4px 18px rgba(146,64,14,0.09);
+  }
+  @media (max-width: 560px) { .agr-stat-strip { grid-template-columns: repeat(2,1fr); } }
+  .agr-stat {
+    padding: 24px 14px; text-align: center;
+    border-right: 1.5px solid var(--wheat-bd); background: var(--card);
+  }
+  .agr-stat:last-child { border-right: none; }
+  @media (max-width: 560px) {
+    .agr-stat:nth-child(2) { border-right: none; }
+    .agr-stat:nth-child(3) { border-top: 1.5px solid var(--wheat-bd); }
+    .agr-stat:nth-child(4) { border-top: 1.5px solid var(--wheat-bd); border-right: none; }
+  }
+  .agr-stat-icon { font-size: 26px; margin-bottom: 6px; }
+  .agr-stat-num { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900; color: var(--wheat2); margin-bottom: 4px; }
+  .agr-stat-lbl { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+
+  /* ── Labels & titles ── */
+  .agr-label {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .agr-label.wht { color: var(--wheat2); }
+  .agr-label.lim { color: var(--lime2); }
+  .agr-label.frs { color: var(--forest2); }
+  .agr-label.sky { color: var(--sky2); }
+  .agr-label.rst { color: var(--rust); }
+  .agr-label.amb { color: var(--amber); }
+
+  .agr-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(26px, 4vw, 36px); font-weight: 800;
+    color: var(--ink); line-height: 1.2; margin: 0 0 28px; letter-spacing: -0.01em;
+  }
+  .agr-title .wht { color: var(--wheat2); }
+  .agr-title .lim { color: var(--lime2); }
+  .agr-title .frs { color: var(--forest2); }
+  .agr-title .sky { color: var(--sky2); }
+  .agr-title .rst { color: var(--rust); }
+  .agr-title .amb { color: var(--amber); }
+
+  .agr-divider { border: none; border-top: 1.5px solid #fde68a; margin: 52px 0; }
+
+  /* ── Economic activities trio ── */
+  .agr-eco-trio {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 0; border-radius: 16px; overflow: hidden;
+    border: 1.5px solid var(--wheat-bd); margin-bottom: 40px;
+  }
+  @media (max-width: 540px) { .agr-eco-trio { grid-template-columns: 1fr; } }
+  .agr-eco-col { padding: 26px 20px; text-align: center; border-right: 1.5px solid var(--wheat-bd); }
+  .agr-eco-col:last-child { border-right: none; }
+  @media (max-width: 540px) {
+    .agr-eco-col { border-right: none; border-bottom: 1.5px solid var(--wheat-bd); }
+    .agr-eco-col:last-child { border-bottom: none; }
+  }
+  .agr-eco-col.pri { background: var(--forest-bg); }
+  .agr-eco-col.sec { background: var(--sky-bg); }
+  .agr-eco-col.ter { background: var(--wheat-bg); }
+  .agr-eco-icon { font-size: 32px; margin-bottom: 10px; }
+  .agr-eco-col h4 { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 800; margin: 0 0 6px; }
+  .agr-eco-col.pri h4 { color: var(--forest2); }
+  .agr-eco-col.sec h4 { color: var(--sky2); }
+  .agr-eco-col.ter h4 { color: var(--wheat2); }
+  .agr-eco-col p { font-size: 13px; color: var(--ink2); line-height: 1.6; margin: 0 0 8px; }
+  .agr-eco-col .eg { font-family:'Poppins',sans-serif; font-size:12px; font-weight:600; color:var(--muted); font-style:italic; margin:0; }
+
+  /* ── Farm system flow ── */
+  .agr-farm-flow {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 0; align-items: center; margin-bottom: 40px;
+  }
+  @media (max-width: 580px) { .agr-farm-flow { grid-template-columns: 1fr; gap: 10px; } }
+  .agr-flow-box {
+    background: var(--card); border: 1.5px solid var(--wheat-bd);
+    border-radius: 14px; padding: 20px 16px; text-align: center;
+  }
+  .agr-flow-box .fb-icon { font-size: 28px; margin-bottom: 8px; }
+  .agr-flow-box h4 { font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; margin:0 0 6px; }
+  .agr-flow-box.inp h4 { color: var(--sky2); }
+  .agr-flow-box.ops h4 { color: var(--wheat2); }
+  .agr-flow-box.out h4 { color: var(--forest2); }
+  .agr-flow-box p { font-size:12px; color:var(--muted); line-height:1.5; margin:0; }
+  .agr-flow-arrow {
+    font-size: 24px; color: var(--wheat2); text-align: center;
+    padding: 0 8px; font-weight: 700;
+  }
+  @media (max-width: 580px) { .agr-flow-arrow { display:none; } }
+
+  /* ── Culture types grid ── */
+  .agr-cultures {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 14px; margin-bottom: 40px;
+  }
+  @media (max-width: 580px) { .agr-cultures { grid-template-columns: repeat(2,1fr); } }
+  .agr-culture-card {
+    background: var(--card); border: 1.5px solid var(--lime-bd);
+    border-top: 4px solid var(--lime2); border-radius: 14px; padding: 20px 16px; text-align:center;
+  }
+  .agr-culture-card .cc-icon { font-size: 28px; margin-bottom: 8px; }
+  .agr-culture-card h4 { font-family:'Poppins',sans-serif; font-size:13px; font-weight:700; color:var(--lime); margin:0 0 4px; }
+  .agr-culture-card p { font-size:12px; color:var(--muted); line-height:1.5; margin:0; }
+
+  /* ── Subsistence vs Commercial split ── */
+  .agr-farming-split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-radius: 18px; overflow: hidden;
+    border: 1.5px solid var(--wheat-bd); margin-bottom: 32px;
+  }
+  @media (max-width: 540px) { .agr-farming-split { grid-template-columns: 1fr; } }
+  .agr-fs-col { padding: 28px 26px; }
+  .agr-fs-col.subs { background: var(--forest-bg); }
+  .agr-fs-col.comm { background: var(--wheat-bg); border-left: 1.5px solid var(--wheat-bd); }
+  @media (max-width: 540px) { .agr-fs-col.comm { border-left:none; border-top:1.5px solid var(--wheat-bd); } }
+  .agr-fs-badge {
+    display:inline-block; font-family:'Poppins',sans-serif; font-size:11px; font-weight:700;
+    padding:3px 12px; border-radius:100px; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;
+  }
+  .agr-fs-col.subs .agr-fs-badge { background:var(--forest-bd); color:var(--forest); }
+  .agr-fs-col.comm .agr-fs-badge { background:var(--wheat-bd); color:var(--wheat); }
+  .agr-fs-col h3 { font-family:'Montserrat',sans-serif; font-size:17px; font-weight:800; margin:0 0 10px; }
+  .agr-fs-col.subs h3 { color:var(--forest2); }
+  .agr-fs-col.comm h3 { color:var(--wheat2); }
+  .agr-fs-col ul { margin:0; padding-left:18px; }
+  .agr-fs-col ul li { font-size:14px; color:var(--ink2); line-height:1.8; margin-bottom:6px; }
+  .agr-fs-col ul li strong { color:var(--ink); }
+
+  /* ── Farming type detail cards ── */
+  .agr-ftype-cards { margin-bottom: 40px; }
+  .agr-ftype-card {
+    border-radius: 16px; padding: 22px 24px;
+    border: 1.5px solid; margin-bottom: 14px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .agr-ftype-card.int-sub  { background: var(--forest-bg);  border-color: var(--forest-bd); }
+  .agr-ftype-card.prim-sub { background: var(--rust-bg);     border-color: var(--rust-bd); }
+  .agr-ftype-card.shift    { background: #fff7ed;             border-color: var(--wheat-bd); }
+  .agr-ftype-card.nomad    { background: var(--sky-bg);       border-color: var(--sky-bd); }
+  .agr-ftype-card.cgrain   { background: var(--wheat-bg);     border-color: var(--wheat-bd); }
+  .agr-ftype-card.mixed    { background: var(--lime-bg);      border-color: var(--lime-bd); }
+  .agr-ftype-card.plant    { background: #fdf4ff;             border-color: #e9d5ff; }
+  .agr-ftype-icon { font-size:32px; flex-shrink:0; margin-top:2px; }
+  .agr-ftype-card .ft-tag {
+    display:inline-block; font-family:'Poppins',sans-serif; font-size:10px; font-weight:700;
+    padding:2px 10px; border-radius:100px; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;
+  }
+  .agr-ftype-card.int-sub  .ft-tag { background:var(--forest-bd); color:var(--forest); }
+  .agr-ftype-card.prim-sub .ft-tag { background:var(--rust-bd);   color:var(--rust); }
+  .agr-ftype-card.shift    .ft-tag { background:#fed7aa;          color:var(--wheat); }
+  .agr-ftype-card.nomad    .ft-tag { background:var(--sky-bd);    color:var(--sky); }
+  .agr-ftype-card.cgrain   .ft-tag { background:var(--wheat-bd);  color:var(--wheat2); }
+  .agr-ftype-card.mixed    .ft-tag { background:var(--lime-bd);   color:var(--lime); }
+  .agr-ftype-card.plant    .ft-tag { background:#e9d5ff;          color:#7e22ce; }
+  .agr-ftype-card h4 { font-family:'Poppins',sans-serif; font-size:15px; font-weight:700; margin:0 0 6px; }
+  .agr-ftype-card.int-sub  h4 { color:var(--forest2); }
+  .agr-ftype-card.prim-sub h4 { color:var(--rust); }
+  .agr-ftype-card.shift    h4 { color:var(--wheat2); }
+  .agr-ftype-card.nomad    h4 { color:var(--sky); }
+  .agr-ftype-card.cgrain   h4 { color:var(--wheat2); }
+  .agr-ftype-card.mixed    h4 { color:var(--lime); }
+  .agr-ftype-card.plant    h4 { color:#7e22ce; }
+  .agr-ftype-card p { font-size:14px; color:var(--ink2); line-height:1.7; margin:0; }
+  .agr-ftype-card strong { color:var(--ink); }
+
+  /* ── Major crops grid ── */
+  .agr-crops-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 12px; margin-bottom: 40px;
+  }
+  @media (max-width: 560px) { .agr-crops-grid { grid-template-columns: repeat(2,1fr); } }
+  .agr-crop-box {
+    background: var(--card); border: 1.5px solid var(--lime-bd);
+    border-radius: 12px; padding: 18px 12px; text-align:center;
+    border-bottom: 3px solid var(--lime2);
+  }
+  .agr-crop-box .crp-icon { font-size:26px; margin-bottom:6px; }
+  .agr-crop-box p { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; color:var(--lime); margin:0; }
+
+  /* ── India vs USA comparison ── */
+  .agr-compare {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-radius: 18px; overflow: hidden;
+    border: 1.5px solid var(--wheat-bd); margin-bottom: 40px;
+  }
+  @media (max-width: 540px) { .agr-compare { grid-template-columns: 1fr; } }
+  .agr-cmp-col { padding: 28px 26px; }
+  .agr-cmp-col.india { background: linear-gradient(160deg, #fff7ed, #fef9c3); }
+  .agr-cmp-col.usa   { background: linear-gradient(160deg, #f0fdf4, #dcfce7); border-left: 1.5px solid var(--wheat-bd); }
+  @media (max-width: 540px) { .agr-cmp-col.usa { border-left:none; border-top:1.5px solid var(--wheat-bd); } }
+  .agr-cmp-flag { font-size:30px; margin-bottom:10px; }
+  .agr-cmp-col h3 { font-family:'Montserrat',sans-serif; font-size:18px; font-weight:800; margin:0 0 14px; }
+  .agr-cmp-col.india h3 { color:var(--wheat2); }
+  .agr-cmp-col.usa   h3 { color:var(--forest2); }
+  .agr-cmp-row {
+    display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;
+  }
+  .agr-cmp-key {
+    font-family:'Poppins',sans-serif; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em; white-space:nowrap;
+    padding: 3px 10px; border-radius:100px; flex-shrink:0;
+  }
+  .agr-cmp-col.india .agr-cmp-key { background:var(--wheat-bd); color:var(--wheat); }
+  .agr-cmp-col.usa   .agr-cmp-key { background:var(--forest-bd); color:var(--forest); }
+  .agr-cmp-val { font-size:14px; color:var(--ink2); line-height:1.65; }
+  .agr-cmp-val strong { color:var(--ink); }
+
+  /* ── Agri development card ── */
+  .agr-dev-card {
+    background: linear-gradient(135deg, #052e16, #14532d);
+    border-radius: 18px; padding: 30px 34px; margin-bottom: 40px;
+    position: relative; overflow: hidden;
+  }
+  .agr-dev-card::after { content:'📈'; position:absolute; right:20px; top:8px; font-size:100px; opacity:0.08; line-height:1; }
+  .agr-dev-card h3 { font-family:'Montserrat',sans-serif; font-size:18px; font-weight:800; color:#86efac; margin:0 0 14px; position:relative; z-index:1; }
+  .agr-dev-card ul { margin:0; padding-left:18px; position:relative; z-index:1; }
+  .agr-dev-card ul li { font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; color:#bbf7d0; line-height:1.8; margin-bottom:6px; }
+  .agr-dev-card ul li strong { color:#fde68a; }
+
+  /* ── FAQ ── */
+  .agr-faq-label {
+    font-family:'Poppins',sans-serif; font-size:12px; font-weight:700;
+    color:var(--wheat2); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px;
+  }
+  .agr-faq-title {
+    font-family:'Montserrat',sans-serif;
+    font-size:clamp(24px,3.5vw,32px); font-weight:800;
+    color:var(--ink); margin:0 0 28px; letter-spacing:-0.01em;
+  }
+  .faq-item {
+    border: 1.5px solid var(--wheat-bd); border-radius:14px; margin-bottom:12px;
+    background: var(--card); overflow:hidden;
+  }
+  .faq-item.open { border-color: var(--wheat2); }
+  .faq-q {
+    width:100%; background:none; border:none; cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 22px; gap:12px; text-align:left;
+  }
+  .faq-q-text { font-family:'Poppins',sans-serif; font-size:15px; font-weight:600; color:var(--ink); line-height:1.5; }
+  .faq-item.open .faq-q-text { color:var(--wheat2); }
+  .faq-icon { font-size:18px; color:var(--wheat2); flex-shrink:0; font-family:'Poppins',sans-serif; font-weight:700; }
+  .faq-ans {
+    display:none; padding:0 22px 20px;
+    font-family:'Poppins',sans-serif; font-size:14px; font-weight:500;
+    color:var(--ink2); line-height:1.8;
+  }
+  .faq-ans.visible { display:block; }
+  .faq-ans strong { color:var(--wheat2); }
+  .faq-ans ul { padding-left:20px; margin:8px 0; }
+  .faq-ans ul li { margin-bottom:6px; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="blog-root"><div class="agr-hero"><div class="agr-hero-inner"><div class="agr-hero-tag">📚 Geography · Class 8 · Chapter 4</div><h1 class="agr-hero-title"><span>Agriculture</span></h1><p class="agr-hero-sub">From subsistence fields in rural India to vast mechanised farms in the USA — explore how agriculture feeds the world, the types of farming, major crops, and the path to agricultural development.</p><div class="agr-hero-meta"><span class="agr-meta-chip"><span class="agr-meta-dot"></span>Geography</span><span class="agr-meta-chip"><span class="agr-meta-dot"></span>NCERT Class 8</span><span class="agr-meta-chip"><span class="agr-meta-dot"></span>Chapter 4</span><span class="agr-meta-chip"><span class="agr-meta-dot"></span>10 FAQs</span></div></div></div><div class="agr-body"><div class="agr-intro-card"><p><strong>Agriculture</strong> is the world&#x27;s oldest and most widespread primary activity — involving the growing of crops, fruits, vegetables, flowers, and the rearing of livestock. About <strong>50% of the world&#x27;s people</strong> depend on it.</p><p>In India, <strong>2 out of 3 people</strong> still rely on agriculture for their livelihood. Favourable topography, soil, and climate are vital — and the land on which crops are grown is called <strong>arable land</strong>.</p></div><div class="agr-stat-strip"><div class="agr-stat"><div class="agr-stat-icon">🌍</div><div class="agr-stat-num">50%</div><div class="agr-stat-lbl">World population in agriculture</div></div><div class="agr-stat"><div class="agr-stat-icon">🇮🇳</div><div class="agr-stat-num">2/3</div><div class="agr-stat-lbl">India&#x27;s population on agriculture</div></div><div class="agr-stat"><div class="agr-stat-icon">🏡</div><div class="agr-stat-num">1.5 ha</div><div class="agr-stat-lbl">Avg Indian farm size</div></div><div class="agr-stat"><div class="agr-stat-icon">🚜</div><div class="agr-stat-num">250 ha</div><div class="agr-stat-lbl">Avg USA farm size</div></div></div><div class="agr-label wht">Economic Activities</div><h2 class="agr-title">Three Types of <span class="wht">Economic Activities</span></h2><div class="agr-eco-trio"><div class="agr-eco-col pri"><div class="agr-eco-icon">🌾</div><h4>Primary</h4><p>Extraction &amp; production of natural resources</p><p class="eg">e.g. Agriculture, fishing, mining</p></div><div class="agr-eco-col sec"><div class="agr-eco-icon">🏭</div><h4>Secondary</h4><p>Processing natural resources into products</p><p class="eg">e.g. Baking bread, weaving cloth</p></div><div class="agr-eco-col ter"><div class="agr-eco-icon">🏦</div><h4>Tertiary</h4><p>Providing services to support other activities</p><p class="eg">e.g. Transport, banking, trade</p></div></div><div class="agr-label lim">Farm System</div><h2 class="agr-title">Agriculture as a <span class="lim">System</span></h2><div class="agr-farm-flow"><div class="agr-flow-box inp"><div class="fb-icon">🌱</div><h4>Inputs</h4><p>Seeds · Fertilizers · Machinery · Labour</p></div><div class="agr-flow-arrow">→</div><div class="agr-flow-box ops"><div class="fb-icon">⚙️</div><h4>Operations</h4><p>Ploughing · Sowing · Irrigation · Weeding · Harvesting</p></div><div class="agr-flow-arrow">→</div><div class="agr-flow-box out"><div class="fb-icon">🌾</div><h4>Outputs</h4><p>Crops · Dairy · Wool · Poultry</p></div></div><div class="agr-label lim">Types of Culture</div><h2 class="agr-title">Agriculture &amp; <span class="lim">Related Cultures</span></h2><div class="agr-cultures"><div class="agr-culture-card"><div class="cc-icon">🌾</div><h4>Agriculture</h4><p>Raising crops and rearing livestock</p></div><div class="agr-culture-card"><div class="cc-icon">🐛</div><h4>Sericulture</h4><p>Rearing of silkworms for silk production</p></div><div class="agr-culture-card"><div class="cc-icon">🐟</div><h4>Pisciculture</h4><p>Breeding and rearing of fish</p></div><div class="agr-culture-card"><div class="cc-icon">🍇</div><h4>Viticulture</h4><p>Cultivation of grapes</p></div><div class="agr-culture-card"><div class="cc-icon">🌸</div><h4>Horticulture</h4><p>Growing vegetables, flowers &amp; fruits</p></div></div><hr class="agr-divider"><div class="agr-label wht">Types of Farming</div><h2 class="agr-title">Subsistence vs <span class="wht">Commercial Farming</span></h2><div class="agr-farming-split"><div class="agr-fs-col subs"><div class="agr-fs-badge">🌿 Subsistence</div><h3>For the Family</h3><ul><li>Practised to meet <strong>needs of farmer&#x27;s family</strong></li><li>Needs <strong>less technology and labour</strong></li><li>Small plots, simple tools</li><li>Little or no surplus left over</li><li>Common in <strong>developing nations</strong></li></ul></div><div class="agr-fs-col comm"><div class="agr-fs-badge">🚜 Commercial</div><h3>For the Market</h3><ul><li>Crops &amp; animals grown/reared <strong>for sale</strong></li><li><strong>High mechanisation</strong>, less labour</li><li>Large farm sizes</li><li>Large surplus produced</li><li>Common in <strong>developed nations</strong></li></ul></div></div><div class="agr-label wht">All Farming Types</div><h2 class="agr-title">Farming Types — <span class="wht">In Detail</span></h2><div class="agr-ftype-cards"><div class="agr-ftype-card int-sub"><div class="agr-ftype-icon">👨‍🌾</div><div><div class="ft-tag">Subsistence</div><h4>Intensive Subsistence Agriculture</h4><p>Farmer cultivates a <strong>small plot using simple tools and more labour</strong>. Rice is the main crop; others include wheat, maize, pulses, oilseeds. Produces little surplus — mainly fulfils personal family needs.</p></div></div><div class="agr-ftype-card prim-sub"><div class="agr-ftype-icon">🪓</div><div><div class="ft-tag">Primitive Subsistence</div><h4>Primitive Subsistence Agriculture</h4><p>Includes two practices: <strong>shifting cultivation</strong> and <strong>nomadic herding</strong>. Both are ancient, low-technology methods that predate modern farming systems.</p></div></div><div class="agr-ftype-card shift"><div class="agr-ftype-icon">🔥</div><div><div class="ft-tag">Slash &amp; Burn</div><h4>Shifting Cultivation</h4><p>After cultivation, soil is <strong>abandoned and the cultivator moves to a new plot</strong>. Also known as <strong>&#x27;slash and burn&#x27; agriculture</strong>. Largely banned in most parts of India as it leads to deforestation and has proved futile.</p></div></div><div class="agr-ftype-card nomad"><div class="agr-ftype-icon">🐑</div><div><div class="ft-tag">Nomadic</div><h4>Nomadic Herding</h4><p>Herdsmen <strong>move from place to place</strong> with their animals along defined routes in search of fodder and water. Animals: <strong>sheep, yak, and goats</strong>. They sell milk and meat in markets for survival.</p></div></div><div class="agr-ftype-card cgrain"><div class="agr-ftype-icon">🌽</div><div><div class="ft-tag">Commercial</div><h4>Commercial Grain Farming</h4><p>Crops like <strong>wheat and maize</strong> grown for commercial purposes. Practised in the <strong>temperate grasslands of North America, Europe, and Asia</strong>. Highly mechanised with large farm sizes.</p></div></div><div class="agr-ftype-card mixed"><div class="agr-ftype-icon">🐄</div><div><div class="ft-tag">Commercial</div><h4>Mixed Farming</h4><p>Land used for both <strong>food &amp; fodder crops and rearing livestock</strong>. Provides a safety net — <strong>protects against total crop loss</strong> since income can come from both crops and animals.</p></div></div><div class="agr-ftype-card plant"><div class="agr-ftype-icon">🍵</div><div><div class="ft-tag">Commercial</div><h4>Plantation</h4><p>A type of commercial farming where a <strong>single crop</strong> is grown on large estates: tea, coffee, sugarcane, cashew, rubber, banana, or cotton. <strong>Labour-intensive</strong> and requires specific climatic conditions.</p></div></div></div><hr class="agr-divider"><div class="agr-label frs">Major Crops</div><h2 class="agr-title">India&#x27;s Major <span class="frs">Crops</span></h2><div class="agr-crops-grid"><div class="agr-crop-box"><div class="crp-icon">🍚</div><p>Rice</p></div><div class="agr-crop-box"><div class="crp-icon">🌾</div><p>Wheat</p></div><div class="agr-crop-box"><div class="crp-icon">🌱</div><p>Millets</p></div><div class="agr-crop-box"><div class="crp-icon">🌽</div><p>Maize</p></div><div class="agr-crop-box"><div class="crp-icon">🪡</div><p>Cotton</p></div><div class="agr-crop-box"><div class="crp-icon">🌿</div><p>Jute</p></div><div class="agr-crop-box"><div class="crp-icon">☕</div><p>Coffee</p></div><div class="agr-crop-box"><div class="crp-icon">🍵</div><p>Tea</p></div></div><div class="agr-label wht">Case Studies</div><h2 class="agr-title">A Farm in India vs <span class="wht">A Farm in the USA</span></h2><div class="agr-compare"><div class="agr-cmp-col india"><div class="agr-cmp-flag">🇮🇳</div><h3>Munna Lal&#x27;s Farm — India</h3><div class="agr-cmp-row"><span class="agr-cmp-key">Size</span><span class="agr-cmp-val"><strong>~1.5 hectares</strong> — small landholding</span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Type</span><span class="agr-cmp-val"><strong>Subsistence farming</strong> — mostly for family needs</span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Seeds</span><span class="agr-cmp-val">Purchases <strong>high-yielding varieties</strong> every alternate year</span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Labour</span><span class="agr-cmp-val">High labour availability enables <strong>intensive farming</strong></span></div></div><div class="agr-cmp-col usa"><div class="agr-cmp-flag">🇺🇸</div><h3>A Farm in the USA</h3><div class="agr-cmp-row"><span class="agr-cmp-key">Size</span><span class="agr-cmp-val"><strong>~250 hectares</strong> — large commercial farms</span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Type</span><span class="agr-cmp-val"><strong>Commercial farming</strong> — crops grown for market sale</span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Crops</span><span class="agr-cmp-val">Corn, soyabean, wheat, <strong>cotton, sugarbeet</strong></span></div><div class="agr-cmp-row"><span class="agr-cmp-key">Tech</span><span class="agr-cmp-val"><strong>Highly mechanised</strong> — less manual labour needed</span></div></div></div><div class="agr-label frs">Development</div><h2 class="agr-title">Agricultural <span class="frs">Development</span></h2><div class="agr-dev-card"><h3>📈 What is Agricultural Development?</h3><ul><li>Refers to <strong>efforts made to increase farm production</strong> to meet the growing demand of an increasing population</li><li>Includes adoption of <strong>better farming practices</strong> — improved irrigation, soil management, pest control</li><li>Promotion of <strong>better crop varieties</strong> — high-yielding seeds that give more output per hectare</li><li><strong>Farmer awareness</strong> — educating farmers about modern methods, government schemes, and sustainable practices</li><li><strong>Mechanisation</strong> — use of machinery to improve efficiency and reduce dependence on manual labour</li></ul></div><hr class="agr-divider"><div class="agr-faq-label">Practice Questions</div><h2 class="agr-faq-title">Frequently Asked Questions</h2><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q1. What are the three types of economic activities? Give examples of each.</span></summary><div class="faq-ans visible">Economic activities are of three types:<ul><li><strong>Primary Activities</strong> — connected with extraction and production of natural resources. Examples: agriculture, fishing, mining, forestry.</li><li><strong>Secondary Activities</strong> — concerned with processing natural resources into manufactured products. Examples: baking bread, weaving cloth, steel production.</li><li><strong>Tertiary Activities</strong> — provide services that support primary and secondary sectors. Examples: transport, trade, banking, insurance, advertising.</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q2. What is agriculture? Why is it called a primary activity?</span></summary><div class="faq-ans visible">Agriculture is a <strong>primary activity</strong> which includes growing crops, fruits, vegetables, flowers, and rearing of livestock. It is called a primary activity because it involves direct <strong>extraction and production from natural resources</strong> — land, water, and sunlight. About <strong>50% of people in the world</strong> are engaged in agricultural activity, and <strong>2/3 of India&#x27;s population</strong> is still dependent on agriculture.</div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q3. What are the different types of cultures related to agriculture?</span></summary><div class="faq-ans visible">Several specialised cultures are related to agriculture:<ul><li><strong>Agriculture</strong> — raising crops and rearing livestock</li><li><strong>Sericulture</strong> — rearing of silkworms for silk production</li><li><strong>Pisciculture</strong> — breeding of fish</li><li><strong>Viticulture</strong> — cultivation of grapes</li><li><strong>Horticulture</strong> — growing vegetables, flowers, and fruits</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q4. Explain the farm system — its inputs, operations, and outputs.</span></summary><div class="faq-ans visible">Agriculture is viewed as a <strong>system</strong> with three components:<ul><li><strong>Inputs:</strong> Seeds, fertilizers, machinery, and labour — the resources that go into farming</li><li><strong>Operations:</strong> Ploughing, sowing, irrigation, weeding, and harvesting — the processes carried out on the farm</li><li><strong>Outputs:</strong> Crops, dairy products, wool, and poultry products — the final produce of the farming system</li></ul>Farming also includes the rearing of animals alongside crops. It helps farmers reduce the risk of total loss from a single bad crop.</div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q5. What is subsistence farming? Explain its types.</span></summary><div class="faq-ans visible"><strong>Subsistence farming</strong> is practised to meet the needs of the farmer&#x27;s family. It needs less technology and labour. It has two types:<ul><li><strong>Intensive Subsistence Agriculture:</strong> Farmer cultivates a small plot using simple tools and more labour. Rice is the main crop; others include wheat, maize, pulses, oilseeds. Little surplus — mainly meets personal needs.</li><li><strong>Primitive Subsistence Agriculture:</strong> Includes two practices — (a) <strong>Shifting Cultivation</strong> (also called &#x27;slash and burn&#x27;) — land is cultivated, then abandoned and a new plot is cleared. Mostly banned now. (b) <strong>Nomadic Herding</strong> — herdsmen move with animals (sheep, yak, goats) along defined routes for fodder and water, selling milk and meat for survival.</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q6. What is commercial farming? Name its types.</span></summary><div class="faq-ans visible">In <strong>commercial farming</strong>, crops are grown and animals are reared for <strong>sale in the market</strong>. It involves <strong>high mechanisation and less labour</strong>. Developed nations mostly practise this extensively. Types include:<ul><li><strong>Commercial Grain Farming</strong> — wheat and maize grown for commercial purposes; practised in temperate grasslands of North America, Europe, and Asia</li><li><strong>Mixed Farming</strong> — land used for both food/fodder crops and rearing livestock; protects against crop loss</li><li><strong>Plantation</strong> — single crop (tea, coffee, sugarcane, cashew, rubber, banana, cotton) grown on large estates; labour-intensive and needs specific climatic conditions</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q7. What is shifting cultivation? Why has it been largely banned?</span></summary><div class="faq-ans visible"><strong>Shifting cultivation</strong> (also known as <strong>&#x27;slash and burn&#x27; agriculture</strong>) is a form of primitive subsistence agriculture. In this method, a patch of forest is cleared by cutting and burning, cultivated for a few seasons, then <strong>abandoned when soil fertility declines</strong>, and the farmer moves to a new plot. It has been largely banned in most parts of India because:<ul><li>It leads to large-scale <strong>deforestation</strong></li><li>Causes significant <strong>soil degradation and erosion</strong></li><li>Has proved to be <strong>futile and unsustainable</strong> in the long run</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q8. What are the major crops grown in India?</span></summary><div class="faq-ans visible">Major crops grown in India include: <strong>Rice, Wheat, Millets, Maize, Cotton, Jute, Coffee, and Tea</strong>. These crops can be grown at both the subsistence level (for personal/family use) and at commercial level (for sale in markets). India&#x27;s agriculture is diverse due to its varied climate, soil types, and topography — supporting crops from tropical (rice, jute, sugarcane) to temperate (wheat) conditions.</div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q9. Compare farming in India vs farming in the USA.</span></summary><div class="faq-ans visible"><ul><li><strong>Farm size:</strong> India — average ~1.5 hectares (Munna Lal&#x27;s typical farm); USA — average ~250 hectares</li><li><strong>Type of farming:</strong> India — mostly subsistence farming; USA — commercial level farming</li><li><strong>Technology:</strong> India — intensive labour, simple tools; USA — highly mechanised</li><li><strong>Crops:</strong> India — high-yielding variety seeds, mixed crops; USA — corn, soyabean, wheat, cotton, sugarbeet</li><li><strong>Reason for difference:</strong> India has labour availability and small landholdings; USA has large farms, low population density, and advanced technology</li></ul></div></details><details class="faq-item" data-faq><summary class="agr-q faq-q"><span class="faq-q-text">Q10. What is agricultural development? How can it be achieved?</span></summary><div class="faq-ans visible"><strong>Agricultural development</strong> refers to efforts made to <strong>increase farm production</strong> to meet the growing demand of an increasing population. It can be achieved through:<ul><li><strong>Better farming practices</strong> — improved techniques for irrigation, soil management, and pest control</li><li><strong>Better crop varieties</strong> — using high-yielding variety (HYV) seeds that produce more output per hectare</li><li><strong>Awareness of farmers</strong> — educating farmers about modern methods, government schemes, and sustainable practices</li><li><strong>Mechanisation</strong> — using machinery to increase efficiency and reduce dependence on manual labour</li></ul></div></details></div></div>

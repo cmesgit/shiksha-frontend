@@ -1,0 +1,423 @@
+<style>
+  :root {
+    --navy:       #0a1628;
+    --navy2:      #061020;
+    --navy-lt:    #e8eef8;
+    --navy-mid:   #a8b8d8;
+    --gold:       #c8960a;
+    --gold2:      #9a7008;
+    --gold-lt:    #fef9e7;
+    --gold-mid:   #f9d84a;
+    --gold-bright:#ffd700;
+    --teal:       #0e7490;
+    --teal-lt:    #e0f7fa;
+    --teal-mid:   #67e8f9;
+    --green:      #166534;
+    --green-lt:   #dcfce7;
+    --green-mid:  #86efac;
+    --red:        #991b1b;
+    --red-lt:     #fee2e2;
+    --red-mid:    #fca5a5;
+    --purple:     #6b21a8;
+    --purple-lt:  #f3e8ff;
+    --purple-mid: #d8b4fe;
+    --amber:      #b45309;
+    --amber-lt:   #fffbeb;
+    --amber-mid:  #fcd34d;
+    --paper:      #f8f9fc;
+    --paper2:     #eef1f8;
+    --ink:        #060d1a;
+    --ink2:       #0e1e35;
+    --muted:      #4a5568;
+    --rule:       #d1d9e8;
+    --white:      #ffffff;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  .hae-root { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+  /* ═══ HERO ═══ */
+  .hae-hero {
+    background:linear-gradient(160deg,#020810 0%,#060d1a 45%,#0a1628 100%);
+    min-height:100vh; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:80px 0 72px;
+  }
+  .hae-hero::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#c8960a 0%,#ffd700 25%,#0e7490 50%,#6b21a8 75%,#166534 100%); }
+  /* DNA helix grid */
+  .hae-hero-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(200,150,10,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(200,150,10,0.06) 1px,transparent 1px);
+    background-size:56px 56px;
+  }
+  .hae-glow-1 { position:absolute; top:-5%; left:10%; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(200,150,10,0.12) 0%,transparent 65%); pointer-events:none; }
+  .hae-glow-2 { position:absolute; bottom:5%; right:5%; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(14,116,144,0.1) 0%,transparent 65%); pointer-events:none; }
+  .hae-glow-3 { position:absolute; top:35%; right:30%; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(107,33,168,0.08) 0%,transparent 65%); pointer-events:none; }
+
+  /* DNA SVG right side */
+  .hae-hero-dna { position:absolute; right:0; top:0; width:45%; height:100%; pointer-events:none; opacity:0.4; }
+
+  .hae-hero-inner { max-width:960px; width:100%; margin:0 auto; padding:0 40px; position:relative; z-index:2; }
+
+  .hae-subject-pill {
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid rgba(200,150,10,0.4); background:rgba(200,150,10,0.12);
+    border-radius:6px; padding:6px 16px; margin-bottom:28px;
+    font-size:11px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold-mid);
+  }
+  .hae-pill-dot { width:6px; height:6px; border-radius:50%; background:var(--gold-mid); }
+
+  .hae-hero-eyebrow { font-size:11px; font-weight:600; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:14px; }
+
+  .hae-hero-title {
+    font-family:'Playfair Display',serif; font-weight:900;
+    font-size:clamp(40px,6vw,78px); line-height:1.0;
+    letter-spacing:-0.02em; color:#fff; margin-bottom:10px;
+  }
+  .hae-hero-title .t1 { display:block; }
+  .hae-hero-title .t2 { display:block; color:var(--gold-mid); font-style:italic; }
+  .hae-hero-title .t3 { display:block; color:rgba(255,255,255,0.3); font-size:0.5em; font-style:normal; font-weight:700; letter-spacing:0.01em; margin-top:6px; }
+
+  .hae-hero-desc { font-size:16px; color:rgba(255,255,255,0.55); line-height:1.8; max-width:540px; margin:20px 0 40px; }
+
+  .hae-hero-stats { display:flex; gap:0; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; width:fit-content; flex-wrap:wrap; }
+  .hae-hero-stat { padding:14px 26px; border-right:1px solid rgba(255,255,255,0.08); }
+  .hae-hero-stat:last-child { border-right:none; }
+  .hae-stat-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:800; color:var(--gold-mid); line-height:1; margin-bottom:4px; }
+  .hae-stat-label { font-size:11px; color:rgba(255,255,255,0.35); font-weight:500; letter-spacing:0.06em; }
+
+  /* ═══ BODY ═══ */
+  .hae-body { max-width:920px; margin:0 auto; padding:80px 32px 100px; }
+
+  /* ═══ INTRO ═══ */
+  .hae-intro { display:grid; grid-template-columns:3fr 2fr; gap:40px; margin-bottom:72px; align-items:start; }
+  @media(max-width:640px){.hae-intro{grid-template-columns:1fr;}}
+  .hae-intro-kicker { font-size:10px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+  .hae-intro-kicker::after { content:''; width:48px; height:1px; background:var(--gold-mid); }
+  .hae-intro-headline { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,30px); font-weight:800; color:var(--ink); line-height:1.2; margin-bottom:16px; }
+  .hae-intro-headline em { font-style:italic; color:var(--gold); }
+  .hae-intro-body { font-size:16px; line-height:1.85; color:var(--ink2); margin-bottom:14px; }
+  .hae-intro-body strong { color:var(--navy); font-weight:600; }
+  .hae-intro-sidebar { background:linear-gradient(160deg,#060d1a,#0a1e30); border-radius:14px; padding:26px 22px; position:relative; overflow:hidden; }
+  .hae-intro-sidebar::before { content:''; position:absolute; top:-20px; right:-20px; width:100px; height:100px; border-radius:50%; background:rgba(200,150,10,0.08); }
+  .hae-sidebar-label { font-size:9px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:rgba(249,216,74,0.6); margin-bottom:12px; }
+  .hae-sidebar-title { font-family:'Playfair Display',serif; font-size:17px; font-weight:800; color:#fff; margin-bottom:14px; line-height:1.3; }
+  .hae-sidebar-list { list-style:none; padding:0; }
+  .hae-sidebar-item { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); font-size:13px; color:rgba(255,255,255,0.7); }
+  .hae-sidebar-item:last-child { border-bottom:none; }
+  .hae-sidebar-num { font-family:'Playfair Display',serif; font-size:20px; font-weight:800; color:var(--gold-mid); flex-shrink:0; width:26px; line-height:1; }
+
+  /* ═══ CHAPTER DIVIDER ═══ */
+  .hae-chapter-divider { display:flex; align-items:center; gap:20px; margin:64px 0 48px; }
+  .hae-chapter-divider::before, .hae-chapter-divider::after { content:''; flex:1; height:1px; background:var(--rule); }
+  .hae-ch-badge { display:flex; align-items:center; gap:10px; background:var(--navy); border-radius:8px; padding:9px 22px; font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#fff; white-space:nowrap; }
+  .hae-ch-num { font-family:'Playfair Display',serif; font-size:16px; color:var(--gold-mid); font-weight:800; }
+
+  /* ═══ SEC HEADER ═══ */
+  .hae-sec-head { margin-bottom:28px; }
+  .hae-sec-num { font-family:'Playfair Display',serif; font-size:80px; font-weight:900; color:var(--navy-lt); line-height:0.85; letter-spacing:-0.04em; display:block; margin-bottom:2px; }
+  .hae-sec-kicker { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .hae-sec-title { font-family:'Playfair Display',serif; font-size:clamp(22px,3.5vw,32px); font-weight:800; color:var(--ink); line-height:1.15; border-bottom:2px solid var(--rule); padding-bottom:14px; }
+  .hae-sec-title span { color:var(--gold); font-style:italic; }
+
+  /* ═══ BODY TEXT ═══ */
+  .hae-body-text { font-size:16px; line-height:1.85; color:var(--ink2); margin-bottom:24px; }
+  .hae-body-text strong { color:var(--navy); font-weight:600; }
+
+  /* ═══ DIVIDER ═══ */
+  .hae-divider { margin:52px 0; display:flex; align-items:center; gap:14px; }
+  .hae-divider::before, .hae-divider::after { content:''; flex:1; height:1px; background:var(--rule); }
+  .hae-divider-mark { width:8px; height:8px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+  /* ═══ ALERT ═══ */
+  .hae-alert { padding:14px 18px; border-radius:8px; font-size:14px; line-height:1.7; margin-bottom:16px; }
+  .hae-alert.gold   { background:var(--gold-lt);   color:var(--gold2);   border-left:4px solid var(--gold); }
+  .hae-alert.teal   { background:var(--teal-lt);   color:var(--teal);    border-left:4px solid var(--teal); }
+  .hae-alert.green  { background:var(--green-lt);  color:var(--green);   border-left:4px solid var(--green); }
+  .hae-alert.red    { background:var(--red-lt);    color:var(--red);     border-left:4px solid var(--red); }
+  .hae-alert.purple { background:var(--purple-lt); color:var(--purple);  border-left:4px solid var(--purple); }
+  .hae-alert.navy   { background:var(--navy-lt);   color:var(--navy);    border-left:4px solid var(--navy); }
+  .hae-alert strong { font-weight:700; }
+
+  /* ═══ PULL QUOTE ═══ */
+  .hae-pull-quote { border-left:5px solid var(--gold); background:var(--gold-lt); padding:22px 30px; margin:28px 0; border-radius:0 8px 8px 0; }
+  .hae-pull-quote p { font-family:'Playfair Display',serif; font-size:17px; font-style:italic; font-weight:700; color:var(--gold2); line-height:1.7; margin:0; }
+
+  /* ═══ HEREDITY TERMS GRID ═══ */
+  .hae-terms-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+  @media(max-width:640px){.hae-terms-grid{grid-template-columns:1fr 1fr;}}
+  .hae-term-card { background:var(--white); border-radius:10px; padding:16px 16px; border:1.5px solid var(--rule); border-top:3px solid var(--gold); }
+  .hae-term-card:nth-child(2){border-top-color:var(--teal);}
+  .hae-term-card:nth-child(3){border-top-color:var(--green);}
+  .hae-term-card:nth-child(4){border-top-color:var(--red);}
+  .hae-term-card:nth-child(5){border-top-color:var(--purple);}
+  .hae-term-card:nth-child(6){border-top-color:var(--amber);}
+  .hae-term-card:nth-child(7){border-top-color:var(--navy);}
+  .hae-term-card:nth-child(8){border-top-color:var(--gold);}
+  .hae-term-card:nth-child(9){border-top-color:var(--teal);}
+  .hae-term-name { font-family:'Playfair Display',serif; font-size:14px; font-weight:800; color:var(--ink); margin-bottom:4px; }
+  .hae-term-eg   { font-size:11px; font-weight:700; color:var(--gold); margin-bottom:5px; font-style:italic; }
+  .hae-term-card:nth-child(2) .hae-term-eg{color:var(--teal);}
+  .hae-term-card:nth-child(3) .hae-term-eg{color:var(--green);}
+  .hae-term-card:nth-child(4) .hae-term-eg{color:var(--red);}
+  .hae-term-card:nth-child(5) .hae-term-eg{color:var(--purple);}
+  .hae-term-card:nth-child(6) .hae-term-eg{color:var(--amber);}
+  .hae-term-card:nth-child(7) .hae-term-eg{color:var(--navy);}
+  .hae-term-card:nth-child(8) .hae-term-eg{color:var(--gold);}
+  .hae-term-card:nth-child(9) .hae-term-eg{color:var(--teal);}
+  .hae-term-def  { font-size:12.5px; color:var(--muted); line-height:1.55; }
+
+  /* ═══ MENDEL EXPERIMENTS TIMELINE ═══ */
+  .hae-mendel-timeline { background:var(--white); border-radius:14px; border:1.5px solid var(--rule); overflow:hidden; margin-bottom:28px; box-shadow:0 4px 20px rgba(10,22,40,0.06); }
+  .hae-mt-header { background:linear-gradient(90deg,var(--navy2),var(--navy)); padding:14px 24px; display:flex; align-items:center; gap:12px; }
+  .hae-mt-title { font-family:'Playfair Display',serif; font-size:16px; font-weight:800; color:#fff; }
+  .hae-mt-sub   { font-size:12px; color:rgba(255,255,255,0.45); margin-left:auto; }
+  .hae-mt-body  { padding:24px; }
+  .hae-mt-steps { display:flex; flex-direction:column; gap:0; }
+  .hae-mt-step  { display:grid; grid-template-columns:52px 1fr; }
+  .hae-mt-left  { display:flex; flex-direction:column; align-items:center; padding-top:4px; }
+  .hae-mt-circle { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; border:2px solid var(--rule); background:var(--gold-lt); flex-shrink:0; z-index:1; }
+  .hae-mt-line  { flex:1; width:2px; background:var(--rule); margin:4px 0; }
+  .hae-mt-step:last-child .hae-mt-line { display:none; }
+  .hae-mt-content { padding:0 0 22px 16px; }
+  .hae-mt-step:last-child .hae-mt-content { padding-bottom:4px; }
+  .hae-mt-stage { font-family:'Playfair Display',serif; font-size:15px; font-weight:800; color:var(--ink); margin-bottom:4px; }
+  .hae-mt-detail { font-size:14px; color:var(--ink2); line-height:1.75; }
+  .hae-mt-detail strong { color:var(--gold2); font-weight:600; }
+
+  /* ═══ PUNNETT SQUARE ═══ */
+  .hae-punnett-layout { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px; align-items:start; }
+  @media(max-width:640px){.hae-punnett-layout{grid-template-columns:1fr;}}
+  .hae-punnett-card { background:var(--white); border-radius:14px; overflow:hidden; border:1.5px solid var(--rule); box-shadow:0 4px 16px rgba(10,22,40,0.06); }
+  .hae-punnett-label { padding:10px 16px; font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; }
+  .hae-punnett-label.mono { background:linear-gradient(90deg,#060d1a,#0e1e35); color:var(--gold-mid); }
+  .hae-punnett-label.di   { background:linear-gradient(90deg,#06141a,#0a2430); color:var(--teal-mid); }
+  .hae-punnett-wrap { padding:20px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  /* Grid table */
+  .hae-punnett-table { border-collapse:collapse; }
+  .hae-punnett-table td { width:52px; height:44px; border:1.5px solid var(--rule); text-align:center; font-family:'Playfair Display',serif; font-size:15px; font-weight:700; }
+  .hae-punnett-table td.header-cell { background:var(--navy); color:var(--gold-mid); font-size:14px; }
+  .hae-punnett-table td.dominant { background:rgba(22,101,52,0.12); color:var(--green); }
+  .hae-punnett-table td.hetero   { background:rgba(200,150,10,0.12); color:var(--gold2); }
+  .hae-punnett-table td.recessive{ background:rgba(153,27,27,0.1); color:var(--red); }
+  .hae-punnett-ratio { font-size:13px; color:var(--muted); text-align:center; line-height:1.6; }
+  .hae-punnett-ratio strong { color:var(--ink); font-weight:700; font-family:'Playfair Display',serif; font-size:15px; }
+  .hae-ratio-badge { display:inline-block; background:var(--navy); color:var(--gold-mid); border-radius:6px; padding:4px 14px; font-family:'Playfair Display',serif; font-size:16px; font-weight:800; margin:6px 0; }
+
+  /* ═══ MENDEL'S LAWS CARDS ═══ */
+  .hae-laws-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px; }
+  @media(max-width:640px){.hae-laws-grid{grid-template-columns:1fr;}}
+  .hae-law-card { background:var(--white); border-radius:12px; border:1.5px solid var(--rule); display:flex; flex-direction:column; overflow:hidden; }
+  .hae-law-hdr  { padding:18px 18px 12px; }
+  .hae-law-hdr.dom  { background:linear-gradient(135deg,#060d1a,#0e1e35); }
+  .hae-law-hdr.seg  { background:linear-gradient(135deg,#06141a,#0e2430); }
+  .hae-law-hdr.ind  { background:linear-gradient(135deg,#100616,#201030); }
+  .hae-law-num  { font-family:'Playfair Display',serif; font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:5px; }
+  .dom .hae-law-num { color:rgba(249,216,74,0.6); }
+  .seg .hae-law-num { color:rgba(103,232,249,0.6); }
+  .ind .hae-law-num { color:rgba(216,180,254,0.6); }
+  .hae-law-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:800; color:#fff; margin-bottom:3px; }
+  .dom .hae-law-name { color:var(--gold-mid); }
+  .seg .hae-law-name { color:var(--teal-mid); }
+  .ind .hae-law-name { color:var(--purple-mid); }
+  .hae-law-body { padding:14px 18px; flex:1; }
+  .hae-law-item { display:flex; gap:9px; font-size:14px; color:var(--ink2); padding:7px 0; border-bottom:1px solid var(--rule); line-height:1.6; align-items:flex-start; }
+  .hae-law-item:last-child { border-bottom:none; }
+  .hae-law-dot  { min-width:6px; height:6px; border-radius:50%; margin-top:8px; flex-shrink:0; }
+  .dom-dot  { background:var(--gold); }
+  .seg-dot  { background:var(--teal); }
+  .ind-dot  { background:var(--purple); }
+  .hae-law-item strong { font-weight:600; color:var(--ink); }
+
+  /* ═══ DOMINANCE COMPARE ═══ */
+  .hae-dominance-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+  @media(max-width:640px){.hae-dominance-grid{grid-template-columns:1fr;}}
+  .hae-dom-card { background:var(--white); border-radius:10px; overflow:hidden; border:1.5px solid var(--rule); display:flex; flex-direction:column; }
+  .hae-dom-hdr  { padding:16px 16px 10px; }
+  .hae-dom-hdr.complete   { background:linear-gradient(135deg,#060d1a,#0e1e35); }
+  .hae-dom-hdr.incomplete { background:linear-gradient(135deg,#06141a,#0e2430); }
+  .hae-dom-hdr.codominant { background:linear-gradient(135deg,#100616,#201030); }
+  .hae-dom-tag  { font-size:9px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:4px; }
+  .hae-dom-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:800; }
+  .complete   .hae-dom-name { color:var(--gold-mid); }
+  .incomplete .hae-dom-name { color:var(--teal-mid); }
+  .codominant .hae-dom-name { color:var(--purple-mid); }
+  .hae-dom-body { padding:14px 16px; flex:1; }
+  .hae-dom-item { display:flex; gap:8px; font-size:13.5px; color:var(--ink2); padding:6px 0; border-bottom:1px solid var(--rule); line-height:1.6; align-items:flex-start; }
+  .hae-dom-item:last-child { border-bottom:none; }
+  .hae-dom-dot  { min-width:6px; height:6px; border-radius:50%; margin-top:7px; flex-shrink:0; }
+  .complete-dot   { background:var(--gold); }
+  .incomplete-dot { background:var(--teal); }
+  .codominant-dot { background:var(--purple); }
+  .hae-dom-item strong { color:var(--ink); font-weight:600; }
+
+  /* ═══ SEX DETERMINATION ═══ */
+  .hae-sex-det {
+    background:var(--navy2); border-radius:14px; padding:28px 32px; margin-bottom:24px;
+    border:1px solid rgba(200,150,10,0.25); position:relative; overflow:hidden;
+  }
+  .hae-sex-det::before { content:''; position:absolute; top:-30px; right:-30px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,rgba(200,150,10,0.1) 0%,transparent 65%); }
+  .hae-sex-label { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:rgba(249,216,74,0.6); margin-bottom:18px; }
+  .hae-sex-grid { display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:center; margin-bottom:20px; }
+  @media(max-width:580px){.hae-sex-grid{grid-template-columns:1fr;}}
+  .hae-sex-parent { background:rgba(255,255,255,0.06); border-radius:10px; padding:16px 18px; text-align:center; border:1px solid rgba(255,255,255,0.1); }
+  .hae-sex-parent-label { font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:6px; }
+  .hae-sex-parent.female .hae-sex-parent-label { color:rgba(244,143,177,0.7); }
+  .hae-sex-parent.male   .hae-sex-parent-label { color:rgba(129,212,250,0.7); }
+  .hae-sex-chrom { font-family:'Playfair Display',serif; font-size:26px; font-weight:900; margin-bottom:6px; }
+  .female .hae-sex-chrom { color:#f9a8d4; }
+  .male   .hae-sex-chrom { color:#93c5fd; }
+  .hae-sex-formula { font-size:13px; color:rgba(255,255,255,0.55); }
+  .hae-sex-cross { font-size:28px; color:rgba(255,255,255,0.2); font-weight:300; text-align:center; }
+  .hae-sex-offspring { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hae-sex-off-card { background:rgba(255,255,255,0.06); border-radius:8px; padding:14px; text-align:center; border:1px solid rgba(255,255,255,0.08); }
+  .hae-sex-off-label { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px; }
+  .hae-sex-off-card.girl .hae-sex-off-label { color:#f9a8d4; }
+  .hae-sex-off-card.boy  .hae-sex-off-label { color:#93c5fd; }
+  .hae-sex-off-chrom { font-family:'Playfair Display',serif; font-size:20px; font-weight:800; margin-bottom:4px; }
+  .girl .hae-sex-off-chrom { color:#f9a8d4; }
+  .boy  .hae-sex-off-chrom { color:#93c5fd; }
+  .hae-sex-off-desc { font-size:12px; color:rgba(255,255,255,0.5); }
+  .hae-sex-note { font-size:13px; color:rgba(255,255,255,0.6); line-height:1.7; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); }
+  .hae-sex-note strong { color:var(--gold-mid); }
+
+  /* ═══ EVOLUTION CAUSES ═══ */
+  .hae-evolution-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px; }
+  @media(max-width:640px){.hae-evolution-grid{grid-template-columns:1fr;}}
+  .hae-evo-card { background:var(--white); border-radius:12px; border:1.5px solid var(--rule); display:flex; flex-direction:column; overflow:hidden; }
+  .hae-evo-hdr  { padding:18px 18px 12px; }
+  .hae-evo-hdr.natural { background:linear-gradient(135deg,#061408,#0e2810); }
+  .hae-evo-hdr.genetic { background:linear-gradient(135deg,#060e1a,#0a1830); }
+  .hae-evo-hdr.geo     { background:linear-gradient(135deg,#140a04,#281a08); }
+  .hae-evo-icon  { font-size:26px; display:block; margin-bottom:8px; }
+  .hae-evo-name  { font-family:'Playfair Display',serif; font-size:16px; font-weight:800; }
+  .natural .hae-evo-name { color:var(--green-mid); }
+  .genetic .hae-evo-name { color:var(--navy-mid); }
+  .geo     .hae-evo-name { color:var(--amber-mid); }
+  .hae-evo-body  { padding:14px 18px; flex:1; }
+  .hae-evo-item  { display:flex; gap:8px; font-size:13.5px; color:var(--ink2); padding:7px 0; border-bottom:1px solid var(--rule); line-height:1.6; align-items:flex-start; }
+  .hae-evo-item:last-child { border-bottom:none; }
+  .hae-evo-dot   { min-width:6px; height:6px; border-radius:50%; margin-top:7px; flex-shrink:0; }
+  .natural-dot { background:var(--green); }
+  .genetic-dot { background:var(--teal); }
+  .geo-dot     { background:var(--amber); }
+  .hae-evo-item strong { color:var(--ink); font-weight:600; }
+
+  /* ═══ HOMOLOGOUS VS ANALOGOUS ═══ */
+  .hae-organ-compare { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1.5px solid var(--rule); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+  @media(max-width:600px){.hae-organ-compare{grid-template-columns:1fr;}}
+  .hae-oc-col { padding:24px 24px 28px; display:flex; flex-direction:column; }
+  .hae-oc-col.homo   { background:linear-gradient(160deg,#060d1a,#0e1e35); }
+  .hae-oc-col.analog { background:var(--white); border-left:2px solid var(--rule); }
+  .hae-oc-badge { display:inline-block; padding:4px 14px; border-radius:100px; margin-bottom:12px; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }
+  .homo   .hae-oc-badge { background:rgba(200,150,10,0.2); color:var(--gold-mid); }
+  .analog .hae-oc-badge { background:var(--teal-lt); color:var(--teal); }
+  .hae-oc-title { font-family:'Playfair Display',serif; font-size:21px; font-weight:800; margin-bottom:6px; }
+  .homo   .hae-oc-title { color:var(--gold-mid); }
+  .analog .hae-oc-title { color:var(--ink); }
+  .hae-oc-def { font-size:13.5px; line-height:1.7; margin-bottom:14px; }
+  .homo   .hae-oc-def { color:rgba(255,255,255,0.6); }
+  .analog .hae-oc-def { color:var(--muted); }
+  .hae-oc-list { display:flex; flex-direction:column; gap:8px; flex:1; }
+  .hae-oc-item { display:flex; gap:9px; font-size:14px; line-height:1.65; align-items:flex-start; }
+  .homo   .hae-oc-item { color:rgba(255,255,255,0.75); }
+  .analog .hae-oc-item { color:var(--ink2); }
+  .hae-oc-dot { min-width:6px; height:6px; border-radius:50%; margin-top:8px; flex-shrink:0; }
+  .homo   .hae-oc-dot { background:var(--gold-mid); }
+  .analog .hae-oc-dot { background:var(--teal); }
+  .hae-oc-item strong { font-weight:600; }
+  .homo   .hae-oc-item strong { color:var(--gold-mid); }
+  .analog .hae-oc-item strong { color:var(--teal); }
+  @media(max-width:600px){.analog{border-left:none;border-top:2px solid var(--rule);}}
+
+  /* ═══ FOSSILS CARD ═══ */
+  .hae-fossil-card {
+    background:linear-gradient(135deg,#060d1a,#0e1e35);
+    border-radius:14px; padding:28px 32px; margin-bottom:28px;
+    border:1px solid rgba(200,150,10,0.25);
+  }
+  .hae-fossil-label { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:rgba(249,216,74,0.6); margin-bottom:16px; }
+  .hae-fossil-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:580px){.hae-fossil-grid{grid-template-columns:1fr;}}
+  .hae-fossil-section {}
+  .hae-fossil-section-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:800; color:var(--gold-mid); margin-bottom:10px; }
+  .hae-fossil-item { display:flex; gap:8px; font-size:13px; color:rgba(255,255,255,0.65); padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); line-height:1.6; align-items:flex-start; }
+  .hae-fossil-item:last-child { border-bottom:none; }
+  .hae-fossil-dot { min-width:6px; height:6px; border-radius:50%; background:var(--gold); margin-top:7px; flex-shrink:0; }
+  .hae-fossil-item strong { color:var(--gold-mid); font-weight:600; }
+
+  /* ═══ EYE EVOLUTION STRIP ═══ */
+  .hae-eye-strip { display:flex; gap:0; border:1.5px solid var(--rule); border-radius:12px; overflow:hidden; margin-bottom:24px; flex-wrap:wrap; }
+  .hae-eye-step { flex:1; min-width:120px; padding:16px 14px; text-align:center; border-right:1px solid var(--rule); background:var(--white); }
+  .hae-eye-step:last-child { border-right:none; }
+  .hae-eye-icon { font-size:24px; display:block; margin-bottom:8px; }
+  .hae-eye-name { font-family:'Playfair Display',serif; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+  .hae-eye-org  { font-size:11px; font-weight:700; color:var(--gold); margin-bottom:4px; }
+  .hae-eye-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+
+  /* ═══ TRAITS COMPARE ═══ */
+  .hae-traits-compare { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1.5px solid var(--rule); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+  @media(max-width:600px){.hae-traits-compare{grid-template-columns:1fr;}}
+  .hae-tc-col { padding:22px 22px 26px; display:flex; flex-direction:column; }
+  .hae-tc-col.acquired  { background:linear-gradient(160deg,#0e0606,#1e0a0a); }
+  .hae-tc-col.inherited { background:var(--white); border-left:2px solid var(--rule); }
+  .hae-tc-badge { display:inline-block; padding:4px 14px; border-radius:100px; margin-bottom:12px; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; }
+  .acquired  .hae-tc-badge { background:rgba(153,27,27,0.25); color:var(--red-mid); }
+  .inherited .hae-tc-badge { background:var(--green-lt); color:var(--green); }
+  .hae-tc-title { font-family:'Playfair Display',serif; font-size:20px; font-weight:800; margin-bottom:6px; }
+  .acquired  .hae-tc-title { color:var(--red-mid); }
+  .inherited .hae-tc-title { color:var(--ink); }
+  .hae-tc-def { font-size:13.5px; line-height:1.7; margin-bottom:14px; }
+  .acquired  .hae-tc-def { color:rgba(255,255,255,0.6); }
+  .inherited .hae-tc-def { color:var(--muted); }
+  .hae-tc-list { display:flex; flex-direction:column; gap:8px; flex:1; }
+  .hae-tc-item { display:flex; gap:9px; font-size:14px; line-height:1.65; align-items:flex-start; }
+  .acquired  .hae-tc-item { color:rgba(255,255,255,0.72); }
+  .inherited .hae-tc-item { color:var(--ink2); }
+  .hae-tc-dot { min-width:6px; height:6px; border-radius:50%; margin-top:8px; flex-shrink:0; }
+  .acquired  .hae-tc-dot { background:var(--red-mid); }
+  .inherited .hae-tc-dot { background:var(--green); }
+  .hae-tc-item strong { font-weight:600; }
+  .acquired  .hae-tc-item strong { color:var(--red-mid); }
+  .inherited .hae-tc-item strong { color:var(--green); }
+  @media(max-width:600px){.inherited{border-left:none;border-top:2px solid var(--rule);}}
+
+  /* ═══ SPECIATION DARK CARD ═══ */
+  .hae-speciation-card {
+    background:var(--navy2); border-radius:12px; padding:24px 28px; margin-bottom:24px;
+    border:1px solid rgba(200,150,10,0.2); display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .hae-spec-icon { font-size:36px; flex-shrink:0; }
+  .hae-spec-content {}
+  .hae-spec-tag { font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(249,216,74,0.6); background:rgba(200,150,10,0.1); padding:3px 10px; border-radius:100px; display:inline-block; margin-bottom:8px; }
+  .hae-spec-title { font-family:'Playfair Display',serif; font-size:17px; font-weight:900; color:var(--gold-mid); margin-bottom:8px; }
+  .hae-spec-text  { font-size:14px; color:rgba(255,255,255,0.65); line-height:1.75; }
+  .hae-spec-text strong { color:var(--gold-mid); }
+
+  /* ═══ FAQ ═══ */
+  .hae-faq-header { margin-bottom:12px; }
+  .hae-faq-kicker { font-size:11px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); background:var(--gold-lt); padding:6px 18px; border-radius:100px; }
+  .hae-faq-title { font-family:'Playfair Display',serif; font-size:clamp(26px,4vw,36px); font-weight:900; color:var(--ink); letter-spacing:-0.02em; margin:16px 0 28px; }
+  .hae-faq-item { border:1.5px solid var(--rule); border-radius:8px; margin-bottom:12px; overflow:hidden; background:var(--white); transition:border-color 0.2s; }
+  .hae-faq-item.open { border-color:var(--gold); }
+  .hae-faq-q { width:100%; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:20px 24px; text-align:left; gap:16px; }
+  .hae-faq-q-text { font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; color:var(--ink); line-height:1.5; }
+  .hae-faq-item.open .hae-faq-q-text { color:var(--gold2); }
+  .hae-faq-icon { font-family:'Playfair Display',serif; font-size:22px; font-weight:800; color:var(--gold); flex-shrink:0; transition:transform 0.2s; }
+  .hae-faq-item.open .hae-faq-icon { transform:rotate(45deg); }
+  .hae-faq-ans { font-size:14.5px; color:var(--ink2); line-height:1.85; padding:0 24px; max-height:0; overflow:hidden; transition:max-height 0.35s ease,padding 0.35s ease; }
+  .hae-faq-ans.visible { max-height:1000px; padding:0 24px 22px; }
+  .hae-faq-ans strong { color:var(--navy); font-weight:600; }
+  .hae-faq-ans code { font-family:'DM Sans',sans-serif; font-size:13px; background:var(--gold-lt); padding:1px 6px; border-radius:3px; color:var(--gold2); }
+
+  @media(max-width:700px){
+    .hae-body{padding:48px 18px 72px;}
+    .hae-sec-num{font-size:60px;}
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="hae-root"><div class="hae-hero"><div class="hae-hero-grid"></div><div class="hae-glow-1"></div><div class="hae-glow-2"></div><div class="hae-glow-3"></div><svg class="hae-hero-dna" viewBox="0 0 400 700" xmlns="http://www.w3.org/2000/svg"><path d="M 80 80 50 L 125.96266658713867 94 L 139.0884651807325 138 L 110 182 L 59.47879140045988 226 L 23.61844275284551 270 L 28.038475772933687 314 L 69.58110933998412 358 L 118.56725658119234 402 L 140 446 L 118.56725658119242 490 L 69.58110933998421 534 L 28.03847577293368 578 L 23.618442752845482 622" stroke="rgba(200,150,10,0.5)" stroke-width="3" fill="none" stroke-linecap="round"></path><path d="M 320 320 50 L 274.0373334128613 94 L 260.9115348192675 138 L 290 182 L 340.5212085995401 226 L 376.3815572471545 270 L 371.9615242270663 314 L 330.4188906600159 358 L 281.43274341880766 402 L 260 446 L 281.4327434188076 490 L 330.4188906600158 534 L 371.9615242270663 578 L 376.38155724715455 622" stroke="rgba(14,116,144,0.5)" stroke-width="3" fill="none" stroke-linecap="round"></path><g><line x1="105.35709570444197" y1="72" x2="192" y2="72" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="72" x2="294.642904295558" y2="72" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="72" r="5" fill="rgba(200,150,10,0.5)"></circle><circle cx="208" cy="72" r="5" fill="rgba(107,33,168,0.4)"></circle></g><g><line x1="137.9555495773441" y1="122" x2="192" y2="122" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="122" x2="262.0444504226559" y2="122" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="122" r="5" fill="rgba(14,116,144,0.5)"></circle><circle cx="208" cy="122" r="5" fill="rgba(22,101,52,0.5)"></circle></g><g><line x1="129.14912265733952" y1="172" x2="192" y2="172" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="172" x2="270.8508773426605" y2="172" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="172" r="5" fill="rgba(107,33,168,0.4)"></circle><circle cx="208" cy="172" r="5" fill="rgba(200,150,10,0.5)"></circle></g><g><line x1="85.22934456485952" y1="222" x2="192" y2="222" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="222" x2="314.7706554351405" y2="222" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="222" r="5" fill="rgba(22,101,52,0.5)"></circle><circle cx="208" cy="222" r="5" fill="rgba(14,116,144,0.5)"></circle></g><g><line x1="37.573593128807154" y1="272" x2="192" y2="272" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="272" x2="362.42640687119285" y2="272" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="272" r="5" fill="rgba(200,150,10,0.5)"></circle><circle cx="208" cy="272" r="5" fill="rgba(107,33,168,0.4)"></circle></g><g><line x1="20.228318114495266" y1="322" x2="192" y2="322" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="322" x2="379.77168188550473" y2="322" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="322" r="5" fill="rgba(14,116,144,0.5)"></circle><circle cx="208" cy="322" r="5" fill="rgba(22,101,52,0.5)"></circle></g><g><line x1="45.58541381893721" y1="372" x2="192" y2="372" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="372" x2="354.41458618106276" y2="372" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="372" r="5" fill="rgba(107,33,168,0.4)"></circle><circle cx="208" cy="372" r="5" fill="rgba(200,150,10,0.5)"></circle></g><g><line x1="95.52914270615122" y1="422" x2="192" y2="422" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="422" x2="304.4708572938488" y2="422" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="422" r="5" fill="rgba(22,101,52,0.5)"></circle><circle cx="208" cy="422" r="5" fill="rgba(14,116,144,0.5)"></circle></g><g><line x1="134.378467222199" y1="472" x2="192" y2="472" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="472" x2="265.621532777801" y2="472" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="472" r="5" fill="rgba(200,150,10,0.5)"></circle><circle cx="208" cy="472" r="5" fill="rgba(107,33,168,0.4)"></circle></g><g><line x1="134.37846722219902" y1="522" x2="192" y2="522" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="522" x2="265.621532777801" y2="522" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="522" r="5" fill="rgba(14,116,144,0.5)"></circle><circle cx="208" cy="522" r="5" fill="rgba(22,101,52,0.5)"></circle></g><g><line x1="95.52914270615125" y1="572" x2="192" y2="572" stroke="rgba(107,33,168,0.4)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="572" x2="304.4708572938488" y2="572" stroke="rgba(200,150,10,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="572" r="5" fill="rgba(107,33,168,0.4)"></circle><circle cx="208" cy="572" r="5" fill="rgba(200,150,10,0.5)"></circle></g><g><line x1="45.58541381893729" y1="622" x2="192" y2="622" stroke="rgba(22,101,52,0.5)" stroke-width="2.5" stroke-linecap="round"></line><line x1="208" y1="622" x2="354.4145861810627" y2="622" stroke="rgba(14,116,144,0.5)" stroke-width="2.5" stroke-linecap="round"></line><circle cx="192" cy="622" r="5" fill="rgba(22,101,52,0.5)"></circle><circle cx="208" cy="622" r="5" fill="rgba(14,116,144,0.5)"></circle></g><g><circle cx="80" cy="50" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="320" cy="50" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="125.96266658713867" cy="94" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="274.0373334128613" cy="94" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="139.0884651807325" cy="138" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="260.9115348192675" cy="138" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="110" cy="182" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="290" cy="182" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="59.47879140045988" cy="226" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="340.5212085995401" cy="226" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="23.61844275284551" cy="270" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="376.3815572471545" cy="270" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="28.038475772933687" cy="314" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="371.9615242270663" cy="314" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="69.58110933998412" cy="358" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="330.4188906600159" cy="358" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="118.56725658119234" cy="402" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="281.43274341880766" cy="402" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="140" cy="446" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="260" cy="446" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="118.56725658119242" cy="490" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="281.4327434188076" cy="490" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="69.58110933998421" cy="534" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="330.4188906600158" cy="534" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="28.03847577293368" cy="578" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="371.9615242270663" cy="578" r="5" fill="rgba(14,116,144,0.7)"></circle></g><g><circle cx="23.618442752845482" cy="622" r="5" fill="rgba(200,150,10,0.7)"></circle><circle cx="376.38155724715455" cy="622" r="5" fill="rgba(14,116,144,0.7)"></circle></g><text x="120" y="660" font-size="13" font-family="DM Sans,sans-serif" font-weight="700" fill="rgba(200,150,10,0.4)" letter-spacing="3">DNA Double Helix</text></svg><div class="hae-hero-inner"><div class="hae-subject-pill"><div class="hae-pill-dot"></div>Biology · Class 10 · Chapter 4</div><div class="hae-hero-eyebrow">Science — CBSE / NCERT</div><h1 class="hae-hero-title"><span class="t1">Heredity</span><span class="t2">&amp; Evolution</span><span class="t3">Mendel · Genetics · DNA · Natural Selection · Fossils</span></h1><p class="hae-hero-desc">Why do children resemble their parents? How did the diversity of life arise? From Mendel&#x27;s pea plant experiments to Darwin&#x27;s natural selection — this chapter unlocks the science of inheritance and the story of life&#x27;s transformation over billions of years.</p><div class="hae-hero-stats"><div class="hae-hero-stat"><div class="hae-stat-num">7</div><div class="hae-stat-label">Mendel&#x27;s contrasting pairs</div></div><div class="hae-hero-stat"><div class="hae-stat-num">3:1</div><div class="hae-stat-label">Monohybrid F2 ratio</div></div><div class="hae-hero-stat"><div class="hae-stat-num">9:3:3:1</div><div class="hae-stat-label">Dihybrid F2 ratio</div></div><div class="hae-hero-stat"><div class="hae-stat-num">46</div><div class="hae-stat-label">Human chromosomes</div></div></div></div></div><div class="hae-body"><div class="hae-intro"><div><div class="hae-intro-kicker">Chapter Overview</div><h2 class="hae-intro-headline">Why You Look Like <em>Your Parents</em></h2><p class="hae-intro-body"><strong>Heredity</strong> is the transmission of traits from parents to offspring through DNA. <strong>Evolution</strong> explains how populations change over generations through natural selection, genetic drift, and geographical isolation.</p><p class="hae-intro-body">This chapter covers Mendel&#x27;s laws of inheritance, sex determination, speciation, fossils, and the evolutionary origin of humans — connecting genetics to the grand story of life on Earth.</p></div><div class="hae-intro-sidebar"><div class="hae-sidebar-label">Topics in this chapter</div><div class="hae-sidebar-title">Heredity &amp; Evolution</div><ul class="hae-sidebar-list"><li class="hae-sidebar-item"><span class="hae-sidebar-num">1</span><span>Heredity — DNA, Traits, Variations</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">2</span><span>Mendel&#x27;s Experiments &amp; Laws</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">3</span><span>Monohybrid &amp; Dihybrid Crosses</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">4</span><span>Incomplete Dominance &amp; Codominance</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">5</span><span>Sex Determination in Humans</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">6</span><span>Causes of Evolution</span></li><li class="hae-sidebar-item"><span class="hae-sidebar-num">7</span><span>Fossils, Homologous &amp; Analogous Organs</span></li></ul></div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">01</span>Heredity &amp; Traits</div></div><div class="hae-sec-head"><span class="hae-sec-num">1</span><div class="hae-sec-kicker">Inheritance</div><h2 class="hae-sec-title">Acquired vs <span>Inherited Traits</span></h2></div><p class="hae-body-text"><strong>Heredity</strong> is the transmission of characteristics from parents to offspring. <strong>Variations</strong> are differences among individuals of a species. Basis of heredity: each trait is influenced by both maternal and paternal DNA.</p><div class="hae-traits-compare"><div class="hae-tc-col acquired"><span class="hae-tc-badge">Not Heritable</span><div class="hae-tc-title">Acquired Traits</div><div class="hae-tc-def">Traits developed during an individual&#x27;s lifetime due to environment or experience. NOT passed to offspring.</div><div class="hae-tc-list"><div class="hae-tc-item"><span class="hae-tc-dot"></span><span><strong>Changes in non-reproductive</strong> (somatic) tissue only</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Cannot be passed on to progeny</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span><strong>Examples:</strong> scar from injury, developed muscles, tanned skin</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Not encoded in DNA of gametes</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Lost when the individual dies</span></div></div></div><div class="hae-tc-col inherited"><span class="hae-tc-badge">Heritable</span><div class="hae-tc-title">Inherited Traits</div><div class="hae-tc-def">Traits encoded in DNA and transmitted from parents to offspring through gametes (reproductive cells).</div><div class="hae-tc-list"><div class="hae-tc-item"><span class="hae-tc-dot"></span><span><strong>Changes in DNA or reproductive tissue</strong></span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Transmitted to progeny through gametes</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span><strong>Examples:</strong> eye colour, blood group, height, ear lobe shape</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Basis of heredity — present in every cell of offspring</span></div><div class="hae-tc-item"><span class="hae-tc-dot"></span><span>Can show variation due to sexual reproduction mixing DNA</span></div></div></div></div><div class="hae-terms-grid"><div class="hae-term-card"><div class="hae-term-name">Dominant Trait</div><div class="hae-term-eg">e.g., T = Tallness</div><div class="hae-term-def">Trait that expresses itself over another contrasting trait. Written in upper case.</div></div><div class="hae-term-card"><div class="hae-term-name">Recessive Trait</div><div class="hae-term-eg">e.g., t = shortness</div><div class="hae-term-def">Trait that cannot express in presence of dominant. Written in lower case.</div></div><div class="hae-term-card"><div class="hae-term-name">Homozygous</div><div class="hae-term-eg">e.g., TT or tt</div><div class="hae-term-def">Both factors/alleles for a trait are the same (pure breeding).</div></div><div class="hae-term-card"><div class="hae-term-name">Heterozygous</div><div class="hae-term-eg">e.g., Tt</div><div class="hae-term-def">Two different alleles for a trait are present (hybrid).</div></div><div class="hae-term-card"><div class="hae-term-name">Genotype</div><div class="hae-term-eg">e.g., TT, Tt, tt</div><div class="hae-term-def">Genetic constitution of an organism — the actual allele combination.</div></div><div class="hae-term-card"><div class="hae-term-name">Phenotype</div><div class="hae-term-eg">e.g., Tall, dwarf</div><div class="hae-term-def">Observable physical traits or characteristics of an organism.</div></div><div class="hae-term-card"><div class="hae-term-name">Genotypic Ratio</div><div class="hae-term-eg">1:2:1 in F2</div><div class="hae-term-def">Expected ratio of genotypes produced by a particular cross.</div></div><div class="hae-term-card"><div class="hae-term-name">Phenotypic Ratio</div><div class="hae-term-eg">3:1 in monohybrid</div><div class="hae-term-def">Expected ratio of phenotypes produced by a particular cross.</div></div><div class="hae-term-card"><div class="hae-term-name">Alleles</div><div class="hae-term-eg">T and t</div><div class="hae-term-def">Alternative forms of the same gene occupying the same locus on homologous chromosomes.</div></div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">02</span>Mendel&#x27;s Experiments</div></div><div class="hae-sec-head"><span class="hae-sec-num">2</span><div class="hae-sec-kicker">Garden Pea Experiments</div><h2 class="hae-sec-title">Mendel&#x27;s Work <span>&amp; Laws</span></h2></div><p class="hae-body-text">Gregor Mendel performed experiments on <strong>Pisum sativum</strong> (garden pea) using 7 contrasting pairs of characters. He proposed that heredity is controlled by discrete units called <strong>factors</strong> — now known as <strong>genes</strong>.</p><div class="hae-mendel-timeline"><div class="hae-mt-header"><span style="font-size:18px">🧪</span><div class="hae-mt-title">Stages of Mendel&#x27;s Monohybrid Experiment</div><div class="hae-mt-sub">Tall (TT) × Dwarf (tt)</div></div><div class="hae-mt-body"><div class="hae-mt-steps"><div class="hae-mt-step"><div class="hae-mt-left"><div class="hae-mt-circle">🌱</div><div class="hae-mt-line"></div></div><div class="hae-mt-content"><div class="hae-mt-stage">Selection of Parents</div><div class="hae-mt-detail">Selected <strong>true-breeding</strong> plants with contrasting traits. Pure tall (TT) and pure dwarf (tt) pea plants. True-breeding = same phenotype for many generations.</div></div></div><div class="hae-mt-step"><div class="hae-mt-left"><div class="hae-mt-circle">🤝</div><div class="hae-mt-line"></div></div><div class="hae-mt-content"><div class="hae-mt-stage">Cross-Pollination → F1 Generation</div><div class="hae-mt-detail">Crossed TT × tt. All F1 offspring were <strong>heterozygous tall (Tt)</strong>. Only the dominant trait (tallness) was visible. Recessive trait (dwarfism) was hidden but not lost.</div></div></div><div class="hae-mt-step"><div class="hae-mt-left"><div class="hae-mt-circle">🔄</div><div class="hae-mt-line"></div></div><div class="hae-mt-content"><div class="hae-mt-stage">Self-Pollination of F1 → F2 Generation</div><div class="hae-mt-detail">F1 plants (Tt) were self-pollinated. F2 generation gave ratio: <strong>3 Tall : 1 Dwarf</strong>. Phenotypic ratio = 3:1. Genotypic ratio = 1 TT : 2 Tt : 1 tt = 1:2:1.</div></div></div><div class="hae-mt-step"><div class="hae-mt-left"><div class="hae-mt-circle">🌾</div><div class="hae-mt-line"></div></div><div class="hae-mt-content"><div class="hae-mt-stage">Dihybrid Cross</div><div class="hae-mt-detail">Crossed Round Yellow (RRYY) × Wrinkled Green (rryy). F1: all RrYy (Round Yellow). F2 phenotypic ratio: <strong>9 Round Yellow : 3 Round Green : 3 Wrinkled Yellow : 1 Wrinkled Green = 9:3:3:1</strong>.</div></div></div></div></div></div><div class="hae-punnett-layout"><div class="hae-punnett-card"><div class="hae-punnett-label mono">Monohybrid Cross — Tt × Tt</div><div class="hae-punnett-wrap"><table class="hae-punnett-table"><tbody><tr><td class="header-cell"></td><td class="header-cell">T</td><td class="header-cell">t</td></tr><tr><td class="header-cell">T</td><td class="dominant">TT</td><td class="hetero">Tt</td></tr><tr><td class="header-cell">t</td><td class="hetero">Tt</td><td class="recessive">tt</td></tr></tbody></table><div class="hae-punnett-ratio">Phenotypic ratio: <div class="hae-ratio-badge">3 Tall : 1 Dwarf</div>Genotypic ratio: 1 TT : 2 Tt : 1 tt<br><strong>3:1 phenotype · 1:2:1 genotype</strong></div></div></div><div class="hae-punnett-card"><div class="hae-punnett-label di">Incomplete Dominance — Rr × Rr</div><div class="hae-punnett-wrap"><table class="hae-punnett-table"><tbody><tr><td class="header-cell"></td><td class="header-cell">R</td><td class="header-cell">r</td></tr><tr><td class="header-cell">R</td><td class="dominant">RR</td><td class="hetero">Rr</td></tr><tr><td class="header-cell">r</td><td class="hetero">Rr</td><td class="recessive">rr</td></tr></tbody></table><div class="hae-punnett-ratio">Phenotypic ratio: <div class="hae-ratio-badge" style="background:var(--teal);color:#fff">1 Red : 2 Pink : 1 White</div>Both phenotypic &amp; genotypic ratios = <strong>1:2:1</strong></div></div></div></div><div class="hae-laws-grid"><div class="hae-law-card"><div class="hae-law-hdr dom"><div class="hae-law-num">First Law</div><div class="hae-law-name">Law of Dominance</div></div><div class="hae-law-body"><div class="hae-law-item"><span class="hae-law-dot dom-dot"></span><span><strong>Only one</strong> parental trait (dominant) gets expressed in F1 generation</span></div><div class="hae-law-item"><span class="hae-law-dot dom-dot"></span><span>Both dominant and recessive traits get expressed in F2 generation</span></div><div class="hae-law-item"><span class="hae-law-dot dom-dot"></span><span><strong>Recessive trait</strong> is not lost — just masked by dominant in F1</span></div><div class="hae-law-item"><span class="hae-law-dot dom-dot"></span><span>Based on observations of monohybrid cross</span></div></div></div><div class="hae-law-card"><div class="hae-law-hdr seg"><div class="hae-law-num">Second Law</div><div class="hae-law-name">Law of Segregation</div></div><div class="hae-law-body"><div class="hae-law-item"><span class="hae-law-dot seg-dot"></span><span>Two alleles for a trait segregate from each other during gamete formation</span></div><div class="hae-law-item"><span class="hae-law-dot seg-dot"></span><span><strong>Each gamete</strong> receives only one allele of each gene pair</span></div><div class="hae-law-item"><span class="hae-law-dot seg-dot"></span><span>Alleles reunite at fertilisation</span></div><div class="hae-law-item"><span class="hae-law-dot seg-dot"></span><span>Also called Law of Purity of Gametes</span></div></div></div><div class="hae-law-card"><div class="hae-law-hdr ind"><div class="hae-law-num">Third Law</div><div class="hae-law-name">Law of Independent Assortment</div></div><div class="hae-law-body"><div class="hae-law-item"><span class="hae-law-dot ind-dot"></span><span>Members of different pairs of alleles assort independently into gametes</span></div><div class="hae-law-item"><span class="hae-law-dot ind-dot"></span><span>One trait&#x27;s inheritance does not affect another&#x27;s</span></div><div class="hae-law-item"><span class="hae-law-dot ind-dot"></span><span>Based on dihybrid cross observations</span></div><div class="hae-law-item"><span class="hae-law-dot ind-dot"></span><span><strong>Gives 9:3:3:1</strong> phenotypic ratio in dihybrid F2</span></div></div></div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">03</span>Types of Dominance</div></div><div class="hae-sec-head"><span class="hae-sec-num">3</span><div class="hae-sec-kicker">Beyond Simple Dominance</div><h2 class="hae-sec-title">Complete, Incomplete <span>&amp; Co-dominance</span></h2></div><div class="hae-dominance-grid"><div class="hae-dom-card"><div class="hae-dom-hdr complete"><div class="hae-dom-tag">Type 1</div><div class="hae-dom-name">Complete Dominance</div></div><div class="hae-dom-body"><div class="hae-dom-item"><span class="hae-dom-dot complete-dot"></span><span><strong>One allele completely masks</strong> the other in heterozygous condition</span></div><div class="hae-dom-item"><span class="hae-dom-dot complete-dot"></span><span>Phenotypic ratio in F2: 3:1</span></div><div class="hae-dom-item"><span class="hae-dom-dot complete-dot"></span><span>Genotypic ratio in F2: 1:2:1</span></div><div class="hae-dom-item"><span class="hae-dom-dot complete-dot"></span><span><strong>Example:</strong> Tall (T) dominant over Dwarf (t) in pea plant</span></div></div></div><div class="hae-dom-card"><div class="hae-dom-hdr incomplete"><div class="hae-dom-tag">Type 2</div><div class="hae-dom-name">Incomplete Dominance</div></div><div class="hae-dom-body"><div class="hae-dom-item"><span class="hae-dom-dot incomplete-dot"></span><span><strong>Neither allele completely dominant</strong> — intermediate phenotype in Rr</span></div><div class="hae-dom-item"><span class="hae-dom-dot incomplete-dot"></span><span>Both phenotypic and genotypic ratios = 1:2:1</span></div><div class="hae-dom-item"><span class="hae-dom-dot incomplete-dot"></span><span><strong>Example:</strong> Snapdragon — Red (RR) × White (rr) → Pink (Rr)</span></div><div class="hae-dom-item"><span class="hae-dom-dot incomplete-dot"></span><span>Pink flowers in F1; 1 Red : 2 Pink : 1 White in F2</span></div></div></div><div class="hae-dom-card"><div class="hae-dom-hdr codominant"><div class="hae-dom-tag">Type 3</div><div class="hae-dom-name">Co-dominance</div></div><div class="hae-dom-body"><div class="hae-dom-item"><span class="hae-dom-dot codominant-dot"></span><span><strong>Both alleles equally dominant</strong> — both expressed together in heterozygote</span></div><div class="hae-dom-item"><span class="hae-dom-dot codominant-dot"></span><span><strong>Example:</strong> ABO blood group in humans</span></div><div class="hae-dom-item"><span class="hae-dom-dot codominant-dot"></span><span>Blood group AB — both Iᴬ and Iᴮ expressed simultaneously</span></div><div class="hae-dom-item"><span class="hae-dom-dot codominant-dot"></span><span><strong>Multiple alleles</strong> — ABO controlled by 3 alleles: Iᴬ, Iᴮ, i</span></div></div></div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">04</span>Sex Determination</div></div><div class="hae-sec-head"><span class="hae-sec-num">4</span><div class="hae-sec-kicker">Chromosomal Basis</div><h2 class="hae-sec-title">Sex Determination <span>in Humans</span></h2></div><p class="hae-body-text">Humans have <strong>46 chromosomes</strong> — 22 pairs of <strong>autosomes</strong> (non-sex chromosomes) + 1 pair of <strong>sex chromosomes</strong> (X and Y).</p><div class="hae-sex-det"><div class="hae-sex-label">🧬 Chromosomal Sex Determination</div><div class="hae-sex-grid"><div class="hae-sex-parent female"><div class="hae-sex-parent-label">Mother (Female)</div><div class="hae-sex-chrom">XX</div><div class="hae-sex-formula">44 + XX</div></div><div class="hae-sex-cross">×</div><div class="hae-sex-parent male"><div class="hae-sex-parent-label">Father (Male)</div><div class="hae-sex-chrom">XY</div><div class="hae-sex-formula">44 + XY</div></div></div><div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;text-align:center">Each parent contributes 23 chromosomes to the offspring ↓</div><div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;text-align:center">Mother always gives: <strong style="color:#f9a8d4">22 + X</strong>  |  Father gives: <strong style="color:#93c5fd">22 + X</strong> or <strong style="color:#93c5fd">22 + Y</strong></div><div class="hae-sex-offspring"><div class="hae-sex-off-card girl"><div class="hae-sex-off-label">♀ Girl</div><div class="hae-sex-off-chrom">XX</div><div class="hae-sex-off-desc">22+X (from mother) + 22+X (from father) = 44+XX</div></div><div class="hae-sex-off-card boy"><div class="hae-sex-off-label">♂ Boy</div><div class="hae-sex-off-chrom">XY</div><div class="hae-sex-off-desc">22+X (from mother) + 22+Y (from father) = 44+XY</div></div></div><div class="hae-sex-note"><strong>Key fact:</strong> Sex of the baby is determined by the <strong>type of male gamete (X or Y sperm)</strong> that fuses with the female gamete. The mother always contributes an X chromosome — she has no role in determining sex. Therefore, blaming the mother for the sex of a child is scientifically incorrect.</div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">05</span>Evolution</div></div><div class="hae-sec-head"><span class="hae-sec-num">5</span><div class="hae-sec-kicker">How Species Change Over Time</div><h2 class="hae-sec-title">Causes of <span>Evolution</span></h2></div><p class="hae-body-text"><strong>Evolution</strong> is the change in heritable characteristics of biological populations over successive generations. It leads to new species through accumulated changes. <strong>Speciation</strong> = formation of new species.</p><div class="hae-evolution-grid"><div class="hae-evo-card"><div class="hae-evo-hdr natural"><span class="hae-evo-icon">🌿</span><div class="hae-evo-name">Natural Selection</div></div><div class="hae-evo-body"><div class="hae-evo-item"><span class="hae-evo-dot natural-dot"></span><span><strong>Darwin&#x27;s theory</strong> — survival of the fittest</span></div><div class="hae-evo-item"><span class="hae-evo-dot natural-dot"></span><span>Individuals better adapted to environment survive and reproduce more</span></div><div class="hae-evo-item"><span class="hae-evo-dot natural-dot"></span><span>Favourable traits increase in population frequency over generations</span></div><div class="hae-evo-item"><span class="hae-evo-dot natural-dot"></span><span>Unfavourable traits decrease and may be eliminated</span></div><div class="hae-evo-item"><span class="hae-evo-dot natural-dot"></span><span><strong>Example:</strong> Antibiotic resistance in bacteria, dark moths on soot-covered trees</span></div></div></div><div class="hae-evo-card"><div class="hae-evo-hdr genetic"><span class="hae-evo-icon">🎲</span><div class="hae-evo-name">Genetic Drift</div></div><div class="hae-evo-body"><div class="hae-evo-item"><span class="hae-evo-dot genetic-dot"></span><span><strong>Accidental/random</strong> change in allele frequency in small populations</span></div><div class="hae-evo-item"><span class="hae-evo-dot genetic-dot"></span><span>NOT driven by adaptation — purely by chance</span></div><div class="hae-evo-item"><span class="hae-evo-dot genetic-dot"></span><span>Can cause beneficial traits to disappear, harmful traits to spread</span></div><div class="hae-evo-item"><span class="hae-evo-dot genetic-dot"></span><span><strong>Bottleneck effect</strong> — small population after disaster may not represent original gene pool</span></div></div></div><div class="hae-evo-card"><div class="hae-evo-hdr geo"><span class="hae-evo-icon">🏔️</span><div class="hae-evo-name">Geographical Isolation</div></div><div class="hae-evo-body"><div class="hae-evo-item"><span class="hae-evo-dot geo-dot"></span><span>Physical barrier separates a population into two groups</span></div><div class="hae-evo-item"><span class="hae-evo-dot geo-dot"></span><span>Separated groups cannot interbreed</span></div><div class="hae-evo-item"><span class="hae-evo-dot geo-dot"></span><span>Each group accumulates different mutations and adaptations</span></div><div class="hae-evo-item"><span class="hae-evo-dot geo-dot"></span><span>Over many generations → become too different to interbreed = new species</span></div><div class="hae-evo-item"><span class="hae-evo-dot geo-dot"></span><span><strong>Speciation</strong> — the formation of new distinct species</span></div></div></div></div><div class="hae-chapter-divider"><div class="hae-ch-badge"><span class="hae-ch-num">06</span>Evidence for Evolution</div></div><div class="hae-sec-head"><span class="hae-sec-num">6</span><div class="hae-sec-kicker">Fossils · Organs · Classification</div><h2 class="hae-sec-title">Homologous, Analogous <span>&amp; Fossils</span></h2></div><div class="hae-organ-compare"><div class="hae-oc-col homo"><span class="hae-oc-badge">Divergent Evolution</span><div class="hae-oc-title">Homologous Organs</div><div class="hae-oc-def">Similar in <strong>structure and origin</strong> but perform different functions. Evidence of common ancestry.</div><div class="hae-oc-list"><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Same basic bone structure</strong> — humerus, radius, ulna, carpals</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span>Different functions in different organisms</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Human arm</strong> (grasping) · <strong>Whale flipper</strong> (swimming)</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Bat wing</strong> (flying) · <strong>Horse forelimb</strong> (running)</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span>Shows divergent evolution from a common ancestor</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Also called:</strong> Vestigial organs (e.g., human appendix, coccyx)</span></div></div></div><div class="hae-oc-col analog"><span class="hae-oc-badge">Convergent Evolution</span><div class="hae-oc-title">Analogous Organs</div><div class="hae-oc-def">Similar in <strong>function</strong> but different in structure and origin. Different organisms evolved similar solutions.</div><div class="hae-oc-list"><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Different structure and origin</strong> — not from same ancestor</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span>Same function due to similar environmental pressures</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Bird wing</strong> vs <strong>Insect wing</strong> — both for flying, totally different structure</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span><strong>Eye of octopus</strong> vs <strong>Eye of vertebrate</strong> — similar function, different origin</span></div><div class="hae-oc-item"><span class="hae-oc-dot"></span><span>Shows convergent evolution — different lineages, similar adaptations</span></div></div></div></div><div class="hae-fossil-card"><div class="hae-fossil-label">🦕 Fossils — Evidence from the Past</div><div class="hae-fossil-grid"><div class="hae-fossil-section"><div class="hae-fossil-section-title">How Fossils Form</div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Organism dies; soft parts decay; hard parts (bones, shells) remain</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Hard parts buried under sediments of sand</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Sediment layers accumulate over millions of years</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Hard parts absorb minerals → mineralised</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Sedimentary rock forms → fossils preserved inside rock layers</span></div></div><div class="hae-fossil-section"><div class="hae-fossil-section-title">Importance of Fossils</div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span><strong>Types of life</strong> that existed in the past</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span><strong>How organisms changed</strong> over time (evolutionary change)</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span><strong>Age of life forms</strong> — when they existed (radioactive dating)</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span>Provide evidence for evolutionary relationships</span></div><div class="hae-fossil-item"><span class="hae-fossil-dot"></span><span><strong>Palaeontology</strong> = science of studying fossils</span></div></div></div></div><p class="hae-body-text"><strong>Evolution of the eye</strong> — example of increasing complexity over evolutionary time:</p><div class="hae-eye-strip"><div class="hae-eye-step"><span class="hae-eye-icon">🔵</span><div class="hae-eye-name">Eyespot</div><div class="hae-eye-org">Flatworms</div><div class="hae-eye-desc">Simple patch of photosensitive cells. Can detect light/dark only.</div></div><div class="hae-eye-step"><span class="hae-eye-icon">👁️</span><div class="hae-eye-name">Pit Eye</div><div class="hae-eye-org">Nautilus</div><div class="hae-eye-desc">Depression in eyespot → can determine direction of light.</div></div><div class="hae-eye-step"><span class="hae-eye-icon">🔮</span><div class="hae-eye-name">Compound Eye</div><div class="hae-eye-org">Insects</div><div class="hae-eye-desc">Thousands of ommatidia units. Wide field of view.</div></div><div class="hae-eye-step"><span class="hae-eye-icon">🎯</span><div class="hae-eye-name">Camera Eye</div><div class="hae-eye-org">Fish, Birds</div><div class="hae-eye-desc">Single lens focuses image on retina. Good resolution.</div></div><div class="hae-eye-step"><span class="hae-eye-icon">🧠</span><div class="hae-eye-name">Complex Eye</div><div class="hae-eye-org">Humans</div><div class="hae-eye-desc">Highly complex; colour vision, depth perception, image processing by brain.</div></div></div><div class="hae-speciation-card"><div class="hae-spec-icon">🌍</div><div class="hae-spec-content"><span class="hae-spec-tag">Human Origin</span><div class="hae-spec-title">We All Come From Africa</div><div class="hae-spec-text">All modern humans are <strong>Homo sapiens</strong> — a single species. About 200,000 years ago, our ancestors originated in <strong>Africa</strong>. Some migrated out; others stayed. The migrants spread across the entire planet. There is <strong>no biological basis for human &quot;races&quot;</strong> — all humans are one species. We differ only in surface features shaped by local environments over thousands of years. Humans are just <strong>one branch of evolution</strong> — not the &quot;highest&quot; or culminating species.</div></div></div><div class="hae-pull-quote"><p>&quot;Evolution simply creates more complex body designs — but bacteria with the simplest body design are still the most widely found organisms on Earth. Progress is not the right word for evolution. Adaptation is.&quot;</p></div><div class="hae-divider"><div class="hae-divider-mark"></div></div><div class="hae-faq-header"><span class="hae-faq-kicker">Exam Preparation</span></div><h2 class="hae-faq-title">Frequently Asked Questions</h2><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q1. What is heredity? What is the difference between acquired and inherited traits?</span></summary><div class="hae-faq-ans visible"><strong>Heredity</strong> is the transmission of characteristics or traits from parents to offspring through DNA.<br><br><strong>Acquired traits:</strong><br>• Traits an individual develops during their lifetime (e.g., a scar from injury, a developed muscle from exercise)<br>• Involves changes in non-reproductive (somatic) tissues<br>• <strong>Cannot be passed on to progeny</strong> — not encoded in DNA<br><br><strong>Inherited traits:</strong><br>• Traits received from ancestors; encoded in DNA<br>• Involves changes in DNA or reproductive tissues<br>• <strong>Transmitted to offspring</strong> through gametes<br>• Examples: eye colour, blood group, height<br><br><strong>Variations</strong> are differences among individuals of a species. They can be <strong>heritable</strong> (genetic, passed to offspring) or <strong>non-heritable</strong> (acquired during lifetime).</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q2. Who was Gregor Mendel? What did he discover?</span></summary><div class="hae-faq-ans visible">Gregor Mendel (1822–1884) was an Austrian monk who is called the <strong>Father of Genetics</strong>. He conducted experiments on <strong>Pisum sativum (garden pea)</strong> and proposed that heredity is controlled by discrete units called <strong>factors</strong> (now called <strong>genes</strong>).<br><br><strong>Why pea plants?</strong><br>• Easy to grow and have short generation time<br>• Have clearly contrasting traits (tall/dwarf, round/wrinkled seeds, etc.)<br>• Can be self-pollinated or cross-pollinated easily<br>• Used <strong>7 pairs of contrasting characters</strong><br><br><strong>Key terms introduced by Mendel:</strong><br>• <strong>Dominant</strong> — trait that expresses itself (e.g., T = Tall)<br>• <strong>Recessive</strong> — trait masked by dominant (e.g., t = dwarf)<br>• <strong>Homozygous</strong> — both factors same (TT or tt)<br>• <strong>Heterozygous</strong> — factors different (Tt)</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q3. Explain the monohybrid cross. What ratios are obtained?</span></summary><div class="hae-faq-ans visible"><strong>Monohybrid cross</strong> involves only one pair of contrasting characters.<br><br><strong>Example — Tall (TT) × Dwarf (tt):</strong><br><br><strong>F1 generation:</strong> All plants are Tt (heterozygous tall). Only tall phenotype visible — dominant trait expressed.<br><br><strong>F2 generation</strong> (self-pollination of F1 Tt × Tt):<br>• TT (pure tall) — 1<br>• Tt (hybrid tall) — 2<br>• tt (pure dwarf) — 1<br><br><strong>Phenotypic ratio: 3 Tall : 1 Dwarf = 3:1</strong><br><strong>Genotypic ratio: 1 TT : 2 Tt : 1 tt = 1:2:1</strong><br><br><strong>Laws derived from monohybrid cross:</strong><br>1. <strong>Law of Dominance</strong> — only one trait expressed in F1; both in F2<br>2. <strong>Law of Segregation</strong> — two alleles separate during gamete formation</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q4. What is a dihybrid cross? What is the Law of Independent Assortment?</span></summary><div class="hae-faq-ans visible"><strong>Dihybrid cross</strong> involves two pairs of contrasting characters.<br><br><strong>Example:</strong> Round Yellow seeds (RRYY) × Wrinkled Green seeds (rryy)<br><br><strong>F1:</strong> All RrYy — Round Yellow (both dominant traits expressed)<br><br><strong>F2 phenotypic ratio: 9 : 3 : 3 : 1</strong><br>• 9 Round Yellow<br>• 3 Round Green<br>• 3 Wrinkled Yellow<br>• 1 Wrinkled Green<br><br><strong>Law of Independent Assortment:</strong> Members of different pairs of alleles assort independently into gametes. This means the inheritance of one trait does not affect the inheritance of another (for genes on different chromosomes).</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q5. What is incomplete dominance? What is co-dominance?</span></summary><div class="hae-faq-ans visible"><strong>Incomplete Dominance:</strong><br>One allele is not completely dominant over the other. The heterozygote shows an intermediate phenotype.<br>Example: Snapdragon flower — Red (RR) × White (rr) → Pink (Rr) in F1<br>F2: 1 Red : 2 Pink : 1 White<br><strong>Both phenotypic and genotypic ratios are 1:2:1</strong><br><br><strong>Co-dominance:</strong><br>Both alleles are equally dominant and expressed simultaneously in heterozygous condition.<br>Example: <strong>ABO blood group in humans</strong><br>• Blood group AB — both Iᴬ and Iᴮ alleles expressed together<br>• ABO blood group is also an example of <strong>multiple alleles</strong> (3 alleles: Iᴬ, Iᴮ, i control one trait)<br><br><strong>Key difference:</strong> Incomplete dominance → blended intermediate; Co-dominance → both expressed distinctly</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q6. How is sex determined in humans?</span></summary><div class="hae-faq-ans visible"><strong>Chromosomal basis of sex determination:</strong><br><br>Humans have 46 chromosomes = 22 pairs of autosomes + 1 pair of sex chromosomes<br><br>• <strong>Females: 44 + XX</strong> — two X chromosomes<br>• <strong>Males: 44 + XY</strong> — one X and one Y chromosome<br><br><strong>How sex of baby is determined:</strong><br>• Female produces only one type of gamete: <strong>22 + X</strong><br>• Male produces two types of gametes: <strong>22 + X</strong> or <strong>22 + Y</strong><br><br>• If 22+X sperm fertilises egg (22+X) → <strong>44+XX = Girl</strong><br>• If 22+Y sperm fertilises egg (22+X) → <strong>44+XY = Boy</strong><br><br><strong>Sex of the baby is determined by the father&#x27;s gamete</strong> (X or Y sperm) — NOT the mother. Therefore, blaming the mother for the sex of a child has no scientific basis.</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q7. What are homologous and analogous organs? Give examples.</span></summary><div class="hae-faq-ans visible"><strong>Homologous organs:</strong><br>Organs that are similar in <strong>structure and origin</strong> (same evolutionary origin) but perform <strong>different functions</strong> in different organisms.<br>• Same basic bone structure (humerus, radius, ulna, carpals)<br>• Examples: Forelimb of human (grasping), whale (swimming), bat (flying), horse (running)<br>• Evidence of <strong>divergent evolution</strong> — common ancestor, different adaptations<br><br><strong>Analogous organs:</strong><br>Organs that perform <strong>similar functions</strong> but have <strong>different structures and origins</strong>.<br>• Examples: Wings of a bird vs wings of an insect; eyes of octopus vs eyes of vertebrates<br>• Evidence of <strong>convergent evolution</strong> — different ancestors, similar environmental pressures<br><br><strong>Memory tip:</strong> Homo = same structure; Analog = same function</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q8. What are fossils? How are they formed? What is their importance?</span></summary><div class="hae-faq-ans visible"><strong>Fossils</strong> are preserved remains or impressions of organisms that once existed on Earth.<br>The science of studying fossils is called <strong>Palaeontology</strong>.<br><br><strong>Formation of fossils:</strong><br>1. Organism dies and soft parts decay; hard parts (bones, shells) remain<br>2. Hard parts get buried under sediments of sand<br>3. Sediment layers accumulate over millions of years<br>4. Hard parts absorb minerals from surroundings → become mineralised<br>5. Sedimentary rock forms around them → fossils preserved in rock layers<br><br><strong>Importance of fossils:</strong><br>1. Tell us about types of life forms that existed in the past<br>2. Show how living things have changed over time (evolutionary evidence)<br>3. Indicate the time period when a life form existed (via radioactive dating)<br>4. Provide evidence for evolutionary relationships between species</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q9. What are the causes of evolution?</span></summary><div class="hae-faq-ans visible"><strong>1. Natural Selection (Darwin&#x27;s theory):</strong><br>Process where individuals better adapted to their environment survive and reproduce more successfully. Traits that improve survival are passed on; unfavourable traits are eliminated over time.<br><br><strong>2. Genetic Drift:</strong><br>Accidental/random change in the frequency of alleles in a <strong>small population</strong>. Not driven by adaptation — purely by chance. Can cause traits to become common or disappear regardless of their usefulness.<br><br><strong>3. Geographical Isolation:</strong><br>When two sub-populations of the same species are separated by a geographical barrier (river, mountain, ocean), they cannot interbreed. They accumulate different mutations and adaptations over generations → eventually become different species (<strong>speciation</strong>).<br><br><strong>Speciation</strong> = formation of new species from existing ones through accumulated changes.</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q10. What is the relationship between evolution and classification?</span></summary><div class="hae-faq-ans visible">Evolution and classification are closely interlinked:<br><br>• <strong>Classification</strong> is based on shared characteristics<br>• The more characteristics two species share, the more closely they are related<br>• Species with recent common ancestors share more characteristics<br>• We can group species → supergroups with more distant common ancestors<br><br><strong>Key principle:</strong> More shared characteristics = more recent common ancestor = closer evolutionary relationship<br><br>Example: Chimpanzees share ~98.7% of DNA with humans — they are our closest living relatives. Both descended from a common ancestor.<br><br><strong>Evolution of eye (example of increasing complexity):</strong><br>1. Simple photosensitive eyespot (flatworms)<br>2. Pit eyes — light/dark discrimination (nautilus)<br>3. Compound eyes — thousands of units (insects)<br>4. Highly complex camera-type eye (humans)</div></details><details class="hae-faq-item" data-faq><summary class="hae-faq-q"><span class="hae-faq-q-text">Q11. What does &#x27;evolution is not always progress&#x27; mean? What is the origin of humans?</span></summary><div class="hae-faq-ans visible"><strong>Evolution ≠ Progress:</strong><br>Evolution simply creates more complex body designs — but simpler body designs are NOT inefficient or inferior.<br>• <strong>Bacteria</strong> have the simplest body design yet are the most numerous organisms on Earth<br>• Humans are only <strong>one branch</strong> of evolution — NOT the &quot;highest&quot; or &quot;most evolved&quot; species<br>• Every surviving species is equally &quot;evolved&quot; for its own niche<br><br><strong>Human origin:</strong><br>• All modern humans belong to a single species: <strong>Homo sapiens</strong><br>• We <strong>all come from Africa</strong> — modern humans originated in Africa ~200,000 years ago<br>• Some ancestors migrated out of Africa; others stayed<br>• Migrants gradually spread across the entire planet<br>• <strong>There is no biological basis for &quot;human races&quot;</strong> — all humans are one species with minor surface variations</div></details></div></div>
