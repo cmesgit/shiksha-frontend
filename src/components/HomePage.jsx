@@ -3,15 +3,10 @@ import About from "./About";
 import Stats from "./Stats";
 import HowItWorks from "./HowItWorks";
 import Navbar from './Navbar';
-import LandingHeader from './LandingHeader';
-import MainGrid from './MainGrid';
-import LowerGrid from './LowerGrid';
 import CoursePreview from './CoursePreview';
 import Footer from './Footer';
 import AboutShiksha from "./AboutShiksha";
-import VideoShowcase from "./VideoShowcase";
 import LearningPathways from "./LearningPathways";
-import TeachersSlider from "../components/TeachersSlider";
 
 const HomePage = () => {
   return (
