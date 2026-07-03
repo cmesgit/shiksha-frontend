@@ -1,0 +1,181 @@
+/* PLACEMENT: src/forum/forum-redesign.css   (NEW FILE — landing/frontend app)
+ *
+ * Design tokens + classes converted 1:1 from the approved Claude design
+ * (Shiksha Forum.dc.html). Every color, radius, font and shadow below is
+ * lifted from that file's inline styles — do not "normalize" them.
+ * Scoped under .sfr- so it can't collide with the old css/forum.css.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --sfr-cream: #f3eedd;
+  --sfr-ink: #0e1c0f;
+  --sfr-green: #125027;
+  --sfr-green-dark: #003223;
+  --sfr-teal: #1b9c85;
+  --sfr-orange: #ff8f01;
+  --sfr-orange-deep: #d97600;
+  --sfr-solved: #0e8a52;
+  --sfr-danger: #b3261e;
+  --sfr-line: rgba(9, 62, 5, .1);
+  --sfr-line-md: rgba(9, 62, 5, .14);
+  --sfr-line-strong: rgba(9, 62, 5, .18);
+  --sfr-muted: rgba(14, 28, 15, .5);
+  --sfr-muted-lt: rgba(14, 28, 15, .46);
+  --sfr-body: rgba(14, 28, 15, .72);
+}
+
+@keyframes sfrFadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sfrPopIn { from { opacity: 0; transform: scale(.96) translateY(8px) } to { opacity: 1; transform: scale(1) translateY(0) } }
+@media (prefers-reduced-motion: reduce) {
+  .sfr-view, .sfr-modal { animation: none !important }
+}
+
+.sfr-page { background: var(--sfr-cream); min-height: 70vh; font-family: 'Poppins', system-ui, sans-serif; color: var(--sfr-ink); -webkit-font-smoothing: antialiased }
+.sfr-view { animation: sfrFadeIn .25s ease }
+.sfr-wrap { max-width: 1180px; margin: 0 auto; padding: 26px 40px 46px }
+
+/* ── forum sub-bar (breadcrumb + create + bell) ─────────────────── */
+.sfr-subbar { background: #fff; border-bottom: 1px solid var(--sfr-line) }
+.sfr-subbar-in { max-width: 1180px; margin: 0 auto; padding: 11px 40px; display: flex; align-items: center; gap: 10px }
+.sfr-crumb { font: 600 12px 'Poppins', sans-serif; color: var(--sfr-muted) }
+.sfr-crumb a { color: var(--sfr-green); cursor: pointer; text-decoration: none }
+.sfr-subbar-actions { margin-left: auto; display: flex; align-items: center; gap: 9px }
+.sfr-sublink { font: 600 12px 'Poppins', sans-serif; color: rgba(14,28,15,.55); cursor: pointer; background: none; border: none; padding: 0 }
+.sfr-btn-primary { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; font: 700 12px 'Poppins', sans-serif; color: #fff; background: var(--sfr-green); border: none; border-radius: 9px; cursor: pointer; box-shadow: 0 5px 14px rgba(18,80,39,.26) }
+.sfr-btn-primary:disabled { opacity: .55; cursor: not-allowed; box-shadow: none }
+.sfr-bell { position: relative; width: 42px; height: 42px; border-radius: 10px; border: 2px solid var(--sfr-line-strong); background: #fff; color: #033325; display: flex; align-items: center; justify-content: center; cursor: pointer }
+.sfr-bell-badge { position: absolute; top: -6px; right: -6px; min-width: 17px; height: 17px; background: var(--sfr-orange); border: 2px solid #fff; border-radius: 100px; font: 800 9px 'Poppins', sans-serif; color: #fff; display: flex; align-items: center; justify-content: center; padding: 0 3px }
+
+/* ── search ─────────────────────────────────────────────────────── */
+.sfr-search { position: relative; display: flex; align-items: center; margin-bottom: 22px }
+.sfr-search svg { position: absolute; left: 16px }
+.sfr-search input { width: 100%; height: 48px; border: 1px solid var(--sfr-line-md); background: #fff; border-radius: 12px; padding: 0 16px 0 44px; font: 500 13.5px 'Poppins', sans-serif; color: var(--sfr-ink); outline: none }
+.sfr-search input:focus-visible { border-color: rgba(18,80,39,.4); box-shadow: 0 0 0 3px rgba(18,80,39,.1) }
+
+/* ── section headings ───────────────────────────────────────────── */
+.sfr-h2row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px }
+.sfr-h2 { margin: 0; font: 800 17px 'Montserrat', sans-serif; color: var(--sfr-ink); letter-spacing: -.4px }
+.sfr-h2note { font: 600 12px 'Poppins', sans-serif; color: var(--sfr-teal) }
+
+/* ── category (tag) grid ────────────────────────────────────────── */
+.sfr-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-bottom: 30px }
+.sfr-cat { background: #fff; border: 1px solid rgba(9,62,5,.12); border-radius: 13px; padding: 15px 16px; cursor: pointer; transition: box-shadow .2s, border-color .2s; text-align: left }
+.sfr-cat:hover, .sfr-cat.active { box-shadow: 0 10px 30px rgba(0,40,20,.1); border-color: rgba(18,80,39,.28) }
+.sfr-cat.active { outline: 2px solid var(--sfr-green); outline-offset: -2px }
+.sfr-cat-glyph { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font: 800 16px 'Montserrat', sans-serif }
+.sfr-cat-name { margin-top: 11px; font: 700 13.5px 'Montserrat', sans-serif; color: var(--sfr-ink) }
+.sfr-cat-meta { margin-top: 3px; font: 500 10.5px 'Poppins', sans-serif; color: var(--sfr-muted-lt) }
+
+/* ── filter chips ───────────────────────────────────────────────── */
+.sfr-chips { display: flex; gap: 7px; flex-wrap: wrap }
+.sfr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; font: 600 11.5px 'Poppins', sans-serif; color: rgba(14,28,15,.6); background: #fff; border: 1px solid rgba(9,62,5,.12); border-radius: 100px; cursor: pointer }
+.sfr-chip.active { font-weight: 700; color: #fff; background: var(--sfr-teal); border-color: var(--sfr-teal) }
+
+.sfr-feednote { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; font: 600 12px 'Poppins', sans-serif; color: rgba(14,28,15,.55) }
+
+/* ── layout: feed + rail ────────────────────────────────────────── */
+.sfr-cols { display: grid; grid-template-columns: 1fr 280px; gap: 22px; align-items: start }
+.sfr-feed { display: flex; flex-direction: column; gap: 11px }
+
+/* ── thread card ────────────────────────────────────────────────── */
+.sfr-thread { display: flex; gap: 14px; background: #fff; border: 1px solid var(--sfr-line); border-radius: 13px; padding: 15px 18px; cursor: pointer; transition: box-shadow .2s, border-color .2s; text-align: left; width: 100% }
+.sfr-thread:hover { box-shadow: 0 8px 22px rgba(0,40,20,.09); border-color: rgba(18,80,39,.25) }
+.sfr-votecol { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 42px; padding-top: 2px }
+.sfr-votecol .num { font: 800 14px 'Montserrat', sans-serif }
+.sfr-votecol .lbl { font: 600 7.5px 'Poppins', sans-serif; color: rgba(14,28,15,.4); text-transform: uppercase; letter-spacing: .5px }
+.sfr-thread-main { flex: 1; min-width: 0 }
+.sfr-badgerow { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; flex-wrap: wrap }
+.sfr-badge { font: 700 10px 'Poppins', sans-serif; padding: 3px 9px; border-radius: 100px; white-space: nowrap }
+.sfr-pill-unanswered { font: 700 9.5px 'Poppins', sans-serif; color: var(--sfr-muted); background: rgba(14,28,15,.06); padding: 2px 8px; border-radius: 100px }
+.sfr-thread-title { font: 700 15px 'Montserrat', sans-serif; color: var(--sfr-ink); line-height: 1.35 }
+.sfr-thread-meta { display: flex; align-items: center; gap: 14px; margin-top: 9px; font: 500 11.5px 'Poppins', sans-serif; color: var(--sfr-muted-lt); flex-wrap: wrap }
+.sfr-avatar { border-radius: 50%; color: #fff; font: 700 10px 'Montserrat', sans-serif; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; flex: none }
+
+/* ── pager ──────────────────────────────────────────────────────── */
+.sfr-pager { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; flex-wrap: wrap }
+.sfr-pagebtn { min-width: 34px; height: 34px; padding: 0 7px; border-radius: 8px; border: 1px solid var(--sfr-line-md); background: #fff; display: flex; align-items: center; justify-content: center; font: 600 12.5px 'Poppins', sans-serif; color: rgba(14,28,15,.6); cursor: pointer }
+.sfr-pagebtn.active { background: var(--sfr-green); color: #fff; border: none; font-weight: 700 }
+.sfr-pagebtn:disabled { color: rgba(14,28,15,.28); cursor: not-allowed }
+.sfr-pagedots { font: 600 12px 'Poppins', sans-serif; color: rgba(14,28,15,.4); padding: 0 3px }
+
+/* ── rail ───────────────────────────────────────────────────────── */
+.sfr-rail { display: flex; flex-direction: column; gap: 16px }
+.sfr-railcard { background: #fff; border: 1px solid rgba(9,62,5,.12); border-radius: 13px; padding: 16px 17px }
+.sfr-railtitle { margin: 0 0 11px; font: 800 13px 'Montserrat', sans-serif; color: var(--sfr-ink) }
+.sfr-railitem { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid rgba(9,62,5,.07); cursor: pointer; text-align: left; background: none; border-left: none; border-right: none; border-bottom: none; width: 100% }
+.sfr-railitem:first-of-type { border-top: none; padding-top: 0 }
+.sfr-railrank { font: 800 13px 'Montserrat', sans-serif; color: var(--sfr-teal); width: 16px; flex: none }
+.sfr-railtext { font: 600 12px/1.4 'Poppins', sans-serif; color: var(--sfr-ink) }
+.sfr-railmeta { font: 500 10.5px 'Poppins', sans-serif; color: var(--sfr-muted-lt); margin-top: 2px }
+
+/* ── thread detail ──────────────────────────────────────────────── */
+.sfr-detail { display: flex; gap: 18px; background: #fff; border: 1px solid var(--sfr-line); border-radius: 15px; padding: 24px 26px }
+.sfr-votebtn { width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(9,62,5,.18); background: #fff; color: var(--sfr-green) }
+.sfr-votebtn.on { border-color: var(--sfr-green); background: var(--sfr-green); color: #fff }
+.sfr-votebtn:disabled { cursor: not-allowed; opacity: .6 }
+.sfr-detail-title { margin: 0; font: 800 23px/1.25 'Montserrat', sans-serif; color: var(--sfr-ink); letter-spacing: -.5px }
+.sfr-detail-body { font: 400 14px/1.75 'Poppins', sans-serif; color: var(--sfr-body); white-space: pre-wrap; overflow-wrap: anywhere }
+.sfr-tagpill { font: 600 10.5px 'Poppins', sans-serif; color: var(--sfr-teal); background: rgba(27,156,133,.1); border: 1px solid rgba(27,156,133,.2); padding: 3px 10px; border-radius: 100px }
+.sfr-actionrow { display: flex; align-items: center; gap: 8px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--sfr-line); flex-wrap: wrap }
+.sfr-actionbtn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; font: 600 12px 'Poppins', sans-serif; color: rgba(14,28,15,.65); background: #fff; border: 1px solid var(--sfr-line-md); border-radius: 9px; cursor: pointer }
+.sfr-actionbtn.danger { color: var(--sfr-danger); border-color: rgba(179,38,30,.22); margin-left: auto }
+.sfr-opnote { display: flex; align-items: flex-start; gap: 11px; background: #fffaf0; border: 1px solid rgba(255,143,1,.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 14px; font: 500 12px/1.55 'Poppins', sans-serif; color: rgba(14,28,15,.68) }
+
+/* ── replies ────────────────────────────────────────────────────── */
+.sfr-replies { display: flex; flex-direction: column; gap: 12px }
+.sfr-replycard { position: relative; background: #fff; border: 1px solid var(--sfr-line); border-radius: 13px; padding: 16px 18px }
+.sfr-replycard.nested { margin-left: 34px }
+.sfr-reply-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; flex-wrap: wrap }
+.sfr-reply-name { font: 700 12.5px 'Poppins', sans-serif; color: var(--sfr-ink) }
+.sfr-reply-time { font: 500 10.5px 'Poppins', sans-serif; color: rgba(14,28,15,.45) }
+.sfr-reply-body { font: 400 13px/1.7 'Poppins', sans-serif; color: var(--sfr-body); white-space: pre-wrap; overflow-wrap: anywhere }
+.sfr-reply-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px }
+.sfr-minibtn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; font: 600 11px 'Poppins', sans-serif; color: rgba(14,28,15,.6); background: #fff; border: 1px solid rgba(9,62,5,.14); border-radius: 100px; cursor: pointer }
+.sfr-minibtn.on { color: #fff; background: var(--sfr-green); border-color: var(--sfr-green); font-weight: 700 }
+.sfr-minibtn.danger { color: var(--sfr-danger); border-color: rgba(179,38,30,.22) }
+.sfr-replyto { font: 600 10.5px 'Poppins', sans-serif; color: var(--sfr-teal); margin-bottom: 5px }
+
+/* ── composer / create form ─────────────────────────────────────── */
+.sfr-panel { background: #fff; border: 1px solid var(--sfr-line); border-radius: 15px; padding: 22px 24px }
+.sfr-label { display: block; font: 700 12px 'Poppins', sans-serif; color: var(--sfr-ink); margin: 0 0 7px }
+.sfr-input { width: 100%; height: 46px; border: 1px solid var(--sfr-line-md); background: #fff; border-radius: 10px; padding: 0 14px; font: 500 13.5px 'Poppins', sans-serif; color: var(--sfr-ink); outline: none; box-sizing: border-box }
+.sfr-textarea { width: 100%; min-height: 130px; border: 1px solid var(--sfr-line-md); background: #fff; border-radius: 10px; padding: 12px 14px; font: 500 13.5px/1.7 'Poppins', sans-serif; color: var(--sfr-ink); outline: none; resize: vertical; box-sizing: border-box }
+.sfr-input:focus-visible, .sfr-textarea:focus-visible { border-color: rgba(18,80,39,.4); box-shadow: 0 0 0 3px rgba(18,80,39,.1) }
+.sfr-check { display: flex; align-items: center; gap: 8px; font: 500 12px 'Poppins', sans-serif; color: var(--sfr-muted) }
+.sfr-check.ok { color: var(--sfr-solved) }
+.sfr-errbanner { display: flex; gap: 10px; align-items: flex-start; background: #fdf1f0; border: 1px solid rgba(179,38,30,.3); border-radius: 12px; padding: 12px 15px; font: 500 12.5px/1.55 'Poppins', sans-serif; color: #7a1a14; margin-bottom: 14px }
+
+/* ── notifications page ─────────────────────────────────────────── */
+.sfr-notif { display: flex; gap: 13px; align-items: flex-start; background: #fff; border: 1px solid var(--sfr-line); border-left: 3px solid rgba(9,62,5,.1); border-radius: 12px; padding: 14px 16px; cursor: pointer; width: 100%; text-align: left }
+.sfr-notif.unread { border-left-color: var(--sfr-teal) }
+.sfr-notif-glyph { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font: 800 15px 'Montserrat', sans-serif; flex: none }
+.sfr-notif-text { font: 600 12.5px/1.5 'Poppins', sans-serif; color: var(--sfr-ink) }
+.sfr-notif-time { font: 500 10.5px 'Poppins', sans-serif; color: var(--sfr-muted-lt); margin-top: 3px }
+.sfr-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sfr-teal); flex: none; margin-top: 6px }
+
+/* ── guest gate banner ──────────────────────────────────────────── */
+.sfr-guestbar { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #125027, #1b9c85); border-radius: 13px; padding: 15px 18px; margin-bottom: 20px; color: #fff; flex-wrap: wrap }
+.sfr-guestbar .t { font: 700 13.5px 'Montserrat', sans-serif }
+.sfr-guestbar .d { font: 500 12px 'Poppins', sans-serif; opacity: .85 }
+.sfr-guestbar button { margin-left: auto; padding: 8px 18px; font: 700 12px 'Poppins', sans-serif; color: var(--sfr-green); background: #fff; border: none; border-radius: 9px; cursor: pointer }
+
+/* ── misc ───────────────────────────────────────────────────────── */
+.sfr-empty { text-align: center; padding: 40px 20px; font: 600 13px 'Poppins', sans-serif; color: var(--sfr-muted) }
+.sfr-loading { text-align: center; padding: 40px 20px; font: 600 13px 'Poppins', sans-serif; color: var(--sfr-muted) }
+.sfr-solvedpill { display: inline-flex; align-items: center; gap: 3px; font: 700 9.5px 'Poppins', sans-serif; color: var(--sfr-solved); background: rgba(14,138,82,.12); padding: 2px 8px; border-radius: 100px }
+button.sfr-reset { background: none; border: none; padding: 0; font: inherit; cursor: pointer }
+:where(.sfr-page) button:focus-visible, :where(.sfr-page) a:focus-visible { outline: 2px solid var(--sfr-green); outline-offset: 2px }
+
+/* ── responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .sfr-cols { grid-template-columns: 1fr }
+  .sfr-cats { grid-template-columns: repeat(2, 1fr) }
+  .sfr-wrap, .sfr-subbar-in { padding-left: 18px; padding-right: 18px }
+}
+@media (max-width: 560px) {
+  .sfr-cats { grid-template-columns: 1fr }
+  .sfr-detail { flex-direction: column }
+  .sfr-replycard.nested { margin-left: 14px }
+}

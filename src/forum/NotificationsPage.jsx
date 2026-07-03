@@ -1,123 +1,98 @@
-import { useState, useEffect } from "react";
+// PLACEMENT: src/forum/NotificationsPage.jsx   (REPLACE THE WHOLE FILE — landing/frontend app)
+//
+// Notifications view from the approved design: glyph tile · message ·
+// time · unread accent bar · Mark all read. Wired to the existing
+// NotificationContext (which talks to /forum/notifications/ — served by
+// the new site-wide notifications app via the legacy alias, so rows for
+// counseling/assignments will appear here too once those emit).
+// Clicking a row marks it read and deep-links to its thread when present.
+
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {getNotifications, markAllNotificationsRead} from "../api/forum";
-import "../css/NotificationsPage.css";
+import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext";
+import ForumShell from "./ForumShell";
+import { fmtAge } from "./utils";
+
+const GLYPHS = {
+  new_reply: { glyph: "↩", tint: "rgba(27,156,133,.12)", color: "#1b9c85" },
+  upvote:    { glyph: "▲", tint: "rgba(18,80,39,.09)",  color: "#125027" },
+  new_thread:{ glyph: "N", tint: "rgba(255,143,1,.12)", color: "#d97600" },
+  default:   { glyph: "•", tint: "rgba(18,80,39,.09)",  color: "#125027" },
+};
 
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const pageSize = 8;
+  const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const {
+    notifications = [],
+    unreadCount = 0,
+    markAsRead,
+    markAllAsRead,
+    fetchNotifications,
+  } = useNotification() || {};
 
-    useEffect(() => {
-        fetchNotifications();
-    }, [page]);
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate("/login", { state: { from: "/forum/notifications" } });
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
-    const fetchNotifications = async () => {
-        setLoading(true);
-        try {
-            const data = await getNotifications({page, page_size: pageSize });
-            const items = data.results || data;
-            setNotifications(Array.isArray(items) ? items : []);
-            const total = data.count || items.length || 0;
-            setTotalPages(Math.ceil(total / pageSize));
-        } catch (error) {
-            console.error("Failed to fetch notifications:", error);
-        } finally {
-            setLoading(false);
-        }   
-    };
+  useEffect(() => { fetchNotifications?.(); }, [fetchNotifications]);
 
-    const handleMarkAllRead = async () => {
-        try {
-            await markAllNotificationsRead();
-            setNotifications((prev) =>
-                prev.map((n) => ({ ...n, is_read: true}))
-            );
-        } catch (err) {
-            console.error("Failed to mark notifications as read", err);
-        }
-    };
+  const open = async (n) => {
+    if (!n.is_read) markAsRead?.(n.id);
+    if (n.thread_id) navigate(`/forum/${n.thread_id}`);
+  };
 
-    const timeAgo = (dateStr) => {
-        const now = new Date();
-        const date = new Date(dateStr);
-        const diff = Math.floor((now - date) / 1000);
-        if (diff < 60) return `${diff} secs`;
-        if (diff < 3600) return `${Math.floor(diff / 60)} mins`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)} hrs`;
-        if (diff < 604800) return `${Math.floor(diff / 86400)} days`;
-        return date.toLocaleDateString();
-    };
-
-    const handleClick = (notification) => {
-        if (notification.thread_id) {
-            navigate(`/forum/${notification.thread_id}`);
-        }
-    };
-
-    return (
-        <div className="notifications-page">
-            <div className="notifications-header">
-                <button className="back-btn" onClick={() => navigate("/forum")}>
-                    &larr; Back to Forum
-                </button>
-                <h2>Notifications</h2>
-                <button className="mark-read-btn" onClick={handleMarkAllRead}>
-                    Mark all as read
-                </button>
-            </div>
-
-            {loading ? (
-                <p className="notifications-loading">Loading...</p>
-            ) : notifications.length === 0 ? (
-                <p className="notifications-empty">No notifications yet.</p>
-            ) : (
-                <div className="notifications-list">
-                    {notifications.map((n) => (
-                        <div
-                            key={n.id}
-                            className={`notification-card ${!n.is_read ? "unread" : ""}`}
-                            onClick={() => handleClick(n)}
-                        >
-                            <div className="notification-title">{n.message}</div>
-                            <div className="notification-subtitle"> {timeAgo(n.created_at)} ago
-                            </div>
-                        </div>
-                    ))}
-                </div>
-    )}
-
-    {totalPages > 1 && (
-        <div className="notifications-pagination">
+  return (
+    <ForumShell crumb=" / Notifications">
+      <div className="sfr-view" style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div className="sfr-h2row">
+          <h2 className="sfr-h2" style={{ fontSize: 20 }}>Notifications</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {unreadCount > 0 && (
+              <span className="sfr-h2note">{unreadCount} unread</span>
+            )}
             <button
-                className="page-btn"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
+              className="sfr-chip"
+              onClick={() => markAllAsRead?.()}
+              disabled={unreadCount === 0}
+              style={unreadCount === 0 ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
             >
-                &larr;
+              Mark all read
             </button>
-            <span>Page {page} of {totalPages}</span>
-            {Array.from({length : totalPages}, (_, i) => i+1).map((p) => (
-                <button
-                    key={p}
-                    className={`page-btn ${p === page ? "active" : ""}`}
-                    onClick={() => setPage(p)}
-                >
-                    {p}
-                </button>
-            ))}
-            <button
-                className="page-btn"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-            >
-                &rarr;
-            </button>
+          </div>
         </div>
-    )}      
-    </div>
-    );
+
+        {notifications.length === 0 ? (
+          <div className="sfr-empty">
+            Nothing here yet. When someone replies to your threads, you'll see it first.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {notifications.map((n) => {
+              const g = GLYPHS[n.notification_type] || GLYPHS.default;
+              return (
+                <button
+                  key={n.id}
+                  className={`sfr-notif sfr-reset${n.is_read ? "" : " unread"}`}
+                  onClick={() => open(n)}
+                >
+                  <span className="sfr-notif-glyph" style={{ background: g.tint, color: g.color }}>
+                    {g.glyph}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <div className="sfr-notif-text">{n.message}</div>
+                    <div className="sfr-notif-time">{fmtAge(n.created_at)}</div>
+                  </span>
+                  {!n.is_read && <span className="sfr-unread-dot" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </ForumShell>
+  );
 }
