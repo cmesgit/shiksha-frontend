@@ -5,7 +5,7 @@ import image2 from '../assets/shikshaCards/LvRc2.png';
 import image3 from '../assets/shikshaCards/sd2.png';
 import image4 from '../assets/shikshaCards/bt2.png';
 import image5 from '../assets/shikshaCards/tutor2.png';
-import image6 from '../assets/shikshaCards/green.png';
+import image6 from '../assets/shikshaCards/green.jpg';
 import '../css/Hero.css';
 
 const rotatingCards = [
@@ -206,6 +206,7 @@ const Hero = () => {
       src={card.img}
       alt={card.name}
       className="scard-img"
+      decoding="async"
     />
   </div>
 ))}

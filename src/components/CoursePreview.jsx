@@ -30,6 +30,8 @@ const BoardCard = ({ board, onClick }) => (
       <img
         src={board.image}
         alt={board.title}
+        loading="lazy"
+        decoding="async"
         onError={(e) => {
           e.currentTarget.style.display = 'none';
         }}

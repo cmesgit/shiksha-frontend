@@ -11,11 +11,11 @@ import ProfileFillupModal from "./ProfileFillupModal";
 import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
-import Profile from "../pages/Profile";
 
 import "../css/App.css";
 
 const Dashboard        = lazy(() => import("./Dashboard"));
+const Profile          = lazy(() => import("../pages/Profile"));
 const FormFillup       = lazy(() => import("./FormFillup"));
 const FacultySignup    = lazy(() => import("./FacultySignup"));
 const Enroll           = lazy(() => import("./Enroll"));
