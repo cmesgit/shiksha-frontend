@@ -1,0 +1,353 @@
+<style>
+  :root {
+    --ink:        #020f14;
+    --ink2:       #0a1e26;
+    --muted:      #3a6a7a;
+    --paper:      #f0fbff;
+    --paper2:     #d8f4fc;
+    --accent:     #0891b2;
+    --accent2:    #0e7490;
+    --accent-lt:  #cffafe;
+    --teal:       #0d9488;
+    --teal-lt:    #ccfbf1;
+    --purple:     #7c3aed;
+    --purple-lt:  #ede9fe;
+    --red:        #be123c;
+    --red-lt:     #ffe4e6;
+    --green:      #166534;
+    --green-lt:   #dcfce7;
+    --amber:      #b45309;
+    --amber-lt:   #fef3c7;
+    --blue:       #1e40af;
+    --blue-lt:    #dbeafe;
+    --rose:       #9f1239;
+    --rule:       #7dd3e8;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .mff-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO — deep bioluminescent teal night ═══ */
+  .mff-hero {
+    background: linear-gradient(135deg, #010a0f 0%, #021520 50%, #032030 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) {
+    .mff-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; }
+  }
+  .mff-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #0891b2 0%, #0d9488 30%, #7c3aed 60%, #be123c 100%);
+  }
+  /* Hex bio grid */
+  .mff-hero-hex {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(circle, rgba(8,145,178,0.14) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  /* Cell ring watermark */
+  .mff-hero-ring {
+    position: absolute; top: 50%; right: 5%; transform: translateY(-50%);
+    width: clamp(140px, 22vw, 290px); height: clamp(140px, 22vw, 290px);
+    border-radius: 50%; border: 1.5px solid rgba(8,145,178,0.16); pointer-events: none;
+  }
+  .mff-hero-ring::before {
+    content: ''; position: absolute; inset: 18%; border-radius: 50%;
+    border: 1px dashed rgba(13,148,136,0.14);
+  }
+  .mff-hero-ring::after {
+    content: ''; position: absolute; inset: 40%; border-radius: 50%;
+    background: rgba(8,145,178,0.07);
+  }
+  .mff-glow-a {
+    position: absolute; top: 14%; left: 6%; width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(8,145,178,0.17) 0%, transparent 68%);
+    pointer-events: none;
+  }
+  .mff-glow-b {
+    position: absolute; bottom: 8%; right: 24%; width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(13,148,136,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .mff-hero-bg-num {
+    position: absolute; bottom: -80px; right: -20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(200px, 34vw, 480px); font-weight: 900;
+    line-height: 1; color: rgba(255,255,255,0.018);
+    letter-spacing: -0.04em; user-select: none; pointer-events: none;
+  }
+  .mff-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .mff-overline {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #22d3ee;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .mff-overline::before, .mff-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #22d3ee; }
+  .mff-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(34px, 7vw, 76px); font-weight: 900; color: #fff;
+    line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px;
+  }
+  .mff-hero-title em   { font-style: normal; color: #22d3ee; }
+  .mff-hero-title .em2 { color: #f472b6; }
+  .mff-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .mff-hero-bar-item { flex: 1 1 150px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .mff-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .mff-bar-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .mff-bar-value { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72); }
+
+  /* ═══ BODY ═══ */
+  .mff-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* ═══ INTRO CARD ═══ */
+  .mff-intro-card {
+    background: linear-gradient(135deg, #010a0f 0%, #032030 100%);
+    border-left: 5px solid #0891b2; border-radius: 4px; padding: 38px 42px;
+    margin-bottom: 64px; position: relative; overflow: hidden;
+  }
+  .mff-intro-card::after { content: '🦠'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 96px; opacity: 0.09; }
+  .mff-intro-card p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .mff-intro-card p:last-child { margin: 0; }
+  .mff-intro-card strong { color: #22d3ee; }
+
+  /* ═══ SECTION DIVIDER ═══ */
+  .mff-divider { margin: 60px 0; display: flex; align-items: center; gap: 16px; }
+  .mff-divider::before, .mff-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .mff-divider-mark { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .mff-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 34px; border-bottom: 2px solid var(--rule); padding-bottom: 20px; }
+  .mff-sec-num { font-family: 'Montserrat', sans-serif; font-size: 58px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .mff-sec-title-wrap { padding-top: 8px; }
+  .mff-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .mff-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px, 3.5vw, 32px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .mff-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .mff-body-text { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 400; color: var(--ink2); line-height: 1.85; margin-bottom: 28px; }
+  .mff-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: 5 MICROBE TYPE CARDS ═══ */
+  .mff-microbe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 580px) { .mff-microbe-grid { grid-template-columns: 1fr; } }
+  .mff-microbe-card {
+    border-radius: 10px; padding: 26px 24px;
+    background: linear-gradient(150deg, #010a0f 0%, #032030 100%);
+    border: 1.5px solid rgba(8,145,178,0.2);
+    position: relative; overflow: hidden;
+  }
+  .mff-microbe-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+  }
+  .mff-mc-bacteria::before   { background: #0891b2; }
+  .mff-mc-virus::before      { background: #be123c; }
+  .mff-mc-fungi::before      { background: #7c3aed; }
+  .mff-mc-protozoa::before   { background: #b45309; }
+  .mff-mc-algae::before      { background: #166534; }
+  .mff-microbe-icon { font-size: 34px; margin-bottom: 12px; display: block; }
+  .mff-microbe-name { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .mff-mc-bacteria .mff-microbe-name   { color: #22d3ee; }
+  .mff-mc-virus .mff-microbe-name      { color: #fb7185; }
+  .mff-mc-fungi .mff-microbe-name      { color: #c4b5fd; }
+  .mff-mc-protozoa .mff-microbe-name   { color: #fcd34d; }
+  .mff-mc-algae .mff-microbe-name      { color: #86efac; }
+  .mff-microbe-tag { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; }
+  .mff-microbe-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(255,255,255,0.60); line-height: 1.65; }
+  .mff-microbe-desc strong { color: rgba(255,255,255,0.82); }
+  .mff-microbe-card.full { grid-column: 1 / -1; }
+
+  /* ═══ S2: FRIENDLY — benefit cards ═══ */
+  .mff-benefit-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .mff-benefit-item {
+    display: flex; gap: 20px; align-items: flex-start;
+    background: var(--white); border: 1.5px solid var(--rule); border-radius: 10px;
+    padding: 22px 24px;
+  }
+  .mff-benefit-icon { font-size: 32px; flex-shrink: 0; margin-top: 2px; }
+  .mff-benefit-content {}
+  .mff-benefit-title { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .mff-benefit-title span { color: var(--accent); }
+  .mff-benefit-desc { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.75; }
+  .mff-benefit-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S2: FERMENTATION HIGHLIGHT ═══ */
+  .mff-ferm-box {
+    background: linear-gradient(135deg, #1a0a2e 0%, #240d40 100%);
+    border-left: 5px solid #7c3aed; border-radius: 4px; padding: 28px 30px;
+    margin-bottom: 28px;
+  }
+  .mff-ferm-title { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; color: #c4b5fd; margin-bottom: 10px; }
+  .mff-ferm-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.8; }
+  .mff-ferm-text strong { color: #ddd6fe; }
+
+  /* ═══ S2: ANTIBIOTIC + VACCINE ═══ */
+  .mff-med-split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 600px) { .mff-med-split { grid-template-columns: 1fr; } }
+  .mff-med-card { border-radius: 10px; padding: 26px 24px; }
+  .mff-med-card.antibiotic {
+    background: var(--teal-lt); border: 1.5px solid var(--teal);
+  }
+  .mff-med-card.vaccine {
+    background: var(--blue-lt); border: 1.5px solid var(--blue);
+  }
+  .mff-med-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+  .mff-med-title { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; margin-bottom: 8px; }
+  .antibiotic .mff-med-title { color: var(--teal); }
+  .vaccine    .mff-med-title { color: var(--blue); }
+  .mff-med-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.75; }
+  .mff-med-desc strong { font-weight: 600; }
+  .antibiotic .mff-med-desc strong { color: var(--teal); }
+  .vaccine    .mff-med-desc strong { color: var(--blue); }
+  .mff-med-examples { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; }
+  .antibiotic .mff-med-examples { color: var(--teal); }
+  .vaccine    .mff-med-examples { color: var(--blue); }
+
+  /* ═══ S3: HARMFUL — pathogens intro ═══ */
+  .mff-harm-intro {
+    background: var(--red-lt); border-left: 5px solid var(--red); border-radius: 4px;
+    padding: 24px 28px; margin-bottom: 28px;
+  }
+  .mff-harm-intro p { font-family: 'Inter', sans-serif; font-size: 17px; color: var(--ink2); line-height: 1.75; }
+  .mff-harm-intro strong { color: var(--red); font-weight: 700; }
+
+  /* ═══ S3: DISEASE TABLE ═══ */
+  .mff-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 28px; border-radius: 8px; box-shadow: 0 2px 12px rgba(8,145,178,0.08); }
+  .mff-dis-table { width: 100%; min-width: 520px; border-collapse: collapse; }
+  .mff-dis-table th { background: #032030; color: #22d3ee; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; padding: 15px 18px; text-align: left; white-space: nowrap; }
+  .mff-dis-table td { font-family: 'Inter', sans-serif; font-size: 15px; padding: 13px 18px; border-bottom: 1px solid var(--rule); color: var(--ink2); line-height: 1.5; }
+  .mff-dis-table tr:last-child td { border-bottom: none; }
+  .mff-dis-table tr:nth-child(odd)  td { background: var(--white); }
+  .mff-dis-table tr:nth-child(even) td { background: var(--paper2); }
+  .mff-dis-table td:first-child { font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--accent); white-space: nowrap; }
+  .mff-table-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+
+  /* ═══ S3: MOSQUITO DISEASE CARDS ═══ */
+  .mff-mosq-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .mff-mosq-wrap { grid-template-columns: 1fr; } }
+  .mff-mosq-card { border-radius: 10px; padding: 24px 22px; }
+  .mff-mosq-card.malaria { background: var(--amber-lt); border: 1.5px solid var(--amber); }
+  .mff-mosq-card.dengue  { background: var(--red-lt);   border: 1.5px solid var(--red);   }
+  .mff-mosq-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .mff-mosq-name { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .malaria .mff-mosq-name { color: var(--amber); }
+  .dengue  .mff-mosq-name { color: var(--red);   }
+  .mff-mosq-badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; }
+  .malaria .mff-mosq-badge { background: rgba(180,83,9,0.15); color: var(--amber); }
+  .dengue  .mff-mosq-badge { background: rgba(190,18,60,0.12); color: var(--red);   }
+  .mff-mosq-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.72; }
+  .mff-mosq-desc strong { font-weight: 600; }
+
+  /* ═══ S3: ANIMAL & PLANT DISEASE GRID ═══ */
+  .mff-disease-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .mff-disease-2col { grid-template-columns: 1fr; } }
+  .mff-disease-col { background: var(--white); border: 1.5px solid var(--rule); border-radius: 10px; padding: 24px 22px; }
+  .mff-disease-col.animals { border-top: 4px solid var(--amber); }
+  .mff-disease-col.plants  { border-top: 4px solid var(--green); border-left: 2px solid var(--rule); }
+  @media (max-width: 560px) { .mff-disease-col.plants { border-left: none; border-top: 4px solid var(--green); } }
+  .mff-disease-col-title { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .animals .mff-disease-col-title { color: var(--amber); }
+  .plants  .mff-disease-col-title { color: var(--green); }
+  .mff-disease-row { display: flex; flex-direction: column; gap: 10px; }
+  .mff-disease-entry { padding: 10px 14px; border-radius: 6px; background: var(--paper); }
+  .mff-disease-entry-name { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+  .mff-disease-entry-cause { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--muted); }
+
+  /* ═══ S3: FOOD POISONING ═══ */
+  .mff-poison-box {
+    background: linear-gradient(135deg, #1a0310 0%, #280514 100%);
+    border-left: 5px solid var(--red); border-radius: 4px; padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+  .mff-poison-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: #fb7185; margin-bottom: 10px; }
+  .mff-poison-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.78; }
+  .mff-poison-text strong { color: #fca5a5; }
+  .mff-symptoms { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .mff-symptom-tag {
+    background: rgba(190,18,60,0.18); color: #fda4af;
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(190,18,60,0.25);
+  }
+
+  /* ═══ S4: FOOD PRESERVATION ═══ */
+  .mff-preserve-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 560px) { .mff-preserve-grid { grid-template-columns: 1fr; } }
+  .mff-preserve-card {
+    background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px;
+    padding: 22px 20px; border-top: 4px solid var(--accent);
+  }
+  .mff-preserve-card:nth-child(2) { border-top-color: var(--teal); }
+  .mff-preserve-card:nth-child(3) { border-top-color: var(--amber); }
+  .mff-preserve-card:nth-child(4) { border-top-color: var(--purple); }
+  .mff-preserve-card:nth-child(5) { border-top-color: var(--green); }
+  .mff-preserve-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .mff-preserve-name { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .mff-preserve-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.68; }
+
+  /* ═══ S4: PASTEURISATION ═══ */
+  .mff-pasteur-box {
+    background: linear-gradient(135deg, #031a14 0%, #052a20 100%);
+    border-radius: 10px; padding: 28px 30px; margin-bottom: 28px;
+    border: 1.5px solid rgba(13,148,136,0.3);
+  }
+  .mff-pasteur-title { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; color: #5eead4; margin-bottom: 10px; }
+  .mff-pasteur-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.8; }
+  .mff-pasteur-text strong { color: #99f6e4; }
+  .mff-pasteur-steps { display: flex; gap: 0; margin-top: 18px; flex-wrap: wrap; }
+  .mff-pasteur-step { flex: 1 1 160px; background: rgba(13,148,136,0.12); border: 1px solid rgba(13,148,136,0.2); padding: 14px 16px; text-align: center; }
+  .mff-pasteur-step:first-child { border-radius: 8px 0 0 8px; }
+  .mff-pasteur-step:last-child  { border-radius: 0 8px 8px 0; }
+  .mff-pasteur-step-num { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: #5eead4; margin-bottom: 6px; letter-spacing: 0.08em; }
+  .mff-pasteur-step-text { font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(255,255,255,0.62); line-height: 1.55; }
+  .mff-pasteur-arrow { display: flex; align-items: center; color: #5eead4; font-size: 18px; padding: 0 4px; align-self: center; }
+  @media (max-width: 540px) { .mff-pasteur-steps { flex-direction: column; } .mff-pasteur-step { border-radius: 0 !important; } .mff-pasteur-arrow { display: none; } }
+
+  /* ═══ S5: NITROGEN FIXATION ═══ */
+  .mff-nfix-intro {
+    background: var(--green-lt); border-left: 4px solid var(--green); border-radius: 4px;
+    padding: 22px 26px; margin-bottom: 24px;
+  }
+  .mff-nfix-intro p { font-family: 'Inter', sans-serif; font-size: 17px; color: var(--ink2); line-height: 1.78; }
+  .mff-nfix-intro strong { color: var(--green); font-weight: 700; }
+
+  /* ═══ S5: NITROGEN CYCLE FLOW ═══ */
+  .mff-ncycle { background: linear-gradient(135deg, #051a08 0%, #082810 100%); border-radius: 12px; padding: 30px 28px; margin-bottom: 28px; border: 1.5px solid rgba(22,101,52,0.3); }
+  .mff-ncycle-title { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; color: #86efac; margin-bottom: 18px; text-align: center; }
+  .mff-ncycle-steps { display: flex; flex-direction: column; gap: 0; }
+  .mff-ncycle-step { display: flex; align-items: flex-start; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(22,101,52,0.15); }
+  .mff-ncycle-step:last-child { border-bottom: none; }
+  .mff-ncycle-dot { width: 32px; height: 32px; border-radius: 50%; background: rgba(22,101,52,0.3); border: 2px solid #4ade80; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; font-family: 'Montserrat', sans-serif; color: #ffffff; flex-shrink: 0; margin-top: 2px; }
+  .mff-ncycle-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+  .mff-ncycle-text strong { color: #86efac; }
+
+  /* ═══ PULL QUOTE ═══ */
+  .mff-pull-quote {
+    border-left: 4px solid var(--accent); padding: 22px 30px; margin: 36px 0;
+    background: var(--accent-lt); border-radius: 0 6px 6px 0;
+  }
+  .mff-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; }
+
+  /* ═══ FAQ ═══ */
+  .mff-faq-header { margin-bottom: 8px; }
+  .mff-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+  .mff-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(24px, 4vw, 34px); font-weight: 800; color: var(--ink); margin-bottom: 28px; letter-spacing: -0.02em; }
+  .mff-faq-item { border: 1.5px solid var(--rule); border-radius: 8px; margin-bottom: 12px; overflow: hidden; background: var(--white); }
+  .mff-faq-item.open { border-color: var(--accent); }
+  .mff-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; text-align: left; gap: 16px; }
+  .mff-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+  .mff-faq-icon { color: var(--accent); font-size: 20px; flex-shrink: 0; }
+  .mff-faq-ans { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .mff-faq-ans.visible { max-height: 700px; }
+  .mff-faq-ans-inner { padding: 0 24px 22px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.82; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .mff-faq-ans-inner strong { color: var(--accent2); font-weight: 600; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="mff-root"><div class="mff-hero"><div class="mff-hero-hex"></div><div class="mff-hero-ring"></div><div class="mff-glow-a"></div><div class="mff-glow-b"></div><div class="mff-hero-bg-num">2</div><div class="mff-hero-inner"><div class="mff-overline">Class 8 Science — Chapter 2</div><h1 class="mff-hero-title">Micro<em>organisms</em>:<br><span class="em2">Friend</span> and Foe</h1><div class="mff-hero-bar"><div class="mff-hero-bar-item"><div class="mff-bar-label">Chapter</div><div class="mff-bar-value">02 — Microbiology</div></div><div class="mff-hero-bar-item"><div class="mff-bar-label">Topics</div><div class="mff-bar-value">Types · Friendly · Harmful · Preservation · Nitrogen Cycle</div></div><div class="mff-hero-bar-item"><div class="mff-bar-label">Board</div><div class="mff-bar-value">NCERT / CBSE</div></div></div></div></div><div class="mff-body"><div class="mff-intro-card"><p>They are invisible to the naked eye, yet they shape our world in profound ways. <strong>Microorganisms</strong> — bacteria, viruses, fungi, protozoa, and algae — live in air, water, soil, and inside every living body.</p><p>Some are our greatest allies: turning milk into curd, making bread rise, curing diseases with antibiotics, and keeping soil fertile. Others are dangerous pathogens that cause cholera, malaria, dengue, and food poisoning. Understanding <strong>both sides of the microbial world</strong> is the heart of this chapter.</p></div><div class="mff-sec-head"><div class="mff-sec-num">1</div><div class="mff-sec-title-wrap"><div class="mff-sec-kicker">Introduction</div><h2 class="mff-sec-title">What Are <span>Microorganisms</span>?</h2></div></div><p class="mff-body-text">Living organisms that are too small to be seen by the naked eye are called <strong>microorganisms</strong> or <strong>microbes</strong>. They are found in air, water, and inside the bodies of plants and animals. They can survive extreme environments — from ice-cold Arctic regions and boiling hot springs to dry deserts and waterlogged marshy lands. They may be <strong>unicellular</strong> (single-celled) or <strong>multicellular</strong>.</p><p class="mff-body-text">Microorganisms are classified into <strong>five major groups</strong>:</p><div class="mff-microbe-grid"><div class="mff-microbe-card mff-mc-bacteria"><span class="mff-microbe-icon">🔬</span><div class="mff-microbe-name">Bacteria</div><div class="mff-microbe-tag">Unicellular · Prokaryote</div><div class="mff-microbe-desc">Small, single-celled organisms. Some are beneficial — <strong>Lactobacillus</strong> helps form curd; <strong>Rhizobium</strong> fixes nitrogen in the soil. Others cause disease.</div></div><div class="mff-microbe-card mff-mc-virus"><span class="mff-microbe-icon">⚠️</span><div class="mff-microbe-name">Viruses</div><div class="mff-microbe-tag">No cellular structure · Host-dependent</div><div class="mff-microbe-desc">Smaller than bacteria, with no cellular structure. Reproduce only inside the cells of a host (bacterium, plant, or animal). Cause Polio, Chickenpox, Influenza, and Dengue.</div></div><div class="mff-microbe-card mff-mc-fungi"><span class="mff-microbe-icon">🍄</span><div class="mff-microbe-name">Fungi</div><div class="mff-microbe-tag">Unicellular / Multicellular</div><div class="mff-microbe-desc"><strong>Yeast</strong> is a unicellular fungus used in baking (bread, cakes) and fermentation (alcohol, wine, vinegar). Some fungi cause diseases like Rust of wheat.</div></div><div class="mff-microbe-card mff-mc-protozoa"><span class="mff-microbe-icon">🦠</span><div class="mff-microbe-name">Protozoa</div><div class="mff-microbe-tag">Unicellular · Animal-like</div><div class="mff-microbe-desc">Single-celled, animal-like microorganisms. <strong>Plasmodium</strong> is a protozoan that causes malaria in humans, spread by the female Anopheles mosquito.</div></div><div class="mff-microbe-card mff-mc-algae full"><span class="mff-microbe-icon">🌿</span><div class="mff-microbe-name">Algae</div><div class="mff-microbe-tag">Unicellular / Multicellular · Photosynthetic</div><div class="mff-microbe-desc">Photosynthetic microorganisms found mainly in water. <strong>Blue-green algae (cyanobacteria)</strong> are important nitrogen fixers in the soil — they convert atmospheric nitrogen gas into compounds that plants can absorb.</div></div></div><div class="mff-divider"><div class="mff-divider-mark"></div></div><div class="mff-sec-head"><div class="mff-sec-num">2</div><div class="mff-sec-title-wrap"><div class="mff-sec-kicker">The Helpful Side</div><h2 class="mff-sec-title"><span>Friendly</span> Microorganisms</h2></div></div><p class="mff-body-text">Many microorganisms are extremely useful to humans, animals, plants, and the environment. Here are all the ways they help us:</p><div class="mff-benefit-list"><div class="mff-benefit-item"><div class="mff-benefit-icon">🥛</div><div class="mff-benefit-content"><div class="mff-benefit-title">Making Curd — <span>Lactobacillus</span></div><div class="mff-benefit-desc">The bacterium <strong>Lactobacillus</strong> converts milk into curd. A small amount of curd is mixed into warm milk and left for 8–10 hours. Lactobacillus multiplies rapidly in the milk and transforms it into curd through fermentation of lactose sugar.</div></div></div><div class="mff-benefit-item"><div class="mff-benefit-icon">🍞</div><div class="mff-benefit-content"><div class="mff-benefit-title">Making Bread &amp; Cakes — <span>Yeast</span></div><div class="mff-benefit-desc"><strong>Yeast</strong> (a fungus) is added to dough. It reproduces rapidly and releases <strong>CO₂ gas</strong> during respiration. This gas fills the dough, making it rise, become soft, and develop a porous texture. Yeast is used extensively in the baking industry for bread, pastries, and cakes.</div></div></div><div class="mff-benefit-item"><div class="mff-benefit-icon">🌱</div><div class="mff-benefit-content"><div class="mff-benefit-title">Increasing Soil Fertility — <span>Rhizobium</span></div><div class="mff-benefit-desc"><strong>Rhizobium</strong> bacteria live in the root nodules of leguminous plants (peas, beans, pulses). They fix atmospheric nitrogen gas and convert it into nitrogen compounds, releasing them into the soil. This naturally enriches the soil with nitrogen, reducing the need for chemical fertilizers.</div></div></div><div class="mff-benefit-item"><div class="mff-benefit-icon">♻️</div><div class="mff-benefit-content"><div class="mff-benefit-title">Cleaning the Environment &amp; Recycling Nutrients</div><div class="mff-benefit-desc">Bacteria and fungi act as <strong>decomposers</strong> — they break down organic matter in dead plants and animals into simple substances that mix with the soil. These substances are then reused by plants for growth. This process also <strong>recycles nutrients</strong> present in dead organisms back into nature, maintaining the balance of elements in the ecosystem.</div></div></div></div><div class="mff-ferm-box"><div class="mff-ferm-title">🍶 Commercial Use — Fermentation</div><div class="mff-ferm-text">Microorganisms are used on a large scale for the manufacture of <strong>alcohol, beer, wine, and vinegar</strong>. In this process, <strong>yeast</strong> converts the sugar present in grains into alcohol. This process is called <strong>fermentation</strong>. It was first discovered by the French scientist <strong>Louis Pasteur in 1857</strong> and revolutionised the food, beverage, and pharmaceutical industries.</div></div><div class="mff-med-split"><div class="mff-med-card antibiotic"><span class="mff-med-icon">💊</span><div class="mff-med-title">Antibiotics</div><div class="mff-med-desc">Medicines that <strong>kill or stop the growth</strong> of disease-causing microorganisms. They are manufactured by growing specific bacteria and fungi. Large numbers of antibiotics are produced from bacteria and fungi. The first antibiotic, <strong>Penicillin</strong>, was discovered by <strong>Alexander Fleming in 1929</strong> from the fungus Penicillium.</div><div class="mff-med-examples">Examples: Penicillin · Streptomycin · Erythromycin</div></div><div class="mff-med-card vaccine"><span class="mff-med-icon">💉</span><div class="mff-med-title">Vaccines</div><div class="mff-med-desc">A vaccine contains <strong>dead or weakened microbes</strong>. When injected into a healthy body, the immune system produces antibodies that remain in the body permanently. If the actual disease-causing microbe enters later, the body can fight it quickly and effectively — providing <strong>lifelong protection</strong>.</div><div class="mff-med-examples">Protects against: Cholera · Tuberculosis · Smallpox · Hepatitis</div></div></div><div class="mff-divider"><div class="mff-divider-mark"></div></div><div class="mff-sec-head"><div class="mff-sec-num">3</div><div class="mff-sec-title-wrap"><div class="mff-sec-kicker">The Dark Side</div><h2 class="mff-sec-title"><span>Harmful</span> Microorganisms</h2></div></div><div class="mff-harm-intro"><p>Some microorganisms cause diseases in <strong>humans, animals, and plants</strong>. These disease-causing microorganisms are called <strong>pathogens</strong>. Pathogens enter the body through air, water, food, direct contact with an infected person, or through the bite of an animal carrier.</p></div><p class="mff-body-text">Diseases that spread from an infected person to a healthy person through air, water, food, or physical contact are called <strong>communicable diseases</strong>. Houseflies and mosquitoes are common carriers (vectors) that spread pathogens.</p><div class="mff-table-title">Common Human Diseases Caused by Microorganisms</div><div class="mff-table-wrap"><table class="mff-dis-table"><thead><tr><th>Disease</th><th>Causative Microorganism</th><th>Type</th><th>Mode of Spread</th></tr></thead><tbody><tr><td>Tuberculosis (TB)</td><td>Mycobacterium tuberculosis</td><td>Bacteria</td><td>Air (droplets)</td></tr><tr><td>Cholera</td><td>Vibrio cholerae</td><td>Bacteria</td><td>Water / Food</td></tr><tr><td>Typhoid</td><td>Salmonella typhi</td><td>Bacteria</td><td>Water / Food</td></tr><tr><td>Malaria</td><td>Plasmodium</td><td>Protozoan</td><td>Female Anopheles mosquito</td></tr><tr><td>Dengue</td><td>Dengue virus</td><td>Virus</td><td>Female Aedes mosquito</td></tr><tr><td>Chickenpox</td><td>Varicella-zoster virus</td><td>Virus</td><td>Air / Contact</td></tr><tr><td>Common Cold / Flu</td><td>Rhinovirus / Influenza virus</td><td>Virus</td><td>Air (droplets)</td></tr><tr><td>Polio</td><td>Poliovirus</td><td>Virus</td><td>Water / Food / Contact</td></tr></tbody></table></div><p class="mff-body-text" style="margin-top:8px">Two important diseases spread by <strong>mosquito bites</strong>:</p><div class="mff-mosq-wrap"><div class="mff-mosq-card malaria"><span class="mff-mosq-icon">🦟</span><div class="mff-mosq-name">Malaria</div><span class="mff-mosq-badge">Female Anopheles Mosquito</span><div class="mff-mosq-desc">Caused by a protozoan called <strong>Plasmodium</strong>. When a female Anopheles mosquito bites a malaria patient, it sucks blood containing Plasmodium. When this infected mosquito bites a healthy person, the parasite is transferred into their bloodstream, causing malaria.</div></div><div class="mff-mosq-card dengue"><span class="mff-mosq-icon">🦟</span><div class="mff-mosq-name">Dengue</div><span class="mff-mosq-badge">Female Aedes Mosquito</span><div class="mff-mosq-desc">Caused by the <strong>Dengue virus</strong>. The female Aedes mosquito is the carrier. When it bites a person who has dengue, it picks up the virus and transfers it when it bites a healthy person, causing dengue fever with high temperature, severe joint pain, and rash.</div></div></div><p class="mff-body-text">Microorganisms also cause diseases in <strong>animals and plants</strong>:</p><div class="mff-disease-2col"><div class="mff-disease-col animals"><div class="mff-disease-col-title">🐄 Diseases in Animals</div><div class="mff-disease-row"><div class="mff-disease-entry"><div class="mff-disease-entry-name">Foot and Mouth Disease</div><div class="mff-disease-entry-cause">Affects cattle · Caused by a Virus</div></div><div class="mff-disease-entry"><div class="mff-disease-entry-name">Anthrax</div><div class="mff-disease-entry-cause">Dangerous animal disease · Caused by Bacteria</div></div></div></div><div class="mff-disease-col plants"><div class="mff-disease-col-title">🌿 Diseases in Plants</div><div class="mff-disease-row"><div class="mff-disease-entry"><div class="mff-disease-entry-name">Citrus Canker</div><div class="mff-disease-entry-cause">Affects citrus fruits · Caused by Bacteria</div></div><div class="mff-disease-entry"><div class="mff-disease-entry-name">Rust of Wheat</div><div class="mff-disease-entry-cause">Affects wheat crop · Caused by Fungi</div></div><div class="mff-disease-entry"><div class="mff-disease-entry-name">Yellow Mosaic Disease</div><div class="mff-disease-entry-cause">Affects Ladyfinger · Caused by a Virus</div></div></div></div></div><div class="mff-poison-box"><div class="mff-poison-title">☠️ Food Poisoning</div><div class="mff-poison-text">When microorganisms grow on food, they produce <strong>toxic substances</strong> that make the food poisonous. Consuming such food causes <strong>food poisoning</strong>. This can be dangerous and even life-threatening if left untreated.</div><div class="mff-symptoms"><span class="mff-symptom-tag">🤮 Vomiting</span><span class="mff-symptom-tag">💧 Loose motion / Diarrhoea</span><span class="mff-symptom-tag">😖 Abdominal Pain</span><span class="mff-symptom-tag">🤕 Headache</span><span class="mff-symptom-tag">🌡️ Fever</span></div></div><div class="mff-divider"><div class="mff-divider-mark"></div></div><div class="mff-sec-head"><div class="mff-sec-num">4</div><div class="mff-sec-title-wrap"><div class="mff-sec-kicker">Preventing Microbial Attack</div><h2 class="mff-sec-title">Food <span>Preservation</span></h2></div></div><p class="mff-body-text"><strong>Food preservation</strong> is the process of protecting food from the attack of microbes to keep it safe and edible for longer. Several methods are used:</p><div class="mff-preserve-grid"><div class="mff-preserve-card"><span class="mff-preserve-icon">☀️</span><div class="mff-preserve-name">Sun Drying</div><div class="mff-preserve-desc">Removing moisture from food by drying in sunlight. Without water, microbes cannot grow. Used for fish, vegetables, and fruits.</div></div><div class="mff-preserve-card"><span class="mff-preserve-icon">❄️</span><div class="mff-preserve-name">Heating, Cooling &amp; Deep-Freezing</div><div class="mff-preserve-desc">Heating kills bacteria; refrigeration and deep-freezing slow down microbial growth significantly, extending the shelf life of food.</div></div><div class="mff-preserve-card"><span class="mff-preserve-icon">🧂</span><div class="mff-preserve-name">Salt, Sugar, Oil &amp; Vinegar</div><div class="mff-preserve-desc">Adding common salt (in pickles, fish), sugar (in jams), mustard oil, or vinegar creates conditions unfavourable for microbial growth.</div></div><div class="mff-preserve-card"><span class="mff-preserve-icon">🧪</span><div class="mff-preserve-name">Chemical Preservatives</div><div class="mff-preserve-desc">Chemicals such as <strong>sodium benzoate</strong>, sodium metabisulphite, and citric acid are added to food products like juices, sauces, and packaged snacks.</div></div><div class="mff-preserve-card"><span class="mff-preserve-icon">📦</span><div class="mff-preserve-name">Air-tight Packing</div><div class="mff-preserve-desc">Sealing food in air-tight containers prevents the entry of microbes from the air, keeping food safe for longer periods. Used for chips, biscuits, etc.</div></div></div><div class="mff-pasteur-box"><div class="mff-pasteur-title">🥛 Pasteurisation — Special Method for Milk</div><div class="mff-pasteur-text">Named after <strong>Louis Pasteur</strong>, pasteurisation is used for the large-scale preservation of milk. The process involves carefully controlled heating and rapid cooling to destroy most bacteria while keeping the milk safe to drink.</div><div class="mff-pasteur-steps"><div class="mff-pasteur-step"><div class="mff-pasteur-step-num">STEP 1</div><div class="mff-pasteur-step-text">Heat milk to <strong>70°C</strong> for 25–30 seconds</div></div><div class="mff-pasteur-arrow">→</div><div class="mff-pasteur-step"><div class="mff-pasteur-step-num">STEP 2</div><div class="mff-pasteur-step-text">Suddenly <strong>chill</strong> the hot milk to a low temperature</div></div><div class="mff-pasteur-arrow">→</div><div class="mff-pasteur-step"><div class="mff-pasteur-step-num">RESULT</div><div class="mff-pasteur-step-text">Most bacteria <strong>killed</strong>; remaining bacteria cannot grow</div></div></div></div><div class="mff-divider"><div class="mff-divider-mark"></div></div><div class="mff-sec-head"><div class="mff-sec-num">5</div><div class="mff-sec-title-wrap"><div class="mff-sec-kicker">Atmospheric Balance</div><h2 class="mff-sec-title">Nitrogen Fixation &amp; the <span>Nitrogen Cycle</span></h2></div></div><div class="mff-nfix-intro"><p>Nitrogen is essential for all living beings for the synthesis of proteins and nucleic acids. The atmosphere contains <strong>78% nitrogen gas</strong>, but plants and animals cannot use it directly in gaseous form. <strong>Nitrogen fixation</strong> is the process of converting this atmospheric nitrogen gas (N₂) into usable nitrogen compounds (like nitrates). Organisms that fix nitrogen: <strong>Rhizobium bacteria</strong> (root nodules of leguminous plants), <strong>blue-green algae</strong> (soil), and even <strong>lightning</strong> during thunderstorms.</p></div><div class="mff-ncycle"><div class="mff-ncycle-title">🔄 The Nitrogen Cycle — How Nitrogen is Recycled in Nature</div><div class="mff-ncycle-steps"><div class="mff-ncycle-step"><div class="mff-ncycle-dot">1</div><div class="mff-ncycle-text"><strong>Fixation:</strong> Rhizobium bacteria and blue-green algae convert atmospheric N₂ into nitrogen compounds that are absorbed by plant roots.</div></div><div class="mff-ncycle-step"><div class="mff-ncycle-dot">2</div><div class="mff-ncycle-text"><strong>Plant Use:</strong> Plants use these nitrogen compounds to synthesise proteins. Animals get their nitrogen by eating plants.</div></div><div class="mff-ncycle-step"><div class="mff-ncycle-dot">3</div><div class="mff-ncycle-text"><strong>Decomposition:</strong> When plants and animals die, bacteria and fungi present in the soil decompose nitrogenous wastes back into nitrogen compounds usable by plants.</div></div><div class="mff-ncycle-step"><div class="mff-ncycle-dot">4</div><div class="mff-ncycle-text"><strong>Return to Atmosphere:</strong> Certain bacteria convert some nitrogenous waste back into nitrogen gas (N₂), which is released back into the atmosphere.</div></div><div class="mff-ncycle-step"><div class="mff-ncycle-dot">✓</div><div class="mff-ncycle-text"><strong>Balance Maintained:</strong> As a result of this continuous cycle, the percentage of nitrogen in the atmosphere remains more or less constant at 78%.</div></div></div></div><div class="mff-pull-quote"><p>&quot;Microorganisms are simultaneously our greatest medicine and our fiercest enemy. The same world of invisible life that causes deadly disease also feeds us, heals us, and keeps our planet&#x27;s nitrogen cycle running — without them, life as we know it would collapse.&quot;</p></div><div class="mff-divider"><div class="mff-divider-mark"></div></div><div class="mff-faq-header"><span class="mff-faq-kicker">Exam Preparation</span></div><h2 class="mff-faq-title">Frequently Asked Questions</h2><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q1. What are microorganisms? Where are they found?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Living organisms that are not visible to the naked eye are called microorganisms or microbes. They are found everywhere — in air, water, and the bodies of plants and animals. They can survive in extreme conditions ranging from ice-cold climates and hot springs to deserts and marshy lands. They may be unicellular (single-celled) or multicellular.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q2. Name the five major groups of microorganisms with examples.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Microorganisms are classified into five major groups: (1) Bacteria — unicellular, e.g., Lactobacillus (curd formation), Rhizobium (nitrogen fixation). (2) Viruses — no cellular structure, reproduce only inside host cells, e.g., Polio, Chickenpox, Influenza viruses. (3) Fungi — e.g., Yeast used in baking and fermentation. (4) Protozoa — e.g., Plasmodium causes malaria. (5) Algae — photosynthetic microorganisms found in water bodies.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q3. What are viruses? How are they different from other microorganisms?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Viruses are much smaller than other microorganisms and do not have a cellular structure. They reproduce only inside the cells of a host organism, which may be a bacterium, a plant, or an animal. Because they are not truly cellular, they are neither fully living nor non-living. Diseases caused by viruses include Polio, Chickenpox, the Common Cold, Coughs, Influenza (flu), and Dengue.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q4. How do microorganisms help in making curd and bread?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Curd: The bacterium Lactobacillus is responsible. When a little curd is mixed into warm milk and left for 8–10 hours, Lactobacillus multiplies and converts the milk into curd. Bread: Yeast (a fungus) is added to dough. Yeast reproduces rapidly and produces CO₂ gas during respiration. This CO₂ fills the dough, making it rise and become soft and porous. Yeast is also used in making pastries and cakes.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q5. What is fermentation? Who discovered it?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Fermentation is the process in which sugar in grains is converted into alcohol by yeast. Microorganisms are used on a large scale for the manufacture of alcohol, beer, wine, and vinegar using this process. Fermentation was discovered by Louis Pasteur in 1857.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q6. How do microorganisms help in increasing soil fertility?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Rhizobium is a bacterium found in the root nodules of leguminous plants (like peas, beans, and pulses). It fixes atmospheric nitrogen gas and converts it into nitrogen compounds, releasing them into the soil. This enriches the soil with nitrogen and increases its fertility. Microorganisms also help in recycling nutrients by decomposing dead plants and animals.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q7. How do microorganisms clean the environment?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Bacteria and fungi present in the environment act as decomposers. They decompose the organic matter in dead plants and animals, converting it into simple substances that mix with the soil. These substances are then again used by plants for their growth. In this way, microorganisms clean the environment and recycle nutrients in nature.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q8. What are antibiotics? Give examples and state who discovered the first antibiotic.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Antibiotics are medicines that kill or stop the growth of disease-causing microorganisms. They are produced from bacteria and fungi. Examples: Penicillin, Streptomycin, Erythromycin. Penicillin was the first antibiotic, discovered by Alexander Fleming in 1929 from a fungus called Penicillium. Large numbers of antibiotics are manufactured today from bacteria and fungi.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q9. What is a vaccine? How does it work?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">A vaccine contains dead or weakened microbes of a particular disease. When introduced into a healthy body, the body&#x27;s immune system fights these harmless microbes by producing antibodies. These antibodies remain in the body and protect it if the actual disease-causing microbe ever enters again. Vaccination is used to protect against diseases like Cholera, Tuberculosis, Smallpox, and Hepatitis.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q10. What are pathogens and communicable diseases?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Pathogens are disease-causing microorganisms. They enter the body through air, water, food, direct contact with an infected person, or via an animal carrier. Communicable diseases are diseases that spread from an infected person to a healthy person through air, water, food, or physical contact. Examples: Cholera, Common Cold, Tuberculosis, and Chickenpox. Houseflies and mosquitoes are common carriers of pathogens.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q11. Explain Malaria and Dengue — their causes and how they spread.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Malaria: Caused by a protozoan called Plasmodium. The female Anopheles mosquito is the carrier. When it bites a person with malaria, it sucks blood containing the Plasmodium parasite. When this infected mosquito bites a healthy person, it transfers the microbe into their bloodstream. Dengue: Caused by a virus. The female Aedes mosquito carries the dengue virus. When it bites a healthy person, the virus is transmitted, causing dengue fever.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q12. Name the diseases caused by microorganisms in plants and animals.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Diseases in Animals: (1) Foot and Mouth disease of cattle — caused by a virus. (2) Anthrax — a dangerous bacterial disease of animals. Diseases in Plants: (1) Citrus canker — bacterial disease. (2) Rust of wheat — fungal disease. (3) Yellow mosaic disease of ladyfinger — caused by a virus.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q13. What is food poisoning? What are its symptoms?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">When microorganisms grow on food, they produce toxic (poisonous) substances that make the food harmful. The disease caused by consuming such food is called food poisoning. Symptoms of food poisoning include: Vomiting, Loose motion (diarrhoea), Pain in the abdomen, Headache, and Fever.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q14. What are the methods of food preservation?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Food preservation is the process of preventing food from microbial attack. Methods include: (1) Sun drying — removes moisture, prevents microbial growth. (2) Heating, cooling, deep-freezing, or refrigeration — kills/slows bacteria. (3) Addition of common salt, sugar, mustard oil, or vinegar — creates conditions unfavourable for microbes. (4) Chemical preservatives — sodium benzoate, sodium metabisulphite, citric acid. (5) Pasteurisation — heating milk to 70°C for 25–30 seconds, then chilling. (6) Packing food in air-tight containers — prevents entry of microbes.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q15. What is pasteurisation? Who is it named after?</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Pasteurisation is a method used for the large-scale preservation of milk. In this process, milk is heated to about 70°C for 25 to 30 seconds and then suddenly chilled and stored. The high temperature kills most bacteria in the milk, and the sudden cooling prevents the growth of remaining bacteria. This process is named after Louis Pasteur, who also discovered fermentation.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q16. What is nitrogen fixation? Name the organisms involved.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">Although the atmosphere contains 78% nitrogen in gaseous form, plants and animals cannot directly use this nitrogen gas. Nitrogen fixation is the process of converting atmospheric nitrogen gas into compounds of nitrogen (like nitrates and nitrites) that can be absorbed by plants. Organisms involved: (1) Rhizobium bacteria — found in root nodules of leguminous plants. (2) Blue-green algae (cyanobacteria) — present in soil. (3) Lightning — also fixes nitrogen during thunderstorms.</div></div></details><details class="mff-faq-item" data-faq><summary class="mff-faq-q"><span class="mff-faq-q-text">Q17. Explain the nitrogen cycle.</span></summary><div class="mff-faq-ans visible"><div class="mff-faq-ans-inner">The nitrogen cycle maintains a more or less constant level of nitrogen in the atmosphere. Steps: (1) Nitrogen fixation — Rhizobium and blue-green algae convert atmospheric N₂ into nitrogen compounds absorbed by plant roots. (2) Plants use these compounds to synthesise proteins. (3) Animals eat plants and absorb nitrogen. (4) When plants and animals die, bacteria and fungi in the soil decompose nitrogenous wastes back into nitrogen compounds usable by plants. (5) Some bacteria convert nitrogenous waste back into nitrogen gas, which returns to the atmosphere. This cycle continuously recycles nitrogen between the atmosphere, soil, plants, and animals.</div></div></details></div></div>

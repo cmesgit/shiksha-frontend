@@ -1,0 +1,272 @@
+<style>
+  :root {
+    --ink:       #0d1f0d;
+    --ink2:      #1a2e1a;
+    --muted:     #527252;
+    --paper:     #f4faf2;
+    --paper2:    #e3f5de;
+    --accent:    #2d7a2d;
+    --accent2:   #1e5c1e;
+    --accent-lt: #d4f4d4;
+    --lime:      #65a30d;
+    --lime-lt:   #f7fee7;
+    --teal:      #0f766e;
+    --teal-lt:   #ccfbf1;
+    --blue:      #1d4ed8;
+    --blue-lt:   #dbeafe;
+    --purple:    #7c3aed;
+    --purple-lt: #ede9fe;
+    --orange:    #c2410c;
+    --orange-lt: #ffedd5;
+    --rose:      #be123c;
+    --rose-lt:   #ffe4e6;
+    --gold:      #92400e;
+    --gold-lt:   #fef3c7;
+    --rule:      #86efac;
+    --white:     #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .bio-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO ═══ */
+  .bio-hero {
+    background: linear-gradient(135deg, #020d02 0%, #061806 50%, #082408 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) { .bio-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; } }
+  .bio-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #2d7a2d 0%, #0f766e 30%, #7c3aed 60%, #be123c 85%, #92400e 100%); }
+  .bio-hero-dots { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(45,122,45,0.16) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+  .bio-hero-cell {
+    position: absolute; top: 50%; right: 4%; transform: translateY(-50%);
+    width: clamp(140px, 22vw, 280px); height: clamp(150px, 24vw, 300px);
+    border-radius: 60% 40% 55% 45% / 50% 55% 45% 50%;
+    border: 1.5px solid rgba(45,122,45,0.18); pointer-events: none;
+  }
+  .bio-hero-cell::before { content: ''; position: absolute; inset: 18%; border-radius: 50%; border: 1px dashed rgba(45,122,45,0.12); }
+  .bio-hero-cell::after  { content: ''; position: absolute; inset: 38%; border-radius: 50%; background: rgba(45,122,45,0.07); }
+  .bio-glow-a { position: absolute; top: 15%; left: 5%; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(45,122,45,0.18) 0%, transparent 68%); pointer-events: none; }
+  .bio-glow-b { position: absolute; bottom: 8%; right: 22%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(15,118,110,0.1) 0%, transparent 70%); pointer-events: none; }
+  .bio-hero-bg-num { position: absolute; bottom: -80px; right: -20px; font-family: 'Montserrat', sans-serif; font-size: clamp(200px, 34vw, 480px); font-weight: 900; line-height: 1; color: rgba(255,255,255,0.018); letter-spacing: -0.04em; user-select: none; pointer-events: none; }
+  .bio-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .bio-overline { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #86efac; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+  .bio-overline::before, .bio-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #86efac; }
+  .bio-hero-title { font-family: 'Montserrat', sans-serif; font-size: clamp(36px, 7.5vw, 76px); font-weight: 900; color: #fff; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px; }
+  .bio-hero-title em { font-style: normal; color: #86efac; }
+  .bio-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .bio-hero-bar-item { flex: 1 1 150px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .bio-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .bio-bar-label { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .bio-bar-value { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.72); }
+  @media (max-width: 700px) {
+    .bio-hero-bar { gap: 12px; } .bio-hero-bar-item { flex: 1 1 120px; padding: 0 14px 0 0; margin-right: 14px; }
+    .bio-bar-label { font-size: 9px; letter-spacing: 0.12em; } .bio-bar-value { font-size: 13px; }
+    .bio-overline { font-size: 10px; letter-spacing: 0.16em; }
+    .bio-hero-title { font-size: clamp(36px, 10vw, 56px); margin-bottom: 24px; }
+    .bio-hero-inner { padding: 0 18px; }
+  }
+
+  /* ═══ BODY ═══ */
+  .bio-body { max-width: 880px; margin: 0 auto; padding: 72px 32px 100px; }
+  @media (max-width: 700px) { .bio-body { padding: 48px 18px 72px; } }
+
+  /* ═══ INTRO ═══ */
+  .bio-intro { background: linear-gradient(135deg, #020d02 0%, #082408 100%); border-left: 5px solid #2d7a2d; border-radius: 4px; padding: 36px 40px; margin-bottom: 72px; position: relative; overflow: hidden; }
+  .bio-intro::after { content: '🔬'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 88px; opacity: 0.08; }
+  .bio-intro p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .bio-intro p:last-child { margin: 0; }
+  .bio-intro strong { color: #86efac; }
+  @media (max-width: 700px) { .bio-intro { padding: 24px 20px; } .bio-intro p { font-size: 15px; } }
+
+  /* ═══ SECTION HEADER — new bio pill+rule style ═══ */
+  .bio-sec { margin-bottom: 52px; }
+  .bio-sec-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-lt); color: var(--accent2); font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; margin-bottom: 14px; }
+  .bio-sec-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .bio-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px, 4vw, 32px); font-weight: 900; color: var(--ink); letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 6px; }
+  .bio-sec-title span { color: var(--accent); }
+  .bio-sec-rule { width: 48px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--lime)); margin-bottom: 24px; }
+  .bio-body-text { font-family: 'Inter', sans-serif; font-size: 15.5px; color: var(--ink2); line-height: 1.85; margin-bottom: 24px; }
+  .bio-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: MILESTONES — horizontal scroll timeline ═══ */
+  .bio-timeline-scroll { overflow-x: auto; padding-bottom: 14px; margin-bottom: 36px; -webkit-overflow-scrolling: touch; }
+  .bio-timeline-scroll::-webkit-scrollbar { height: 4px; }
+  .bio-timeline-scroll::-webkit-scrollbar-track { background: var(--paper2); border-radius: 2px; }
+  .bio-timeline-scroll::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+  .bio-tl-track { display: flex; gap: 0; align-items: flex-start; min-width: max-content; position: relative; padding-top: 20px; }
+  .bio-tl-track::before { content: ''; position: absolute; top: 27px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--lime), var(--teal)); z-index: 0; }
+  .bio-tl-node { display: flex; flex-direction: column; align-items: center; width: 175px; flex-shrink: 0; padding: 0 8px; position: relative; z-index: 1; }
+  .bio-tl-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--white); flex-shrink: 0; margin-bottom: 14px; box-shadow: 0 0 0 2px var(--rule); }
+  .bio-tl-node:nth-child(1) .bio-tl-dot { background: var(--accent); }
+  .bio-tl-node:nth-child(2) .bio-tl-dot { background: var(--teal); }
+  .bio-tl-node:nth-child(3) .bio-tl-dot { background: var(--blue); }
+  .bio-tl-node:nth-child(4) .bio-tl-dot { background: var(--purple); }
+  .bio-tl-node:nth-child(5) .bio-tl-dot { background: var(--orange); }
+  .bio-tl-node:nth-child(6) .bio-tl-dot { background: var(--rose); }
+  .bio-tl-node:nth-child(7) .bio-tl-dot { background: var(--gold); }
+  .bio-tl-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 13px 13px; width: 100%; }
+  .bio-tl-name { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 5px; line-height: 1.3; }
+  .bio-tl-contrib { font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--ink2); line-height: 1.55; }
+  .bio-tl-contrib em { font-style: normal; font-weight: 600; color: var(--accent2); }
+
+  /* Cell Theory 3 blocks */
+  .bio-theory-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+  @media (max-width: 600px) { .bio-theory-row { grid-template-columns: 1fr; } }
+  .bio-theory-block { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--rule); background: var(--white); }
+  .bio-theory-accent { height: 5px; }
+  .bio-theory-block:nth-child(1) .bio-theory-accent { background: var(--accent); }
+  .bio-theory-block:nth-child(2) .bio-theory-accent { background: var(--teal); }
+  .bio-theory-block:nth-child(3) .bio-theory-accent { background: var(--blue); }
+  .bio-theory-inner { padding: 18px 18px; }
+  .bio-theory-num { font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 900; color: var(--paper2); line-height: 1; margin-bottom: 6px; }
+  .bio-theory-text { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.7; }
+  .bio-theory-text strong { font-weight: 600; color: var(--ink); }
+
+  /* ═══ S2: PRO vs EUK — asymmetric contrast ═══ */
+  .bio-cell-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--rule); margin-bottom: 32px; }
+  @media (max-width: 560px) { .bio-cell-compare { grid-template-columns: 1fr; } }
+  .bio-cc-col { padding: 24px 22px; }
+  .bio-cc-col.pro { background: linear-gradient(160deg, #1a0a00, #c2410c 140%); }
+  .bio-cc-col.euk { background: var(--white); border-left: 1px solid var(--rule); }
+  @media (max-width: 560px) { .bio-cc-col.euk { border-left: none; border-top: 1px solid var(--rule); } }
+  .bio-cc-tag { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 4px; }
+  .bio-cc-col.pro .bio-cc-tag { color: rgba(255,255,255,0.5); }
+  .bio-cc-col.euk .bio-cc-tag { color: var(--accent); }
+  .bio-cc-name { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; margin-bottom: 16px; }
+  .bio-cc-col.pro .bio-cc-name { color: #fff; }
+  .bio-cc-col.euk .bio-cc-name { color: var(--ink); }
+  .bio-cc-row { display: flex; gap: 9px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6; }
+  .bio-cc-col.euk .bio-cc-row { border-bottom-color: var(--rule); color: var(--ink2); }
+  .bio-cc-col.pro .bio-cc-row { color: rgba(255,255,255,0.75); }
+  .bio-cc-row:last-child { border-bottom: none; }
+  .bio-cc-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .bio-cc-col.pro .bio-cc-dot { background: #fdba74; }
+  .bio-cc-col.euk .bio-cc-dot { background: var(--accent); }
+  .bio-cc-col.pro .bio-cc-row strong { color: #fed7aa; }
+  .bio-cc-col.euk .bio-cc-row strong { color: var(--ink); font-weight: 600; }
+
+  /* ═══ S3: DIFFUSION & OSMOSIS ═══ */
+  .bio-transport { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+  @media (max-width: 560px) { .bio-transport { grid-template-columns: 1fr; } }
+  .bio-tp-card { border-radius: 10px; padding: 24px 22px; border: 1.5px solid var(--rule); background: var(--white); position: relative; overflow: hidden; }
+  .bio-tp-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .bio-tp-card.diff::before { background: linear-gradient(90deg, var(--teal), var(--lime)); }
+  .bio-tp-card.osmo::before { background: linear-gradient(90deg, var(--purple), var(--blue)); }
+  .bio-tp-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .bio-tp-title { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; color: var(--ink); margin-bottom: 8px; }
+  .bio-tp-def { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 12px; }
+  .bio-tp-def strong { font-weight: 600; color: var(--ink); }
+  .bio-tp-key { border-radius: 6px; padding: 9px 12px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; line-height: 1.5; }
+  .bio-tp-card.diff .bio-tp-key { background: var(--teal-lt); color: var(--teal); }
+  .bio-tp-card.osmo .bio-tp-key { background: var(--purple-lt); color: var(--purple); }
+
+  /* ═══ S4: ORGANELLES — 2-col magazine cards ═══ */
+  .bio-organelle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 36px; }
+  @media (max-width: 580px) { .bio-organelle-grid { grid-template-columns: 1fr; } }
+  .bio-org-card { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--rule); background: var(--white); }
+  .bio-org-top { padding: 16px 18px; display: flex; align-items: center; gap: 12px; }
+  .bio-org-card.cwall   .bio-org-top { background: linear-gradient(135deg, #003020, #15803d); }
+  .bio-org-card.plasma  .bio-org-top { background: linear-gradient(135deg, #001430, #1d4ed8); }
+  .bio-org-card.cyto    .bio-org-top { background: linear-gradient(135deg, #00293a, #0f766e); }
+  .bio-org-card.nucleus .bio-org-top { background: linear-gradient(135deg, #1e0060, #7c3aed); }
+  .bio-org-card.vacuole .bio-org-top { background: linear-gradient(135deg, #2a0018, #be123c); }
+  .bio-org-card.er      .bio-org-top { background: linear-gradient(135deg, #1a1200, #92400e); }
+  .bio-org-card.golgi   .bio-org-top { background: linear-gradient(135deg, #1a0800, #c2410c); }
+  .bio-org-card.lyso    .bio-org-top { background: linear-gradient(135deg, #2a0000, #b91c1c); }
+  .bio-org-card.mito    .bio-org-top { background: linear-gradient(135deg, #001a10, #15803d); }
+  .bio-org-card.plastid .bio-org-top { background: linear-gradient(135deg, #0d2e00, #65a30d); }
+  .bio-org-emoji { font-size: 28px; flex-shrink: 0; }
+  .bio-org-tag  { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 2px; }
+  .bio-org-name { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 900; color: #fff; line-height: 1.2; }
+  .bio-org-bottom { padding: 14px 18px; }
+  .bio-org-desc { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink2); line-height: 1.7; margin-bottom: 10px; }
+  .bio-org-desc strong { font-weight: 600; color: var(--ink); }
+  .bio-org-fns { display: flex; flex-wrap: wrap; gap: 5px; }
+  .bio-fn-tag { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 100px; }
+  .bio-org-card.cwall   .bio-fn-tag { background: #dcfce7; color: #15803d; }
+  .bio-org-card.plasma  .bio-fn-tag { background: var(--blue-lt); color: var(--blue); }
+  .bio-org-card.cyto    .bio-fn-tag { background: var(--teal-lt); color: var(--teal); }
+  .bio-org-card.nucleus .bio-fn-tag { background: var(--purple-lt); color: var(--purple); }
+  .bio-org-card.vacuole .bio-fn-tag { background: var(--rose-lt); color: var(--rose); }
+  .bio-org-card.er      .bio-fn-tag { background: var(--gold-lt); color: var(--gold); }
+  .bio-org-card.golgi   .bio-fn-tag { background: var(--orange-lt); color: var(--orange); }
+  .bio-org-card.lyso    .bio-fn-tag { background: #fee2e2; color: #b91c1c; }
+  .bio-org-card.mito    .bio-fn-tag { background: #dcfce7; color: #15803d; }
+  .bio-org-card.plastid .bio-fn-tag { background: var(--lime-lt); color: var(--lime); }
+
+  /* ═══ S5: NUCLEUS dark panel ═══ */
+  .bio-nucleus-banner { background: linear-gradient(135deg, #020d02, #082408); border-radius: 10px; padding: 28px 30px; margin-bottom: 28px; position: relative; overflow: hidden; }
+  .bio-nucleus-banner::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(134,239,172,0.06) 1px, transparent 1px); background-size: 22px 22px; }
+  .bio-nb-label { font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(134,239,172,0.6); margin-bottom: 18px; position: relative; }
+  .bio-nb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; position: relative; }
+  @media (max-width: 500px) { .bio-nb-grid { grid-template-columns: 1fr; } }
+  .bio-nb-part { background: rgba(255,255,255,0.05); border: 1px solid rgba(134,239,172,0.14); border-radius: 8px; padding: 14px 16px; }
+  .bio-nb-part-name { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: #86efac; margin-bottom: 5px; }
+  .bio-nb-part-text { font-family: 'Inter', sans-serif; font-size: 12.5px; color: rgba(255,255,255,0.62); line-height: 1.62; }
+  @media (max-width: 700px) { .bio-nucleus-banner { padding: 20px 16px; } }
+
+  /* Chromosome types */
+  .bio-chrom-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 28px; }
+  @media (max-width: 580px) { .bio-chrom-row { grid-template-columns: repeat(2, 1fr); } }
+  .bio-chrom-pill { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 14px 12px; text-align: center; }
+  .bio-chrom-pill:nth-child(1) { border-bottom: 3px solid var(--accent); }
+  .bio-chrom-pill:nth-child(2) { border-bottom: 3px solid var(--teal); }
+  .bio-chrom-pill:nth-child(3) { border-bottom: 3px solid var(--orange); }
+  .bio-chrom-pill:nth-child(4) { border-bottom: 3px solid var(--rose); }
+  .bio-cp-emoji { font-size: 20px; margin-bottom: 6px; display: block; }
+  .bio-cp-name { font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+  .bio-chrom-pill:nth-child(1) .bio-cp-name { color: var(--accent); }
+  .bio-chrom-pill:nth-child(2) .bio-cp-name { color: var(--teal); }
+  .bio-chrom-pill:nth-child(3) .bio-cp-name { color: var(--orange); }
+  .bio-chrom-pill:nth-child(4) .bio-cp-name { color: var(--rose); }
+  .bio-cp-pos { font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
+  /* ═══ S6: PLANT vs ANIMAL — horizontal scroll table ═══ */
+  .bio-scroll-hint { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .bio-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 32px; border-radius: 10px; border: 1.5px solid var(--rule); }
+  .bio-table-wrap::-webkit-scrollbar { height: 5px; }
+  .bio-table-wrap::-webkit-scrollbar-track { background: var(--paper2); }
+  .bio-table-wrap::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+  .bio-cmp-table { width: 100%; min-width: 520px; border-collapse: collapse; }
+  .bio-cmp-table th { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 16px; color: #fff; text-align: left; white-space: nowrap; }
+  .bio-cmp-table th:nth-child(1) { background: var(--ink2); }
+  .bio-cmp-table th:nth-child(2) { background: #15803d; }
+  .bio-cmp-table th:nth-child(3) { background: #1d4ed8; }
+  .bio-cmp-table td { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink2); padding: 10px 16px; border-top: 1px solid var(--rule); border-right: 1px solid var(--rule); white-space: nowrap; }
+  .bio-cmp-table td:first-child { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--ink); font-size: 12.5px; }
+  .bio-cmp-table td:last-child { border-right: none; }
+  .bio-cmp-table tr:nth-child(even) td { background: var(--paper2); }
+  .bio-cmp-table .yes { color: #15803d; font-weight: 700; }
+  .bio-cmp-table .no  { color: #b91c1c; font-weight: 700; }
+
+  /* ═══ DIVIDER — organic leaf ═══ */
+  .bio-divider { margin: 52px 0; display: flex; align-items: center; gap: 14px; }
+  .bio-divider::before, .bio-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .bio-divider-leaf { width: 28px; height: 16px; background: var(--accent); border-radius: 0 50% 0 50%; flex-shrink: 0; transform: rotate(45deg); }
+
+  /* ═══ PULL QUOTE ═══ */
+  .bio-quote { border-left: 5px solid var(--accent); background: var(--accent-lt); padding: 20px 28px; margin: 32px 0; border-radius: 0 8px 8px 0; }
+  .bio-quote p { font-family: 'Poppins', sans-serif; font-size: 15.5px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; margin: 0; }
+
+  /* ═══ FAQ ═══ */
+  .bio-faq-label { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-lt); color: var(--accent2); font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; margin-bottom: 14px; }
+  .bio-faq-heading { font-family: 'Montserrat', sans-serif; font-size: clamp(24px, 4vw, 34px); font-weight: 900; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; }
+  .bio-faq-rule { width: 48px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--lime)); margin-bottom: 28px; }
+  .bio-faq-item { border: 1.5px solid var(--rule); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: var(--white); transition: border-color 0.2s, box-shadow 0.2s; }
+  .bio-faq-item.open { border-color: var(--accent); box-shadow: 0 2px 12px rgba(45,122,45,0.1); }
+  .bio-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; text-align: left; gap: 16px; }
+  .bio-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 14.5px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+  .bio-faq-item.open .bio-faq-q-text { color: var(--accent); }
+  .bio-faq-icon { font-size: 20px; color: var(--accent); flex-shrink: 0; line-height: 1; }
+  .bio-faq-ans { font-family: 'Inter', sans-serif; font-size: 14.5px; color: var(--ink2); line-height: 1.85; padding: 0 22px; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
+  .bio-faq-ans.visible { max-height: 1000px; padding: 0 22px 20px; }
+  .bio-faq-ans strong { color: var(--accent2); font-weight: 600; }
+  @media (max-width: 700px) { .bio-faq-q { padding: 16px 16px; } .bio-faq-ans.visible { padding: 0 16px 18px; } }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="bio-root"><div class="bio-hero"><div class="bio-hero-dots"></div><div class="bio-hero-cell"></div><div class="bio-glow-a"></div><div class="bio-glow-b"></div><div class="bio-hero-bg-num">5</div><div class="bio-hero-inner"><div class="bio-overline">Class 9 · Science · Chapter 5</div><h1 class="bio-hero-title">The Fundamental<br><em>Unit of Life</em></h1><div class="bio-hero-bar"><div class="bio-hero-bar-item"><div class="bio-bar-label">Subject</div><div class="bio-bar-value">Science — Biology</div></div><div class="bio-hero-bar-item"><div class="bio-bar-label">Topics</div><div class="bio-bar-value">Cell · Organelles · Nucleus</div></div><div class="bio-hero-bar-item"><div class="bio-bar-label">Board</div><div class="bio-bar-value">CBSE · NCERT</div></div><div class="bio-hero-bar-item"><div class="bio-bar-label">FAQs</div><div class="bio-bar-value">12 Questions</div></div></div></div></div><div class="bio-body"><div class="bio-intro"><p>What is the smallest unit of life? A <strong>cell</strong>. Every living organism — from a single bacterium to a blue whale — is built from cells. Some organisms are just one cell; others have trillions working in perfect coordination.</p><p>This chapter explores what cells are made of, how they&#x27;re organised, and how each organelle contributes to the cell&#x27;s survival, growth, and reproduction.</p></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>History</div><h2 class="bio-sec-title">Milestones &amp; <span>Cell Theory</span></h2><div class="bio-sec-rule"></div><p class="bio-body-text">Our understanding of cells grew over centuries through discoveries by biologists, microscope inventors, and theorists — each building on the last.</p><div class="bio-timeline-scroll"><div class="bio-tl-track"><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Robert Hooke</div><div class="bio-tl-contrib">Discovered cells (1665) in cork; coined the term <em>&quot;cell&quot;</em></div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">A. van Leeuwenhoek</div><div class="bio-tl-contrib">Built first simple microscope with <em>biconvex lenses</em>; discovered microorganisms</div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Robert Brown</div><div class="bio-tl-contrib">Discovered the <em>nucleus</em> inside plant cells (1831)</div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Purkinje</div><div class="bio-tl-contrib">Coined the term <em>&quot;protoplasm&quot;</em> for living cell substance</div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Schleiden &amp; Schwann</div><div class="bio-tl-contrib">Proposed the <em>Cell Theory</em> — all organisms are made of cells (1838–39)</div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Rudolf Virchow</div><div class="bio-tl-contrib">Extended it — <em>all cells arise from pre-existing cells</em> (1855)</div></div></div><div class="bio-tl-node"><div class="bio-tl-dot"></div><div class="bio-tl-card"><div class="bio-tl-name">Camillo Golgi</div><div class="bio-tl-contrib">First described the <em>Golgi apparatus</em> (1898)</div></div></div></div></div><p class="bio-body-text" style="margin-bottom:14px">The <strong>Cell Theory</strong> has three core postulates:</p><div class="bio-theory-row"><div class="bio-theory-block"><div class="bio-theory-accent"></div><div class="bio-theory-inner"><div class="bio-theory-num">01</div><div class="bio-theory-text">All plants and animals are composed of <strong>cells</strong> — the cell is the structural unit of all living organisms.</div></div></div><div class="bio-theory-block"><div class="bio-theory-accent"></div><div class="bio-theory-inner"><div class="bio-theory-num">02</div><div class="bio-theory-text">The <strong>cell is the basic unit of life</strong> — the smallest entity capable of performing all living functions.</div></div></div><div class="bio-theory-block"><div class="bio-theory-accent"></div><div class="bio-theory-inner"><div class="bio-theory-num">03</div><div class="bio-theory-text">All cells arise from <strong>pre-existing cells</strong> — &quot;Omnis cellula e cellula&quot; (Virchow, 1855).</div></div></div></div></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>Classification</div><h2 class="bio-sec-title">Prokaryotic <span>vs Eukaryotic</span> Cell</h2><div class="bio-sec-rule"></div><p class="bio-body-text">Cells are fundamentally classified into two types based on the organisation of their nuclear material.</p><div class="bio-cell-compare"><div class="bio-cc-col pro"><div class="bio-cc-tag">Primitive · No true nucleus</div><div class="bio-cc-name">🦠 Prokaryotic</div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Nuclear region = <strong>nucleoid</strong> — no nuclear membrane</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>No membrane-bound organelles</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Unicellular: bacteria, blue-green algae</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Smaller, simpler structure</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Cell wall present (peptidoglycan in bacteria)</span></div></div><div class="bio-cc-col euk"><div class="bio-cc-tag">Advanced · True nucleus</div><div class="bio-cc-name">🌿 Eukaryotic</div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Well-defined nucleus with <strong>nuclear membrane</strong></span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Membrane-bound organelles present</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span><strong>Yeast</strong> = unicellular eukaryote (exception)</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Larger, more complex structure</span></div><div class="bio-cc-row"><div class="bio-cc-dot"></div><span>Cell wall in plants (cellulose); absent in animals</span></div></div></div></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>Transport</div><h2 class="bio-sec-title">Diffusion <span>&amp; Osmosis</span></h2><div class="bio-sec-rule"></div><p class="bio-body-text">Cells continuously exchange materials with their environment. Two passive transport processes govern this movement.</p><div class="bio-transport"><div class="bio-tp-card diff"><span class="bio-tp-icon">↔️</span><div class="bio-tp-title">Diffusion</div><div class="bio-tp-def">Spontaneous movement of molecules from a region of <strong>high concentration</strong> to a region of <strong>low concentration</strong>. No membrane required. Continues until equilibrium.</div><div class="bio-tp-key">Examples: O₂ entering blood from lungs · CO₂ leaving cells · perfume spreading in a room</div></div><div class="bio-tp-card osmo"><span class="bio-tp-icon">🌊</span><div class="bio-tp-title">Osmosis</div><div class="bio-tp-def">Movement of <strong>water molecules only</strong> from high concentration (dilute) to low concentration (concentrated) through a <strong>selectively permeable membrane</strong>.</div><div class="bio-tp-key">Endosmosis: water enters → turgid cell · Exosmosis: water leaves → plasmolysis</div></div></div></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>Structural Components</div><h2 class="bio-sec-title">Cell Organelles — <span>Structure &amp; Function</span></h2><div class="bio-sec-rule"></div><p class="bio-body-text">Each organelle is a specialised structure with a specific role — together they keep the cell alive, functional, and able to reproduce.</p><div class="bio-organelle-grid"><div class="bio-org-card cwall"><div class="bio-org-top"><span class="bio-org-emoji">🧱</span><div><div class="bio-org-tag">Plants · Fungi · Bacteria only</div><div class="bio-org-name">Cell Wall</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc">Outermost rigid layer. Plant = <strong>cellulose</strong>; Bacteria = <strong>peptidoglycan</strong>. Absent in animal cells.</div><div class="bio-org-fns"><span class="bio-fn-tag">Structural support</span><span class="bio-fn-tag">Prevents osmotic bursting</span><span class="bio-fn-tag">Protects organelles</span></div></div></div><div class="bio-org-card plasma"><div class="bio-org-top"><span class="bio-org-emoji">🫧</span><div><div class="bio-org-tag">All cells · Selectively permeable</div><div class="bio-org-name">Plasma Membrane</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc"><strong>Fluid mosaic</strong> of phospholipids and proteins. Controls entry/exit. Site of endocytosis and exocytosis.</div><div class="bio-org-fns"><span class="bio-fn-tag">Selective transport</span><span class="bio-fn-tag">Endocytosis &amp; Exocytosis</span><span class="bio-fn-tag">Cell signalling</span></div></div></div><div class="bio-org-card cyto"><div class="bio-org-top"><span class="bio-org-emoji">🌊</span><div><div class="bio-org-tag">Fluid matrix of the cell</div><div class="bio-org-name">Cytoplasm</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc">Fluid containing all organelles. <strong>Cytoskeleton</strong> within maintains cell shape. Site of glycolysis and many reactions.</div><div class="bio-org-fns"><span class="bio-fn-tag">Site of reactions</span><span class="bio-fn-tag">Cytoskeleton support</span><span class="bio-fn-tag">Cytoplasmic streaming</span></div></div></div><div class="bio-org-card nucleus"><div class="bio-org-top"><span class="bio-org-emoji">🔵</span><div><div class="bio-org-tag">&quot;Director&quot; · Contains DNA</div><div class="bio-org-name">Nucleus</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc"><strong>Double nuclear membrane</strong> with pores. Contains nucleoplasm, nucleolus, and chromatin (DNA + histones).</div><div class="bio-org-fns"><span class="bio-fn-tag">Controls cell activities</span><span class="bio-fn-tag">Stores hereditary DNA</span><span class="bio-fn-tag">Nucleolus → rRNA</span></div></div></div><div class="bio-org-card vacuole"><div class="bio-org-top"><span class="bio-org-emoji">💧</span><div><div class="bio-org-tag">Large in plants · Small in animals</div><div class="bio-org-name">Vacuole</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc">Enclosed by <strong>tonoplast</strong>. Single large vacuole in plants; small and numerous in animal cells.</div><div class="bio-org-fns"><span class="bio-fn-tag">Turgidity in plants</span><span class="bio-fn-tag">Stores sugars &amp; amino acids</span><span class="bio-fn-tag">Expels excess water</span></div></div></div><div class="bio-org-card er"><div class="bio-org-top"><span class="bio-org-emoji">🕸️</span><div><div class="bio-org-tag">SER · RER</div><div class="bio-org-name">Endoplasmic Reticulum</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc"><strong>RER</strong> (ribosomes): protein transport, glycosylation. <strong>SER</strong>: lipid synthesis, detoxification of drugs.</div><div class="bio-org-fns"><span class="bio-fn-tag">Protein transport (RER)</span><span class="bio-fn-tag">Lipid synthesis (SER)</span><span class="bio-fn-tag">Detoxification (SER)</span></div></div></div><div class="bio-org-card golgi"><div class="bio-org-top"><span class="bio-org-emoji">📦</span><div><div class="bio-org-tag">&quot;Post office&quot; of cell · 1898</div><div class="bio-org-name">Golgi Apparatus</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc">Stacked cisternae. <strong>Packages, modifies, and ships</strong> cell products. Also forms lysosomes.</div><div class="bio-org-fns"><span class="bio-fn-tag">Packaging &amp; secretion</span><span class="bio-fn-tag">Forms lysosomes</span><span class="bio-fn-tag">Protein modification</span></div></div></div><div class="bio-org-card lyso"><div class="bio-org-top"><span class="bio-org-emoji">💥</span><div><div class="bio-org-tag">&quot;Suicidal bag&quot; of cell</div><div class="bio-org-name">Lysosome</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc">Contains <strong>digestive enzymes</strong>. Keeps cell clean. Can digest own cell when ruptured (autolysis).</div><div class="bio-org-fns"><span class="bio-fn-tag">Digests foreign material</span><span class="bio-fn-tag">Removes worn organelles</span><span class="bio-fn-tag">Autolysis if ruptured</span></div></div></div><div class="bio-org-card mito"><div class="bio-org-top"><span class="bio-org-emoji">⚡</span><div><div class="bio-org-tag">&quot;Powerhouse of the cell&quot;</div><div class="bio-org-name">Mitochondria</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc"><strong>Double membrane</strong> with cristae. Has its own DNA and ribosomes. Site of aerobic respiration → <strong>ATP</strong>.</div><div class="bio-org-fns"><span class="bio-fn-tag">Cellular respiration</span><span class="bio-fn-tag">Produces ATP</span><span class="bio-fn-tag">Own DNA — semi-autonomous</span></div></div></div><div class="bio-org-card plastid"><div class="bio-org-top"><span class="bio-org-emoji">🌿</span><div><div class="bio-org-tag">Plants only · Own DNA &amp; ribosomes</div><div class="bio-org-name">Plastids</div></div></div><div class="bio-org-bottom"><div class="bio-org-desc"><strong>Chloroplasts</strong> (photosynthesis), <strong>Chromoplasts</strong> (colour pigments), <strong>Leucoplasts</strong> (food storage).</div><div class="bio-org-fns"><span class="bio-fn-tag">Photosynthesis (chloro)</span><span class="bio-fn-tag">Plant colour (chromo)</span><span class="bio-fn-tag">Food storage (leuco)</span></div></div></div></div></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>Control Centre</div><h2 class="bio-sec-title">Nucleus — <span>Structure &amp; Chromosomes</span></h2><div class="bio-sec-rule"></div><p class="bio-body-text">The nucleus is the most important organelle — the <strong>director of the cell</strong>. It stores DNA and controls all cellular reproduction and chemical activities.</p><div class="bio-nucleus-banner"><div class="bio-nb-label">⬦ Parts of the Nucleus</div><div class="bio-nb-grid"><div class="bio-nb-part"><div class="bio-nb-part-name">Nuclear Membrane</div><div class="bio-nb-part-text">Double-layered membrane enclosing the nucleus. Contains nuclear pores for selective transport.</div></div><div class="bio-nb-part"><div class="bio-nb-part-name">Nucleoplasm</div><div class="bio-nb-part-text">Fluid matrix inside the nuclear membrane. Contains nucleoli and chromatin.</div></div><div class="bio-nb-part"><div class="bio-nb-part-name">Nucleolus</div><div class="bio-nb-part-text">Dense body inside the nucleus. Site of ribosomal RNA (rRNA) synthesis — produces ribosomes.</div></div><div class="bio-nb-part"><div class="bio-nb-part-name">Chromatin</div><div class="bio-nb-part-text">DNA + histone proteins + non-histone proteins + RNA. Condenses into chromosomes during cell division.</div></div></div></div><p class="bio-body-text" style="margin-bottom:14px">Chromosomes are classified into <strong>4 types</strong> based on centromere position:</p><div class="bio-chrom-row"><div class="bio-chrom-pill"><span class="bio-cp-emoji">⚖️</span><div class="bio-cp-name">Metacentric</div><div class="bio-cp-pos">Centromere at middle — two equal arms, V-shaped.</div></div><div class="bio-chrom-pill"><span class="bio-cp-emoji">↙️</span><div class="bio-cp-name">Sub-metacentric</div><div class="bio-cp-pos">Centromere off-centre — unequal arms, L-shaped.</div></div><div class="bio-chrom-pill"><span class="bio-cp-emoji">📍</span><div class="bio-cp-name">Acrocentric</div><div class="bio-cp-pos">Centromere near one end — one very short arm.</div></div><div class="bio-chrom-pill"><span class="bio-cp-emoji">▬</span><div class="bio-cp-name">Telocentric</div><div class="bio-cp-pos">Centromere at terminal end — rod-shaped, one arm.</div></div></div></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-sec"><div class="bio-sec-badge"><div class="bio-sec-badge-dot"></div>Comparison</div><h2 class="bio-sec-title">Plant Cell <span>vs Animal Cell</span></h2><div class="bio-sec-rule"></div><p class="bio-body-text">Both plant and animal cells are eukaryotic and share many organelles, but differ in several key structural features.</p><div class="bio-scroll-hint">← Swipe to see full table on mobile →</div><div class="bio-table-wrap"><table class="bio-cmp-table"><thead><tr><th>Feature</th><th>🌿 Plant Cell</th><th>🐾 Animal Cell</th></tr></thead><tbody><tr><td>Cell Wall</td><td class="yes">✔ Present (cellulose)</td><td class="no">✘ Absent</td></tr><tr><td>Plasma Membrane</td><td class="yes">✔ Present</td><td class="yes">✔ Present</td></tr><tr><td>Plastids</td><td class="yes">✔ Present</td><td class="no">✘ Absent</td></tr><tr><td>Large Central Vacuole</td><td class="yes">✔ Present (single, large)</td><td class="no">✘ Small, numerous</td></tr><tr><td>Lysosomes</td><td class="">Rare / absent</td><td class="yes">✔ Present</td></tr><tr><td>Centrioles</td><td class="no">✘ Absent</td><td class="yes">✔ Present</td></tr><tr><td>Chloroplasts</td><td class="yes">✔ Present</td><td class="no">✘ Absent</td></tr><tr><td>Mitochondria</td><td class="yes">✔ Present</td><td class="yes">✔ Present</td></tr><tr><td>Golgi Apparatus</td><td class="yes">✔ Present</td><td class="yes">✔ Present</td></tr><tr><td>Nucleus</td><td class="yes">✔ Present</td><td class="yes">✔ Present</td></tr></tbody></table></div></div><div class="bio-quote"><p>&quot;The cell is the theatre of every physiological act. Understanding its organelles is understanding life itself — from how energy is made, to how hereditary information is stored and passed on to every new generation.&quot;</p></div><div class="bio-divider"><div class="bio-divider-leaf"></div></div><div class="bio-faq-label"><div class="bio-sec-badge-dot"></div>Exam Preparation</div><h2 class="bio-faq-heading">Frequently Asked Questions</h2><div class="bio-faq-rule"></div><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q1. What is a cell? What are its key properties?</span></summary><div class="bio-faq-ans visible">A <strong>cell</strong> is the smallest structural and functional unit of life, capable of performing all living functions independently.<br><br>Key properties:<br>• Too small to be seen with the naked eye — requires a microscope.<br>• Shape and size vary between organisms and within the same organism.<br>• All living cells perform: <strong>respiration, growth, metabolism, and cell division</strong>.<br>• Cells arise only from pre-existing cells (Virchow&#x27;s principle).<br>• All cells share a fundamental structure: plasma membrane, cytoplasm, and genetic material.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q2. What is the Cell Theory? Who proposed it?</span></summary><div class="bio-faq-ans visible">The <strong>Cell Theory</strong> was proposed by <strong>Schleiden &amp; Schwann</strong> (1838–39) and later extended by <strong>Virchow</strong> (1855):<br><br>1. All plants and animals are composed of <strong>cells</strong>.<br>2. The <strong>cell is the basic unit of life</strong>.<br>3. <strong>All cells arise from pre-existing cells</strong> (&quot;Omnis cellula e cellula&quot;).<br><br>The third postulate explained cell reproduction and ruled out spontaneous generation.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q3. What is the difference between prokaryotic and eukaryotic cells?</span></summary><div class="bio-faq-ans visible"><strong>Prokaryotic:</strong> No membrane-bound nucleus (nucleoid only), no membrane-bound organelles, unicellular (bacteria, algae), smaller and simpler.<br><br><strong>Eukaryotic:</strong> True nucleus with nuclear membrane, membrane-bound organelles present, usually multicellular. <strong>Yeast</strong> is a unicellular eukaryote — an important exception.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q4. What is the cell wall? What are its functions?</span></summary><div class="bio-faq-ans visible">The <strong>cell wall</strong> is the outermost rigid layer in plant cells, fungal cells, and most bacteria. <strong>Absent in animal cells.</strong><br><br>Composition: Plant = <strong>cellulose</strong>; Bacteria = <strong>peptidoglycan</strong>.<br><br>Functions: protects organelles, maintains definite cell shape, prevents osmotic bursting in dilute solutions, allows free passage of water and small molecules.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q5. What is the plasma membrane? What are its functions?</span></summary><div class="bio-faq-ans visible">The <strong>plasma membrane</strong> is the outermost covering of all animal cells, and lies just inside the cell wall in plant cells. It is a <strong>fluid mosaic</strong> of phospholipids and proteins — <strong>selectively permeable</strong>.<br><br>Functions: selective transport (in/out), endocytosis (engulfs material), exocytosis (expels material), cell communication and signalling, protects intracellular contents.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q6. What is the difference between diffusion and osmosis?</span></summary><div class="bio-faq-ans visible"><strong>Diffusion:</strong> Spontaneous movement of any molecules from <strong>high → low concentration</strong>. No membrane needed. Examples: O₂ entering blood, CO₂ leaving cells, perfume spreading.<br><br><strong>Osmosis:</strong> Movement of <strong>water only</strong> from dilute (high water concentration) to concentrated solution (low water concentration) through a <strong>selectively permeable membrane</strong>.<br><br>Endosmosis = water enters cell (hypotonic solution) → turgid. Exosmosis = water leaves cell (hypertonic solution) → plasmolysis.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q7. What is the nucleus? Describe its structure and functions.</span></summary><div class="bio-faq-ans visible">The <strong>nucleus</strong> is the control centre (&quot;director&quot;) of the cell. It contains the cell&#x27;s genetic material and directs all activities.<br><br>Structure: <strong>Nuclear membrane</strong> (double, with pores) → <strong>Nucleoplasm</strong> (fluid inside) → <strong>Nucleolus</strong> (makes rRNA/ribosomes) → <strong>Chromatin</strong> (DNA + histones, condenses into chromosomes during division).<br><br>Functions: controls metabolism, stores hereditary DNA, directs protein synthesis via mRNA.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q8. What are chromosomes? Name and describe the 4 types.</span></summary><div class="bio-faq-ans visible"><strong>Chromosomes</strong> are condensed chromatin threads visible during cell division. Each carries genes (DNA). The <strong>centromere</strong> is the primary constriction.<br><br>Based on centromere position:<br>1. <strong>Metacentric</strong> — middle; equal arms; V-shaped.<br>2. <strong>Sub-metacentric</strong> — off-centre; unequal arms; L-shaped.<br>3. <strong>Acrocentric</strong> — near one end; one very short arm.<br>4. <strong>Telocentric</strong> — at terminal end; rod-shaped, one arm.<br><br>A <strong>satellite</strong> = small segment separated from the main chromosome by a secondary constriction.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q9. What is mitochondria? Why is it called the powerhouse of the cell?</span></summary><div class="bio-faq-ans visible"><strong>Mitochondria</strong> are double membrane-bound organelles in all eukaryotic cells.<br><br>Structure: Smooth outer membrane + inner membrane folded into <strong>cristae</strong> (↑ surface area) + matrix (contains enzymes, <strong>its own DNA</strong> and ribosomes).<br><br>Called the <strong>&quot;Powerhouse of the Cell&quot;</strong> because it is the site of <strong>aerobic cellular respiration</strong>, producing <strong>ATP</strong> — the universal energy currency. Its own DNA supports the endosymbiotic theory of its origin.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q10. What are plastids? Where are they found and what are their types?</span></summary><div class="bio-faq-ans visible"><strong>Plastids</strong> are large organelles found <strong>only in plant cells</strong> (absent in animal cells). Have their own DNA and ribosomes.<br><br>Types:<br>1. <strong>Chloroplasts</strong> (green) — contain <strong>chlorophyll</strong>; site of <strong>photosynthesis</strong>.<br>2. <strong>Chromoplasts</strong> (coloured) — contain <strong>carotene, xanthophyll</strong>; give colour to flowers and fruits.<br>3. <strong>Leucoplasts</strong> (colourless) — store starch, oils, or proteins.<br><br>Functions: photosynthesis, colouring of plant parts, food storage.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q11. What is the endoplasmic reticulum? Compare SER and RER.</span></summary><div class="bio-faq-ans visible">The <strong>ER</strong> is a network of membranous tubules, vesicles, and cisternae — the cell&#x27;s internal transport highway.<br><br><strong>SER</strong> (no ribosomes): synthesises <strong>fats &amp; lipids</strong>, detoxifies drugs, carbohydrate metabolism.<br><strong>RER</strong> (ribosomes attached): site of <strong>protein synthesis &amp; transport</strong>, glycosylation; sends proteins to Golgi.</div></details><details class="bio-faq-item" data-faq><summary class="bio-faq-q"><span class="bio-faq-q-text">Q12. What is the Golgi apparatus? What are lysosomes?</span></summary><div class="bio-faq-ans visible"><strong>Golgi apparatus</strong> (Camillo Golgi, 1898): stacked flattened cisternae. Called the &quot;post office&quot; of the cell. Functions: <strong>packages, modifies, and ships</strong> cell products; forms lysosomes.<br><br><strong>Lysosomes</strong>: membrane-bound sacs with <strong>digestive (hydrolytic) enzymes</strong>. Called the <strong>&quot;suicidal bag&quot;</strong> — if ruptured, enzymes digest the cell itself (autolysis). Functions: digests foreign material, removes worn-out organelles, keeps cell clean.</div></details></div></div>

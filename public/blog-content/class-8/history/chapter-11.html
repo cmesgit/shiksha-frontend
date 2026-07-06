@@ -1,0 +1,525 @@
+<style>
+  :root {
+    --ink:        #060808;
+    --ink2:       #0e1414;
+    --muted:      #507060;
+    --paper:      #f2f8f4;
+    --paper2:     #e4f0e8;
+    --paper3:     #d0e4d8;
+    --emerald:    #0a6040;
+    --emerald2:   #064828;
+    --emerald-lt: #ddf0e8;
+    --saffron:    #c05808;
+    --saffron2:   #963f04;
+    --navy:       #0c2a50;
+    --navy2:      #081a38;
+    --gold:       #b8860b;
+    --gold2:      #8b6408;
+    --crimson:    #7a1a28;
+    --slate:      #2a4040;
+    --rule:       #b8d0c0;
+    --sand:       #f4f0e0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .iai-root {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─── */
+  .iai-hero {
+    background: linear-gradient(158deg, #020806 0%, #081408 48%, #040a06 100%);
+    min-height: 88vh;
+    display: flex; align-items: flex-end;
+    position: relative; overflow: hidden;
+    padding: 0 0 64px;
+  }
+  .iai-hero-bg-num {
+    position: absolute; bottom: -40px; right: -20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(240px, 38vw, 520px); font-weight: 900; line-height: 1;
+    color: rgba(255,255,255,0.022); letter-spacing: -0.04em;
+    user-select: none; pointer-events: none;
+  }
+  .iai-hero::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #064828, #0a6040, #c05808, #b8860b, #0a6040, #064828);
+  }
+  .iai-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.018); pointer-events: none;
+  }
+  .iai-hero-inner {
+    max-width: 900px; width: 100%;
+    margin: 0 auto; padding: 0 32px;
+    position: relative; z-index: 1;
+  }
+  .iai-overline {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #6ac898; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .iai-overline::before, .iai-overline::after {
+    content: ''; flex: 0 0 40px; height: 1px; background: #6ac898;
+  }
+  .iai-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(40px, 7.5vw, 84px); font-weight: 900;
+    color: #fff; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px;
+  }
+  .iai-hero-title em        { font-style: normal; color: #6ac898; }
+  .iai-hero-title .saf-em   { color: #f09040; }
+  .iai-hero-title .gold-em  { color: #e8c040; }
+  .iai-hero-bar {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 24px; margin-top: 8px;
+  }
+  .iai-hero-bar-item {
+    flex: 1 1 150px; padding: 0 24px 0 0;
+    border-right: 1px solid rgba(255,255,255,0.1); margin-right: 24px;
+  }
+  .iai-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .iai-bar-label {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 5px;
+  }
+  .iai-bar-value {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* ─── BODY ─── */
+  .iai-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* LEAD */
+  .iai-lead {
+    border-left: 5px solid var(--emerald);
+    padding: 28px 36px; margin-bottom: 64px; background: var(--paper2);
+  }
+  .iai-lead p {
+    font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 500;
+    color: var(--ink2); line-height: 1.78; margin: 0 0 14px;
+  }
+  .iai-lead p:last-child { margin: 0; }
+  .iai-lead strong { color: var(--emerald); }
+
+  /* SECTION HEADER */
+  .iai-sec-head {
+    display: flex; align-items: flex-start; gap: 20px;
+    margin-bottom: 28px; border-bottom: 2px solid var(--rule); padding-bottom: 18px;
+  }
+  .iai-sec-num {
+    font-family: 'Montserrat', sans-serif; font-size: 56px; font-weight: 900;
+    color: var(--rule); line-height: 1; flex-shrink: 0; margin-top: 4px;
+  }
+  .iai-sec-title-wrap { display: flex; flex-direction: column; justify-content: flex-end; }
+  .iai-sec-kicker {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--emerald); margin-bottom: 4px;
+  }
+  .iai-sec-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(22px, 3.5vw, 32px); font-weight: 900;
+    color: var(--ink); line-height: 1.15; letter-spacing: -0.01em;
+  }
+  .iai-sec-title span      { color: var(--emerald); }
+  .iai-sec-title .saf      { color: var(--saffron); }
+  .iai-sec-title .gold     { color: var(--gold); }
+  .iai-sec-title .navy     { color: var(--navy); }
+  .iai-sec-title .crimson  { color: var(--crimson); }
+
+  /* BODY TEXT */
+  .iai-body-text {
+    font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 400;
+    color: var(--ink2); line-height: 1.82; margin-bottom: 24px;
+  }
+  .iai-body-text strong { color: var(--ink); font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* DIVIDER */
+  .iai-divider { display: flex; align-items: center; gap: 16px; margin: 56px 0; }
+  .iai-divider::before, .iai-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .iai-divider-mark { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); flex-shrink: 0; }
+
+  /* LIST */
+  .iai-list { list-style: none; padding: 0; margin: 0 0 28px; }
+  .iai-list li {
+    font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2);
+    line-height: 1.75; padding: 10px 0 10px 28px; border-bottom: 1px solid var(--paper3);
+    position: relative;
+  }
+  .iai-list li::before {
+    content: ''; position: absolute; left: 0; top: 20px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--emerald);
+  }
+  .iai-list li strong { color: var(--ink); font-weight: 700; font-family: 'Poppins', sans-serif; }
+
+  /* ── CHALLENGES GRID ── */
+  .iai-challenges-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px; margin: 28px 0 40px;
+  }
+  .iai-challenge-card {
+    background: var(--paper2); padding: 22px 20px;
+    border-top: 4px solid var(--emerald);
+  }
+  .iai-challenge-card.saf   { border-top-color: var(--saffron); }
+  .iai-challenge-card.gold  { border-top-color: var(--gold); }
+  .iai-challenge-card.navy  { border-top-color: var(--navy); }
+  .iai-challenge-card.crim  { border-top-color: var(--crimson); }
+  .iai-challenge-card.slate { border-top-color: var(--slate); }
+  .iai-challenge-icon { font-size: 28px; margin-bottom: 10px; }
+  .iai-challenge-name {
+    font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 900;
+    color: var(--ink); margin-bottom: 8px; line-height: 1.25;
+  }
+  .iai-challenge-desc {
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink2); line-height: 1.65;
+  }
+
+  /* ── CONSTITUTION FEATURES ── */
+  .iai-const-features {
+    margin: 28px 0 40px;
+  }
+  .iai-const-feat {
+    display: flex; gap: 20px; align-items: flex-start;
+    padding: 20px 0; border-bottom: 1px solid var(--paper3);
+  }
+  .iai-const-feat:last-child { border-bottom: none; }
+  .iai-feat-num {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--emerald); display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 900; color: #fff;
+  }
+  .iai-feat-num.saf   { background: var(--saffron); }
+  .iai-feat-num.gold  { background: var(--gold); }
+  .iai-feat-num.navy  { background: var(--navy); }
+  .iai-feat-num.crim  { background: var(--crimson); }
+  .iai-feat-title {
+    font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .iai-feat-desc {
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.7;
+  }
+
+  /* ── THREE LISTS BLOCK ── */
+  .iai-lists-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 0; margin: 28px 0 40px; border: 1px solid var(--rule); overflow: hidden;
+  }
+  .iai-list-col {
+    padding: 26px 24px;
+    background: var(--paper2);
+    border-right: 1px solid var(--rule);
+  }
+  .iai-list-col:last-child { border-right: none; }
+  .iai-list-col.dark { background: var(--emerald); }
+  .iai-list-col.mid  { background: var(--paper3); }
+  .iai-list-col-icon { font-size: 28px; margin-bottom: 10px; }
+  .iai-list-col-name {
+    font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 900;
+    color: var(--emerald); margin-bottom: 4px;
+  }
+  .iai-list-col.dark .iai-list-col-name { color: #fff; }
+  .iai-list-col.mid  .iai-list-col-name { color: var(--saffron); }
+  .iai-list-col-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  .iai-list-col.dark .iai-list-col-tag { color: rgba(255,255,255,0.6); }
+  .iai-list-col-items { list-style: none; padding: 0; }
+  .iai-list-col-items li {
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2);
+    padding: 6px 0 6px 18px; position: relative; line-height: 1.55;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .iai-list-col.dark .iai-list-col-items li { color: rgba(255,255,255,0.85); border-bottom-color: rgba(255,255,255,0.1); }
+  .iai-list-col-items li:last-child { border-bottom: none; }
+  .iai-list-col-items li::before {
+    content: ''; position: absolute; left: 0; top: 13px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
+  }
+  .iai-list-col.dark  .iai-list-col-items li::before { background: #6ac898; }
+  .iai-list-col.mid   .iai-list-col-items li::before { background: var(--saffron); }
+
+  /* ── AMBEDKAR PROFILE ── */
+  .iai-ambedkar {
+    background: #040e08; margin: 28px 0 40px; padding: 36px 40px;
+    display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: start;
+  }
+  .iai-ambedkar-badge {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--emerald), var(--navy));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900;
+    color: #fff; flex-shrink: 0;
+  }
+  .iai-ambedkar-name {
+    font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900;
+    color: #fff; margin-bottom: 4px;
+  }
+  .iai-ambedkar-title {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: #6ac898; margin-bottom: 14px;
+  }
+  .iai-ambedkar-pts { list-style: none; padding: 0; }
+  .iai-ambedkar-pts li {
+    font-family: 'Inter', sans-serif; font-size: 15px; color: rgba(255,255,255,0.68);
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); line-height: 1.65;
+  }
+  .iai-ambedkar-pts li:last-child { border-bottom: none; }
+  .iai-ambedkar-pts li strong { color: #a0e8c0; font-family: 'Poppins', sans-serif; font-weight: 700; }
+
+  /* ── LINGUISTIC STATES TIMELINE ── */
+  .iai-lang-tl { margin: 0 0 40px; position: relative; }
+  .iai-lang-tl::before {
+    content: ''; position: absolute;
+    left: 44px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--emerald), var(--saffron), var(--gold));
+  }
+  .iai-lang-item { display: flex; gap: 24px; margin-bottom: 26px; position: relative; }
+  .iai-lang-dot {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--emerald); display: flex; align-items: center; justify-content: center;
+    font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 900;
+    color: #fff; z-index: 1; border: 3px solid var(--paper); box-shadow: 0 0 0 2px var(--emerald);
+  }
+  .iai-lang-dot.saf  { background: var(--saffron); box-shadow: 0 0 0 2px var(--saffron); }
+  .iai-lang-dot.gold { background: var(--gold);    box-shadow: 0 0 0 2px var(--gold); }
+  .iai-lang-content {
+    flex: 1; background: var(--paper2); padding: 16px 20px;
+    border-left: 4px solid var(--emerald);
+  }
+  .iai-lang-content.saf  { border-left-color: var(--saffron); }
+  .iai-lang-content.gold { border-left-color: var(--gold); }
+  .iai-lang-year {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--emerald); margin-bottom: 4px;
+  }
+  .iai-lang-content.saf  .iai-lang-year { color: var(--saffron); }
+  .iai-lang-content.gold .iai-lang-year { color: var(--gold); }
+  .iai-lang-title {
+    font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 900;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .iai-lang-desc {
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.7;
+  }
+
+  /* ── DEVELOPMENT BLOCK ── */
+  .iai-dev-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin: 28px 0 40px;
+  }
+  .iai-dev-card {
+    padding: 22px 24px; background: var(--paper2);
+    border-left: 4px solid var(--emerald);
+  }
+  .iai-dev-card.saf  { border-left-color: var(--saffron); }
+  .iai-dev-card.gold { border-left-color: var(--gold); }
+  .iai-dev-card.navy { border-left-color: var(--navy); }
+  .iai-dev-icon { font-size: 26px; margin-bottom: 8px; }
+  .iai-dev-head {
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--ink); margin-bottom: 6px;
+  }
+  .iai-dev-body {
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink2); line-height: 1.7;
+  }
+
+  /* ── ACHIEVEMENTS vs FAILURES ── */
+  .iai-report-card {
+    display: grid; grid-template-columns: 1fr 1fr;
+    margin: 28px 0 40px; border: 1px solid var(--rule); overflow: hidden;
+  }
+  .iai-rc-col { padding: 28px 28px 32px; background: var(--paper2); }
+  .iai-rc-col.dark {
+    background: #040e08; color: #c0e0c8;
+    border-left: 1px solid #1a3020;
+  }
+  .iai-rc-hd {
+    font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 900;
+    color: var(--emerald); margin-bottom: 6px;
+  }
+  .iai-rc-col.dark .iai-rc-hd { color: #6ac898; }
+  .iai-rc-tag {
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+  }
+  .iai-rc-col.dark .iai-rc-tag { color: rgba(255,255,255,0.35); }
+  .iai-rc-col ul { list-style: none; padding: 0; }
+  .iai-rc-col ul li {
+    font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7;
+    padding: 9px 0 9px 22px; border-bottom: 1px solid rgba(0,0,0,0.07); position: relative;
+  }
+  .iai-rc-col.dark ul li { border-bottom-color: rgba(255,255,255,0.07); }
+  .iai-rc-col ul li:last-child { border-bottom: none; }
+  .iai-rc-col ul li::before {
+    content: ''; position: absolute; left: 0; top: 18px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--emerald);
+  }
+  .iai-rc-col.dark ul li::before { background: #ff8888; }
+  .iai-rc-col ul li strong { font-family: 'Poppins', sans-serif; font-weight: 700; }
+  .iai-rc-col.dark ul li strong { color: #ffb0b0; }
+
+  /* ── FAQ ── */
+  .iai-faq-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .iai-faq-kicker {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.20em; text-transform: uppercase; color: var(--emerald);
+    padding: 5px 14px; background: var(--emerald-lt); display: inline-block;
+  }
+  .iai-faq-title {
+    font-family: 'Montserrat', sans-serif; font-size: clamp(22px, 3.5vw, 30px);
+    font-weight: 900; color: var(--ink); margin-bottom: 28px; line-height: 1.15;
+  }
+  .iai-faq-item { border-bottom: 1px solid var(--rule); overflow: hidden; }
+  .iai-faq-q {
+    width: 100%; background: none; border: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 20px 4px; gap: 16px; text-align: left;
+  }
+  .iai-faq-q-text {
+    font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+    color: var(--ink); line-height: 1.5; flex: 1;
+  }
+  .iai-faq-icon {
+    font-family: 'Inter', sans-serif; font-size: 18px; color: var(--emerald);
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .iai-faq-ans {
+    display: none; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2);
+    line-height: 1.80; padding: 0 4px 20px; border-top: 1px solid var(--paper3);
+  }
+  .iai-faq-ans.visible { display: block; }
+  .iai-faq-item.open .iai-faq-q-text { color: var(--emerald); }
+
+  /* ═══════════════════════════════════
+     RESPONSIVE — TABLET  (max 768px)
+  ═══════════════════════════════════ */
+  @media (max-width: 768px) {
+    .iai-hero { min-height: 70vh; padding: 0 0 48px; }
+    .iai-hero-inner { padding: 0 20px; }
+    .iai-overline { font-size: 10px; gap: 10px; margin-bottom: 18px; }
+    .iai-overline::before, .iai-overline::after { flex: 0 0 24px; }
+    .iai-hero-title { font-size: clamp(34px, 8.5vw, 56px); margin-bottom: 24px; }
+    .iai-hero-bar-item { flex: 1 1 120px; padding: 0 14px 0 0; margin-right: 14px; }
+    .iai-bar-label { font-size: 9px; }
+    .iai-bar-value { font-size: 12px; }
+
+    .iai-body { padding: 48px 20px 72px; }
+    .iai-lead { padding: 20px 22px; margin-bottom: 44px; }
+    .iai-lead p { font-size: 16px; }
+    .iai-sec-num { font-size: 40px; }
+    .iai-sec-title { font-size: clamp(20px, 5vw, 26px); }
+    .iai-body-text { font-size: 15px; }
+    .iai-list li { font-size: 15px; }
+
+    .iai-challenges-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .iai-lists-grid { grid-template-columns: 1fr; }
+    .iai-list-col { border-right: none; border-bottom: 1px solid var(--rule); }
+    .iai-list-col:last-child { border-bottom: none; }
+
+    .iai-ambedkar { grid-template-columns: 1fr; gap: 16px; padding: 28px 24px; }
+    .iai-ambedkar-badge { width: 64px; height: 64px; font-size: 20px; }
+
+    .iai-lang-tl::before { left: 26px; }
+    .iai-lang-dot { width: 40px; height: 40px; font-size: 11px; }
+    .iai-lang-item { gap: 16px; }
+
+    .iai-dev-grid { grid-template-columns: 1fr; }
+
+    .iai-report-card { grid-template-columns: 1fr; }
+    .iai-rc-col.dark { border-left: none; border-top: 1px solid #1a3020; }
+
+    .iai-faq-q-text { font-size: 14px; }
+    .iai-faq-ans { font-size: 14px; }
+    .iai-divider { margin: 40px 0; }
+  }
+
+  /* ═══════════════════════════════════
+     RESPONSIVE — MOBILE  (max 480px)
+  ═══════════════════════════════════ */
+  @media (max-width: 480px) {
+    .iai-hero { min-height: 60vh; padding: 0 0 36px; }
+    .iai-hero-inner { padding: 0 16px; }
+    .iai-overline { font-size: 9px; gap: 8px; margin-bottom: 14px; }
+    .iai-overline::before, .iai-overline::after { flex: 0 0 16px; }
+    .iai-hero-title { font-size: clamp(28px, 10vw, 42px); margin-bottom: 20px; letter-spacing: -0.02em; }
+    .iai-hero-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding-top: 16px; }
+    .iai-hero-bar-item { border-right: none; margin-right: 0; padding-right: 0; }
+
+    .iai-body { padding: 36px 16px 60px; }
+    .iai-lead { padding: 16px 18px; margin-bottom: 36px; border-left-width: 4px; }
+    .iai-lead p { font-size: 15px; line-height: 1.7; }
+
+    .iai-sec-head { gap: 12px; margin-bottom: 20px; }
+    .iai-sec-num { font-size: 32px; }
+    .iai-sec-kicker { font-size: 10px; }
+    .iai-sec-title { font-size: clamp(17px, 5.5vw, 22px); }
+    .iai-body-text { font-size: 14px; line-height: 1.75; }
+    .iai-list li { font-size: 14px; padding: 9px 0 9px 22px; }
+    .iai-list li::before { top: 18px; width: 7px; height: 7px; }
+
+    .iai-challenges-grid { grid-template-columns: 1fr; }
+    .iai-challenge-card { padding: 16px 16px; }
+    .iai-challenge-icon { font-size: 24px; }
+    .iai-challenge-name { font-size: 14px; }
+    .iai-challenge-desc { font-size: 12px; }
+
+    .iai-const-feat { gap: 14px; }
+    .iai-feat-num { width: 36px; height: 36px; font-size: 13px; }
+    .iai-feat-title { font-size: 14px; }
+    .iai-feat-desc { font-size: 13px; }
+
+    .iai-lists-grid { grid-template-columns: 1fr; }
+    .iai-list-col { padding: 18px 16px; }
+    .iai-list-col-name { font-size: 14px; }
+    .iai-list-col-items li { font-size: 13px; }
+
+    .iai-ambedkar { padding: 20px 18px; gap: 14px; }
+    .iai-ambedkar-badge { width: 56px; height: 56px; font-size: 18px; }
+    .iai-ambedkar-name { font-size: 18px; }
+    .iai-ambedkar-pts li { font-size: 13px; }
+
+    .iai-lang-tl::before { left: 22px; }
+    .iai-lang-dot { width: 36px; height: 36px; font-size: 10px; border-width: 2px; }
+    .iai-lang-item { gap: 12px; margin-bottom: 18px; }
+    .iai-lang-content { padding: 12px 14px; }
+    .iai-lang-year { font-size: 10px; }
+    .iai-lang-title { font-size: 15px; }
+    .iai-lang-desc { font-size: 13px; }
+
+    .iai-dev-card { padding: 16px 18px; }
+    .iai-dev-head { font-size: 13px; }
+    .iai-dev-body { font-size: 13px; }
+
+    .iai-rc-col { padding: 18px 16px; }
+    .iai-rc-hd { font-size: 15px; }
+    .iai-rc-col ul li { font-size: 13px; padding: 8px 0 8px 20px; }
+
+    .iai-faq-title { font-size: clamp(18px, 5vw, 24px); }
+    .iai-faq-q { padding: 16px 4px; }
+    .iai-faq-q-text { font-size: 13px; }
+    .iai-faq-icon { font-size: 16px; }
+    .iai-faq-ans { font-size: 13px; line-height: 1.72; }
+    .iai-divider { margin: 32px 0; }
+  }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="iai-root"><div class="iai-hero"><div class="iai-hero-bg-num">11</div><div class="iai-ring" style="width:600px;height:600px;top:-200px;left:-200px"></div><div class="iai-ring" style="width:320px;height:320px;top:60px;right:100px"></div><div class="iai-ring" style="width:160px;height:160px;bottom:140px;right:300px"></div><div class="iai-hero-inner"><div class="iai-overline">Class VIII · History · Chapter 11</div><h1 class="iai-hero-title">India After<br><em>Inde</em><span class="saf-em">pen</span><span class="gold-em">dence</span></h1><div class="iai-hero-bar"><div class="iai-hero-bar-item"><div class="iai-bar-label">Chapter</div><div class="iai-bar-value">11</div></div><div class="iai-hero-bar-item"><div class="iai-bar-label">Subject</div><div class="iai-bar-value">History</div></div><div class="iai-hero-bar-item"><div class="iai-bar-label">Focus</div><div class="iai-bar-value">1947 – Present</div></div><div class="iai-hero-bar-item"><div class="iai-bar-label">Board</div><div class="iai-bar-value">CBSE / NCERT</div></div></div></div></div><div class="iai-body"><div class="iai-lead"><p>On <strong>15 August 1947</strong>, after decades of struggle, India finally gained freedom from British rule. But independence was only the beginning — the new nation faced enormous challenges in building a just, united, and prosperous country from the ruins of colonialism.</p><p>This chapter covers how India wrote its <strong>Constitution</strong>, reorganised its states on linguistic lines, planned for economic development, and — sixty years on — assessed its achievements and the challenges that remain.</p></div><div class="iai-sec-head"><div class="iai-sec-num">1</div><div class="iai-sec-title-wrap"><div class="iai-sec-kicker">15 August 1947</div><h2 class="iai-sec-title">A New and <span class="saf">Divided Nation</span></h2></div></div><p class="iai-body-text">Independence brought joy — but also enormous complexity. India in 1947 was a vast, impoverished, and deeply divided country that had never before governed itself as a modern democracy. The challenges were immediate and overwhelming.</p><div class="iai-challenges-grid"><div class="iai-challenge-card"><div class="iai-challenge-icon">🏕️</div><div class="iai-challenge-name">Refugee Crisis</div><div class="iai-challenge-desc">Partition triggered the largest human migration in history — millions of refugees crossing borders in both directions, needing shelter, food, and rehabilitation.</div></div><div class="iai-challenge-card saf"><div class="iai-challenge-icon">👑</div><div class="iai-challenge-name">Princely States</div><div class="iai-challenge-desc">Over 500 semi-autonomous princely states had to be integrated into the Indian Union — a massive diplomatic and political challenge.</div></div><div class="iai-challenge-card gold"><div class="iai-challenge-icon">🗳️</div><div class="iai-challenge-name">Building Democracy</div><div class="iai-challenge-desc">India had to build a political system serving the hopes of a large, diverse, and deeply divided population — something never done at this scale.</div></div><div class="iai-challenge-card navy"><div class="iai-challenge-icon">🌾</div><div class="iai-challenge-name">Poverty &amp; Agriculture</div><div class="iai-challenge-desc">Most Indians were farmers entirely dependent on the monsoon. Widespread poverty needed to be addressed through agricultural modernisation and industrialisation.</div></div><div class="iai-challenge-card crim"><div class="iai-challenge-icon">⚖️</div><div class="iai-challenge-name">Caste &amp; Religious Divisions</div><div class="iai-challenge-desc">Deep divisions between high and low castes, and between religious communities, threatened unity. If unhealed, these could erupt into violent conflict.</div></div><div class="iai-challenge-card slate"><div class="iai-challenge-icon">🏭</div><div class="iai-challenge-name">Industrial Base</div><div class="iai-challenge-desc">India needed to build a modern industrial economy from scratch to create jobs and lift millions out of poverty, with almost no capital or infrastructure.</div></div></div><div class="iai-divider"><div class="iai-divider-mark"></div></div><div class="iai-sec-head"><div class="iai-sec-num">2</div><div class="iai-sec-title-wrap"><div class="iai-sec-kicker">26 January 1950</div><h2 class="iai-sec-title">A <span>Constitution</span> is Written</h2></div></div><p class="iai-body-text">The Constituent Assembly met in New Delhi, with representatives from all parts of India. After years of deliberation and debate, the Indian Constitution came into effect on <strong>26 January 1950</strong> — now celebrated as Republic Day. It is the supreme law of India.</p><div class="iai-const-features"><div class="iai-const-feat"><div class="iai-feat-num">1</div><div><div class="iai-feat-title">Universal Adult Franchise</div><div class="iai-feat-desc">All Indians above the age of 21 could vote in state and national elections. This was revolutionary — Indians had never been allowed to choose their own leaders. Every adult citizen, regardless of caste, religion, gender, or wealth, had an equal vote.</div></div></div><div class="iai-const-feat"><div class="iai-feat-num saf">2</div><div><div class="iai-feat-title">Equality Before the Law</div><div class="iai-feat-desc">The Constitution guaranteed equality before the law to all citizens, regardless of their caste or religious affiliation. No person could be discriminated against by the state on grounds of religion, race, caste, sex, or place of birth.</div></div></div><div class="iai-const-feat"><div class="iai-feat-num gold">3</div><div><div class="iai-feat-title">Special Privileges for the Disadvantaged</div><div class="iai-feat-desc">Untouchability was abolished. Temples, previously open only to upper castes, were now open to all including Harijans. Scheduled Castes and Scheduled Tribes were granted reservation in educational seats and government jobs. This was affirmative action on an unprecedented scale.</div></div></div><div class="iai-const-feat"><div class="iai-feat-num navy">4</div><div><div class="iai-feat-title">Federal Structure — Centre &amp; States</div><div class="iai-feat-desc">The Constituent Assembly debated extensively on balancing central and state power. It was decided that the Centre&#x27;s interest should be foremost — central law prevails in cases of conflict. Three lists divided subjects between Centre, States, and both jointly.</div></div></div><div class="iai-const-feat"><div class="iai-feat-num crim">5</div><div><div class="iai-feat-title">Official Language</div><div class="iai-feat-desc">Hindi was designated the official language of India. English would continue to be used in the courts, civil services, and communications between states — acknowledging India&#x27;s linguistic diversity and the practical need for a common administrative language.</div></div></div></div><div class="iai-lists-grid"><div class="iai-list-col dark"><div class="iai-list-col-icon">🏛️</div><div class="iai-list-col-name">Union List</div><div class="iai-list-col-tag">Central Government Only</div><ul class="iai-list-col-items"><li>Defence &amp; Armed Forces</li><li>Foreign Affairs</li><li>Currency &amp; Banking</li><li>Income Tax &amp; Customs</li><li>Railways &amp; Highways</li></ul></div><div class="iai-list-col mid"><div class="iai-list-col-icon">🏢</div><div class="iai-list-col-name">State List</div><div class="iai-list-col-tag">State Government Only</div><ul class="iai-list-col-items"><li>Education (primary &amp; secondary)</li><li>Health &amp; Hospitals</li><li>Police &amp; Law and Order</li><li>Local Government</li><li>Agriculture</li></ul></div><div class="iai-list-col"><div class="iai-list-col-icon">🤝</div><div class="iai-list-col-name">Concurrent List</div><div class="iai-list-col-tag">Both Centre &amp; States</div><ul class="iai-list-col-items"><li>Forests</li><li>Criminal Law &amp; Procedure</li><li>Marriage &amp; Divorce</li><li>Labour &amp; Trade Unions</li><li>Adoption &amp; Wills</li></ul></div></div><div class="iai-ambedkar"><div class="iai-ambedkar-badge">BRA</div><div><div class="iai-ambedkar-name">Dr. B.R. Ambedkar</div><div class="iai-ambedkar-title">Chairman, Drafting Committee · Father of the Indian Constitution</div><ul class="iai-ambedkar-pts"><li><strong>Born into an untouchable family:</strong> Experienced severe caste discrimination from childhood; forced to sit outside classrooms and denied access to common water sources</li><li><strong>Highest education:</strong> Earned doctorates from Columbia University (New York) and London School of Economics — one of the most educated Indians of his era</li><li><strong>Chairman, Drafting Committee:</strong> Primarily responsible for drafting the Indian Constitution — he is rightly called &quot;The Father of the Indian Constitution&quot;</li><li><strong>Key contributions:</strong> Ensured abolition of untouchability, equal rights regardless of caste, and reservations for Scheduled Castes and Scheduled Tribes were enshrined in the Constitution</li><li><strong>1956:</strong> Converted to Buddhism, rejecting Hinduism as inherently unequal — leading hundreds of thousands of followers in mass conversion</li></ul></div></div><div class="iai-divider"><div class="iai-divider-mark"></div></div><div class="iai-sec-head"><div class="iai-sec-num">3</div><div class="iai-sec-title-wrap"><div class="iai-sec-kicker">Linguistic Reorganisation</div><h2 class="iai-sec-title">How Were <span class="gold">States Formed?</span></h2></div></div><p class="iai-body-text">One of the most complex early challenges was deciding how to organise India&#x27;s states. Should they follow linguistic lines — grouping people who speak the same language together — or keep the old colonial boundaries? The answer came through struggle, sacrifice, and political pressure.</p><div class="iai-lang-tl"><div class="iai-lang-item"><div class="iai-lang-dot">1920</div><div class="iai-lang-content"><div class="iai-lang-year">1920s — Early Precedent</div><div class="iai-lang-title">Congress Reorganises on Linguistic Lines</div><div class="iai-lang-desc">The Indian National Congress amended its constitution and reorganised its regional branches on the basis of linguistic groups — implicitly accepting the principle of linguistic organisation. But Nehru and Patel opposed creating separate states after independence, fearing it would weaken national unity.</div></div></div><div class="iai-lang-item"><div class="iai-lang-dot saf">1952</div><div class="iai-lang-content saf"><div class="iai-lang-year">October 1952 — The Sacrifice</div><div class="iai-lang-title">Potti Sriramulu&#x27;s Fast Unto Death</div><div class="iai-lang-desc">Veteran Gandhian Potti Sriramulu went on an indefinite hunger strike demanding the creation of Andhra Pradesh for Telugu-speaking people. After 58 days, on 15 December 1952, he died. His death triggered widespread violence across the region — forcing the central government to act.</div></div></div><div class="iai-lang-item"><div class="iai-lang-dot gold">1953</div><div class="iai-lang-content gold"><div class="iai-lang-year">1 October 1953 — First Linguistic State</div><div class="iai-lang-title">Andhra Pradesh Created</div><div class="iai-lang-desc">India&#x27;s first state created on linguistic lines. This set a precedent — other communities now demanded their own states. A State Reorganisation Commission was set up, leading to the division of Bombay (into Maharashtra and Gujarat), Punjab (into Punjab and Haryana), and the subdivision of Hindi-speaking North India into several states.</div></div></div></div><div class="iai-divider"><div class="iai-divider-mark"></div></div><div class="iai-sec-head"><div class="iai-sec-num">4</div><div class="iai-sec-title-wrap"><div class="iai-sec-kicker">Building a Modern Economy</div><h2 class="iai-sec-title">Planning for <span>Development</span></h2></div></div><p class="iai-body-text">Lifting India out of poverty and building a modern industrial base were among the most urgent priorities of the new nation. In 1950, the government set up the <strong>Planning Commission</strong> to design and execute economic development policies.</p><div class="iai-dev-grid"><div class="iai-dev-card"><div class="iai-dev-icon">⚖️</div><div class="iai-dev-head">Mixed Economy Model</div><div class="iai-dev-body">India chose a Mixed Economy — both public (government) and private sectors would co-exist. Not purely socialist like the USSR, not purely capitalist like the USA. A deliberate middle path for a newly independent nation.</div></div><div class="iai-dev-card saf"><div class="iai-dev-icon">📋</div><div class="iai-dev-head">Five Year Plans</div><div class="iai-dev-body">The Planning Commission formulated Five Year Plans. The First Plan (1951–56) focused on agriculture; the Second Plan (1956–61) focused heavily on steel, heavy industry, and large dams — directly under state control.</div></div><div class="iai-dev-card gold"><div class="iai-dev-icon">🏗️</div><div class="iai-dev-head">Bhilai Steel Plant</div><div class="iai-dev-body">The Bhilai Steel Plant in Chhattisgarh, built with Soviet assistance, became a symbol of modern India&#x27;s industrial ambitions. Nehru called such projects &quot;the temples of modern India.&quot;</div></div><div class="iai-dev-card navy"><div class="iai-dev-icon">🌊</div><div class="iai-dev-head">Large Dams</div><div class="iai-dev-body">The Second Five Year Plan focused on building large dams like Bhakra Nangal to provide irrigation water and hydroelectric power — crucial for both agricultural and industrial development.</div></div></div><div class="iai-divider"><div class="iai-divider-mark"></div></div><div class="iai-sec-head"><div class="iai-sec-num">5</div><div class="iai-sec-title-wrap"><div class="iai-sec-kicker">The Nation, 60 Years On</div><h2 class="iai-sec-title">Achievements &amp; <span class="crimson">Failures</span></h2></div></div><p class="iai-body-text">On 15 August 2007, India celebrated sixty years as a free nation. The balance sheet was mixed — genuine and remarkable achievements sit alongside persistent and serious failures. Honest self-assessment is essential for a democracy.</p><div class="iai-report-card"><div class="iai-rc-col"><div class="iai-rc-hd">✓ Achievements</div><div class="iai-rc-tag">What India Got Right</div><ul><li><strong>United &amp; democratic:</strong> India remained one nation and a functioning democracy — a remarkable achievement given the scale of diversity and the poverty at independence</li><li><strong>Unity in diversity:</strong> India&#x27;s many religions, languages, and cultures have coexisted within one constitutional framework across six decades</li><li><strong>Free press:</strong> A genuinely free press has functioned throughout independent India&#x27;s history — exposing corruption, holding governments accountable</li><li><strong>Independent judiciary:</strong> Courts have frequently ruled against the government, protecting citizens&#x27; rights and upholding constitutional values</li><li><strong>Peaceful transfer of power:</strong> Governments have been voted out and replaced peacefully through elections — the hallmark of mature democracy</li></ul></div><div class="iai-rc-col dark"><div class="iai-rc-hd">✗ Failures</div><div class="iai-rc-tag">What Remains Unresolved</div><ul><li><strong>Caste discrimination persists:</strong> Despite constitutional abolition of untouchability, Dalits continue to face violence, discrimination, and social exclusion in many parts of India</li><li><strong>Communal violence:</strong> Clashes between different religious groups have occurred repeatedly in many states, often with political encouragement</li><li><strong>Widening inequality:</strong> The gulf between rich and poor has widened dramatically — economic growth has benefited the wealthy and middle class far more than the rural poor</li><li><strong>Deep divisions persist:</strong> Despite constitutional guarantees, caste, religious, and regional identities continue to fuel discrimination and conflict</li><li><strong>Corruption:</strong> Corruption at every level of government and administration has undermined public services and economic development</li></ul></div></div><div class="iai-divider"><div class="iai-divider-mark"></div></div><div class="iai-faq-header"><span class="iai-faq-kicker">Exam Preparation</span></div><h2 class="iai-faq-title">Frequently Asked Questions</h2><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q1. What were the major challenges India faced immediately after independence in 1947?</span></summary><div class="iai-faq-ans visible">India faced a daunting array of challenges when it gained independence on 15 August 1947. First, the massive refugee crisis created by Partition — millions of Hindus and Sikhs fleeing Pakistan and millions of Muslims fleeing India — had to be managed. Second, over 500 princely states that had been semi-autonomous under British paramountcy had to be integrated into the new nation. Third, India needed to build a political system that would serve a large, diverse, and deeply divided population — divided between high and low castes, between religious communities, and between different linguistic groups. Fourth, the majority of Indians were farmers entirely dependent on the monsoon, and poverty was widespread. Fifth, the new government had to lift its masses out of poverty by modernising agriculture and building new industries. Unity and development were inseparable — if social divisions were not healed, they could erupt into violent conflicts as had already been seen between Hindus and Muslims.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q2. What is the Indian Constitution and what are its key features?</span></summary><div class="iai-faq-ans visible">The Indian Constitution is the supreme law of India — the foundational document that establishes the political values, powers of government, and rights of citizens. It was drafted by the Constituent Assembly (which met in New Delhi with representatives from all parts of India) and came into effect on 26 January 1950, the date we celebrate as Republic Day. Its key features are: (1) Universal Adult Franchise — all Indians above 21 could vote, a revolutionary step since Indians had never been allowed to choose their own leaders; (2) Equality before the law for all citizens regardless of caste or religion; (3) Special privileges for the poorest and most disadvantaged groups — untouchability was abolished, temples were opened to all, and reservation in seats and jobs was granted to former Untouchables (Scheduled Castes) and Adivasis (Scheduled Tribes); (4) A federal structure balancing power between the Centre and States through three lists — Union, State, and Concurrent; (5) Hindi as official language with English retained for courts and inter-state communication.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q3. What are the Union List, State List, and Concurrent List?</span></summary><div class="iai-faq-ans visible">The Indian Constitution distributes legislative powers between the Centre and State governments through three lists. The Union List contains subjects that are the exclusive responsibility of the Central government — these are matters of national importance such as defence, foreign affairs, currency, banking, and taxes. The State List contains subjects primarily handled by state governments — matters of local importance such as education, health, agriculture, law and order, and local governance. The Concurrent List contains subjects in which both the Centre and States have joint responsibility — areas like forests, agriculture (certain aspects), criminal law, and marriage law. In case of conflict between central and state laws on Concurrent List subjects, the central law prevails. This federal structure was designed to maintain national unity while giving states sufficient autonomy to govern themselves according to local needs.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q4. Who was Dr. B.R. Ambedkar and what was his role in the Indian Constitution?</span></summary><div class="iai-faq-ans visible">Dr. Bhimrao Ramji Ambedkar (1891–1956) was one of the most important figures in the making of independent India. Born into a family considered &#x27;untouchable,&#x27; he overcame severe caste discrimination to earn doctorates from Columbia University (New York) and the London School of Economics — making him one of the most educated Indians of his generation. He was appointed Chairman of the Drafting Committee of the Constituent Assembly, making him primarily responsible for the actual drafting of the Indian Constitution. Under his supervision, the document was finalized and he is referred to as &#x27;The Father of the Indian Constitution.&#x27; Ambedkar ensured the Constitution included the abolition of untouchability, equal rights for all citizens regardless of caste, reservations for Scheduled Castes and Scheduled Tribes, and the guarantee that no person would face discrimination based on caste or religion. He resigned as Law Minister in 1951 and converted to Buddhism in 1956, rejecting Hinduism as inherently unequal.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q5. Why were linguistic states formed and what was the role of Potti Sriramulu?</span></summary><div class="iai-faq-ans visible">From the 1920s, the Indian National Congress had reorganised its regional branches along linguistic lines, implicitly accepting the idea that states should be organised by language. However, after independence, Prime Minister Nehru and Deputy PM Vallabhbhai Patel were both opposed to creating linguistic states, fearing it would encourage separatism and weaken national unity. The issue came to a head in 1952 when Potti Sriramulu, a veteran Gandhian, went on hunger strike demanding the creation of a separate state of Andhra Pradesh for Telugu-speaking people. After 58 days of fasting, he died on 15 December 1952. His death triggered widespread violence across the region, and the central government was forced to relent. Andhra Pradesh was created on 1 October 1953 — the first state formed on linguistic lines. This opened the floodgates: other linguistic communities demanded their own states, and a State Reorganisation Commission was set up. Based on its recommendations, the large Hindi-speaking north was divided into several states, the bilingual Bombay state was divided into Maharashtra and Gujarat, and Punjab was divided into Punjab and Haryana.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q6. What was the Planning Commission and India&#x27;s development strategy after 1947?</span></summary><div class="iai-faq-ans visible">In 1950, the Indian government established the Planning Commission to design and execute policies for economic development. India adopted a &#x27;Mixed Economy&#x27; model, meaning both the public (government) sector and the private (business) sector would coexist and contribute to economic development — India would neither be fully socialist like the Soviet Union nor purely capitalist like the USA. The first Five Year Plan (1951–56) focused mainly on agriculture and rehabilitation of refugees. The second Five Year Plan (1956–61) was more ambitious, focusing on heavy industry — particularly steel plants — and large dams. These heavy industries were placed under state control, as private companies lacked the capital and the government believed state ownership would ensure national benefit. The Bhilai Steel Plant in Chhattisgarh, built with Soviet assistance, became a symbol of modern India&#x27;s industrial ambitions. Large dams like Bhakra Nangal were built to provide irrigation and electricity. Nehru famously called large dams and factories &#x27;the temples of modern India.&#x27;</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q7. What were India&#x27;s achievements and failures in the sixty years after independence?</span></summary><div class="iai-faq-ans visible">When India celebrated 60 years of independence in 2007, the balance sheet was mixed. On the positive side, India had remained a united and democratic country — a remarkable achievement given the scale of its diversity and the predictions of many observers who doubted it could survive as one nation. Unity in diversity had been maintained, with India&#x27;s many religions, languages, and cultures coexisting within one constitutional framework. India maintained a free press and an independent judiciary — fundamental pillars of democracy. Regular elections have transferred power peacefully, even when governments were defeated. India also became a nuclear power and a significant global economy. However, the failures were equally significant: deep social divisions persisted despite constitutional guarantees. Dalits continued to face violence and discrimination. Clashes between different religious communities occurred in many states. The gulf between the rich and the poor widened considerably over these decades, with economic growth benefiting the middle class and wealthy far more than the rural poor and urban working class. Gender inequality, corruption, and environmental degradation also remained serious challenges.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q8. What was Universal Adult Franchise and why was it a revolutionary step for India?</span></summary><div class="iai-faq-ans visible">Universal Adult Franchise means that every adult citizen has the right to vote, regardless of their caste, religion, gender, education, or economic status. The Indian Constitution granted this right to all Indians above the age of 21 (later reduced to 18 in 1989). This was a truly revolutionary step in the Indian context because under British colonial rule, Indians had never been allowed to choose their own leaders through elections. In the colonial legislative councils, voting was restricted to a tiny minority — only the wealthy, the educated, and property owners. The idea that an illiterate peasant woman in a remote village would have the same voting power as a wealthy city businessman or a British-educated lawyer was radical. Many observers, including some British officials, doubted whether democracy could work in such a large, poor, and diverse country. India&#x27;s successful conduct of general elections since 1952 proved these doubters wrong and made India the world&#x27;s largest democracy.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q9. How were princely states integrated into independent India?</span></summary><div class="iai-faq-ans visible">At the time of independence, India had over 500 princely states — territories ruled by Indian monarchs (maharajas, nawabs, nizams) under British paramountcy. These states varied enormously in size from tiny estates to large kingdoms like Hyderabad and Mysore. The task of integrating them into the Indian Union fell primarily to Deputy Prime Minister Sardar Vallabhbhai Patel, aided by his civil servant V.P. Menon. Most princely rulers were persuaded to sign Instruments of Accession, joining India in exchange for privy purses (annual payments) and guarantees of their personal privileges. However, a few states resisted. Hyderabad, ruled by the Nizam, refused to join and was brought into India by a police action (Operation Polo) in September 1948. Junagadh, which had joined Pakistan despite its Hindu-majority population, was taken over by India after a referendum. Jammu and Kashmir, which initially wanted to remain independent, acceded to India after Pakistani-backed tribal forces invaded, leading to the Kashmir conflict that continues today.</div></details><details class="iai-faq-item" data-faq><summary class="iai-faq-q"><span class="iai-faq-q-text">Q10. What was the Mixed Economy model that India adopted after independence?</span></summary><div class="iai-faq-ans visible">The Mixed Economy model adopted by India meant that both the public sector (government-owned enterprises) and the private sector (privately owned businesses) would coexist and work together for national economic development. This was a deliberate middle path between two extreme models: Soviet-style socialism, where the state owned and controlled all means of production; and Western-style capitalism, where private enterprise dominated with minimal government involvement. In India&#x27;s mixed economy, the government took direct control of &#x27;commanding heights&#x27; — the most important and capital-intensive industries like steel, coal, power, railways, banking, and heavy manufacturing. These were considered too important for national development and too risky for private investment. Private enterprise was allowed in consumer goods, trade, and lighter manufacturing. Five Year Plans coordinated both sectors toward national development goals. Over time, especially from the 1991 economic liberalisation onwards, the private sector&#x27;s role grew and many state enterprises were privatised or opened to private competition.</div></details></div></div>

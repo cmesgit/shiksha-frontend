@@ -1,0 +1,330 @@
+<style>
+  :root {
+    --ink:        #0f172a;
+    --ink2:       #1e293b;
+    --muted:      #64748b;
+    --violet:     #6d28d9;
+    --violet2:    #7c3aed;
+    --violet-bg:  #f5f3ff;
+    --violet-bd:  #ddd6fe;
+    --rose:       #be123c;
+    --rose2:      #e11d48;
+    --rose-bg:    #fff1f2;
+    --rose-bd:    #fecdd3;
+    --sky:        #0369a1;
+    --sky2:       #0284c7;
+    --sky-bg:     #f0f9ff;
+    --sky-bd:     #bae6fd;
+    --teal:       #0f766e;
+    --teal2:      #0d9488;
+    --teal-bg:    #f0fdfa;
+    --teal-bd:    #99f6e4;
+    --amber:      #b45309;
+    --amber2:     #d97706;
+    --amber-bg:   #fffbeb;
+    --amber-bd:   #fde68a;
+    --forest:     #166534;
+    --forest2:    #15803d;
+    --forest-bg:  #f0fdf4;
+    --forest-bd:  #86efac;
+    --card:       #ffffff;
+  }
+
+  .blog-root {
+    font-family: 'Inter', sans-serif;
+    background: #faf8ff;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Hero ── */
+  .hr6-hero {
+    background: linear-gradient(135deg, #1a0533 0%, #3b0764 35%, #6d28d9 68%, #7c3aed 100%);
+    padding: 80px 24px 96px;
+    position: relative; overflow: hidden;
+  }
+  .hr6-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 8% 65%, rgba(225,29,72,0.18) 0%, transparent 50%),
+      radial-gradient(circle at 87% 16%, rgba(124,58,237,0.28) 0%, transparent 52%),
+      radial-gradient(circle at 52% 95%, rgba(13,148,136,0.12) 0%, transparent 40%);
+  }
+  .hr6-hero::after {
+    content: '👥';
+    position: absolute; right: 44px; top: 32px;
+    font-size: 130px; opacity: 0.07; line-height: 1;
+  }
+  .hr6-hero-inner { max-width: 820px; margin: 0 auto; position: relative; z-index: 1; }
+  .hr6-hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(225,29,72,0.18); border: 1px solid rgba(225,29,72,0.38);
+    color: #fecdd3; font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 100px;
+    margin-bottom: 28px; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .hr6-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(36px, 6vw, 64px); font-weight: 900; line-height: 1.07;
+    color: #ffffff; margin: 0 0 20px; letter-spacing: -0.02em;
+  }
+  .hr6-hero-title span { color: #ddd6fe; }
+  .hr6-hero-sub {
+    font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 500;
+    color: #ede9fe; line-height: 1.7; max-width: 620px; margin: 0 0 40px;
+  }
+  .hr6-hero-meta { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+  .hr6-meta-chip { color: #ddd6fe; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 7px; }
+  .hr6-meta-dot  { width: 4px; height: 4px; background: #c4b5fd; border-radius: 50%; display: inline-block; }
+
+  /* ── Body ── */
+  .hr6-body { max-width: 820px; margin: 0 auto; padding: 64px 24px 80px; }
+
+  /* ── Intro card ── */
+  .hr6-intro-card {
+    background: linear-gradient(135deg, #1a0533, #3b0764);
+    border-radius: 20px; padding: 40px 44px; margin-bottom: 56px;
+    position: relative; overflow: hidden;
+  }
+  .hr6-intro-card::after {
+    content: '🌍'; position: absolute; top: 10px; right: 28px;
+    font-size: 120px; opacity: 0.07; line-height: 1;
+  }
+  .hr6-intro-card p {
+    font-family: 'Poppins', sans-serif; font-size: 19px; font-weight: 500;
+    color: #ede9fe; line-height: 1.75; margin: 0 0 16px; position: relative; z-index: 1;
+  }
+  .hr6-intro-card p:last-child { margin: 0; }
+  .hr6-intro-card strong { color: #ddd6fe; }
+
+  /* ── Stat strip ── */
+  .hr6-stat-strip {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 0; border-radius: 14px; overflow: hidden;
+    border: 1.5px solid var(--violet-bd); margin-bottom: 56px;
+    box-shadow: 0 4px 18px rgba(124,58,237,0.09);
+  }
+  @media (max-width: 560px) { .hr6-stat-strip { grid-template-columns: repeat(2,1fr); } }
+  .hr6-stat {
+    padding: 24px 14px; text-align: center;
+    border-right: 1.5px solid var(--violet-bd); background: var(--card);
+  }
+  .hr6-stat:last-child { border-right: none; }
+  @media (max-width: 560px) {
+    .hr6-stat:nth-child(2) { border-right: none; }
+    .hr6-stat:nth-child(3) { border-top: 1.5px solid var(--violet-bd); }
+    .hr6-stat:nth-child(4) { border-top: 1.5px solid var(--violet-bd); border-right: none; }
+  }
+  .hr6-stat-icon { font-size: 26px; margin-bottom: 6px; }
+  .hr6-stat-num { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; color: var(--violet2); margin-bottom: 4px; }
+  .hr6-stat-lbl { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); line-height: 1.4; }
+
+  /* ── Labels & titles ── */
+  .hr6-label {
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .hr6-label.vio { color: var(--violet2); }
+  .hr6-label.ros { color: var(--rose2); }
+  .hr6-label.sky { color: var(--sky2); }
+  .hr6-label.tl  { color: var(--teal2); }
+  .hr6-label.amb { color: var(--amber2); }
+  .hr6-label.frs { color: var(--forest2); }
+
+  .hr6-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(26px, 4vw, 36px); font-weight: 800;
+    color: var(--ink); line-height: 1.2; margin: 0 0 28px; letter-spacing: -0.01em;
+  }
+  .hr6-title .vio { color: var(--violet2); }
+  .hr6-title .ros { color: var(--rose2); }
+  .hr6-title .sky { color: var(--sky2); }
+  .hr6-title .tl  { color: var(--teal2); }
+  .hr6-title .amb { color: var(--amber2); }
+  .hr6-title .frs { color: var(--forest2); }
+
+  .hr6-divider { border: none; border-top: 1.5px solid #ddd6fe; margin: 52px 0; }
+
+  /* ── Key concept box ── */
+  .hr6-key-box {
+    background: linear-gradient(135deg, #1a0533, #3b0764);
+    border-radius: 16px; padding: 28px 32px; margin-bottom: 40px;
+    display: flex; gap: 16px; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .hr6-key-box::after { content: '💡'; position: absolute; right: 20px; top: 8px; font-size: 80px; opacity: 0.09; }
+  .hr6-key-box .kb-icon { font-size: 36px; flex-shrink: 0; }
+  .hr6-key-box h4 { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; color: #ddd6fe; margin: 0 0 6px; position: relative; z-index: 1; }
+  .hr6-key-box p { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; color: #ede9fe; line-height: 1.65; margin: 0; position: relative; z-index: 1; }
+  .hr6-key-box strong { color: #c4b5fd; }
+
+  /* ── Population top 5 strip ── */
+  .hr6-pop5 {
+    display: grid; grid-template-columns: repeat(5,1fr);
+    gap: 0; border-radius: 14px; overflow: hidden;
+    border: 1.5px solid var(--violet-bd); margin-bottom: 40px;
+  }
+  @media (max-width: 580px) { .hr6-pop5 { grid-template-columns: repeat(3,1fr); } }
+  .hr6-pop5-box {
+    padding: 18px 10px; text-align: center;
+    border-right: 1.5px solid var(--violet-bd); background: var(--card);
+  }
+  .hr6-pop5-box:last-child { border-right: none; }
+  @media (max-width: 580px) {
+    .hr6-pop5-box:nth-child(3) { border-right: none; }
+    .hr6-pop5-box:nth-child(4),
+    .hr6-pop5-box:nth-child(5) { border-top: 1.5px solid var(--violet-bd); }
+    .hr6-pop5-box:nth-child(6) { border-top: 1.5px solid var(--violet-bd); border-right: none; }
+  }
+  .hr6-pop5-rank { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:900; color:var(--violet2); }
+  .hr6-pop5-flag { font-size:22px; margin: 4px 0; }
+  .hr6-pop5-name { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; color:var(--ink2); }
+
+  /* ── Physical & social factors ── */
+  .hr6-factors-split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-radius: 16px; overflow: hidden;
+    border: 1.5px solid var(--violet-bd); margin-bottom: 32px;
+  }
+  @media (max-width: 540px) { .hr6-factors-split { grid-template-columns: 1fr; } }
+  .hr6-fac-col { padding: 26px 24px; }
+  .hr6-fac-col.phys { background: var(--sky-bg); }
+  .hr6-fac-col.soc  { background: var(--violet-bg); border-left: 1.5px solid var(--violet-bd); }
+  @media (max-width: 540px) { .hr6-fac-col.soc { border-left: none; border-top: 1.5px solid var(--violet-bd); } }
+  .hr6-fac-col h3 { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; margin: 0 0 14px; }
+  .hr6-fac-col.phys h3 { color: var(--sky); }
+  .hr6-fac-col.soc  h3 { color: var(--violet2); }
+  .hr6-fac-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .hr6-fac-key {
+    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 100px; text-transform: uppercase;
+    letter-spacing: 0.05em; flex-shrink: 0; white-space: nowrap;
+  }
+  .hr6-fac-col.phys .hr6-fac-key { background: var(--sky-bd); color: var(--sky); }
+  .hr6-fac-col.soc  .hr6-fac-key { background: var(--violet-bd); color: var(--violet); }
+  .hr6-fac-val { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+  .hr6-fac-val strong { color: var(--ink); }
+
+  /* ── Population change trio ── */
+  .hr6-change-trio {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 14px; margin-bottom: 36px;
+  }
+  @media (max-width: 540px) { .hr6-change-trio { grid-template-columns: 1fr; } }
+  .hr6-ct-card {
+    border-radius: 14px; padding: 22px 18px; border: 1.5px solid; text-align: center;
+  }
+  .hr6-ct-card.birth { background: var(--rose-bg);   border-color: var(--rose-bd);   border-top: 4px solid var(--rose2); }
+  .hr6-ct-card.death { background: var(--amber-bg);  border-color: var(--amber-bd);  border-top: 4px solid var(--amber2); }
+  .hr6-ct-card.migr  { background: var(--teal-bg);   border-color: var(--teal-bd);   border-top: 4px solid var(--teal2); }
+  .hr6-ct-card .ctc-icon { font-size: 30px; margin-bottom: 8px; }
+  .hr6-ct-card h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; margin: 0 0 6px; }
+  .hr6-ct-card.birth h4 { color: var(--rose2); }
+  .hr6-ct-card.death h4 { color: var(--amber2); }
+  .hr6-ct-card.migr  h4 { color: var(--teal2); }
+  .hr6-ct-card p { font-size: 13px; color: var(--ink2); line-height: 1.65; margin: 0; }
+  .hr6-ct-card strong { color: var(--ink); }
+
+  /* ── Key terms row ── */
+  .hr6-terms {
+    display: grid; grid-template-columns: repeat(2,1fr);
+    gap: 14px; margin-bottom: 40px;
+  }
+  @media (max-width: 500px) { .hr6-terms { grid-template-columns: 1fr; } }
+  .hr6-term {
+    background: var(--card); border: 1.5px solid var(--violet-bd);
+    border-left: 4px solid var(--violet2); border-radius: 14px; padding: 18px 20px;
+  }
+  .hr6-term h4 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; color: var(--violet2); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 6px; }
+  .hr6-term p { font-size: 14px; color: var(--ink2); line-height: 1.65; margin: 0; }
+  .hr6-term strong { color: var(--ink); }
+
+  /* ── Population composition box ── */
+  .hr6-comp-card {
+    background: var(--violet-bg); border: 1.5px solid var(--violet-bd);
+    border-radius: 18px; padding: 28px 30px; margin-bottom: 32px;
+  }
+  .hr6-comp-card h3 { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: var(--violet2); margin: 0 0 14px; }
+  .hr6-comp-card ul { margin: 0; padding-left: 18px; }
+  .hr6-comp-card ul li { font-size: 14px; color: var(--ink2); line-height: 1.8; margin-bottom: 6px; }
+  .hr6-comp-card ul li strong { color: var(--violet2); }
+
+  /* ── Age groups strip ── */
+  .hr6-age-strip {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 0; border-radius: 14px; overflow: hidden;
+    border: 1.5px solid var(--violet-bd); margin-bottom: 40px;
+  }
+  @media (max-width: 520px) { .hr6-age-strip { grid-template-columns: 1fr; } }
+  .hr6-age-box { padding: 24px 16px; text-align: center; border-right: 1.5px solid var(--violet-bd); }
+  .hr6-age-box:last-child { border-right: none; }
+  @media (max-width: 520px) {
+    .hr6-age-box { border-right: none; border-bottom: 1.5px solid var(--violet-bd); }
+    .hr6-age-box:last-child { border-bottom: none; }
+  }
+  .hr6-age-box.young { background: var(--rose-bg); }
+  .hr6-age-box.work  { background: var(--forest-bg); }
+  .hr6-age-box.aged  { background: var(--amber-bg); }
+  .hr6-age-icon { font-size: 28px; margin-bottom: 8px; }
+  .hr6-age-range { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; margin-bottom: 4px; }
+  .hr6-age-box.young .hr6-age-range { color: var(--rose2); }
+  .hr6-age-box.work  .hr6-age-range { color: var(--forest2); }
+  .hr6-age-box.aged  .hr6-age-range { color: var(--amber2); }
+  .hr6-age-label { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .hr6-age-box.young .hr6-age-label { color: var(--rose2); }
+  .hr6-age-box.work  .hr6-age-label { color: var(--forest2); }
+  .hr6-age-box.aged  .hr6-age-label { color: var(--amber2); }
+  .hr6-age-note { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* ── Population pyramid 3 types ── */
+  .hr6-pyramid-cards {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 14px; margin-bottom: 40px;
+  }
+  @media (max-width: 580px) { .hr6-pyramid-cards { grid-template-columns: 1fr; } }
+  .hr6-pyr-card {
+    background: var(--card); border: 1.5px solid;
+    border-radius: 16px; padding: 22px 18px; text-align: center;
+  }
+  .hr6-pyr-card.india { border-color: var(--violet-bd); }
+  .hr6-pyr-card.japan { border-color: var(--sky-bd); }
+  .hr6-pyr-card.least { border-color: var(--rose-bd); }
+  .hr6-pyr-visual {
+    margin: 0 auto 14px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .hr6-pyr-bar {
+    border-radius: 4px; height: 12px;
+  }
+  .hr6-pyr-card.india .hr6-pyr-bar { background: var(--violet2); }
+  .hr6-pyr-card.japan .hr6-pyr-bar { background: var(--sky2); }
+  .hr6-pyr-card.least .hr6-pyr-bar { background: var(--rose2); }
+  .hr6-pyr-card h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; margin: 0 0 6px; }
+  .hr6-pyr-card.india h4 { color: var(--violet2); }
+  .hr6-pyr-card.japan h4 { color: var(--sky2); }
+  .hr6-pyr-card.least h4 { color: var(--rose2); }
+  .hr6-pyr-card p { font-size: 13px; color: var(--ink2); line-height: 1.6; margin: 0; }
+  .hr6-pyr-card strong { color: var(--ink); }
+
+  /* ── FAQ ── */
+  .hr6-faq-label { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; color:var(--violet2); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; }
+  .hr6-faq-title { font-family:'Montserrat',sans-serif; font-size:clamp(24px,3.5vw,32px); font-weight:800; color:var(--ink); margin:0 0 28px; letter-spacing:-0.01em; }
+  .faq-item { border:1.5px solid var(--violet-bd); border-radius:14px; margin-bottom:12px; background:var(--card); overflow:hidden; }
+  .faq-item.open { border-color:var(--violet2); }
+  .faq-q { width:100%; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:18px 22px; gap:12px; text-align:left; }
+  .faq-q-text { font-family:'Poppins',sans-serif; font-size:15px; font-weight:600; color:var(--ink); line-height:1.5; }
+  .faq-item.open .faq-q-text { color:var(--violet2); }
+  .faq-icon { font-size:18px; color:var(--violet2); flex-shrink:0; font-family:'Poppins',sans-serif; font-weight:700; }
+  .faq-ans { display:none; padding:0 22px 20px; font-family:'Poppins',sans-serif; font-size:14px; font-weight:500; color:var(--ink2); line-height:1.8; }
+  .faq-ans.visible { display:block; }
+  .faq-ans strong { color:var(--violet2); }
+  .faq-ans ul { padding-left:20px; margin:8px 0; }
+  .faq-ans ul li { margin-bottom:6px; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="blog-root"><div class="hr6-hero"><div class="hr6-hero-inner"><div class="hr6-hero-tag">📚 Geography · Class 8 · Chapter 6</div><h1 class="hr6-hero-title">Human <span>Resources</span></h1><p class="hr6-hero-sub">People are a nation&#x27;s greatest resource. Explore how population is distributed, what drives its change, and how the age-sex pyramid reveals the human story of every nation on Earth.</p><div class="hr6-hero-meta"><span class="hr6-meta-chip"><span class="hr6-meta-dot"></span>Geography</span><span class="hr6-meta-chip"><span class="hr6-meta-dot"></span>NCERT Class 8</span><span class="hr6-meta-chip"><span class="hr6-meta-dot"></span>Chapter 6</span><span class="hr6-meta-chip"><span class="hr6-meta-dot"></span>10 FAQs</span></div></div></div><div class="hr6-body"><div class="hr6-intro-card"><p><strong>People are a nation&#x27;s greatest resource.</strong> It is their ideas, knowledge, skills, and motivation that turn raw materials into &#x27;resources&#x27;. Without human effort, nothing has value.</p><p>Like all resources, human resources are <strong>not equally distributed</strong> over the world. Understanding population — its distribution, density, change, and composition — is the key to understanding development.</p></div><div class="hr6-stat-strip"><div class="hr6-stat"><div class="hr6-stat-icon">🌍</div><div class="hr6-stat-num">7.6B</div><div class="hr6-stat-lbl">World population</div></div><div class="hr6-stat"><div class="hr6-stat-icon">📈</div><div class="hr6-stat-num">9.6B</div><div class="hr6-stat-lbl">Projected by 2045</div></div><div class="hr6-stat"><div class="hr6-stat-icon">🇮🇳</div><div class="hr6-stat-num">382</div><div class="hr6-stat-lbl">India density (per sq km)</div></div><div class="hr6-stat"><div class="hr6-stat-icon">🌐</div><div class="hr6-stat-num">51</div><div class="hr6-stat-lbl">World avg density (per sq km)</div></div></div><div class="hr6-key-box"><div class="kb-icon">👥</div><div><h4>People — The Ultimate Resource</h4><p>Healthy, educated, and motivated people develop resources as per their requirements. A country with a large, skilled population is <strong>richer in human resource</strong>. Human resource development — improving skills and abilities — is the foundation of national progress.</p></div></div><div class="hr6-label vio">Distribution</div><h2 class="hr6-title">Population <span class="vio">Distribution</span></h2><div class="hr6-pop5"><div class="hr6-pop5-box"><div class="hr6-pop5-rank">#1</div><div class="hr6-pop5-flag">🇨🇳</div><div class="hr6-pop5-name">China</div></div><div class="hr6-pop5-box"><div class="hr6-pop5-rank">#2</div><div class="hr6-pop5-flag">🇮🇳</div><div class="hr6-pop5-name">India</div></div><div class="hr6-pop5-box"><div class="hr6-pop5-rank">#3</div><div class="hr6-pop5-flag">🇺🇸</div><div class="hr6-pop5-name">USA</div></div><div class="hr6-pop5-box"><div class="hr6-pop5-rank">#4</div><div class="hr6-pop5-flag">🇮🇩</div><div class="hr6-pop5-name">Indonesia</div></div><div class="hr6-pop5-box"><div class="hr6-pop5-rank">#5</div><div class="hr6-pop5-flag">🇧🇷</div><div class="hr6-pop5-name">Brazil</div></div></div><div class="hr6-label sky">Factors</div><h2 class="hr6-title">Factors Affecting <span class="sky">Population Distribution</span></h2><div class="hr6-factors-split"><div class="hr6-fac-col phys"><h3>🌍 Physical Factors</h3><div class="hr6-fac-row"><span class="hr6-fac-key">Topography</span><span class="hr6-fac-val">Plains preferred — suitable for farming, manufacturing, services</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Climate</span><span class="hr6-fac-val">Moderate climate preferred; extreme hot or cold avoided</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Soil</span><span class="hr6-fac-val">Fertile soil → dense settlement for agriculture</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Water</span><span class="hr6-fac-val">People settle near sources of fresh water</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Minerals</span><span class="hr6-fac-val">Areas with mineral deposits attract more population</span></div></div><div class="hr6-fac-col soc"><h3>👤 Social &amp; Economic Factors</h3><div class="hr6-fac-row"><span class="hr6-fac-key">Amenities</span><span class="hr6-fac-val">Better housing, education, health facilities → denser population</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Culture</span><span class="hr6-fac-val">Religious or cultural significance attracts people</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Industry</span><span class="hr6-fac-val">Industrial areas offer employment — large numbers attracted</span></div><div class="hr6-fac-row"><span class="hr6-fac-key">Politics</span><span class="hr6-fac-val">Politically stable countries give better living conditions</span></div></div></div><hr class="hr6-divider"><div class="hr6-label ros">Population Change</div><h2 class="hr6-title">What Causes <span class="ros">Population Change</span></h2><div class="hr6-change-trio"><div class="hr6-ct-card birth"><div class="ctc-icon">👶</div><h4>Birth Rate</h4><p>Number of <strong>live births per 1,000 people</strong>. High birth rate = fast-growing population. Developing nations typically have higher birth rates.</p></div><div class="hr6-ct-card death"><div class="ctc-icon">📉</div><h4>Death Rate</h4><p>Number of <strong>deaths per 1,000 people</strong>. Advances in food supply and medicine have reduced death rates globally — driving population growth.</p></div><div class="hr6-ct-card migr"><div class="ctc-icon">✈️</div><h4>Migration</h4><p>Movement of people <strong>in and out of an area</strong>. Immigration adds to population; emigration reduces it. Driven by push and pull factors.</p></div></div><div class="hr6-terms"><div class="hr6-term"><h4>Natural Growth Rate</h4><p>The <strong>difference between birth rate and death rate</strong>. A positive value means population is growing. When death rates fell but birth rates stayed high, population surged.</p></div><div class="hr6-term"><h4>Life Expectancy</h4><p>The <strong>number of years that an average person is expected to live</strong>. Improved healthcare and nutrition have raised life expectancy globally.</p></div></div><hr class="hr6-divider"><div class="hr6-label vio">Composition</div><h2 class="hr6-title">Population <span class="vio">Composition</span></h2><div class="hr6-comp-card"><h3>📊 What is Population Composition?</h3><ul><li>The <strong>structure of population</strong> covering sex, age, literacy level, health condition, occupation, and income level</li><li>Represented visually as a <strong>Population Pyramid</strong> (also called an age-sex pyramid)</li><li>Population is divided into <strong>age groups</strong> (5–9, 10–14 years…) and each group is split into <strong>males and females</strong></li><li><strong>Bottom</strong> of pyramid = children below 15 (reflects birth level); <strong>Top</strong> = elderly above 65 (reflects longevity)</li><li>Different countries show <strong>different pyramid shapes</strong> — each telling a unique demographic story</li></ul></div><div class="hr6-label amb">Age Groups</div><h2 class="hr6-title">Three <span class="amb">Age Groups</span></h2><div class="hr6-age-strip"><div class="hr6-age-box young"><div class="hr6-age-icon">👧</div><div class="hr6-age-range">Below 15</div><div class="hr6-age-label">Young Dependents</div><div class="hr6-age-note">Economically inactive — future workforce; shown at pyramid base</div></div><div class="hr6-age-box work"><div class="hr6-age-icon">💼</div><div class="hr6-age-range">15 – 65</div><div class="hr6-age-label">Economically Active</div><div class="hr6-age-note">Working population — main productive segment; the pyramid&#x27;s middle</div></div><div class="hr6-age-box aged"><div class="hr6-age-icon">👴</div><div class="hr6-age-range">Above 65</div><div class="hr6-age-label">Elderly Dependents</div><div class="hr6-age-note">Economically inactive — need social support; shown at pyramid top</div></div></div><div class="hr6-label vio">Pyramid Types</div><h2 class="hr6-title">Three <span class="vio">Pyramid Shapes</span></h2><div class="hr6-pyramid-cards"><div class="hr6-pyr-card india"><div class="hr6-pyr-visual"><div class="hr6-pyr-bar" style="width:90%"></div><div class="hr6-pyr-bar" style="width:80%"></div><div class="hr6-pyr-bar" style="width:70%"></div><div class="hr6-pyr-bar" style="width:60%"></div><div class="hr6-pyr-bar" style="width:45%"></div><div class="hr6-pyr-bar" style="width:30%"></div><div class="hr6-pyr-bar" style="width:18%"></div></div><h4>🇮🇳 India (Developing)</h4><p><strong>Broad base, thick middle, tapering top.</strong> High birth rate, large working-age population — shows strong human resource availability.</p></div><div class="hr6-pyr-card japan"><div class="hr6-pyr-visual"><div class="hr6-pyr-bar" style="width:40%"></div><div class="hr6-pyr-bar" style="width:50%"></div><div class="hr6-pyr-bar" style="width:60%"></div><div class="hr6-pyr-bar" style="width:65%"></div><div class="hr6-pyr-bar" style="width:60%"></div><div class="hr6-pyr-bar" style="width:55%"></div><div class="hr6-pyr-bar" style="width:40%"></div></div><h4>🇯🇵 Japan (Developed)</h4><p><strong>Narrow base, wide middle and top.</strong> Low birth rates + low death rates = ageing population with long life expectancy.</p></div><div class="hr6-pyr-card least"><div class="hr6-pyr-visual"><div class="hr6-pyr-bar" style="width:90%"></div><div class="hr6-pyr-bar" style="width:70%"></div><div class="hr6-pyr-bar" style="width:50%"></div><div class="hr6-pyr-bar" style="width:30%"></div><div class="hr6-pyr-bar" style="width:18%"></div><div class="hr6-pyr-bar" style="width:10%"></div><div class="hr6-pyr-bar" style="width:5%"></div></div><h4>🌍 Least Developed</h4><p><strong>Very broad base, sharp tapering from middle.</strong> High birth rates but also high death rates — short life expectancy.</p></div></div><hr class="hr6-divider"><div class="hr6-faq-label">Practice Questions</div><h2 class="hr6-faq-title">Frequently Asked Questions</h2><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q1. Why are people called a nation&#x27;s greatest resource?</span></summary><div class="faq-ans visible">People are a nation&#x27;s greatest resource because it is their <strong>skills, abilities, knowledge, and motivation</strong> that transform natural materials into usable resources. Healthy, educated, and motivated people develop resources as per their requirements. <strong>Human resource is the ultimate resource</strong> — without human effort, no other resource has any value. A nation with more population is considered richer in human resource.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q2. What is population distribution? How is it uneven across the world?</span></summary><div class="faq-ans visible">Population distribution refers to the <strong>pattern of how people are spread across Earth&#x27;s surface</strong>. It is extremely uneven globally:<ul><li>Many more people live <strong>north of the Equator</strong> than south</li><li>Almost <strong>three-quarters of the world&#x27;s people</strong> live in Asia and Africa</li><li>Most population concentrates in the <strong>tropical region</strong>, rich in resources</li><li>Population ranking: <strong>China → India → USA → Indonesia → Brazil</strong></li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q3. What is population density? What is India&#x27;s density?</span></summary><div class="faq-ans visible"><strong>Population density</strong> is the number of people living in a <strong>unit area of Earth&#x27;s surface</strong> (persons per square km). Key facts:<ul><li>World average: <strong>51 persons per sq km</strong></li><li><strong>South Central Asia</strong> has the highest density, followed by East and South East Asia</li><li>India&#x27;s density: <strong>382 persons per sq km</strong> — one of the highest in the world</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q4. What are the physical and social factors affecting population distribution?</span></summary><div class="faq-ans visible"><strong>Physical factors:</strong><ul><li><strong>Topography</strong> — people prefer plains for farming, manufacturing, and services</li><li><strong>Climate</strong> — moderate climate preferred; extreme hot or cold avoided</li><li><strong>Soil</strong> — fertile soil attracts dense settlement for agriculture</li><li><strong>Water</strong> — fresh water availability is essential</li><li><strong>Minerals</strong> — areas with mineral deposits attract more people</li></ul><strong>Social, Cultural &amp; Economic factors:</strong><ul><li>Better housing, education, health facilities → more population</li><li>Places of <strong>religious or cultural significance</strong> attract people</li><li>Industrial areas provide <strong>employment opportunities</strong></li><li>Politically stable countries give better living conditions</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q5. What is population change? What are its causes?</span></summary><div class="faq-ans visible"><strong>Population change</strong> is the change in the number of people during a specific period of time. It is caused by:<ul><li><strong>Birth rate</strong> — number of live births per 1,000 people</li><li><strong>Death rate</strong> — number of deaths per 1,000 people</li><li><strong>Migration</strong> — movement of people in and out of an area</li></ul><strong>Natural growth rate</strong> = Birth rate − Death rate. Advancement in food supplies and better medicines reduced death rates while birth rates remained high — causing population to grow rapidly.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q6. What is migration? How does it affect population change?</span></summary><div class="faq-ans visible"><strong>Migration</strong> is the <strong>movement of people in and out of an area</strong>. It affects population change in two ways:<ul><li><strong>Immigration</strong> (people moving in) — increases population of an area</li><li><strong>Emigration</strong> (people moving out) — decreases population of an area</li></ul>People migrate due to push factors (poverty, conflict, lack of jobs) and pull factors (better employment, education, stability). Migration can significantly alter the size, composition, and density of a region&#x27;s population.</div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q7. What is population composition? What is a population pyramid?</span></summary><div class="faq-ans visible"><strong>Population composition</strong> is the structure of a population with respect to sex, age, literacy level, health condition, occupation, and income level. It is represented as a <strong>population pyramid</strong> (also called an age-sex pyramid):<ul><li>Population is divided into age groups (5–9, 10–14 years, etc.) and subdivided into males and females</li><li><strong>Bottom</strong> — children below 15 years (reflects birth rate level)</li><li><strong>Middle</strong> — working age (economically active segment)</li><li><strong>Top</strong> — elderly above 65 years (reflects death rate / longevity)</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q8. Explain the three types of population pyramids with examples.</span></summary><div class="faq-ans visible"><ul><li><strong>India (Developing nation):</strong> Pyramid is <strong>broad at the base, thick in the middle, tapering at top</strong>. Indicates high birth rates, a large working-age population, and availability of human resource.</li><li><strong>Japan (Developed nation):</strong> Pyramid is <strong>narrow at the base</strong> (low birth rates) and wide in the middle and top (low death rates, people reaching old age).</li><li><strong>Least Developed Countries:</strong> Pyramids are <strong>broad at the base but taper sharply in the middle</strong> — indicating high birth rates but also high death rates at middle age.</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q9. What are the three age groups in the population pyramid? Why are they important?</span></summary><div class="faq-ans visible">The population pyramid shows three key age groups:<ul><li><strong>Young Dependents (below 15 years):</strong> Not yet economically productive; shown at the bottom. A broad base = high birth rate and young population</li><li><strong>Working Age / Economically Active (15–65 years):</strong> The middle section — these are the productive earners who support dependents and drive the economy</li><li><strong>Elderly Dependents (above 65 years):</strong> Shown at the top; retired and economically dependent on society. Wide top = longer life expectancy</li></ul></div></details><details class="faq-item" data-faq><summary class="faq-q"><span class="faq-q-text">Q10. What are the current and projected world population figures?</span></summary><div class="faq-ans visible">Key population facts from the chapter:<ul><li>World population at the time of writing: <strong>7.6 billion</strong></li><li>Expected to rise to <strong>9.6 billion by 2045</strong></li><li>Rates of population growth <strong>vary across the world</strong> — not all countries are growing equally</li><li>There is <strong>no direct relation</strong> between economic status and population size</li><li>Developing and underdeveloped countries show <strong>higher birth rates</strong></li><li>India is expected to <strong>surpass China&#x27;s population</strong> (projected by 2020 in the chapter)</li></ul></div></details></div></div>

@@ -24,8 +24,14 @@ const Placements       = lazy(() => import("./Placements"));
 const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
-const Counselling      = lazy(() => import("./Counselling"));
-const CareerAssessment = lazy(() => import("./CareerAssessment"));
+const CounsellingLanding    = lazy(() => import("../counselling/LandingPage"));
+const CounsellingLibrary    = lazy(() => import("../counselling/LibraryPage"));
+const CounsellingGuide      = lazy(() => import("../counselling/GuidePage"));
+const CounsellingProfile    = lazy(() => import("../counselling/ProfileWizard"));
+const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
+const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
+const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
+const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
 const Explore          = lazy(() => import("./Explore"));
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
@@ -204,11 +210,17 @@ function App() {
         <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
         <Route path="/faculty/signup"  element={<FacultySignup />} />
         
-        <Route path="/counselling"     element={<Page><Counselling /></Page>} />
-        <Route
-               path="/counselling/assessment"
-               element={<Page><CareerAssessment /></Page>}
-/>
+        <Route path="/counselling"                    element={<Page><CounsellingLanding /></Page>} />
+        <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
+        <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
+        <Route path="/counselling/profile"            element={<Page><CounsellingProfile /></Page>} />
+        <Route path="/counselling/path"               element={<Page><CounsellingPath /></Page>} />
+        <Route path="/counselling/counsellors"        element={<Page><CounsellingMatches /></Page>} />
+        <Route path="/counselling/counsellors/:id"    element={<Page><CounsellingCounsellor /></Page>} />
+        <Route path="/counselling/appointments/:id/assessment"
+               element={<Page><CounsellingAssessment /></Page>} />
+        <Route path="/counselling/assessment"
+               element={<Navigate to="/counselling/counsellors" replace />} />
         <Route path="/explore"         element={<Page><Explore /></Page>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />

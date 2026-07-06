@@ -1,0 +1,214 @@
+<style>
+  :root {
+    --ink:        #0d0020;
+    --ink2:       #1a0035;
+    --muted:      #5a4070;
+    --paper:      #faf7ff;
+    --paper2:     #f0e8ff;
+    --accent:     #7c3aed;
+    --accent2:    #6d28d9;
+    --accent-lt:  #ede9fe;
+    --violet:     #5b21b6;
+    --pink:       #be185d;
+    --pink-lt:    #fce7f3;
+    --teal:       #0f766e;
+    --teal-lt:    #ccfbf1;
+    --green:      #166534;
+    --green-lt:   #dcfce7;
+    --blue:       #1e40af;
+    --blue-lt:    #dbeafe;
+    --amber:      #b45309;
+    --amber-lt:   #fef3c7;
+    --red:        #be123c;
+    --red-lt:     #ffe4e6;
+    --rule:       #c4b5fd;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .csf-root { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* ═══ HERO — deep violet / bio-microscope night ═══ */
+  .csf-hero {
+    background: linear-gradient(135deg, #060010 0%, #0e0020 50%, #160030 100%);
+    min-height: 88vh; display: flex; align-items: flex-end;
+    position: relative; overflow: hidden; padding: 0 0 64px;
+  }
+  @media (max-width: 700px) { .csf-hero { min-height: auto; align-items: flex-start; padding: 72px 0 48px; } }
+  .csf-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #7c3aed 0%, #be185d 30%, #0f766e 58%, #b45309 82%, #1e40af 100%);
+  }
+  /* Cell pattern bg */
+  .csf-hero-cells {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 40px 50px at 20% 30%, rgba(124,58,237,0.08) 0%, transparent 100%),
+      radial-gradient(ellipse 30px 40px at 50% 20%, rgba(190,24,93,0.06) 0%, transparent 100%),
+      radial-gradient(ellipse 35px 45px at 80% 35%, rgba(124,58,237,0.07) 0%, transparent 100%),
+      radial-gradient(circle, rgba(124,58,237,0.10) 1px, transparent 1px);
+    background-size: auto, auto, auto, 36px 36px;
+  }
+  .csf-hero-ring { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); width: clamp(140px,22vw,290px); height: clamp(140px,22vw,290px); border-radius: 50%; border: 1.5px solid rgba(124,58,237,0.18); pointer-events: none; }
+  .csf-hero-ring::before { content: ''; position: absolute; inset: 18%; border-radius: 50%; border: 1px dashed rgba(190,24,93,0.14); }
+  .csf-hero-ring::after  { content: ''; position: absolute; inset: 40%; border-radius: 50%; background: rgba(124,58,237,0.08); }
+  .csf-glow-a { position: absolute; top: 14%; left: 6%; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 68%); pointer-events: none; }
+  .csf-glow-b { position: absolute; bottom: 8%; right: 22%; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(190,24,93,0.10) 0%, transparent 70%); pointer-events: none; }
+  .csf-hero-bg-num { position: absolute; bottom: -80px; right: -20px; font-family: 'Montserrat', sans-serif; font-size: clamp(200px,34vw,480px); font-weight: 900; line-height: 1; color: rgba(255,255,255,0.018); letter-spacing: -0.04em; user-select: none; pointer-events: none; }
+  .csf-hero-inner { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+  .csf-overline { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #c4b5fd; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+  .csf-overline::before, .csf-overline::after { content: ''; flex: 0 0 40px; height: 1px; background: #c4b5fd; }
+  .csf-hero-title { font-family: 'Montserrat', sans-serif; font-size: clamp(34px,7vw,76px); font-weight: 900; color: #fff; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 32px; }
+  .csf-hero-title em   { font-style: normal; color: #c4b5fd; }
+  .csf-hero-title .em2 { color: #f9a8d4; }
+  .csf-hero-bar { display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-top: 8px; }
+  .csf-hero-bar-item { flex: 1 1 150px; padding: 0 24px 0 0; border-right: 1px solid rgba(255,255,255,0.08); margin-right: 24px; }
+  .csf-hero-bar-item:last-child { border-right: none; margin-right: 0; }
+  .csf-bar-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+  .csf-bar-value { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72); }
+
+  /* ═══ BODY ═══ */
+  .csf-body { max-width: 860px; margin: 0 auto; padding: 72px 32px 96px; }
+
+  /* ═══ INTRO CARD ═══ */
+  .csf-intro-card { background: linear-gradient(135deg, #060010 0%, #160030 100%); border-left: 5px solid #7c3aed; border-radius: 4px; padding: 38px 42px; margin-bottom: 64px; position: relative; overflow: hidden; }
+  .csf-intro-card::after { content: '🔬'; position: absolute; right: 28px; top: 50%; transform: translateY(-50%); font-size: 96px; opacity: 0.09; }
+  .csf-intro-card p { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500; color: rgba(255,255,255,0.86); line-height: 1.8; margin: 0 0 14px; }
+  .csf-intro-card p:last-child { margin: 0; }
+  .csf-intro-card strong { color: #c4b5fd; }
+
+  /* ═══ DIVIDER ═══ */
+  .csf-divider { margin: 60px 0; display: flex; align-items: center; gap: 16px; }
+  .csf-divider::before, .csf-divider::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .csf-divider-mark { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* ═══ SECTION HEADER ═══ */
+  .csf-sec-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 34px; border-bottom: 2px solid var(--rule); padding-bottom: 20px; }
+  .csf-sec-num { font-family: 'Montserrat', sans-serif; font-size: 58px; font-weight: 900; color: var(--rule); line-height: 1; flex-shrink: 0; }
+  .csf-sec-title-wrap { padding-top: 8px; }
+  .csf-sec-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .csf-sec-title { font-family: 'Montserrat', sans-serif; font-size: clamp(22px,3.5vw,32px); font-weight: 800; color: var(--ink); line-height: 1.15; letter-spacing: -0.02em; }
+  .csf-sec-title span { color: var(--accent); }
+
+  /* ═══ BODY TEXT ═══ */
+  .csf-body-text { font-family: 'Inter', sans-serif; font-size: 17px; color: var(--ink2); line-height: 1.85; margin-bottom: 28px; }
+  .csf-body-text strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S1: DISCOVERY — inventor card ═══ */
+  .csf-discovery-card { background: linear-gradient(135deg, #060010 0%, #160030 100%); border-radius: 12px; padding: 28px 30px; margin-bottom: 28px; border: 1.5px solid rgba(124,58,237,0.25); display: flex; gap: 24px; align-items: flex-start; }
+  @media (max-width: 560px) { .csf-discovery-card { flex-direction: column; } }
+  .csf-disc-portrait { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+  .csf-disc-content {}
+  .csf-disc-name { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; color: #c4b5fd; margin-bottom: 4px; }
+  .csf-disc-year { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+  .csf-disc-text { font-family: 'Inter', sans-serif; font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.75; }
+  .csf-disc-text strong { color: #ddd6fe; }
+
+  /* ═══ S2: CELL TYPES — uni vs multi ═══ */
+  .csf-cell-types { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 580px) { .csf-cell-types { grid-template-columns: 1fr; } }
+  .csf-ct-card { border-radius: 10px; padding: 24px 22px; }
+  .csf-ct-card.uni  { background: var(--teal-lt); border: 2px solid var(--teal); }
+  .csf-ct-card.multi { background: var(--blue-lt); border: 2px solid var(--blue); }
+  .csf-ct-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+  .csf-ct-name { font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  .uni   .csf-ct-name { color: var(--teal); }
+  .multi .csf-ct-name { color: var(--blue); }
+  .csf-ct-def { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.68; margin-bottom: 10px; }
+  .csf-ct-eg { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; }
+  .uni   .csf-ct-eg { color: var(--teal); }
+  .multi .csf-ct-eg { color: var(--blue); }
+
+  /* ═══ S2: CELL SHAPES — 3 cards ═══ */
+  .csf-shapes-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  @media (max-width: 600px) { .csf-shapes-row { grid-template-columns: 1fr; } }
+  .csf-shape-card { background: var(--white); border: 1.5px solid var(--rule); border-radius: 8px; padding: 18px 16px; text-align: center; }
+  .csf-shape-card:nth-child(1) { border-top: 4px solid var(--accent); }
+  .csf-shape-card:nth-child(2) { border-top: 4px solid var(--pink); }
+  .csf-shape-card:nth-child(3) { border-top: 4px solid var(--teal); }
+  .csf-shape-emoji { font-size: 28px; margin-bottom: 8px; display: block; }
+  .csf-shape-name { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .csf-shape-eg { font-family: 'Inter', sans-serif; font-size: 13px; color: var(--muted); }
+
+  /* ═══ S2: SIZE FACTS ═══ */
+  .csf-size-box { background: var(--accent-lt); border-left: 4px solid var(--accent); border-radius: 4px; padding: 18px 22px; margin-bottom: 24px; }
+  .csf-size-box p { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.72; }
+  .csf-size-box strong { color: var(--accent2); font-weight: 700; }
+
+  /* ═══ S3: ORGANISATION FLOW ═══ */
+  .csf-org-flow { display: flex; gap: 0; margin-bottom: 28px; flex-wrap: wrap; }
+  .csf-org-step { flex: 1 1 120px; padding: 18px 14px; text-align: center; background: var(--white); border: 1.5px solid var(--rule); }
+  .csf-org-step:first-child { border-radius: 8px 0 0 8px; }
+  .csf-org-step:last-child  { border-radius: 0 8px 8px 0; }
+  .csf-org-arrow { display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 18px; padding: 0 2px; align-self: center; flex-shrink: 0; }
+  .csf-org-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+  .csf-org-label { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .csf-org-sub { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  @media (max-width: 600px) { .csf-org-flow { flex-direction: column; } .csf-org-step { border-radius: 0 !important; } .csf-org-step:first-child { border-radius: 8px 8px 0 0 !important; } .csf-org-step:last-child { border-radius: 0 0 8px 8px !important; } .csf-org-arrow { transform: rotate(90deg); } }
+
+  /* ═══ S4: CELL PARTS — feature list ═══ */
+  .csf-parts-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+  .csf-part-item { display: grid; grid-template-columns: 56px 1fr; gap: 0; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--rule); background: var(--white); }
+  .csf-part-icon-col { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 16px 8px; }
+  .csf-part-item:nth-child(1) .csf-part-icon-col { background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%); }
+  .csf-part-item:nth-child(2) .csf-part-icon-col { background: linear-gradient(180deg, #0f766e 0%, #0d5c56 100%); }
+  .csf-part-item:nth-child(3) .csf-part-icon-col { background: linear-gradient(180deg, #be185d 0%, #9d174d 100%); }
+  .csf-part-item:nth-child(4) .csf-part-icon-col { background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%); }
+  .csf-part-item:nth-child(5) .csf-part-icon-col { background: linear-gradient(180deg, #166534 0%, #14532d 100%); }
+  .csf-part-item:nth-child(6) .csf-part-icon-col { background: linear-gradient(180deg, #b45309 0%, #92400e 100%); }
+  .csf-part-emoji { font-size: 22px; color: #fff; }
+  .csf-part-body { padding: 16px 20px; }
+  .csf-part-name { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .csf-part-desc { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink2); line-height: 1.65; }
+  .csf-part-desc strong { color: var(--accent2); font-weight: 600; }
+
+  /* ═══ S5: PROKARYOTIC vs EUKARYOTIC — scrollable table ═══ */
+  .csf-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 28px; border-radius: 8px; box-shadow: 0 2px 12px rgba(124,58,237,0.10); }
+  .csf-compare-table { width: 100%; min-width: 520px; border-collapse: collapse; }
+  .csf-compare-table th { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; padding: 14px 18px; text-align: left; white-space: nowrap; }
+  .csf-compare-table th:first-child  { background: linear-gradient(90deg, #160030 0%, #0f0020 100%); color: #c4b5fd; }
+  .csf-compare-table th:nth-child(2) { background: linear-gradient(90deg, #1e0040 0%, #160030 100%); color: #f9a8d4; }
+  .csf-compare-table th:nth-child(3) { background: linear-gradient(90deg, #240050 0%, #1e0040 100%); color: #93c5fd; }
+  .csf-compare-table td { font-family: 'Inter', sans-serif; font-size: 15px; padding: 13px 18px; border-bottom: 1px solid var(--rule); color: var(--ink2); line-height: 1.55; }
+  .csf-compare-table tr:last-child td { border-bottom: none; }
+  .csf-compare-table tr:nth-child(odd)  td { background: var(--white); }
+  .csf-compare-table tr:nth-child(even) td { background: var(--paper2); }
+  .csf-compare-table td:first-child { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--accent); }
+
+  /* ═══ S6: PLANT vs ANIMAL CELL ═══ */
+  .csf-pva-table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 28px; border-radius: 8px; box-shadow: 0 2px 12px rgba(124,58,237,0.10); }
+  .csf-pva-table { width: 100%; min-width: 480px; border-collapse: collapse; }
+  .csf-pva-table th { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; padding: 14px 18px; text-align: left; white-space: nowrap; }
+  .csf-pva-table th:first-child { background: linear-gradient(90deg, #0d2800 0%, #051a00 100%); color: #86efac; }
+  .csf-pva-table th:nth-child(2) { background: linear-gradient(90deg, #0a1228 0%, #06081a 100%); color: #93c5fd; }
+  .csf-pva-table td { font-family: 'Inter', sans-serif; font-size: 15px; padding: 13px 18px; border-bottom: 1px solid var(--rule); color: var(--ink2); line-height: 1.55; }
+  .csf-pva-table tr:last-child td { border-bottom: none; }
+  .csf-pva-table tr:nth-child(odd)  td { background: var(--white); }
+  .csf-pva-table tr:nth-child(even) td { background: var(--paper2); }
+  .csf-pva-table td:first-child { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--green); }
+  .csf-pva-table td:nth-child(2) { color: var(--blue); font-weight: 500; }
+
+  /* ═══ PULL QUOTE ═══ */
+  .csf-pull-quote { border-left: 4px solid var(--accent); padding: 22px 30px; margin: 36px 0; background: var(--accent-lt); border-radius: 0 6px 6px 0; }
+  .csf-pull-quote p { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 600; color: var(--accent2); line-height: 1.7; font-style: italic; }
+
+  /* ═══ FAQ ═══ */
+  .csf-faq-header { margin-bottom: 8px; }
+  .csf-faq-kicker { font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+  .csf-faq-title { font-family: 'Montserrat', sans-serif; font-size: clamp(24px,4vw,34px); font-weight: 800; color: var(--ink); margin-bottom: 28px; letter-spacing: -0.02em; }
+  .csf-faq-item { border: 1.5px solid var(--rule); border-radius: 8px; margin-bottom: 12px; overflow: hidden; background: var(--white); }
+  .csf-faq-item.open { border-color: var(--accent); }
+  .csf-faq-q { width: 100%; background: none; border: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; text-align: left; gap: 16px; }
+  .csf-faq-q-text { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+  .csf-faq-icon { color: var(--accent); font-size: 20px; flex-shrink: 0; }
+  .csf-faq-ans { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .csf-faq-ans.visible { max-height: 700px; }
+  .csf-faq-ans-inner { padding: 0 24px 22px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink2); line-height: 1.82; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .csf-faq-ans-inner strong { color: var(--accent2); font-weight: 600; }
+
+/* — injected by extract-blogs: native accordion normalizer — */
+details[data-faq]>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details[data-faq]>summary::-webkit-details-marker{display:none}
+details[data-faq]>summary::after{content:"▾";float:right;margin-left:12px;transition:transform .2s ease}
+details[data-faq][open]>summary::after{transform:rotate(180deg)}
+details[data-faq] [class*="faq-ans"]{display:block!important;max-height:none!important;opacity:1!important;visibility:visible!important;overflow:visible!important}
+</style><div class="csf-root"><div class="csf-hero"><div class="csf-hero-cells"></div><div class="csf-hero-ring"></div><div class="csf-glow-a"></div><div class="csf-glow-b"></div><div class="csf-hero-bg-num">8</div><div class="csf-hero-inner"><div class="csf-overline">Class 8 Science — Chapter 8</div><h1 class="csf-hero-title"><em>Cell</em> — Structure<br>and <span class="em2">Functions</span></h1><div class="csf-hero-bar"><div class="csf-hero-bar-item"><div class="csf-bar-label">Chapter</div><div class="csf-bar-value">08 — Biology</div></div><div class="csf-hero-bar-item"><div class="csf-bar-label">Topics</div><div class="csf-bar-value">Discovery · Cell Parts · Organelles · Cell Types</div></div><div class="csf-hero-bar-item"><div class="csf-bar-label">Board</div><div class="csf-bar-value">NCERT / CBSE</div></div></div></div></div><div class="csf-body"><div class="csf-intro-card"><p>Every living thing — from a single bacterium to a blue whale — is built from the same fundamental unit: the <strong>cell</strong>.</p><p>This chapter explores the discovery of cells, their enormous variety in size and shape, the detailed structure of their parts, and the critical differences between plant and animal cells, prokaryotic and eukaryotic cells.</p></div><div class="csf-sec-head"><div class="csf-sec-num">1</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">History</div><h2 class="csf-sec-title">Discovery of the <span>Cell</span></h2></div></div><div class="csf-discovery-card"><div class="csf-disc-portrait">🔬</div><div class="csf-disc-content"><div class="csf-disc-name">Robert Hooke</div><div class="csf-disc-year">English Scientist · 1665</div><div class="csf-disc-text">Hooke studied a thin slice of cork under a microscope and observed small, box-like structures. He named them <strong>&quot;cells&quot;</strong> — from the Latin word <em>cellula</em> meaning &quot;little room.&quot; Cells are very small and cannot be seen with the naked eye. A microscope with a greater magnifying power is needed to study them. <strong>The cell is the structural and functional unit of life</strong> — the basic building block of all living organisms, just as a brick is the basic unit of a wall.</div></div></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-sec-head"><div class="csf-sec-num">2</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">Diversity</div><h2 class="csf-sec-title">Variation of <span>Cells</span></h2></div></div><p class="csf-body-text">Cells vary in number, shape, and size across different organisms:</p><div class="csf-cell-types"><div class="csf-ct-card uni"><span class="csf-ct-icon">🔵</span><div class="csf-ct-name">Unicellular Organisms</div><div class="csf-ct-def">Organisms made up of only <strong>one cell</strong>. The single cell performs all life functions — movement, nutrition, reproduction.</div><div class="csf-ct-eg">Examples: Amoeba, Paramecium, Euglena, Chlamydomonas, Bacteria</div></div><div class="csf-ct-card multi"><span class="csf-ct-icon">🫧</span><div class="csf-ct-name">Multicellular Organisms</div><div class="csf-ct-def">Organisms made up of <strong>many cells</strong>. Cells specialise for different functions. Human body has trillions of cells.</div><div class="csf-ct-eg">Examples: Most plants, animals, and humans</div></div></div><p class="csf-body-text">Cells come in many <strong>shapes</strong> depending on their function:</p><div class="csf-shapes-row"><div class="csf-shape-card"><span class="csf-shape-emoji">🔴</span><div class="csf-shape-name">Spherical</div><div class="csf-shape-eg">Example: Red Blood Cells (RBC)</div></div><div class="csf-shape-card"><span class="csf-shape-emoji">🪡</span><div class="csf-shape-name">Spindle Shaped</div><div class="csf-shape-eg">Long, pointed at both ends. Example: Muscle cells</div></div><div class="csf-shape-card"><span class="csf-shape-emoji">🌿</span><div class="csf-shape-name">Branched</div><div class="csf-shape-eg">Long branches extending. Example: Nerve cells (Neurons)</div></div></div><div class="csf-size-box"><p>📏 <strong>Cell Sizes:</strong> Most cells are microscopically small — as small as 0.1 to 0.5 micrometers (bacterial cell — the smallest cell). Some cells are visible to the naked eye — like the egg of a hen (each egg is a single cell). The <strong>largest cell is the ostrich egg</strong> (~17 cm long). In humans: Blood cells are the smallest; <strong>nerve cells are the longest</strong>. Also note: Amoeba has an <strong>irregular shape</strong> that keeps changing; its projections are called <strong>pseudopodia</strong> (help in movement and food capture).</p></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-sec-head"><div class="csf-sec-num">3</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">Hierarchy of Life</div><h2 class="csf-sec-title">Cell → Tissue → Organ → <span>Organism</span></h2></div></div><p class="csf-body-text">Cells organise themselves into an increasingly complex hierarchy to form a complete organism:</p><div class="csf-org-flow"><div class="csf-org-step"><div class="csf-org-num">1</div><div class="csf-org-label">Cells</div><div class="csf-org-sub">Basic unit of life</div></div><div class="csf-org-arrow">→</div><div class="csf-org-step"><div class="csf-org-num">2</div><div class="csf-org-label">Tissues</div><div class="csf-org-sub">Similar cells → specific function</div></div><div class="csf-org-arrow">→</div><div class="csf-org-step"><div class="csf-org-num">3</div><div class="csf-org-label">Organs</div><div class="csf-org-sub">Tissues → specific organ</div></div><div class="csf-org-arrow">→</div><div class="csf-org-step"><div class="csf-org-num">4</div><div class="csf-org-label">Organ System</div><div class="csf-org-sub">Organs → life maintenance</div></div><div class="csf-org-arrow">→</div><div class="csf-org-step"><div class="csf-org-num">5</div><div class="csf-org-label">Organism</div><div class="csf-org-sub">Complete living being</div></div></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-sec-head"><div class="csf-sec-num">4</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">Anatomy</div><h2 class="csf-sec-title">Parts of the <span>Cell</span></h2></div></div><p class="csf-body-text">Every cell has several key components, each with a specific function:</p><div class="csf-parts-list"><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🛡️</span></div><div class="csf-part-body"><div class="csf-part-name">Cell Membrane (Plasma Membrane)</div><div class="csf-part-desc">A thin sheet covering the cell. <strong>Functions:</strong> gives protection and shape; separates the cell from its surroundings; has tiny pores that allow movement of substances into and out of the cell.</div></div></div><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🌊</span></div><div class="csf-part-body"><div class="csf-part-name">Cytoplasm</div><div class="csf-part-desc">The <strong>jelly-like substance</strong> present between the cell membrane and nucleus. Contains smaller structures called <strong>organelles</strong> — mitochondria, Golgi bodies, ribosomes, endoplasmic reticulum, etc.</div></div></div><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🎯</span></div><div class="csf-part-body"><div class="csf-part-name">Nucleus</div><div class="csf-part-desc">A large, spherical organelle in the <strong>centre of the cell</strong>. Separated from cytoplasm by the nuclear membrane (porous). <strong>Controls all activities of the cell.</strong> Contains chromosomes (carry genes) and nucleolus (small spherical body).</div></div></div><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🧬</span></div><div class="csf-part-body"><div class="csf-part-name">Chromosomes &amp; Genes</div><div class="csf-part-desc">Inside the nucleus: <strong>Chromosomes</strong> are thread-like structures that carry genes. They transfer hereditary characters from parents to offspring. <strong>Genes</strong> are units of inheritance — they determine all characteristics of an organism.</div></div></div><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🧱</span></div><div class="csf-part-body"><div class="csf-part-name">Cell Wall (Plant cells only)</div><div class="csf-part-desc">An additional <strong>thick covering</strong> over the cell membrane found only in plant cells. Made of cellulose. Provides <strong>rigidity and protection</strong> to the plant cell. Absent in animal cells.</div></div></div><div class="csf-part-item"><div class="csf-part-icon-col"><span class="csf-part-emoji">🌿</span></div><div class="csf-part-body"><div class="csf-part-name">Chloroplast &amp; Plastids (Plant cells only)</div><div class="csf-part-desc">Small coloured bodies called <strong>plastids</strong> in the cytoplasm. Green plastids containing <strong>chlorophyll</strong> are called chloroplasts — they enable photosynthesis. Leaves are green because of chloroplasts. <strong>Protoplasm</strong> = cytoplasm + nucleus + all organelles = living substance of cell.</div></div></div></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-sec-head"><div class="csf-sec-num">5</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">Cell Classification</div><h2 class="csf-sec-title">Prokaryotic vs <span>Eukaryotic</span> Cells</h2></div></div><div class="csf-table-wrap"><table class="csf-compare-table"><thead><tr><th>Feature</th><th>Prokaryotic Cell</th><th>Eukaryotic Cell</th></tr></thead><tbody><tr><td>Size</td><td>Small (1–10 μm)</td><td>Large (5–100 μm)</td></tr><tr><td>Nucleus</td><td>Absent; Nucleoid present (no nuclear membrane)</td><td>Present; surrounded by nuclear membrane</td></tr><tr><td>Chromosomes</td><td>Single chromosome</td><td>More than one chromosome</td></tr><tr><td>Membrane-bound organelles</td><td>Absent</td><td>Present (mitochondria, ER, Golgi, lysosomes)</td></tr><tr><td>Cell division</td><td>By fission or budding</td><td>By mitosis and meiosis</td></tr><tr><td>Examples</td><td>Bacteria</td><td>Plant cells, Animal cells, Fungi</td></tr></tbody></table></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-sec-head"><div class="csf-sec-num">6</div><div class="csf-sec-title-wrap"><div class="csf-sec-kicker">Key Differences</div><h2 class="csf-sec-title">Plant Cell vs <span>Animal Cell</span></h2></div></div><div class="csf-pva-table-wrap"><table class="csf-pva-table"><thead><tr><th>Plant Cell</th><th>Animal Cell</th></tr></thead><tbody><tr><td>Generally larger in size</td><td>Generally smaller in size</td></tr><tr><td>Cell wall of cellulose present (in addition to plasma membrane)</td><td>Cell wall absent; only plasma membrane present</td></tr><tr><td>Plastids (including chloroplasts) present</td><td>Plastids absent</td></tr><tr><td>Vacuoles are large, few, and permanent</td><td>Vacuoles are small, many, and temporary</td></tr><tr><td>Many Golgi apparatus scattered in cytoplasm</td><td>Single Golgi apparatus near nuclear envelope</td></tr><tr><td>Centrosome and centrioles absent</td><td>Centrosome and centrioles present</td></tr></tbody></table></div><div class="csf-pull-quote"><p>&quot;The cell is the fundamental unit of life — microscopic yet immeasurably complex. Understanding a single cell is understanding the blueprint of all life on Earth, from the simplest bacterium to the most complex human being.&quot;</p></div><div class="csf-divider"><div class="csf-divider-mark"></div></div><div class="csf-faq-header"><span class="csf-faq-kicker">Exam Preparation</span></div><h2 class="csf-faq-title">Frequently Asked Questions</h2><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q1. Who discovered the cell? What is the meaning of the word &#x27;cell&#x27;?</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Cells were first observed by English scientist Robert Hooke in 1665. He studied a thin slice of cork under a microscope and observed tiny box-like structures which he called &#x27;cells&#x27;. The word &#x27;cell&#x27; comes from the Latin word &#x27;cellula&#x27; meaning &#x27;little room&#x27;. Cells are very small and cannot be seen with the naked eye — a microscope with a greater magnifying power is used to study them.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q2. What is a cell? Why is it called the structural and functional unit of life?</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">A cell is the structural and functional unit of life. It is called so because: Structurally — all living organisms are made up of cells. Like a house is made up of bricks, living organisms are made up of cells — hence cells are the basic/structural unit of life. Functionally — all life processes (respiration, nutrition, excretion, reproduction) take place at the cellular level — hence cells are the functional unit of life. Cells are the building blocks of plants and animals.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q3. What are unicellular and multicellular organisms? Give examples.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Unicellular organisms: Organisms made up of only a single cell are called unicellular organisms. The single cell performs all life functions. Examples: Amoeba, Paramecium, Euglena, Chlamydomonas, Bacteria. Multicellular organisms: Organisms made up of many (multiple) cells are called multicellular organisms. Different cells are specialised for different functions. Examples: Most plants, animals, and human beings. Note: The human body contains trillions of cells (1 trillion = 1000 billion).</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q4. Describe the different shapes of cells with examples.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Cells come in a variety of shapes depending on their function: (1) Irregular shape — Amoeba is a single-celled organism with an irregular shape that keeps changing. It has projections called pseudopodia that help in movement and capturing food. (2) Spherical shape — Cells that are generally round or spherical. Example: Red Blood Cells (RBC). (3) Spindle shape — Long cells pointed at both ends. Example: Muscle cells. (4) Branched shape — Cells that have long branches extending from them. Example: Nerve cells (neurons).</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q5. What are the sizes of cells? Name the smallest and largest cells.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Cell sizes vary enormously. Most cells are very small — as small as one millionth of a metre (one micrometer). They are only visible under a high-magnification microscope. Smallest cell: Bacterial cell, with a length of 0.1 to 0.5 micrometers. Some cells are large enough to be seen with the naked eye — like eggs of hens. Largest cell: The ostrich egg is the largest single cell, measuring about 17 cm in length. In the human body: Blood cells are the smallest; nerve cells are the longest.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q6. Explain the organisation from cell to organism.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Living organisms are organised at multiple levels: (1) Cells — the basic structural and functional unit of life. (2) Tissues — a group of similar cells performing a specific function is called tissue. (3) Organs — tissues make up organs. Each organ in the body performs a specific function. (4) Organ System — organs make up organ systems that work together to perform all functions necessary to maintain life. (5) Organism — the complete living being made up of all its organ systems. Example: Cells → Muscle tissue → Heart → Circulatory system → Human body.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q7. Describe the three main parts of a cell.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Every cell has three main parts: (1) Cell Membrane (Plasma Membrane) — a thin sheet covering the cell. Functions: provides protection and shape; separates the cell from surroundings; has tiny pores allowing movement of substances in and out. (2) Cytoplasm — a jelly-like substance between the cell membrane and nucleus. Contains smaller structures called organelles (mitochondria, Golgi bodies, ribosomes, endoplasmic reticulum, etc.). (3) Nucleus — a large, spherical structure in the centre of the cell. Separated from cytoplasm by a nuclear membrane (also porous). Controls all activities of the cell. Contains chromosomes, which carry genes.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q8. What is the nucleus? What are chromosomes and genes?</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">The nucleus is a large, spherical organelle present in the centre of all cells. It is separated from the cytoplasm by the nuclear membrane, which is porous and allows substances to move between cytoplasm and nucleus. The nucleus controls all activities of the cell. Inside the nucleus: Chromosomes — thread-like structures that carry genes. They transfer hereditary characters from parents to offspring. Nucleolus — a small spherical body inside the nucleus. Genes — the units of inheritance. Genes carry hereditary information from parents to the next generation.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q9. What is protoplasm? What are cell wall and chloroplast?</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Protoplasm is the entire living content of a cell. It includes the cytoplasm, nucleus, and all other cell organelles. It is called the living substance of the cell. Cell Wall: Found only in plant cells — an additional thick covering over the cell membrane made of cellulose. Provides rigidity and protection to the plant cell. Animal cells do not have a cell wall. Chloroplast: Small coloured bodies called plastids are present in the cytoplasm of plant cells. Green-coloured plastids containing chlorophyll (green pigment) are called chloroplasts. Chlorophyll helps in photosynthesis. Leaves are green due to chloroplasts. The red colour of tomatoes is due to red-coloured plastids.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q10. Differentiate between prokaryotic and eukaryotic cells.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Prokaryotic cells: (1) Size generally small (1–10 μm). (2) No true nucleus — nucleoid is present but not surrounded by a nuclear membrane. (3) Contains a single chromosome. (4) Membrane-bound organelles absent. (5) Cell division by fission or budding. Example: Bacteria. Eukaryotic cells: (1) Size generally large (5–100 μm). (2) True nucleus present, surrounded by a nuclear membrane. (3) Contains more than one chromosome. (4) Membrane-bound organelles (mitochondria, ER, Golgi bodies, lysosomes) present. (5) Cell division by mitosis and meiosis. Examples: Plant cells, animal cells, fungi.</div></div></details><details class="csf-faq-item" data-faq><summary class="csf-faq-q"><span class="csf-faq-q-text">Q11. Compare plant cell and animal cell.</span></summary><div class="csf-faq-ans visible"><div class="csf-faq-ans-inner">Plant cell vs Animal cell: (1) Size — plant cells are generally larger than animal cells. (2) Cell wall — plant cells have a rigid cell wall of cellulose; animal cells do not. (3) Plastids — present in plant cells; absent in animal cells. (4) Vacuoles — plant cells have large, few, permanent vacuoles; animal cells have small, many, temporary vacuoles. (5) Golgi apparatus — plant cells have many scattered in cytoplasm; animal cells have a single one near the nuclear envelope. (6) Centrosome/Centrioles — present in animal cells; absent in plant cells. Both cell types have: nucleus, cytoplasm, cell membrane, mitochondria.</div></div></details></div></div>
