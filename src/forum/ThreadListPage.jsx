@@ -3,24 +3,33 @@
 // Forum home from the approved design: search bar → category grid (real
 // Tags from /forum/tags/) → Discussions feed with filter chips + trending
 // rail → windowed pager. Wired to the existing endpoints:
-//   GET /forum/threads/?search=&tag=&sort=newest|oldest|popular&page=&page_size=
+//   GET /forum/threads/?search=&tag=&solved=&sort=newest|oldest|popular&page=&page_size=
 //   GET /forum/tags/
 // Design chips map to real backend sorts (Recent→newest, Popular→popular,
-// Oldest→oldest). Unanswered/Solved chips from the design need backend
-// filters that don't exist yet — deliberately left out rather than faked
-// client-side on one page of data.
+// Oldest→oldest). Unanswered/Solved chips are now backend-supported
+// (?solved=unanswered|true) via the accept-answer feature.
+//
+// All filter state lives in the URL (?q=&tag=&sort=&solved=&page=) so a
+// search or filtered view is shareable, bookmarkable, and survives the
+// back button — the same pattern used by the Explore module's browse page.
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getThreads, getTags } from "../api/forum";
 import ThreadCard from "./ThreadCard";
 import ForumShell, { GuestBanner } from "./ForumShell";
 import { fmtNum, tagColor, titleCase } from "./utils";
 
 const PAGE_SIZE = 10;
-const FILTERS = [
+const SORTS = [
   ["newest", "Recent", "Newest questions first"],
   ["popular", "Popular", "Most upvoted questions"],
   ["oldest", "Oldest", "From the very beginning"],
+];
+const SOLVED_FILTERS = [
+  ["", "All"],
+  ["unanswered", "Unanswered"],
+  ["true", "Solved"],
 ];
 
 function Pager({ page, pageCount, onPage }) {
@@ -56,20 +65,42 @@ function Pager({ page, pageCount, onPage }) {
 }
 
 export default function ThreadListPage() {
+  const [params, setParams] = useSearchParams();
+
+  // committed filters — read straight from the URL
+  const q = params.get("q") || "";
+  const tag = params.get("tag") || "";
+  const sort = params.get("sort") || "newest";
+  const solved = params.get("solved") || "";
+  const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
+
+  // local text field state so typing feels instant; debounced into the URL
+  const [searchInput, setSearchInput] = useState(q);
+  useEffect(() => setSearchInput(q), [q]);
+
   const [threads, setThreads] = useState([]);
   const [count, setCount] = useState(0);
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [debounced, setDebounced] = useState("");
-  const [sort, setSort] = useState("newest");
-  const [tag, setTag] = useState("");
-  const [page, setPage] = useState(1);
 
+  const setField = (patch, resetPage = true) => {
+    const next = new URLSearchParams(params);
+    Object.entries(patch).forEach(([key, value]) => {
+      if (!value) next.delete(key); else next.set(key, value);
+    });
+    if (resetPage) next.delete("page");
+    setParams(next, { replace: true });
+    window.scrollTo(0, 0);
+  };
+
+  // debounce the search box into ?q=
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(search.trim()), 350);
+    const t = setTimeout(() => {
+      if (searchInput.trim() !== q) setField({ q: searchInput.trim() || undefined });
+    }, 350);
     return () => clearTimeout(t);
-  }, [search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
 
   useEffect(() => {
     getTags().then(setTags).catch(() => {});
@@ -79,8 +110,9 @@ export default function ThreadListPage() {
     let mounted = true;
     setLoading(true);
     getThreads({
-      search: debounced || undefined,
+      search: q || undefined,
       tag: tag || undefined,
+      solved: solved || undefined,
       sort,
       page,
       page_size: PAGE_SIZE,
@@ -93,20 +125,16 @@ export default function ThreadListPage() {
       .catch(() => mounted && setThreads([]))
       .finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
-  }, [debounced, sort, tag, page]);
+  }, [q, tag, solved, sort, page]);
 
   const pageCount = Math.max(1, Math.ceil(count / PAGE_SIZE));
-  const filterDesc = (FILTERS.find(([k]) => k === sort) || FILTERS[0])[2];
+  const sortDesc = (SORTS.find(([k]) => k === sort) || SORTS[0])[2];
   const trending = useMemo(
     () => [...threads].sort((a, b) => (b.reply_count ?? 0) - (a.reply_count ?? 0)).slice(0, 3),
     [threads]
   );
 
-  const pickTag = (name) => {
-    setTag((cur) => (cur === name ? "" : name));
-    setPage(1);
-    window.scrollTo(0, 0);
-  };
+  const pickTag = (name) => setField({ tag: tag === name ? "" : name });
 
   return (
     <ForumShell crumb="">
@@ -118,8 +146,8 @@ export default function ThreadListPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(14,28,15,.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
           <input
             placeholder="Search threads by title or content…"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 
@@ -159,19 +187,32 @@ export default function ThreadListPage() {
                 Discussions{tag ? ` · ${titleCase(tag)}` : ""}
               </h2>
               <div className="sfr-chips">
-                {FILTERS.map(([k, label]) => (
+                {SORTS.map(([k, label]) => (
                   <button
                     key={k}
                     className={`sfr-chip${sort === k ? " active" : ""}`}
-                    onClick={() => { setSort(k); setPage(1); }}
+                    onClick={() => setField({ sort: k === "newest" ? "" : k })}
                   >
                     {label}
                   </button>
                 ))}
               </div>
             </div>
+
+            <div className="sfr-chips" style={{ marginBottom: 13 }}>
+              {SOLVED_FILTERS.map(([k, label]) => (
+                <button
+                  key={label}
+                  className={`sfr-chip${solved === k ? " active" : ""}`}
+                  onClick={() => setField({ solved: k })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
             <div className="sfr-feednote">
-              <span>{filterDesc}</span>
+              <span>{sortDesc}</span>
               <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(14,28,15,.3)" }} />
               <span>{count ? `${fmtNum(count)} threads` : loading ? "" : "No threads yet"}</span>
             </div>
@@ -180,8 +221,8 @@ export default function ThreadListPage() {
               <div className="sfr-loading">Loading discussions…</div>
             ) : threads.length === 0 ? (
               <div className="sfr-empty">
-                {debounced || tag
-                  ? "No threads match this view. Clear the search or category to see everything."
+                {q || tag || solved
+                  ? "No threads match this view. Clear the search or filters to see everything."
                   : "No discussions yet — start the first thread."}
               </div>
             ) : (
@@ -192,7 +233,7 @@ export default function ThreadListPage() {
               </div>
             )}
 
-            <Pager page={page} pageCount={pageCount} onPage={(p) => { setPage(p); window.scrollTo(0, 0); }} />
+            <Pager page={page} pageCount={pageCount} onPage={(p) => setField({ page: p > 1 ? String(p) : undefined }, false)} />
           </div>
 
           <div className="sfr-rail">

@@ -7,15 +7,17 @@
 //   GET  /forum/threads/:id/            POST /forum/threads/:id/upvote/
 //   GET  /forum/threads/:id/comments/   POST /forum/threads/:id/comments/create/
 //   POST /forum/comments/:id/upvote/    DELETE /forum/comments/:id/delete/
-//   DELETE /forum/threads/:id/delete/
-// Accept-answer / bookmark / report exist in the design but not the
-// backend yet — omitted here, tracked as backend follow-ups.
+//   DELETE /forum/threads/:id/delete/   POST /forum/threads/:id/accept/:replyId/
+// The thread author can accept a reply as the answer (backend now tracks
+// is_solved / accepted_reply / view_count); accepted replies are pinned to
+// the top with a Solved badge. Bookmark/report from the design still have
+// no backend endpoint — left out rather than faked.
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getThread, getComments, postComment, deleteComment,
-  toggleThreadUpvote, toggleCommentUpvote, deleteThread,
+  toggleThreadUpvote, toggleCommentUpvote, deleteThread, acceptAnswer,
 } from "../api/forum";
 import { useAuth } from "../contexts/AuthContext";
 import ForumShell, { GuestBanner, useRequireAuth } from "./ForumShell";
@@ -44,6 +46,7 @@ export default function ThreadDetailPage() {
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [accepting, setAccepting] = useState(null); // reply id currently being accepted/un-accepted
   const composerRef = useRef(null);
 
   const myUsername = user?.username;
@@ -130,6 +133,18 @@ export default function ThreadDetailPage() {
     } catch { /* clipboard unavailable */ }
   };
 
+  const goToAuthor = (username) => navigate(`/forum/u/${encodeURIComponent(username)}`);
+
+  const toggleAccept = requireAuth(async (replyId) => {
+    if (accepting) return;
+    setAccepting(replyId);
+    try {
+      const res = await acceptAnswer(threadId, replyId);
+      setThread((t) => (t ? { ...t, is_solved: res.is_solved, accepted_reply_id: res.accepted_reply_id } : t));
+    } catch { /* ignore */ }
+    finally { setAccepting(null); }
+  });
+
   const startReplyTo = requireAuth((comment) => {
     setReplyTo(comment);
     composerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -155,6 +170,13 @@ export default function ThreadDetailPage() {
   }
 
   const byId = Object.fromEntries(comments.map((c) => [c.id, c]));
+
+  const orderedComments = useMemo(() => {
+    if (!thread?.accepted_reply_id) return comments;
+    const accepted = comments.find((c) => c.id === thread.accepted_reply_id);
+    if (!accepted) return comments;
+    return [accepted, ...comments.filter((c) => c.id !== thread.accepted_reply_id)];
+  }, [comments, thread?.accepted_reply_id]);
 
   return (
     <ForumShell crumb=" / Thread">
@@ -185,11 +207,15 @@ export default function ThreadDetailPage() {
                   </span>
                 );
               })}
+              {thread.is_solved && <span className="sfr-solvedpill">✓ Solved</span>}
             </div>
             <h1 className="sfr-detail-title">{thread.title}</h1>
 
             <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "14px 0 16px", flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer" }}
+                onClick={() => goToAuthor(thread.author_username)}
+              >
                 <span className="sfr-avatar" style={{ width: 34, height: 34, font: "700 12px 'Montserrat',sans-serif", background: avatarGrad(thread.author_username) }}>
                   {initialsOf(thread.author_username)}
                 </span>
@@ -209,6 +235,14 @@ export default function ThreadDetailPage() {
               <div style={{ font: "500 11.5px 'Poppins',sans-serif", color: "rgba(14,28,15,.5)" }}>
                 {fmtNum(thread.reply_count ?? comments.length)} replies
               </div>
+              {typeof thread.view_count === "number" && (
+                <>
+                  <div style={{ height: 26, width: 1, background: "rgba(9,62,5,.12)" }} />
+                  <div style={{ font: "500 11.5px 'Poppins',sans-serif", color: "rgba(14,28,15,.5)" }}>
+                    {fmtNum(thread.view_count)} views
+                  </div>
+                </>
+              )}
             </div>
 
             {thread.body && <div className="sfr-detail-body">{thread.body}</div>}
@@ -258,19 +292,35 @@ export default function ThreadDetailPage() {
         )}
 
         <div className="sfr-replies">
-          {comments.map((c) => {
+          {orderedComments.map((c) => {
             const parent = c.reply_to_comment_id ? byId[c.reply_to_comment_id] : null;
             const mine = myUsername && c.author_username === myUsername;
+            const isAccepted = thread.accepted_reply_id === c.id;
             return (
-              <div key={c.id} className={`sfr-replycard${parent ? " nested" : ""}`}>
+              <div
+                key={c.id}
+                className={`sfr-replycard${parent ? " nested" : ""}`}
+                style={isAccepted ? { borderColor: "var(--sfr-solved)", boxShadow: "0 0 0 1px var(--sfr-solved)" } : undefined}
+              >
+                {isAccepted && (
+                  <div className="sfr-opnote" style={{ background: "rgba(14,138,82,.08)", borderColor: "rgba(14,138,82,.3)" }}>
+                    <span className="sfr-solvedpill">✓ Accepted answer</span>
+                  </div>
+                )}
                 {parent && (
                   <div className="sfr-replyto">↩ replying to {parent.author_username}</div>
                 )}
                 <div className="sfr-reply-head">
-                  <span className="sfr-avatar" style={{ width: 28, height: 28, background: avatarGrad(c.author_username) }}>
+                  <span
+                    className="sfr-avatar"
+                    style={{ width: 28, height: 28, background: avatarGrad(c.author_username), cursor: "pointer" }}
+                    onClick={() => goToAuthor(c.author_username)}
+                  >
                     {initialsOf(c.author_username)}
                   </span>
-                  <span className="sfr-reply-name">{c.author_username}</span>
+                  <span className="sfr-reply-name" style={{ cursor: "pointer" }} onClick={() => goToAuthor(c.author_username)}>
+                    {c.author_username}
+                  </span>
                   <span className="sfr-reply-time">{fmtAge(c.created_at)}</span>
                 </div>
                 <div className="sfr-reply-body">{c.content}</div>
@@ -282,6 +332,15 @@ export default function ThreadDetailPage() {
                     ▲ {fmtNum(c.upvote_count ?? 0)}
                   </button>
                   <button className="sfr-minibtn" onClick={() => startReplyTo(c)}>Reply</button>
+                  {isOwner && (
+                    <button
+                      className={`sfr-minibtn${isAccepted ? " on" : ""}`}
+                      onClick={() => toggleAccept(c.id)}
+                      disabled={accepting === c.id}
+                    >
+                      {isAccepted ? "✓ Accepted" : "Accept answer"}
+                    </button>
+                  )}
                   {mine && (
                     <button className="sfr-minibtn danger" onClick={() => removeComment(c.id)}>Delete</button>
                   )}

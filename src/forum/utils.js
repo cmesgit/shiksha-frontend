@@ -18,6 +18,11 @@ export const fmtAge = (iso) => {
   return d < 30 ? d + "d ago" : new Date(iso).toLocaleDateString();
 };
 
+export const fmtDate = (iso) => {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+};
+
 export const initialsOf = (name = "") => {
   const parts = String(name).trim().split(/[\s_.-]+/).filter(Boolean);
   if (!parts.length) return "?";

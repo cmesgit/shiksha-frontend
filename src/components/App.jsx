@@ -12,6 +12,7 @@ import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import Profile from "../pages/Profile";
+import { ExploreProvider } from "../explore/ExploreStore";
 
 import "../css/App.css";
 
@@ -32,7 +33,16 @@ const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
-const Explore          = lazy(() => import("./Explore"));
+// ── Explore (Scribd-style document hub) — new module under src/explore ──
+const Explore          = lazy(() => import("../explore/ExploreLanding"));
+const ExploreBrowse    = lazy(() => import("../explore/ExploreBrowse"));
+const DocumentPage     = lazy(() => import("../explore/DocumentPage"));
+const AuthorPage       = lazy(() => import("../explore/AuthorPage"));
+const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionsList })));
+const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
+const ExploreLibrary   = lazy(() => import("../explore/LibraryPage"));
+const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
+// Legacy research-hub landing kept for its own route.
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
@@ -80,6 +90,15 @@ function Page({ children }) {
       {children}
       <Footer />
     </div>
+  );
+}
+
+// Explore pages share a client-side library store (saved / following / etc.).
+function ExplorePage({ children }) {
+  return (
+    <ExploreProvider>
+      <Page>{children}</Page>
+    </ExploreProvider>
   );
 }
 
@@ -221,7 +240,14 @@ function App() {
                element={<Page><CounsellingAssessment /></Page>} />
         <Route path="/counselling/assessment"
                element={<Navigate to="/counselling/counsellors" replace />} />
-        <Route path="/explore"         element={<Page><Explore /></Page>} />
+        <Route path="/explore"                 element={<ExplorePage><Explore /></ExplorePage>} />
+        <Route path="/explore/browse"          element={<ExplorePage><ExploreBrowse /></ExplorePage>} />
+        <Route path="/explore/doc/:id"         element={<ExplorePage><DocumentPage /></ExplorePage>} />
+        <Route path="/explore/author/:id"      element={<ExplorePage><AuthorPage /></ExplorePage>} />
+        <Route path="/explore/collections"     element={<ExplorePage><CollectionsList /></ExplorePage>} />
+        <Route path="/explore/collections/:id" element={<ExplorePage><CollectionPage /></ExplorePage>} />
+        <Route path="/explore/library"         element={<ExplorePage><ExploreLibrary /></ExplorePage>} />
+        <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
         {/* Legacy mini-app retired — redirect to the live, login-gated pages.

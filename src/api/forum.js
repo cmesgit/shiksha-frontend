@@ -12,6 +12,7 @@ export async function getTags() {
 // Threads
 // =====================================================
 export async function getThreads(params = {}) {
+  // params: { search, tag, author, solved: 'true'|'false'|'unanswered', sort, page, page_size }
   const res = await api.get("/forum/threads/", { params });
   return res.data; // { results: [...], count: N }
 }
@@ -62,6 +63,33 @@ export async function toggleThreadUpvote(threadId) {
 export async function toggleCommentUpvote(commentId) {
   const res = await api.post(`/forum/comments/${commentId}/upvote/`);
   return res.data; // { upvoted: true/false, upvote_count: N }
+}
+
+// =====================================================
+// Accept answer
+// =====================================================
+export async function acceptAnswer(threadId, replyId) {
+  const res = await api.post(`/forum/threads/${threadId}/accept/${replyId}/`);
+  return res.data; // { accepted_reply_id: N|null, is_solved: true/false }
+}
+
+// =====================================================
+// Public profile
+// =====================================================
+export async function getForumProfile(username) {
+  const res = await api.get(`/forum/users/${encodeURIComponent(username)}/`);
+  return res.data; // { username, joined_at, bio, thread_count, reply_count, upvotes_received, is_self }
+}
+
+export async function getUserReplies(username, params = {}) {
+  const res = await api.get(`/forum/users/${encodeURIComponent(username)}/replies/`, { params });
+  return res.data; // { results: [{ id, thread_id, thread_title, content, created_at, upvote_count, is_accepted, ... }], count: N }
+}
+
+export async function updateForumProfile(payload) {
+  // payload: { bio }
+  const res = await api.patch("/forum/profile/", payload);
+  return res.data; // { bio }
 }
 
 // =====================================================

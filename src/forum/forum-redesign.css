@@ -161,6 +161,20 @@
 .sfr-guestbar .d { font: 500 12px 'Poppins', sans-serif; opacity: .85 }
 .sfr-guestbar button { margin-left: auto; padding: 8px 18px; font: 700 12px 'Poppins', sans-serif; color: var(--sfr-green); background: #fff; border: none; border-radius: 9px; cursor: pointer }
 
+/* ── profile page ───────────────────────────────────────────────── */
+.sfr-profile-banner { display: flex; gap: 20px; align-items: center; background: linear-gradient(135deg, var(--sfr-green-dark), #001a11); border-radius: 15px; padding: 26px 28px; color: #fff; flex-wrap: wrap; margin-bottom: 22px }
+.sfr-profile-banner .sfr-avatar { width: 68px; height: 68px; font: 800 22px 'Montserrat', sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.28) }
+.sfr-profile-banner h1 { margin: 0; font: 900 22px 'Montserrat', sans-serif; color: #fff; letter-spacing: -.4px }
+.sfr-profile-banner .joined { font: 500 12px 'Poppins', sans-serif; color: rgba(255,255,255,.68); margin-top: 3px }
+.sfr-profile-bio { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(255,255,255,.85); margin-top: 10px; max-width: 56ch }
+.sfr-profile-stats { display: flex; gap: 26px; margin-top: 14px; flex-wrap: wrap }
+.sfr-profile-stats b { display: block; font: 900 17px 'Montserrat', sans-serif; color: #fff }
+.sfr-profile-stats span { font: 600 10.5px 'Poppins', sans-serif; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .4px }
+.sfr-profile-editbtn { margin-left: auto; align-self: flex-start; padding: 8px 16px; font: 700 12px 'Poppins', sans-serif; color: var(--sfr-green-dark); background: #fff; border: none; border-radius: 9px; cursor: pointer }
+.sfr-bio-editor { width: 100%; min-height: 70px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.08); color: #fff; border-radius: 10px; padding: 10px 12px; font: 500 13px/1.6 'Poppins', sans-serif; resize: vertical; outline: none; margin-top: 10px }
+.sfr-bio-editor::placeholder { color: rgba(255,255,255,.5) }
+.sfr-bio-count { font: 500 10.5px 'Poppins', sans-serif; color: rgba(255,255,255,.55); margin-top: 4px }
+
 /* ── misc ───────────────────────────────────────────────────────── */
 .sfr-empty { text-align: center; padding: 40px 20px; font: 600 13px 'Poppins', sans-serif; color: var(--sfr-muted) }
 .sfr-loading { text-align: center; padding: 40px 20px; font: 600 13px 'Poppins', sans-serif; color: var(--sfr-muted) }

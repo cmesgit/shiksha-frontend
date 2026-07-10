@@ -47,7 +47,7 @@ export function GuestBanner({ message = "Sign in to ask questions, reply and upv
 
 export default function ForumShell({ crumb = "", children }) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { unreadCount } = useNotification() || {};
   const requireAuth = useRequireAuth();
 
@@ -61,6 +61,11 @@ export default function ForumShell({ crumb = "", children }) {
             {crumb}
           </div>
           <div className="sfr-subbar-actions">
+            {isAuthenticated && user?.username && (
+              <button className="sfr-sublink" onClick={() => navigate(`/forum/u/${encodeURIComponent(user.username)}`)}>
+                My profile
+              </button>
+            )}
             <button
               className="sfr-btn-primary"
               onClick={requireAuth(() => navigate("/forum/create"))}

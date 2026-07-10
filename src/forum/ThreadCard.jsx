@@ -19,6 +19,11 @@ export default function ThreadCard({ thread, onTagClick }) {
   const primaryTag = (t.tags && t.tags[0]) || null;
   const tc = primaryTag ? tagColor(primaryTag) : null;
 
+  const goToAuthor = (e) => {
+    e.stopPropagation();
+    navigate(`/forum/u/${encodeURIComponent(t.author_username)}`);
+  };
+
   return (
     <button className="sfr-thread sfr-reset" onClick={() => navigate(`/forum/${t.id}`)}>
       <div className="sfr-votecol">
@@ -37,13 +42,18 @@ export default function ThreadCard({ thread, onTagClick }) {
               {titleCase(primaryTag)}
             </span>
           )}
-          {(t.reply_count ?? 0) === 0 && (
+          {t.is_solved ? (
+            <span className="sfr-solvedpill">✓ Solved</span>
+          ) : (t.reply_count ?? 0) === 0 ? (
             <span className="sfr-pill-unanswered">Unanswered</span>
-          )}
+          ) : null}
         </div>
         <div className="sfr-thread-title">{t.title}</div>
         <div className="sfr-thread-meta">
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <span
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer" }}
+            onClick={goToAuthor}
+          >
             <span className="sfr-avatar" style={{ background: avatarGrad(t.author_username) }}>
               {initialsOf(t.author_username)}
             </span>
@@ -51,6 +61,7 @@ export default function ThreadCard({ thread, onTagClick }) {
           </span>
           <span>{fmtAge(t.created_at)}</span>
           <span>{fmtNum(t.reply_count ?? 0)} replies</span>
+          {typeof t.view_count === "number" && <span>{fmtNum(t.view_count)} views</span>}
         </div>
       </div>
     </button>

@@ -18,6 +18,7 @@ const GLYPHS = {
   new_reply: { glyph: "↩", tint: "rgba(27,156,133,.12)", color: "#1b9c85" },
   upvote:    { glyph: "▲", tint: "rgba(18,80,39,.09)",  color: "#125027" },
   new_thread:{ glyph: "N", tint: "rgba(255,143,1,.12)", color: "#d97600" },
+  accepted_answer: { glyph: "✓", tint: "rgba(14,138,82,.12)", color: "#0e8a52" },
   default:   { glyph: "•", tint: "rgba(18,80,39,.09)",  color: "#125027" },
 };
 
