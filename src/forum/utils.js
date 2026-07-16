@@ -1,53 +1,75 @@
-// PLACEMENT: src/forum/utils.js   (NEW FILE — landing/frontend app)
-//
-// Formatting + deterministic styling helpers lifted from the approved
-// design (fmtNum / fmtAge / avatar gradients / rotating tag palette).
+// Small presentational helpers shared across the forum module.
 
-export const fmtNum = (n) => {
-  const v = Number(n) || 0;
-  return v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(v);
-};
+const PALETTE = ["#0f8f7e", "#6b58d3", "#ff8f01", "#125027", "#c0446b", "#8a5a00", "#2f6db5", "#a23e9c"];
 
-export const fmtAge = (iso) => {
+export function initialsOf(name) {
+  const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+export function colorFor(key) {
+  const s = String(key || "");
+  let total = 0;
+  for (let i = 0; i < s.length; i++) total += s.charCodeAt(i);
+  return PALETTE[total % PALETTE.length];
+}
+
+export function fmtNum(n) {
+  const v = Number(n || 0);
+  if (v >= 1000000) return (v / 1000000).toFixed(1).replace(/\.0$/, "") + "m";
+  if (v >= 1000) return (v / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(v);
+}
+
+// "asked · 4h" style relative time from an ISO string.
+export function timeAgo(iso) {
   if (!iso) return "";
-  const m = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
-  if (m < 1) return "just now";
-  if (m < 60) return m + "m ago";
-  if (m < 1440) return Math.floor(m / 60) + "h ago";
-  const d = Math.floor(m / 1440);
-  return d < 30 ? d + "d ago" : new Date(iso).toLocaleDateString();
-};
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const s = Math.max(1, Math.floor((Date.now() - then) / 1000));
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d`;
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return `${mo}mo`;
+  return `${Math.floor(mo / 12)}y`;
+}
 
-export const fmtDate = (iso) => {
+export function fmtDate(iso) {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString(undefined, { month: "long", year: "numeric" });
-};
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
 
-export const initialsOf = (name = "") => {
-  const parts = String(name).trim().split(/[\s_.-]+/).filter(Boolean);
-  if (!parts.length) return "?";
-  return ((parts[0][0] || "") + (parts[1]?.[0] || "")).toUpperCase();
-};
+// Normalise an author badge coming from the API into a consistent shape,
+// tolerating either a full badge object or a bare username string.
+export function normAuthor(author, username) {
+  if (author && typeof author === "object") {
+    return {
+      username: author.username || username || "",
+      name: author.display_name || author.username || username || "User",
+      credential: author.credential || "",
+      initials: author.initials || initialsOf(author.display_name || author.username),
+      color: author.color || colorFor(author.username || username),
+      avatar_url: author.avatar_url || "",
+    };
+  }
+  const u = username || author || "User";
+  return { username: u, name: u, credential: "", initials: initialsOf(u), color: colorFor(u), avatar_url: "" };
+}
 
-// The design's three avatar gradients, picked deterministically per user.
-const GRADS = [
-  "linear-gradient(135deg,#1b9c85,#125027)",
-  "linear-gradient(135deg,#ff8f01,#d97600)",
-  "linear-gradient(135deg,#125027,#1b9c85)",
+export const FEED_TABS = [
+  { id: "foryou", label: "For You", sort: "foryou" },
+  { id: "trending", label: "Trending", sort: "trending" },
+  { id: "latest", label: "Latest", sort: "latest" },
+  { id: "unanswered", label: "Unanswered", sort: "unanswered" },
 ];
-const hash = (s = "") => {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-};
-export const avatarGrad = (name = "") => GRADS[hash(String(name)) % GRADS.length];
-
-// Rotating category/tag palette (design's three tint/color pairs).
-const TAG_COLORS = [
-  { color: "#125027", tint: "rgba(18,80,39,.09)" },
-  { color: "#1b9c85", tint: "rgba(27,156,133,.12)" },
-  { color: "#d97600", tint: "rgba(255,143,1,.13)" },
-];
-export const tagColor = (name = "") => TAG_COLORS[hash(String(name).toLowerCase()) % TAG_COLORS.length];
-
-export const titleCase = (s = "") => String(s).replace(/\b\w/g, (c) => c.toUpperCase());

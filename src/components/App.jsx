@@ -72,10 +72,22 @@ const VerifyEmail      = lazy(() => import("../auth/VerifyEmail"));
 const EmailVerified    = lazy(() => import("../auth/EmailVerified"));
 const ResendVerification = lazy(() => import("./ResendVerification"));
 const ForgotPassword   = lazy(() => import("../auth/ForgotPassword"));
-const ThreadListPage   = lazy(() => import("../forum/ThreadListPage"));
-const ThreadDetailPage = lazy(() => import("../forum/ThreadDetailPage"));
-const CreateThreadPage = lazy(() => import("../forum/CreateThreadPage"));
-const NotificationsPage = lazy(() => import("../forum/NotificationsPage"));
+// Forum (redesign) — a nested route tree under a shared ForumLayout.
+const ForumLayout       = lazy(() => import("../forum/ForumLayout"));
+const FeedPage          = lazy(() => import("../forum/pages/FeedPage"));
+const ThreadPage        = lazy(() => import("../forum/pages/ThreadPage"));
+const AskPage           = lazy(() => import("../forum/pages/AskPage"));
+const SpacesPage        = lazy(() => import("../forum/pages/SpacesPage"));
+const SpacePage         = lazy(() => import("../forum/pages/SpacePage"));
+const CreateSpacePage   = lazy(() => import("../forum/pages/CreateSpacePage"));
+const CategoriesPage    = lazy(() => import("../forum/pages/CategoriesPage"));
+const CategoryPage      = lazy(() => import("../forum/pages/CategoryPage"));
+const ForumSearchPage   = lazy(() => import("../forum/pages/SearchPage"));
+const SavedPage         = lazy(() => import("../forum/pages/SavedPage"));
+const AnswerQueuePage   = lazy(() => import("../forum/pages/AnswerQueuePage"));
+const NotificationsPage = lazy(() => import("../forum/pages/NotificationsPage"));
+const ForumProfilePage  = lazy(() => import("../forum/pages/ProfilePage"));
+const UserProfilePage   = lazy(() => import("../forum/pages/UserProfilePage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -279,10 +291,22 @@ function App() {
         <Route path="/expert-apply"   element={<Navigate to="/signup?role=teacher&add_track=skill" replace />} />
         <Route path="/upcoming"        element={<Upcoming />} />
         <Route path="/payment"         element={<Page><Payment /></Page>} />
-        <Route path="/forum"           element={<Page><ThreadListPage /></Page>} />
-        <Route path="/forum/create"    element={<Page><CreateThreadPage /></Page>} />
-        <Route path="/forum/notifications" element={<Page><NotificationsPage /></Page>} />
-        <Route path="/forum/:threadId" element={<Page><ThreadDetailPage /></Page>} />
+        <Route path="/forum" element={<Page><ForumLayout /></Page>}>
+          <Route index element={<FeedPage />} />
+          <Route path="thread/:id" element={<ThreadPage />} />
+          <Route path="ask" element={<AskPage />} />
+          <Route path="spaces" element={<SpacesPage />} />
+          <Route path="spaces/new" element={<CreateSpacePage />} />
+          <Route path="space/:slug" element={<SpacePage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="category/:id" element={<CategoryPage />} />
+          <Route path="search" element={<ForumSearchPage />} />
+          <Route path="saved" element={<SavedPage />} />
+          <Route path="answer-queue" element={<AnswerQueuePage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="profile" element={<ForumProfilePage />} />
+          <Route path="u/:username" element={<UserProfilePage />} />
+        </Route>
       </Routes>
       </Suspense>
     </div>
