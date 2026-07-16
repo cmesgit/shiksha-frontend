@@ -16,7 +16,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 
 import { useAuth } from "../contexts/AuthContext";
-import { APP_URL, TEACHER_URL, ADMIN_URL } from "../config/urls";
+import { APP_URL, TEACHER_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import { getAnnouncements } from "../api/contentApi";
 import "../css/theme.css";
@@ -568,16 +568,14 @@ const Navbar = () => {
                     Dashboard <IcExternal />
                   </button>
                   {canModerate && (
-                    <a
-                      href={ADMIN_URL}
-                      target="_blank"
-                      rel="noreferrer"
+                    <Link
+                      to="/moderator"
                       className="skn-mod-link"
                       title="Moderator Panel"
                       aria-label="Moderator Panel"
                     >
                       <IcShield />
-                    </a>
+                    </Link>
                   )}
                   <ProfileSwitcher
                     teacherSignupUrl="/signup?role=teacher"
@@ -732,15 +730,13 @@ const Navbar = () => {
             (isAuthenticated && user ? (
               <>
                 {canModerate && (
-                  <a
-                    href={ADMIN_URL}
-                    target="_blank"
-                    rel="noreferrer"
+                  <Link
+                    to="/moderator"
                     className="skn-btn skn-btn-ghost skn-wide"
                     onClick={closeAll}
                   >
                     <IcShield /> Moderator Panel
-                  </a>
+                  </Link>
                 )}
                 <button
                   type="button"

@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
+import RequireRole from "../routes/RequireRole";
 import HomePage from "./HomePage";
 import useAnalytics from "../useAnalytics";
 import Navbar from "./Navbar";
@@ -54,6 +55,7 @@ const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
+const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const About            = lazy(() => import("./About"));
 const About2           = lazy(() => import("./About2"));
 const Vision           = lazy(() => import("./Vision"));
@@ -289,6 +291,22 @@ function App() {
         */}
         <Route path="/become-faculty" element={<FacultyIntro />} />
         <Route path="/expert-apply"   element={<Navigate to="/signup?role=teacher&add_track=skill" replace />} />
+
+        {/*
+          Moderator Panel — ported from the internal Admin-dashboard app so
+          moderators/admins can moderate the forum without leaving this site.
+          Gated on the ADMIN/MODERATOR role (same server-side IsForumModerator/
+          is_staff checks on the backend remain the real security boundary —
+          this route is lazy-loaded so anonymous visitors never download it).
+          Renders WITHOUT the marketing <Page> chrome — it ships its own
+          minimal header, same precedent as /become-faculty above.
+        */}
+        <Route path="/moderator" element={
+          <RequireRole roles={["ADMIN", "MODERATOR"]}>
+            <ModeratorPanel />
+          </RequireRole>
+        } />
+
         <Route path="/upcoming"        element={<Upcoming />} />
         <Route path="/payment"         element={<Page><Payment /></Page>} />
         <Route path="/forum" element={<Page><ForumLayout /></Page>}>
