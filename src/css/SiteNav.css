@@ -365,6 +365,37 @@
   gap: 10px;
 }
 
+/* Moderator/Admin link — small, unobtrusive icon button next to the
+   account menu. Visible only to logged-in ADMIN/MODERATOR users; links
+   out to the separate Admin-dashboard app (own domain, own login). */
+.skn-mod-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--sk-line);
+  color: var(--sk-green-deep);
+  background: transparent;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.skn-mod-link svg {
+  width: 17px;
+  height: 17px;
+}
+.skn-mod-link:hover {
+  border-color: var(--sk-green);
+  color: var(--sk-green-dark);
+  background: var(--sk-mint);
+}
+.skn-mod-link:focus-visible {
+  outline: 3px solid var(--sk-green);
+  outline-offset: 2px;
+}
+
 /* hamburger */
 .skn-burger {
   display: none;

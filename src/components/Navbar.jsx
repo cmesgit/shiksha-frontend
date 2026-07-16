@@ -16,7 +16,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 
 import { useAuth } from "../contexts/AuthContext";
-import { APP_URL, TEACHER_URL } from "../config/urls";
+import { APP_URL, TEACHER_URL, ADMIN_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import { getAnnouncements } from "../api/contentApi";
 import "../css/theme.css";
@@ -41,6 +41,7 @@ import {
   IcHelp,
   IcChat,
   IcEye,
+  IcShield,
 } from "./home/HomeIcons";
 
 /* ────────────────────────── MENU DATA ────────────────────────── */
@@ -310,7 +311,8 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 /* ────────────────────────── NAVBAR ────────────────────────── */
 
 const Navbar = () => {
-  const { isAuthenticated, user, loading, isTeacherContext } = useAuth();
+  const { isAuthenticated, user, loading, isTeacherContext, hasRole } = useAuth();
+  const canModerate = isAuthenticated && (hasRole("ADMIN") || hasRole("MODERATOR"));
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -565,6 +567,18 @@ const Navbar = () => {
                   >
                     Dashboard <IcExternal />
                   </button>
+                  {canModerate && (
+                    <a
+                      href={ADMIN_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="skn-mod-link"
+                      title="Moderator Panel"
+                      aria-label="Moderator Panel"
+                    >
+                      <IcShield />
+                    </a>
+                  )}
                   <ProfileSwitcher
                     teacherSignupUrl="/signup?role=teacher"
                     learnUrl={APP_URL}
@@ -716,16 +730,29 @@ const Navbar = () => {
         <div className="skn-drawer-cta">
           {!loading &&
             (isAuthenticated && user ? (
-              <button
-                type="button"
-                className="skn-btn skn-btn-solid skn-wide"
-                onClick={() => {
-                  closeAll();
-                  handleDashboard();
-                }}
-              >
-                Go to Dashboard <IcExternal />
-              </button>
+              <>
+                {canModerate && (
+                  <a
+                    href={ADMIN_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="skn-btn skn-btn-ghost skn-wide"
+                    onClick={closeAll}
+                  >
+                    <IcShield /> Moderator Panel
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="skn-btn skn-btn-solid skn-wide"
+                  onClick={() => {
+                    closeAll();
+                    handleDashboard();
+                  }}
+                >
+                  Go to Dashboard <IcExternal />
+                </button>
+              </>
             ) : (
               <>
                 <Link
