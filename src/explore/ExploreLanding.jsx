@@ -1,14 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // src/explore/ExploreLanding.jsx  →  route: /explore  (replaces the old page)
-// The Scribd-style hub home: hero search, trending chips, category grid, and
-// featured / trending / recent rails, plus top authors and collections.
+// The Scribd-style hub home: hero search, trending chips, category grid,
+// recommended + recently-uploaded rails, and an upload CTA.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
-import { DocCard, AuthorCard, CollectionCard, SectionHead, Icon, Loading } from "./components/ui";
+import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
 import "./Explore.css";
 
 export default function ExploreLanding() {
@@ -33,18 +33,13 @@ export default function ExploreLanding() {
     nav(`/explore/browse${term ? `?q=${encodeURIComponent(term)}` : ""}`);
   };
 
-  const totalDocs = useMemo(
-    () => (data ? data.categories.reduce((n, c) => n + (c.count || 0), 0) : 0),
-    [data]
-  );
-
   return (
     <div className="exp">
       {/* hero */}
       <section className="exp-hero">
         <div className="exp-wrap">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <p className="exp-eyebrow">● Explore the Knowledge Library</p>
+            <p className="exp-eyebrow">● Explore the knowledge library</p>
             {canModerate && (
               <button
                 onClick={() => nav("/explore/moderator")}
@@ -74,7 +69,7 @@ export default function ExploreLanding() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runSearch()}
-              placeholder="Search papers, notes, subjects, authors…"
+              placeholder="Search documents, topics, authors…"
               aria-label="Search documents"
             />
             <button className="exp-btn exp-btn-primary" onClick={() => runSearch()}>Search</button>
@@ -86,12 +81,6 @@ export default function ExploreLanding() {
               <button key={t} className="exp-chip" onClick={() => runSearch(t)}>{t}</button>
             ))}
           </div>
-
-          <div className="exp-hero-stats">
-            <div><b>{totalDocs ? totalDocs.toLocaleString() : "—"}</b><span>Documents</span></div>
-            <div><b>{data ? data.authors.length : "—"}+</b><span>Contributors</span></div>
-            <div><b>{data ? data.collections.length : "—"}</b><span>Collections</span></div>
-          </div>
         </div>
       </section>
 
@@ -100,16 +89,15 @@ export default function ExploreLanding() {
           {/* categories */}
           <section className="exp-section">
             <div className="exp-wrap">
-              <SectionHead eyebrow="Jump straight into a type of resource" title="Browse by category" onViewAll={() => nav("/explore/browse")} />
+              <SectionHead subtitle="Jump straight into a type of resource." title="Browse by category" onViewAll={() => nav("/explore/browse")} viewAllLabel="All documents" />
               <div className="exp-catgrid">
                 {data.categories.map((c) => (
                   <button key={c.key} className="exp-cat"
                     onClick={() => nav(`/explore/browse?category=${c.key}`)}>
-                    <span className="bar" style={{ background: c.color }} />
-                    <span className="ic" style={{ background: c.color }}>{c.icon}</span>
+                    <span className="ic" style={{ background: tint(c.color, 0.094), border: `1px solid ${tint(c.color, 0.19)}` }}>{c.icon}</span>
                     <h3>{c.name}</h3>
                     <p>{c.blurb}</p>
-                    <span className="cnt">{c.count.toLocaleString()} documents</span>
+                    <span className="cnt" style={{ color: c.color }}>{c.count.toLocaleString()} docs</span>
                   </button>
                 ))}
               </div>
@@ -117,53 +105,41 @@ export default function ExploreLanding() {
           </section>
 
           {/* featured */}
-          <section className="exp-section" style={{ background: "#fff", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
-            <div className="exp-wrap">
-              <SectionHead eyebrow="For you" title="Documents recommended for you" onViewAll={() => nav("/explore/browse?sort=Trending")} />
-              <div className="exp-docgrid">
-                {data.featured.slice(0, 4).map((d) => <DocCard key={d.id} doc={d} />)}
-              </div>
-            </div>
-          </section>
-
-          {/* trending rail */}
           <section className="exp-section">
             <div className="exp-wrap">
-              <SectionHead eyebrow="Right now" title="Trending this week" onViewAll={() => nav("/explore/browse?sort=Trending")} />
-              <div className="exp-rail exp-scroll">
-                {data.trending.map((d) => <DocCard key={d.id} doc={d} />)}
+              <SectionHead title="Documents recommended for you" onViewAll={() => nav("/explore/browse?sort=Trending")} />
+              <div className="exp-docgrid-3">
+                {data.featured.slice(0, 3).map((d) => <DocCard key={d.id} doc={d} />)}
               </div>
             </div>
           </section>
 
           {/* recent */}
           {data.recent.length > 0 && (
-            <section className="exp-section" style={{ background: "#fff", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
+            <section className="exp-section">
               <div className="exp-wrap">
-                <SectionHead eyebrow="Just added" title="Recently uploaded" onViewAll={() => nav("/explore/browse?sort=Latest")} />
+                <SectionHead title="Recently uploaded" onViewAll={() => nav("/explore/browse?sort=Latest")} viewAllLabel="See latest" />
                 <div className="exp-docgrid">
-                  {data.recent.slice(0, 4).map((d) => <DocCard key={d.id} doc={d} />)}
+                  {data.recent.slice(0, 4).map((d) => <MiniDocCard key={d.id} doc={d} />)}
                 </div>
               </div>
             </section>
           )}
 
-          {/* authors */}
-          <section className="exp-section">
+          {/* CTA */}
+          <section className="exp-cta">
             <div className="exp-wrap">
-              <SectionHead eyebrow="People to follow" title="Popular contributors" />
-              <div className="exp-authgrid">
-                {data.authors.slice(0, 6).map((a) => <AuthorCard key={a.id} author={a} />)}
-              </div>
-            </div>
-          </section>
-
-          {/* collections */}
-          <section className="exp-section" style={{ background: "#fff", borderTop: "1px solid var(--line)" }}>
-            <div className="exp-wrap">
-              <SectionHead eyebrow="Curated sets" title="Explore collections" onViewAll={() => nav("/explore/collections")} />
-              <div className="exp-colgrid">
-                {data.collections.slice(0, 6).map((c) => <CollectionCard key={c.id} collection={c} />)}
+              <div className="exp-cta-card">
+                <h2>Have something to share?</h2>
+                <p>Publish your notes, papers or study material and reach thousands of learners.</p>
+                <div className="exp-cta-actions">
+                  <button className="exp-btn exp-btn-primary" onClick={() => nav("/explore/upload")}>
+                    Upload a document <Icon.arrow />
+                  </button>
+                  <button className="exp-btn exp-btn-ghost" onClick={() => nav("/explore/browse")}>
+                    Keep exploring
+                  </button>
+                </div>
               </div>
             </div>
           </section>

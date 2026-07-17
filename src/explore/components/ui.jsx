@@ -18,6 +18,13 @@ export const Icon = {
 // ── format helpers ────────────────────────────────────────────────────────────
 export const fileGlyph = (ft) => ({ PDF: "PDF", DOCX: "DOC", PPT: "PPT" }[ft] || "DOC");
 
+// #rrggbb -> rgba(..., alpha), for the tinted icon chips.
+export function tint(hex, alpha) {
+  const h = (hex || "#125027").replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // ── document card ─────────────────────────────────────────────────────────────
 export function DocCard({ doc }) {
   const nav = useNavigate();
@@ -49,6 +56,23 @@ export function DocCard({ doc }) {
           <span>{doc.downloads} ↓</span>
         </div>
       </div>
+    </article>
+  );
+}
+
+// ── compact document card (Explore landing "Recently uploaded") ────────────────
+export function MiniDocCard({ doc }) {
+  const nav = useNavigate();
+  const meta = doc.typeMeta || {};
+  const color = meta.color || "#125027";
+  return (
+    <article className="exp-doc-mini" onClick={() => nav(`/explore/doc/${doc.id}`)}>
+      <div className="ic" style={{ background: tint(color, 0.13), border: `1px solid ${tint(color, 0.2)}` }}>
+        {meta.icon || "📄"}
+      </div>
+      <h3>{doc.title}</h3>
+      <p>{doc.author?.name}</p>
+      <span className="date">{doc.dateLabel}</span>
     </article>
   );
 }
@@ -87,15 +111,16 @@ export function CollectionCard({ collection }) {
 }
 
 // ── section header ─────────────────────────────────────────────────────────────
-export function SectionHead({ eyebrow, title, onViewAll }) {
+export function SectionHead({ eyebrow, subtitle, title, onViewAll, viewAllLabel = "View all" }) {
   return (
     <div className="exp-sectionhead">
       <div>
         {eyebrow && <p className="exp-eyebrow">{eyebrow}</p>}
         <h2 className="exp-secttitle">{title}</h2>
+        {subtitle && <p className="exp-sub" style={{ marginTop: 6 }}>{subtitle}</p>}
       </div>
       {onViewAll && (
-        <button className="exp-viewall" onClick={onViewAll}>View all <Icon.arrow /></button>
+        <button className="exp-viewall" onClick={onViewAll}>{viewAllLabel} <Icon.arrow /></button>
       )}
     </div>
   );
