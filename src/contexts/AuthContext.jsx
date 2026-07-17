@@ -278,6 +278,19 @@ export function AuthProvider({ children }) {
     );
   };
 
+  // ── Permission check ─────────────────────────────────────────────────────────
+  // Mirrors the backend authority: /accounts/me/ returns `permissions` (RBAC
+  // codenames from get_permissions()), and staff/superusers implicitly hold all.
+  // Gate moderator UI on this — NOT on hasRole alone — so a staff- or
+  // permission-based moderator (who passes the server IsForumModerator check)
+  // isn't hidden by a role-name-only frontend gate. Codenames are exact
+  // (case-sensitive), e.g. "forum.moderate", "documents.moderate".
+  const hasPermission = (codename) => {
+    if (!user) return false;
+    if (user.is_staff || user.is_superuser) return true;
+    return Array.isArray(user.permissions) && user.permissions.includes(codename);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -286,7 +299,7 @@ export function AuthProvider({ children }) {
         loading, api,
         login, selectProfile, switchProfile,
         enterTeacherMode, setProfilePin,
-        signup, lookupEmail, checkEmail, logout, hasRole, bootstrap,
+        signup, lookupEmail, checkEmail, logout, hasRole, hasPermission, bootstrap,
       }}
     >
       {children}

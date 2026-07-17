@@ -88,7 +88,7 @@ export default function DocumentPage() {
               </div>
               <div className="row">
                 <button className="exp-iconbtn" onClick={share}>↗ Share</button>
-                <button className="exp-iconbtn" onClick={() => setReport({ reason: "", details: "" })}>⚑ Report</button>
+                <button className="exp-iconbtn" onClick={() => setReport({ reason: "", detail: "" })}>⚑ Report</button>
               </div>
             </div>
           </div>
@@ -169,16 +169,17 @@ export default function DocumentPage() {
               <label>Reason</label>
               <select value={report.reason} onChange={(e) => setReport({ ...report, reason: e.target.value })}>
                 <option value="">Select a reason…</option>
-                <option>Copyright infringement</option>
-                <option>Inappropriate content</option>
-                <option>Spam or misleading</option>
-                <option>Poor quality / wrong file</option>
-                <option>Other</option>
+                <option value="copyright">Copyright infringement</option>
+                <option value="plagiarism">Plagiarism</option>
+                <option value="inappropriate">Inappropriate content</option>
+                <option value="misleading">Spam or misleading</option>
+                <option value="low_quality">Poor quality / wrong file</option>
+                <option value="other">Other</option>
               </select>
             </div>
             <div className="exp-field">
               <label>Details (optional)</label>
-              <textarea value={report.details} onChange={(e) => setReport({ ...report, details: e.target.value })}
+              <textarea value={report.detail} onChange={(e) => setReport({ ...report, detail: e.target.value })}
                 placeholder="Add any context that helps us review this." />
             </div>
             <button className="exp-btn exp-btn-primary" style={{ width: "100%", justifyContent: "center" }}

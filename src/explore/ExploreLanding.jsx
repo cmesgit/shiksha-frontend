@@ -6,12 +6,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
 import { DocCard, AuthorCard, CollectionCard, SectionHead, Icon, Loading } from "./components/ui";
 import "./Explore.css";
 
 export default function ExploreLanding() {
   const nav = useNavigate();
+  const { isAuthenticated, hasRole, hasPermission } = useAuth();
+  // The Explore library's own moderator entry — a SECOND, separate moderator
+  // tab from the forum's. Gated to documents-library moderators (backend
+  // IsDocumentsModerator is the real boundary).
+  const canModerate = isAuthenticated && (
+    hasPermission("documents.moderate") || hasRole("ADMIN") || hasRole("MODERATOR"));
   const [data, setData] = useState(null);
   const [q, setQ] = useState("");
 
@@ -36,12 +43,30 @@ export default function ExploreLanding() {
       {/* hero */}
       <section className="exp-hero">
         <div className="exp-wrap">
-          <p className="exp-eyebrow">ShikshaCom · Explore</p>
-          <h1>Discover, read and share knowledge</h1>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <p className="exp-eyebrow">● Explore the Knowledge Library</p>
+            {canModerate && (
+              <button
+                onClick={() => nav("/explore/moderator")}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer",
+                  background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.22)",
+                  borderRadius: 999, padding: "6px 14px", color: "#fff",
+                  font: "600 12px Poppins,sans-serif",
+                }}
+              >
+                🛡 Explore Moderation
+              </button>
+            )}
+          </div>
+          <h1>Discover, read &amp; share.</h1>
           <p className="exp-hero-lead">
-            A open library of research papers, notes, question papers and study material —
-            uploaded by educators and learners across India.
+            Research papers, books, notes, question papers and more — from students and
+            teachers across India. Search a topic to begin.
           </p>
+          <button className="exp-hero-upload" onClick={() => nav("/explore/upload")}>
+            Have notes or papers of your own? Sign in to upload <Icon.arrow />
+          </button>
 
           <div className="exp-searchbar">
             <Icon.search />
@@ -75,7 +100,7 @@ export default function ExploreLanding() {
           {/* categories */}
           <section className="exp-section">
             <div className="exp-wrap">
-              <SectionHead eyebrow="Browse by type" title="Categories" onViewAll={() => nav("/explore/browse")} />
+              <SectionHead eyebrow="Jump straight into a type of resource" title="Browse by category" onViewAll={() => nav("/explore/browse")} />
               <div className="exp-catgrid">
                 {data.categories.map((c) => (
                   <button key={c.key} className="exp-cat"
@@ -94,7 +119,7 @@ export default function ExploreLanding() {
           {/* featured */}
           <section className="exp-section" style={{ background: "#fff", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
             <div className="exp-wrap">
-              <SectionHead eyebrow="Editor's pick" title="Featured documents" onViewAll={() => nav("/explore/browse?sort=Trending")} />
+              <SectionHead eyebrow="For you" title="Documents recommended for you" onViewAll={() => nav("/explore/browse?sort=Trending")} />
               <div className="exp-docgrid">
                 {data.featured.slice(0, 4).map((d) => <DocCard key={d.id} doc={d} />)}
               </div>
@@ -115,7 +140,7 @@ export default function ExploreLanding() {
           {data.recent.length > 0 && (
             <section className="exp-section" style={{ background: "#fff", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
               <div className="exp-wrap">
-                <SectionHead eyebrow="Fresh uploads" title="Recently added" onViewAll={() => nav("/explore/browse?sort=Latest")} />
+                <SectionHead eyebrow="Just added" title="Recently uploaded" onViewAll={() => nav("/explore/browse?sort=Latest")} />
                 <div className="exp-docgrid">
                   {data.recent.slice(0, 4).map((d) => <DocCard key={d.id} doc={d} />)}
                 </div>

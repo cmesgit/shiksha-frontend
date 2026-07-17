@@ -56,6 +56,7 @@ const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
+const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
 const About            = lazy(() => import("./About"));
 const About2           = lazy(() => import("./About2"));
 const Vision           = lazy(() => import("./Vision"));
@@ -264,6 +265,15 @@ function App() {
         <Route path="/explore/library"         element={<ExplorePage><ExploreLibrary /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
+        {/* Explore Moderation panel — the SECOND, separate moderator surface
+            (distinct from the forum's /moderator). Ships its own chrome, so no
+            <Page>/<ExplorePage> wrapper. Gated on the documents.moderate RBAC
+            permission (backend IsDocumentsModerator is the real boundary). */}
+        <Route path="/explore/moderator" element={
+          <RequireRole permissions={["documents.moderate"]} roles={["ADMIN", "MODERATOR"]}>
+            <ExploreModeratorPanel />
+          </RequireRole>
+        } />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
         {/* Legacy mini-app retired — redirect to the live, login-gated pages.
             Keeps old links/bookmarks working. The new canonical pages are
@@ -303,7 +313,7 @@ function App() {
           minimal header, same precedent as /become-faculty above.
         */}
         <Route path="/moderator" element={
-          <RequireRole roles={["ADMIN", "MODERATOR"]}>
+          <RequireRole permissions={["forum.moderate"]} roles={["ADMIN", "MODERATOR"]}>
             <ModeratorPanel />
           </RequireRole>
         } />

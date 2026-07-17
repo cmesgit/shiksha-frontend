@@ -311,8 +311,13 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 /* ────────────────────────── NAVBAR ────────────────────────── */
 
 const Navbar = () => {
-  const { isAuthenticated, user, loading, isTeacherContext, hasRole } = useAuth();
-  const canModerate = isAuthenticated && (hasRole("ADMIN") || hasRole("MODERATOR"));
+  const { isAuthenticated, user, loading, isTeacherContext, hasRole, hasPermission } = useAuth();
+  // Match the backend gate (staff / RBAC permission / role). A moderator of
+  // EITHER surface (forum or the Explore document library) sees the entry.
+  const canModerate = isAuthenticated && (
+    hasPermission("forum.moderate") || hasPermission("documents.moderate") ||
+    hasRole("ADMIN") || hasRole("MODERATOR")
+  );
   const navigate = useNavigate();
   const location = useLocation();
 

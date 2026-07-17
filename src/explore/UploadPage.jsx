@@ -60,9 +60,8 @@ export default function UploadPage() {
     setBusy(true);
     const created = await uploadDocument({
       ...form,
-      docType,
       filetype: file ? extType(file.name) : "PDF",
-      fileName: file?.name,
+      file,   // the actual File — appended as multipart by the real API branch
     });
     store.addMyDoc(created.id);
     setBusy(false);

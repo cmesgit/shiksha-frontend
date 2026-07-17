@@ -31,7 +31,7 @@ import {
   AUTHORS, DOCUMENTS, COLLECTIONS, TYPE_META, DOC_TYPES_UPLOAD,
 } from "./data/exploreSeed";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 // Simulate network latency so loading states are exercised in dev.
 const wait = (ms = 220) => new Promise((r) => setTimeout(r, ms));
