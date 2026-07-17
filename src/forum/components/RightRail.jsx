@@ -2,14 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getThreads, getTags } from "../../api/forum";
 
-const RULES = [
-  "Be respectful — no personal attacks or harassment.",
-  "Keep questions clear, specific and on-topic.",
-  "No spam, self-promotion or referral links.",
-  "Cite sources; don't share misleading information.",
-  "Search before posting to avoid duplicates.",
-];
-
 export default function RightRail() {
   const navigate = useNavigate();
   const [trending, setTrending] = useState([]);
@@ -17,45 +9,45 @@ export default function RightRail() {
 
   useEffect(() => {
     let alive = true;
-    getThreads({ sort: "trending", page_size: 4 })
+    getThreads({ sort: "trending", page_size: 5 })
       .then((d) => { if (alive) setTrending(d.results || []); })
       .catch(() => {});
     getTags()
-      .then((d) => { if (alive) setTags((Array.isArray(d) ? d : []).slice(0, 7)); })
+      .then((d) => { if (alive) setTags((Array.isArray(d) ? d : []).slice(0, 10)); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
 
   return (
-    <aside>
+    <aside className="fm2-widgets">
       {trending.length ? (
-        <div className="fm-rail-card">
-          <h4 className="fm-rail-title">Trending</h4>
+        <div className="fm2-card" style={{ padding: "13px 14px" }}>
+          <div className="fm2-section-hd">🔥 Trending Discussions</div>
           {trending.map((q, i) => (
-            <div key={q.id} className="fm-rail-item" onClick={() => navigate(`/forum/thread/${q.id}`)}>
-              <span className="n">{String(i + 1).padStart(2, "0")}</span>
-              <span className="t">{q.title}</span>
-            </div>
+            <button key={q.id} className="fm2-rail-item" onClick={() => navigate(`/forum/thread/${q.id}`)}>
+              <span className="fm2-rail-num">{i + 1}</span>
+              <span className="fm2-rail-title">{q.title}</span>
+            </button>
           ))}
         </div>
       ) : null}
 
       {tags.length ? (
-        <div className="fm-rail-card">
-          <h4 className="fm-rail-title">Popular tags</h4>
-          {tags.map((t) => (
-            <div key={t.id || t.name} className="fm-rail-tag" onClick={() => navigate(`/forum?topic=${encodeURIComponent(t.name)}`)}>
-              <span className="label">#{t.name}</span>
-            </div>
-          ))}
+        <div className="fm2-card" style={{ padding: "13px 14px" }}>
+          <div className="fm2-section-hd">Popular Tags</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {tags.map((t) => (
+              <button key={t.id || t.name} className="fm2-tag" onClick={() => navigate(`/forum?topic=${encodeURIComponent(t.name)}`)}>#{t.name}</button>
+            ))}
+          </div>
         </div>
       ) : null}
 
-      <div className="fm-rail-card">
-        <h4 className="fm-rail-title">Community rules</h4>
-        {RULES.map((r, i) => (
-          <div key={i} className="fm-rule"><span className="n">{i + 1}</span><span>{r}</span></div>
-        ))}
+      <div className="fm2-card" style={{ padding: "13px 14px" }}>
+        <div className="fm2-section-hd">Ask a great question</div>
+        <p style={{ font: "400 12px/1.6 Poppins,sans-serif", color: "#4a5e3a", margin: 0 }}>
+          Be specific, add context, and tag the right topics so the right people can help you faster.
+        </p>
       </div>
     </aside>
   );

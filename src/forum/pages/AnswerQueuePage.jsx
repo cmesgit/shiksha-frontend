@@ -18,18 +18,20 @@ function QueueItem({ q, onDone }) {
   };
 
   return (
-    <div className="fm-card">
-      <div className="fm-card-tags">{(q.tags || []).slice(0, 3).map((t) => <span key={t} className="fm-tag">{t}</span>)}</div>
-      <h3 className="fm-card-title" onClick={() => navigate(`/forum/thread/${q.id}`)}>{q.title}</h3>
-      <div className="fm-meta-sub">asked · {timeAgo(q.created_at)}</div>
-      {open ? (
-        <div className="fm-composer" style={{ marginTop: 10 }}>
-          <textarea rows={3} placeholder="Write your answer…" value={draft} onChange={(e) => setDraft(e.target.value)} />
+    <div className="fm2-card" style={{ padding: "16px 18px" }}>
+      {(q.tags || []).length ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+          {(q.tags || []).slice(0, 3).map((t) => <span key={t} className="fm2-tag">#{t}</span>)}
         </div>
       ) : null}
-      <div className="fm-card-foot">
-        <button className="fm-btn sm" onClick={() => (open ? submit() : setOpen(true))}>{open ? "Post Answer" : "Answer"}</button>
-        <button className="fm-btn ghost sm" onClick={() => onDone(q.id)}>Skip</button>
+      <h3 className="fm2-thread-title" style={{ cursor: "pointer" }} onClick={() => navigate(`/forum/thread/${q.id}`)}>{q.title}</h3>
+      <div style={{ font: "400 11.5px Poppins,sans-serif", color: "#8a9e82", margin: "4px 0 0" }}>asked {timeAgo(q.created_at)}</div>
+      {open ? (
+        <textarea rows={3} placeholder="Write your answer…" value={draft} onChange={(e) => setDraft(e.target.value)} className="fm2-textarea" style={{ marginTop: 10 }} />
+      ) : null}
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <button className="fm2-btn-green" style={{ padding: "8px 16px" }} onClick={() => (open ? submit() : setOpen(true))}>{open ? "Post Answer" : "Answer"}</button>
+        <button className="fm2-btn-ghost" style={{ padding: "8px 14px" }} onClick={() => onDone(q.id)}>Skip</button>
       </div>
     </div>
   );
@@ -48,11 +50,10 @@ export default function AnswerQueuePage() {
   const remove = (id) => setItems((prev) => prev.filter((x) => x.id !== id));
 
   return (
-    <div>
-      <h1 className="fm-h1">Answer Queue</h1>
-      <p className="fm-sub">Questions still waiting for a first answer.</p>
-      {loading ? <div className="fm-loading">Loading…</div> : items.length === 0 ? (
-        <div className="fm-empty"><h4>You're all caught up</h4><p>No unanswered questions right now. Check back later.</p></div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div><h1 className="fm2-h1">Answer Queue</h1><p className="fm2-sub">Questions still waiting for a first answer.</p></div>
+      {loading ? <div className="fm2-empty-card">Loading…</div> : items.length === 0 ? (
+        <div className="fm2-empty-card">You're all caught up — no unanswered questions right now.</div>
       ) : items.map((q) => <QueueItem key={q.id} q={q} onDone={remove} />)}
     </div>
   );

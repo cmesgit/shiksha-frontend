@@ -13,6 +13,11 @@ export async function getTopics() {
   return res.data; // { topics: [...], categories: [...] }
 }
 
+export async function getDashboard() {
+  const res = await api.get("/forum/dashboard/");
+  return res.data; // { stats, recent_activity, notifications_preview, engagement, saved_preview }
+}
+
 export async function getCategories() {
   const res = await api.get("/forum/categories/");
   return res.data; // { results: [...], count }

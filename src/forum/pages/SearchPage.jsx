@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { search as apiSearch } from "../../api/forum";
 import QuestionCard from "../components/QuestionCard";
-import Avatar from "../components/Avatar";
 import { normAuthor } from "../utils";
 
 export default function SearchPage() {
@@ -19,9 +18,9 @@ export default function SearchPage() {
     apiSearch(q).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
   }, [q]);
 
-  if (!q) return <div className="fm-empty"><h4>Search the forum</h4><p>Type a query in the bar above.</p></div>;
-  if (loading) return <div className="fm-loading">Searching…</div>;
-  if (!data) return <div className="fm-empty"><h4>No results</h4></div>;
+  if (!q) return <div className="fm2-empty-card">Search the forum — type a query in the bar above.</div>;
+  if (loading) return <div className="fm2-empty-card">Searching…</div>;
+  if (!data) return <div className="fm2-empty-card">No results.</div>;
 
   const counts = {
     all: (data.questions?.length || 0) + (data.users?.length || 0) + (data.tags?.length || 0) + (data.categories?.length || 0),
@@ -32,53 +31,53 @@ export default function SearchPage() {
   const show = (k) => tab === "all" || tab === k;
 
   return (
-    <div>
-      <h1 className="fm-h1">Results for “{q}”</h1>
-      <p className="fm-sub">{counts.all} result{counts.all === 1 ? "" : "s"} across questions, people, tags and categories.</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div><h1 className="fm2-h1">Results for “{q}”</h1><p className="fm2-sub">{counts.all} result{counts.all === 1 ? "" : "s"} across questions, people, tags and categories.</p></div>
 
-      <div className="fm-tabs">
+      <div className="fm2-tabline">
         {TABS.map(([id, label]) => (
-          <button key={id} className={`fm-tab${tab === id ? " active" : ""}`} onClick={() => setTab(id)}>{label} ({counts[id]})</button>
+          <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>{label} ({counts[id]})</button>
         ))}
       </div>
 
       {show("questions") && data.questions?.length ? (
-        <>{tab === "all" ? <h4 className="fm-rail-title">Questions</h4> : null}{data.questions.map((x) => <QuestionCard key={x.id} q={x} />)}</>
+        <div className="fm2-feed-scroll">
+          {tab === "all" ? <div className="fm2-section-hd">Questions</div> : null}
+          {data.questions.map((x) => <QuestionCard key={x.id} q={x} />)}
+        </div>
       ) : null}
 
       {show("users") && data.users?.length ? (
-        <div className="fm-card">
+        <div className="fm2-card" style={{ padding: "8px 16px" }}>
           {data.users.map((u) => { const a = normAuthor(u, u.username); return (
-            <div key={a.username} className="fm-row" style={{ padding: "8px 0", borderBottom: "1px solid var(--fm-line)", cursor: "pointer" }} onClick={() => navigate(`/forum/u/${a.username}`)}>
-              <Avatar {...a} size={40} />
-              <div><div className="fm-meta-name">{a.name}</div><div className="fm-meta-sub">{a.credential}</div></div>
+            <div key={a.username} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid #e4edd8", cursor: "pointer" }} onClick={() => navigate(`/forum/u/${a.username}`)}>
+              <div className="fm2-avatar-sm" style={{ width: 40, height: 40, background: a.color }}>{a.initials}</div>
+              <div><div className="fm2-asker-name" style={{ fontSize: 13.5 }}>{a.name}</div><div style={{ font: "400 11.5px Poppins,sans-serif", color: "#8a9e82" }}>{a.credential}</div></div>
             </div>
           ); })}
         </div>
       ) : null}
 
       {show("tags") && data.tags?.length ? (
-        <div className="fm-card">
+        <div className="fm2-card" style={{ padding: "13px 14px", display: "flex", flexWrap: "wrap", gap: 6 }}>
           {data.tags.map((t) => (
-            <div key={t.label} className="fm-rail-tag" onClick={() => navigate(`/forum?topic=${encodeURIComponent(t.label)}`)}>
-              <span className="label">#{t.label}</span>
-            </div>
+            <button key={t.label} className="fm2-tag" onClick={() => navigate(`/forum?topic=${encodeURIComponent(t.label)}`)}>#{t.label}</button>
           ))}
         </div>
       ) : null}
 
       {show("categories") && data.categories?.length ? (
-        <div className="fm-grid">
+        <div className="fm2-grid">
           {data.categories.map((c) => (
-            <div key={c.id} className="fm-tile" onClick={() => navigate(`/forum/category/${c.id}`)} style={{ cursor: "pointer" }}>
-              <div className="fm-tile-head"><Avatar name={c.name} initials={c.initials} color={c.color} size={40} /><div className="fm-tile-name">{c.name}</div></div>
-              <div className="fm-tile-desc">{c.desc}</div>
+            <div key={c.id} className="fm2-tile" onClick={() => navigate(`/forum/category/${c.id}`)} style={{ cursor: "pointer" }}>
+              <div className="fm2-tile-head"><div className="fm2-avatar-sm" style={{ width: 40, height: 40, background: c.color || "#125027" }}>{c.initials}</div><div className="fm2-tile-name">{c.name}</div></div>
+              <div className="fm2-tile-desc">{c.desc}</div>
             </div>
           ))}
         </div>
       ) : null}
 
-      {counts.all === 0 ? <div className="fm-empty"><h4>No matches</h4><p>Try a different search.</p></div> : null}
+      {counts.all === 0 ? <div className="fm2-empty-card">No matches. Try a different search.</div> : null}
     </div>
   );
 }

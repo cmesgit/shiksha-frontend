@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap");
+
 .mod-tabs {
   display: flex;
   gap: 6px;
@@ -621,3 +623,82 @@
   transition: background 0.15s;
 }
 .mod-header-back:hover { background: #f3f4f6; }
+
+/* ============================================================
+   fm2 RETHEME — scoped to .fm2-mod (the ModeratorPanel root).
+   Repaints the moderator panel in the ShikshaCom Forum green/cream
+   design system (Montserrat headings, #125027 accent, cream bg) to
+   match the reskinned forum. Structural rules above are untouched.
+   ============================================================ */
+.fm2-mod { background: #edf2e8; min-height: 100vh; font-family: Poppins, sans-serif; }
+
+/* Top marquee (same as the forum chrome) */
+.fm2-mod .fm2-topstrip { background: #3a3a3a; height: 34px; display: flex; align-items: center; padding: 0 24px; overflow: hidden; }
+.fm2-mod .fm2-topstrip marquee { line-height: 34px; color: rgba(255,255,255,.78); font-size: 12px; letter-spacing: .15px; }
+.fm2-mod .fm2-topstrip marquee span { margin-right: 32px; }
+.fm2-mod .fm2-blink { color: #ff8f01; font-weight: 700; }
+
+/* Header bar → dark forest green */
+.fm2-mod .mod-header { background: #0d1e14; border-bottom: none; margin-bottom: 0; }
+.fm2-mod .mod-header-brand { display: inline-flex; align-items: center; gap: 8px; color: #fff; font: 800 15px Montserrat, sans-serif; text-decoration: none; }
+.fm2-mod .mod-header-brand svg { color: #4fd39a; }
+.fm2-mod .mod-header-back { color: rgba(255,255,255,.9); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+.fm2-mod .mod-header-back:hover { background: rgba(255,255,255,.18); }
+
+/* Title */
+.fm2-mod .dashboard-title { font-family: Montserrat, sans-serif; color: #125027; }
+
+/* Stat cards */
+.fm2-mod .mod-stat-card { border: 1px solid #d8e6c8; box-shadow: 0 1px 3px rgba(14,28,15,.05); border-radius: 12px; }
+.fm2-mod .mod-stat-value { font-family: Montserrat, sans-serif; color: #18261a; }
+.fm2-mod .mod-stat-icon.tone-blue   { background: #e4f3e8; color: #125027; }
+.fm2-mod .mod-stat-icon.tone-red    { background: #fdf0ee; color: #c0392b; }
+.fm2-mod .mod-stat-icon.tone-purple { background: #fff4e6; color: #e07900; }
+.fm2-mod .mod-stat-icon.tone-green  { background: #e4f3e8; color: #0f8f7e; }
+
+/* Tabs */
+.fm2-mod .mod-tabs { border-bottom-color: #d8e6c8; }
+.fm2-mod .mod-tab { color: #5a6e55; }
+.fm2-mod .mod-tab.active { color: #125027; border-bottom-color: #125027; }
+.fm2-mod .mod-tab-badge { background: #e07900; }
+
+/* Cards / rows / boxes → cream borders */
+.fm2-mod .mod-row,
+.fm2-mod .mod-report-card,
+.fm2-mod .mod-kpi,
+.fm2-mod .mod-review-panel,
+.fm2-mod .mod-threads-table-wrap,
+.fm2-mod .mod-log-list { border-color: #d8e6c8; box-shadow: 0 1px 3px rgba(14,28,15,.05); }
+.fm2-mod .mod-content-box, .fm2-mod .mod-month-stat { background: #f4f8f0; }
+
+/* Buttons */
+.fm2-mod .mod-btn.ghost   { border-color: #d8e6c8; color: #374e37; }
+.fm2-mod .mod-btn.success { background: #125027; border-color: #125027; color: #fff; }
+.fm2-mod .mod-btn.info    { background: #e4f3e8; border-color: #b8d8bc; color: #0f8f7e; }
+.fm2-mod .mod-btn.suspend { background: #fff4e6; border-color: #f0d0a0; color: #b06a00; }
+
+/* Report queue selection → green */
+.fm2-mod .mod-report-card:hover { border-color: #b8d8bc; box-shadow: 0 2px 8px rgba(18,80,39,.08); }
+.fm2-mod .mod-report-card.selected { border-color: #125027; box-shadow: 0 4px 14px rgba(18,80,39,.14); }
+
+/* Chips */
+.fm2-mod .mod-chip { border-color: #d8e6c8; color: #4a5e3a; }
+.fm2-mod .mod-chip.active { background: #125027; border-color: #125027; }
+.fm2-mod .mod-duration-chips .mod-chip.active { background: #e07900; border-color: #e07900; }
+
+/* KPI + tables */
+.fm2-mod .mod-kpi .value { font-family: Montserrat, sans-serif; color: #18261a; }
+.fm2-mod .mod-user-table th, .fm2-mod .mod-thread-table th { background: #f4f8f0; color: #4a5e3a; border-bottom-color: #e4edd8; }
+.fm2-mod .mod-user-table td, .fm2-mod .mod-thread-table td { border-bottom-color: #eef4e8; }
+.fm2-mod .mod-thread-table tr:hover td { background: #f6faf2; }
+.fm2-mod .mod-bar-fill { background: #125027; }
+
+/* Pills */
+.fm2-mod .mod-pill.reason { background: #e4f3e8; color: #125027; }
+
+/* Banner */
+.fm2-mod .mod-banner { background: #fff8e8; border-color: #ecd080; }
+.fm2-mod .mod-banner strong { color: #125027; }
+
+/* Reporter box heading dark green */
+.fm2-mod .mod-review-head h2 { font-family: Montserrat, sans-serif; }

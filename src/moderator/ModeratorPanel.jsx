@@ -36,15 +36,27 @@ const STAT_CARDS = [
 // /become-faculty (see src/pages/FacultyIntro.jsx's doc comment): the route
 // renders without the marketing <Page> chrome (no public Navbar/Footer).
 const ModeratorHeader = () => (
-  <div className="mod-header">
-    <span className="mod-header-brand">ShikshaCom · Moderator Panel</span>
-    <Link to="/" className="mod-header-back">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-      Back to site
-    </Link>
-  </div>
+  <>
+    <div className="fm2-topstrip">
+      <marquee direction="left">
+        <span>Moderator tools — keep the community safe, helpful and on-topic.</span>
+        <span className="fm2-blink">|</span>
+        <span>Review reports · handle the auto-rejected queue · manage users</span>
+      </marquee>
+    </div>
+    <div className="mod-header">
+      <Link to="/forum" className="mod-header-brand">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+        ShikshaCom · Moderator Panel
+      </Link>
+      <Link to="/forum" className="mod-header-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back to forum
+      </Link>
+    </div>
+  </>
 );
 
 const ModeratorPanel = () => {
@@ -73,7 +85,7 @@ const ModeratorPanel = () => {
   }, [refreshStats, showToast]);
 
   return (
-    <div>
+    <div className="fm2-mod">
       <ModeratorHeader />
       <div className="dashboard-wrapper">
         <h1 className="dashboard-title">Moderator Panel</h1>

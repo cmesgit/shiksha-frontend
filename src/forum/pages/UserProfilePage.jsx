@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getForumProfile, getThreads, getUserReplies } from "../../api/forum";
-import Avatar from "../components/Avatar";
 import QuestionCard from "../components/QuestionCard";
 import { fmtNum, timeAgo } from "../utils";
 
@@ -29,42 +28,42 @@ export default function UserProfilePage() {
     else getThreads({ author: username, kind: tab === "posts" ? "post" : "question" }).then((d) => setItems(d.results || [])).catch(() => {});
   }, [tab, username]);
 
-  if (!profile) return <div className="fm-loading">Loading…</div>;
+  if (!profile) return <div className="fm2-empty-card">Loading…</div>;
   const name = profile.display_name || username;
 
   return (
-    <div>
-      <div className="fm-profile-banner">
-        <div className="fm-row">
-          <Avatar name={name} initials={profile.initials} color={profile.color} url={profile.avatar_url} size={64} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div className="fm2-profile-banner">
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="fm2-avatar-sm" style={{ width: 64, height: 64, background: "rgba(255,255,255,.18)", fontSize: 20 }}>{profile.initials}</div>
           <div>
-            <h1 className="fm-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
-            <div className="fm-meta-sub">{profile.headline}{profile.location ? ` · ${profile.location}` : ""}</div>
+            <h1 className="fm2-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
+            <div className="fm2-sub" style={{ margin: 0 }}>{profile.headline}{profile.location ? ` · ${profile.location}` : ""}</div>
           </div>
         </div>
-        {profile.bio ? <p className="fm-sub" style={{ marginTop: 12, marginBottom: 0 }}>{profile.bio}</p> : null}
-        <div className="fm-stats">
-          <div className="fm-stat"><div className="num">{fmtNum(profile.thread_count)}</div><div className="lab">Threads</div></div>
-          <div className="fm-stat"><div className="num">{fmtNum(profile.reply_count)}</div><div className="lab">Answers</div></div>
-          <div className="fm-stat"><div className="num">{fmtNum(profile.upvotes_received)}</div><div className="lab">Upvotes</div></div>
+        {profile.bio ? <p className="fm2-sub" style={{ marginTop: 12, marginBottom: 0 }}>{profile.bio}</p> : null}
+        <div className="fm2-stats">
+          <div className="fm2-stat"><div className="num">{fmtNum(profile.thread_count)}</div><div className="lab">Threads</div></div>
+          <div className="fm2-stat"><div className="num">{fmtNum(profile.reply_count)}</div><div className="lab">Answers</div></div>
+          <div className="fm2-stat"><div className="num">{fmtNum(profile.upvotes_received)}</div><div className="lab">Upvotes</div></div>
         </div>
       </div>
 
-      <div className="fm-tabs">
-        {TABS.map(([id, label]) => <button key={id} className={`fm-tab${tab === id ? " active" : ""}`} onClick={() => setTab(id)}>{label}</button>)}
+      <div className="fm2-tabline">
+        {TABS.map(([id, label]) => <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>{label}</button>)}
       </div>
 
       {tab === "answers" ? (
-        replies.length === 0 ? <div className="fm-empty"><h4>No answers yet</h4></div> :
+        replies.length === 0 ? <div className="fm2-empty-card">No answers yet.</div> :
         replies.map((r) => (
-          <div key={r.id} className="fm-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/forum/thread/${r.thread_id}`)}>
-            <div className="fm-meta-sub">on “{r.thread_title}” · {timeAgo(r.created_at)}</div>
-            <div className="fm-answer-body" style={{ margin: "6px 0 0" }}>{r.content}</div>
+          <div key={r.id} className="fm2-card" style={{ padding: "14px 16px", cursor: "pointer" }} onClick={() => navigate(`/forum/thread/${r.thread_id}`)}>
+            <div style={{ font: "400 11.5px Poppins,sans-serif", color: "#8a9e82" }}>on “{r.thread_title}” · {timeAgo(r.created_at)}</div>
+            <div style={{ font: "400 13.5px/1.7 Poppins,sans-serif", color: "#2b3a2b", margin: "6px 0 0" }}>{r.content}</div>
           </div>
         ))
       ) : (
-        items.length === 0 ? <div className="fm-empty"><h4>Nothing here yet</h4></div> :
-        items.map((q) => <QuestionCard key={q.id} q={q} />)
+        items.length === 0 ? <div className="fm2-empty-card">Nothing here yet.</div> :
+        <div className="fm2-feed-scroll">{items.map((q) => <QuestionCard key={q.id} q={q} />)}</div>
       )}
     </div>
   );

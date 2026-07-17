@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../../api/forum";
 import { useForum } from "../ForumContext";
-import Avatar from "../components/Avatar";
 import { fmtNum } from "../utils";
 
 export default function CategoriesPage() {
@@ -17,23 +16,22 @@ export default function CategoriesPage() {
   }, []);
 
   return (
-    <div>
-      <h1 className="fm-h1">Categories</h1>
-      <p className="fm-sub">Browse questions by topic.</p>
-      {loading ? <div className="fm-loading">Loading…</div> : (
-        <div className="fm-grid">
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div><h1 className="fm2-h1">Categories</h1><p className="fm2-sub">Browse questions by topic.</p></div>
+      {loading ? <div className="fm2-empty-card">Loading…</div> : (
+        <div className="fm2-grid">
           {cats.map((c) => {
             const on = isFollowingCategory(c.id);
             return (
-              <div key={c.id} className="fm-tile">
-                <div className="fm-tile-head">
-                  <Avatar name={c.name} initials={c.initials} color={c.color} size={44} />
-                  <div className="fm-tile-name" onClick={() => navigate(`/forum/category/${c.id}`)}>{c.name}</div>
+              <div key={c.id} className="fm2-tile">
+                <div className="fm2-tile-head">
+                  <div className="fm2-avatar-sm" style={{ width: 44, height: 44, background: c.color || "#125027", fontSize: 15 }}>{c.initials}</div>
+                  <div className="fm2-tile-name" onClick={() => navigate(`/forum/category/${c.id}`)}>{c.name}</div>
                 </div>
-                <div className="fm-tile-desc">{c.desc}</div>
-                <div className="fm-tile-foot">
-                  <span className="fm-tile-meta">{fmtNum(c.question_count)} questions · {fmtNum(c.follower_count)} followers</span>
-                  <button className={`fm-btn sm ${on ? "" : "ghost"}`} onClick={async () => { await toggleFollowCategory(c.id); force((n) => n + 1); }}>{on ? "Following" : "Follow"}</button>
+                <div className="fm2-tile-desc">{c.desc}</div>
+                <div className="fm2-tile-foot">
+                  <span className="fm2-tile-meta">{fmtNum(c.question_count)} questions · {fmtNum(c.follower_count)} followers</span>
+                  <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 16px" }} onClick={async () => { await toggleFollowCategory(c.id); force((n) => n + 1); }}>{on ? "✓ Following" : "Follow"}</button>
                 </div>
               </div>
             );

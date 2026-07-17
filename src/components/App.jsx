@@ -90,6 +90,7 @@ const AnswerQueuePage   = lazy(() => import("../forum/pages/AnswerQueuePage"));
 const NotificationsPage = lazy(() => import("../forum/pages/NotificationsPage"));
 const ForumProfilePage  = lazy(() => import("../forum/pages/ProfilePage"));
 const UserProfilePage   = lazy(() => import("../forum/pages/UserProfilePage"));
+const ForumDashboardPage = lazy(() => import("../forum/pages/DashboardPage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -309,8 +310,12 @@ function App() {
 
         <Route path="/upcoming"        element={<Upcoming />} />
         <Route path="/payment"         element={<Page><Payment /></Page>} />
-        <Route path="/forum" element={<Page><ForumLayout /></Page>}>
+        {/* Forum renders its OWN chrome (topstrip/header/sitenav) to match the
+            standalone design, so it sits outside the marketing <Page> wrapper —
+            same precedent as /moderator and /become-faculty. */}
+        <Route path="/forum" element={<ForumLayout />}>
           <Route index element={<FeedPage />} />
+          <Route path="dashboard" element={<ForumDashboardPage />} />
           <Route path="thread/:id" element={<ThreadPage />} />
           <Route path="ask" element={<AskPage />} />
           <Route path="spaces" element={<SpacesPage />} />

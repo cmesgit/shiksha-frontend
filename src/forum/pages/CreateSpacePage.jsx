@@ -26,22 +26,21 @@ export default function CreateSpacePage() {
   };
 
   return (
-    <div>
-      <h1 className="fm-h1">Create a Space</h1>
-      <p className="fm-sub">Start a community around a topic you care about.</p>
-      <div className="fm-card">
-        <label className="fm-label">Space name</label>
-        <input className="fm-input" value={form.name} onChange={set("name")} placeholder="e.g. JEE & Engineering Aspirants" />
-        <label className="fm-label">Description</label>
-        <textarea className="fm-textarea" rows={3} value={form.description} onChange={set("description")} placeholder="What is this Space about?" />
-        <label className="fm-label">Topic</label>
-        <select className="fm-input" value={form.topic} onChange={set("topic")}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div><h1 className="fm2-h1">Create a Space</h1><p className="fm2-sub">Start a community around a topic you care about.</p></div>
+      <div className="fm2-card" style={{ padding: "22px 24px" }}>
+        <label className="fm2-label">Space name</label>
+        <input className="fm2-input" value={form.name} onChange={set("name")} placeholder="e.g. JEE & Engineering Aspirants" />
+        <label className="fm2-label">Description</label>
+        <textarea className="fm2-textarea" rows={3} value={form.description} onChange={set("description")} placeholder="What is this Space about?" />
+        <label className="fm2-label">Topic</label>
+        <select className="fm2-input" value={form.topic} onChange={set("topic")}>
           <option value="">Choose a topic</option>
           {topics.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
-        <div className="fm-modal-foot" style={{ marginTop: 16 }}>
-          <button className="fm-btn ghost sm" onClick={() => navigate(-1)}>Cancel</button>
-          <button className="fm-btn" disabled={busy} onClick={submit}>{busy ? "Creating…" : "Create Space"}</button>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+          <button className="fm2-btn-ghost" style={{ padding: "8px 14px" }} onClick={() => navigate(-1)}>Cancel</button>
+          <button className="fm2-btn-green" style={{ padding: "9px 18px" }} disabled={busy} onClick={submit}>{busy ? "Creating…" : "Create Space"}</button>
         </div>
       </div>
     </div>

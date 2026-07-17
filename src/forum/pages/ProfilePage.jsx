@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useForum } from "../ForumContext";
 import { getForumProfile, getThreads, getUserReplies, getSaved } from "../../api/forum";
-import Avatar from "../components/Avatar";
 import QuestionCard from "../components/QuestionCard";
 import EditProfileModal from "../components/EditProfileModal";
 import { fmtNum, timeAgo } from "../utils";
@@ -35,49 +34,49 @@ export default function ProfilePage() {
     else if (tab === "saved") getSaved().then((d) => setItems(d.results || [])).catch(() => {});
   }, [tab, username]);
 
-  if (!username) return <div className="fm-empty"><h4>Sign in to view your profile</h4></div>;
+  if (!username) return <div className="fm2-empty-card">Sign in to view your profile.</div>;
   const p = profile || {};
   const name = p.display_name || me?.display_name || username;
 
   return (
-    <div>
-      <div className="fm-profile-banner">
-        <div className="fm-row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div className="fm-row">
-            <Avatar name={name} initials={p.initials || me?.initials} color={p.color || me?.color} url={p.avatar_url || me?.avatar_url} size={64} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div className="fm2-profile-banner">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="fm2-avatar-sm" style={{ width: 64, height: 64, background: "rgba(255,255,255,.18)", fontSize: 20 }}>{p.initials || me?.initials}</div>
             <div>
-              <h1 className="fm-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
-              <div className="fm-meta-sub">{p.headline || me?.credential}{p.location ? ` · ${p.location}` : ""}</div>
-              {p.joined_at ? <div className="fm-meta-sub">Joined {new Date(p.joined_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</div> : null}
+              <h1 className="fm2-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
+              <div className="fm2-sub" style={{ margin: 0 }}>{p.headline || me?.credential}{p.location ? ` · ${p.location}` : ""}</div>
+              {p.joined_at ? <div className="fm2-sub" style={{ margin: 0 }}>Joined {new Date(p.joined_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</div> : null}
             </div>
           </div>
-          <button className="fm-btn ghost sm" onClick={() => setEditing(true)}>Edit profile</button>
+          <button className="fm2-btn-outline" style={{ padding: "8px 16px", background: "rgba(255,255,255,.14)", color: "#fff", borderColor: "rgba(255,255,255,.3)" }} onClick={() => setEditing(true)}>Edit profile</button>
         </div>
-        {p.bio ? <p className="fm-sub" style={{ marginTop: 12, marginBottom: 0 }}>{p.bio}</p> : null}
-        <div className="fm-stats">
-          <div className="fm-stat"><div className="num">{fmtNum(p.thread_count)}</div><div className="lab">Threads</div></div>
-          <div className="fm-stat"><div className="num">{fmtNum(p.reply_count)}</div><div className="lab">Answers</div></div>
-          <div className="fm-stat"><div className="num">{fmtNum(p.upvotes_received)}</div><div className="lab">Upvotes</div></div>
+        {p.bio ? <p className="fm2-sub" style={{ marginTop: 12, marginBottom: 0 }}>{p.bio}</p> : null}
+        <div className="fm2-stats">
+          <div className="fm2-stat"><div className="num">{fmtNum(p.thread_count)}</div><div className="lab">Threads</div></div>
+          <div className="fm2-stat"><div className="num">{fmtNum(p.reply_count)}</div><div className="lab">Answers</div></div>
+          <div className="fm2-stat"><div className="num">{fmtNum(p.upvotes_received)}</div><div className="lab">Upvotes</div></div>
         </div>
       </div>
 
-      <div className="fm-tabs">
+      <div className="fm2-tabline">
         {TABS.map(([id, label]) => (
-          <button key={id} className={`fm-tab${tab === id ? " active" : ""}`} onClick={() => setTab(id)}>{label}</button>
+          <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
 
       {tab === "answers" ? (
-        replies.length === 0 ? <div className="fm-empty"><h4>No answers yet</h4></div> :
+        replies.length === 0 ? <div className="fm2-empty-card">No answers yet.</div> :
         replies.map((r) => (
-          <div key={r.id} className="fm-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/forum/thread/${r.thread_id}`)}>
-            <div className="fm-meta-sub">on “{r.thread_title}” · {timeAgo(r.created_at)}</div>
-            <div className="fm-answer-body" style={{ margin: "6px 0 0" }}>{r.content}</div>
+          <div key={r.id} className="fm2-card" style={{ padding: "14px 16px", cursor: "pointer" }} onClick={() => navigate(`/forum/thread/${r.thread_id}`)}>
+            <div style={{ font: "400 11.5px Poppins,sans-serif", color: "#8a9e82" }}>on “{r.thread_title}” · {timeAgo(r.created_at)}</div>
+            <div style={{ font: "400 13.5px/1.7 Poppins,sans-serif", color: "#2b3a2b", margin: "6px 0 0" }}>{r.content}</div>
           </div>
         ))
       ) : (
-        items.length === 0 ? <div className="fm-empty"><h4>Nothing here yet</h4></div> :
-        items.map((q) => <QuestionCard key={q.id} q={q} />)
+        items.length === 0 ? <div className="fm2-empty-card">Nothing here yet.</div> :
+        <div className="fm2-feed-scroll">{items.map((q) => <QuestionCard key={q.id} q={q} />)}</div>
       )}
 
       {editing ? (

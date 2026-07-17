@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSpaces } from "../../api/forum";
 import { useForum } from "../ForumContext";
-import Avatar from "../components/Avatar";
 import { IcPlus } from "../components/icons";
 import { fmtNum } from "../utils";
 
@@ -23,31 +22,31 @@ export default function SpacesPage() {
   };
 
   return (
-    <div>
-      <div className="fm-row" style={{ justifyContent: "space-between" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 className="fm-h1">Spaces</h1>
-          <p className="fm-sub">Communities for every goal. Follow the ones you care about.</p>
+          <h1 className="fm2-h1">Spaces</h1>
+          <p className="fm2-sub">Communities for every goal. Follow the ones you care about.</p>
         </div>
-        <button className="fm-btn" onClick={() => { if (!requireAuth()) navigate("/forum/spaces/new"); }}><IcPlus size={15} /> Create Space</button>
+        <button className="fm2-btn-green" style={{ padding: "9px 18px" }} onClick={() => { if (!requireAuth()) navigate("/forum/spaces/new"); }}><IcPlus size={15} /> Create Space</button>
       </div>
 
-      {loading ? <div className="fm-loading">Loading…</div> : spaces.length === 0 ? (
-        <div className="fm-empty"><h4>No Spaces yet</h4><p>Be the first to create a community Space.</p></div>
+      {loading ? <div className="fm2-empty-card">Loading…</div> : spaces.length === 0 ? (
+        <div className="fm2-empty-card">No Spaces yet. Be the first to create a community Space.</div>
       ) : (
-        <div className="fm-grid">
+        <div className="fm2-grid">
           {spaces.map((s) => {
             const on = isFollowingSpace(s.slug);
             return (
-              <div key={s.slug} className="fm-tile">
-                <div className="fm-tile-head">
-                  <Avatar name={s.name} initials={s.initials} color={s.color} size={44} />
-                  <div className="fm-tile-name" onClick={() => navigate(`/forum/space/${s.slug}`)}>{s.name}</div>
+              <div key={s.slug} className="fm2-tile">
+                <div className="fm2-tile-head">
+                  <div className="fm2-avatar-sm" style={{ width: 44, height: 44, background: s.color || "#125027", fontSize: 15 }}>{s.initials}</div>
+                  <div className="fm2-tile-name" onClick={() => navigate(`/forum/space/${s.slug}`)}>{s.name}</div>
                 </div>
-                <div className="fm-tile-desc">{s.description}</div>
-                <div className="fm-tile-foot">
-                  <span className="fm-tile-meta">{fmtNum(s.member_count)} members · {fmtNum(s.question_count)} posts</span>
-                  <button className={`fm-btn sm ${on ? "" : "ghost"}`} onClick={() => onFollow(s.slug)}>{on ? "Following" : "Follow"}</button>
+                <div className="fm2-tile-desc">{s.description}</div>
+                <div className="fm2-tile-foot">
+                  <span className="fm2-tile-meta">{fmtNum(s.member_count)} members · {fmtNum(s.question_count)} posts</span>
+                  <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 16px" }} onClick={() => onFollow(s.slug)}>{on ? "✓ Following" : "Follow"}</button>
                 </div>
               </div>
             );
