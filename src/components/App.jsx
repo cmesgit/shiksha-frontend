@@ -188,7 +188,7 @@ function App() {
         } />
 
         <Route path="/pick-profile" element={
-          <ProtectedRoute><ProfilePicker /></ProtectedRoute>
+          <ProtectedRoute><Page><ProfilePicker /></Page></ProtectedRoute>
         } />
 
         <Route path="/manage-profiles" element={
