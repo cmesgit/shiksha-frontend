@@ -19,9 +19,13 @@ api.interceptors.response.use(
     const isRefreshCall = originalRequest.url?.includes("/refresh/");
     const isMeCall = originalRequest.url?.includes("/me/");
     const isNotificationCall = originalRequest.url?.includes("/notifications/");
+    const isPublicEndpoint = originalRequest.url?.includes("/accounts/signup/") ||
+                             originalRequest.url?.includes("/accounts/email/check/") ||
+                             originalRequest.url?.includes("/accounts/verify-email/") ||
+                             originalRequest.url?.includes("/accounts/resend-verification/");
 
     // 🚫 If simply not logged in, do NOT attempt refresh
-    if (isUnauthorized && (isMeCall || isNotificationCall)) {
+    if (isUnauthorized && (isMeCall || isNotificationCall || isPublicEndpoint)) {
       return Promise.reject(error);
     }
 

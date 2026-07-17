@@ -43,7 +43,11 @@ api.interceptors.response.use(
     // itself; intercepting it causes an infinite reload on the /login page.
     const isMeCall           = url.includes("/me/");
     const isNotificationCall = url.includes("/notifications/");
-    if (isMeCall || isNotificationCall) {
+    const isPublicEndpoint   = url.includes("/accounts/signup/") ||
+                               url.includes("/accounts/email/check/") ||
+                               url.includes("/accounts/verify-email/") ||
+                               url.includes("/accounts/resend-verification/");
+    if (isMeCall || isNotificationCall || isPublicEndpoint) {
       return Promise.reject(error);
     }
 
