@@ -1,128 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { ForumProvider, useForum } from "./ForumContext";
 import RightRail from "./components/RightRail";
 import { getTopics } from "../api/forum";
-import logo from "../assets/Shiksha.png";
+import Navbar from "../components/Navbar";
 import "./forum.css";
 
 /* Pixel-perfect chrome ported from ShikshaCom Forum.html (fm2-* system):
    top marquee, brand header, site nav with dropdowns, page header (breadcrumb
    + title + search + bell), and the 216/1fr/272 three-column layout. Renders
    OUTSIDE the marketing <Page>, matching the standalone design. */
-
-const CHEV = (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-);
-
-const NAV_DROPS = [
-  { label: "Academics", items: ["Colleges & Universities", "Courses & Programs", "Scholarships", "Study Abroad"] },
-  { label: "Career", items: ["Career Guidance", "Placements", "Internships"] },
-  { label: "Exams", items: ["JEE / NEET", "UPSC", "GATE", "CAT / MBA"] },
-];
-
-function TopStrip() {
-  return (
-    <div className="fm2-topstrip">
-      <marquee direction="left">
-        <span>Ask questions, share knowledge, and learn from people across every topic.</span>
-        <span className="fm2-blink">|</span>
-        <span>Tech · Careers · Health · Hobbies · Finance · Travel · &amp; anything else</span>
-        <span className="fm2-blink">|</span>
-        <span>Join the conversation — post about any topic, big or small!</span>
-      </marquee>
-    </div>
-  );
-}
-
-function Header() {
-  const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
-  const { me } = useForum();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setMenuOpen(false); };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
-
-  const initials = me?.initials || "YO";
-  const name = me?.display_name || "You";
-
-  return (
-    <header className="fm2-header">
-      <div className="fm2-brand" onClick={() => navigate("/")} role="button" tabIndex={0}>
-        <img className="fm2-logo" src={logo} alt="ShikshaCom" />
-        <div>
-          <h1 className="fm2-brand-name">ShikshaCom</h1>
-          <p className="fm2-brand-tag">Empowerment Through Education</p>
-        </div>
-      </div>
-      <div className="fm2-hright">
-        {!isAuthenticated ? (
-          <>
-            <button className="fm2-authbtn" onClick={() => navigate(`/login?next=${encodeURIComponent("/forum")}`)}>Log in</button>
-            <button className="fm2-authbtn fm2-authbtn-fill" onClick={() => navigate("/signup")}>Sign up free</button>
-          </>
-        ) : (
-          <div style={{ position: "relative" }} ref={wrapRef}>
-            <button onClick={() => setMenuOpen((o) => !o)} className="fm2-profilebtn">
-              <div className="fm2-avatar-sm" style={{ background: me?.color || "#125027" }}>{initials}</div>
-              <span style={{ font: "600 12.5px Poppins,sans-serif", color: "#18261a" }}>{name}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5a6e55" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-            </button>
-            {menuOpen && (
-              <div className="fm2-menu">
-                <button className="fm2-menu-item" onClick={() => { setMenuOpen(false); navigate("/forum/profile"); }}>
-                  <div className="fm2-avatar-sm" style={{ background: me?.color || "#125027", width: 30, height: 30 }}>{initials}</div>
-                  <span>My Activity</span>
-                </button>
-                <button className="fm2-menu-item" onClick={() => { setMenuOpen(false); navigate("/forum/dashboard"); }}>
-                  <span style={{ paddingLeft: 2 }}>Dashboard</span>
-                </button>
-                {me?.is_moderator && (
-                  <button className="fm2-menu-item" onClick={() => { setMenuOpen(false); navigate("/moderator"); }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#125027" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                    <span>Moderator Panel</span>
-                  </button>
-                )}
-                <button className="fm2-menu-item danger" onClick={async () => { setMenuOpen(false); await logout({ redirect: false }); navigate("/forum"); }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5M21 12H9" /></svg>
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </header>
-  );
-}
-
-function SiteNav() {
-  const navigate = useNavigate();
-  return (
-    <nav className="fm2-sitenav">
-      <ul className="fm2-navmenu">
-        <li><span className="fm2-navlink" onClick={() => navigate("/")}>Home</span></li>
-        {NAV_DROPS.map((d) => (
-          <li className="fm2-navsub" key={d.label}>
-            <span className="fm2-navlabel">{d.label} {CHEV}</span>
-            <ul className="fm2-navdrop">
-              {d.items.map((it) => <li key={it}><span className="fm2-navditem">{it}</span></li>)}
-            </ul>
-          </li>
-        ))}
-        <li><span className="fm2-navlink active" onClick={() => navigate("/forum")}>Forum</span></li>
-        <li><span className="fm2-navlink">Mentors</span></li>
-      </ul>
-    </nav>
-  );
-}
 
 function PageHeader() {
   const navigate = useNavigate();
@@ -258,9 +147,9 @@ function LeftSidebar() {
 function Shell() {
   return (
     <div style={{ minHeight: "100vh", background: "#edf2e8", fontFamily: "Poppins,sans-serif" }}>
-      <TopStrip />
-      <Header />
-      <SiteNav />
+      {/* Integrated site navigation (replaces the standalone fm2 top chrome) so
+          the forum shares the frontend's real navbar + profile switcher. */}
+      <Navbar />
       <PageHeader />
       <div className="fm2-wrap">
         <div className="fm2-layout">
