@@ -123,10 +123,19 @@
   border: 1px solid #e2ecd6;
   border-radius: 16px;
   padding: 28px 24px;
-  width: 100%; max-width: 400px;
-  display: flex; flex-direction: column; gap: 16px;
+  width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
   box-shadow: 0 24px 60px rgba(11,45,20,.25);
 }
+
+.mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mp-sec {
+  margin-top: 6px; font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: #0b5b3e; border-bottom: 1px solid #eef3e9; padding-bottom: 4px;
+}
+.mp-hint { margin: 0; font-size: .8rem; color: #6f8a76; line-height: 1.45; }
+@media (max-width: 520px) { .mp-grid { grid-template-columns: 1fr; } }
 
 .mp-modal h2 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #0b5b3e; }
 

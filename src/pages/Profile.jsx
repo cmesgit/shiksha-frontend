@@ -375,7 +375,7 @@ export default function Profile() {
                 </div>
                 <button
                   className="profileBtn profileBtn--outline profileBtn--private"
-                  onClick={() => navigate("/private-details")}
+                  onClick={() => navigate("/manage-profiles")}
                 >
                   Private Details
                 </button>

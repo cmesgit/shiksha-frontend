@@ -117,6 +117,12 @@
 
 .pp-pin-go:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.pp-forgot {
+  background: none; border: none; color: var(--sk-green, #0f9d6b);
+  font-size: 12px; text-decoration: underline; cursor: pointer; padding: 2px 4px;
+}
+.pp-forgot:hover { color: #0b7d54; }
+
 .pp-error {
   color: #b3261e;
   background: #fdecea;
