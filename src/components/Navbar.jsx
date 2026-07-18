@@ -18,6 +18,7 @@ import { HashLink } from "react-router-hash-link";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
+import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
 import "../css/theme.css";
 import "../css/SiteNav.css";
@@ -582,6 +583,7 @@ const Navbar = () => {
                       <IcShield />
                     </Link>
                   )}
+                  <NotificationBell />
                   <ProfileSwitcher
                     teacherSignupUrl="/signup?role=teacher"
                     learnUrl={APP_URL}

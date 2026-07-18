@@ -1,19 +1,30 @@
 /**
- * src/contexts/AuthContext.jsx — FIXED
+ * ┌──────────────────────────────────────────────────────────────────────────┐
+ * │  GENERATED FILE — DO NOT EDIT HERE.                                         │
+ * │  Canonical source: <workspace>/shared/src/contexts/AuthContext.jsx         │
+ * │  Edit the canonical copy, then run `npm run sync:shared` (any app) to       │
+ * │  propagate. `npm run check:shared` fails if an app's copy has drifted.      │
+ * └──────────────────────────────────────────────────────────────────────────┘
  *
- * The two bugs that caused the infinite reload loop on /login:
+ * AuthContext — single source of truth for the account / profile / track model
+ * shared by shiksha-frontend, shiksha-teacher-dashboard and shiksha-student-
+ * dashboard. (Admin-dashboard has its own ADMIN-only AuthContext and is NOT in
+ * this set.)
  *
- * BUG 1: interceptor was intercepting /me/ calls.
- *   Bootstrap calls /me/ → gets 401 → interceptor fires → refresh fails
- *   → window.location.href = LOGIN_URL → hard reload of /login
- *   → bootstrap calls /me/ again → same → infinite loop.
- *   FIX: skip the interceptor for /me/ and /notifications/ calls.
- *        Let bootstrap handle its own /me/ 401 gracefully.
+ * Terminology used throughout the UI (keep consistent, do not reintroduce
+ * "mode" / "context" in user-facing strings):
+ *   • Account  — the login + billing identity (one email → one account).
+ *   • Profile  — a switchable learner identity under an account.
+ *   • Track    — a teaching identity: Academy (Faculty) or Skill-Dev (Expert).
+ *   • Faculty  — an Academy-track teacher.  Expert — a Skill-Dev-track teacher.
+ * ("context" / "active_track" remain as internal field names from the backend
+ *  token/API contract — those are data, not labels.)
  *
- * BUG 2: interceptor redirected to LOGIN_URL even when already on /login.
- *   FIX: only redirect if the current path is not an auth page.
- *
- * Both fixes match the original api/apiClient.js behaviour that was working.
+ * Imports ../config/urls (present in all three apps). The two interceptor bug
+ * fixes below prevent the historic infinite reload loop on /login:
+ *   FIX 1: never intercept /me/ or /notifications/ — bootstrap handles its own
+ *          /me/ 401 with a manual refresh + retry.
+ *   FIX 2: only redirect to LOGIN_URL when NOT already on an auth page.
  */
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import axios from "axios";
@@ -41,6 +52,7 @@ api.interceptors.response.use(
 
     // FIX 1: never intercept /me/ or /notifications/ — bootstrap handles /me/ 401
     // itself; intercepting it causes an infinite reload on the /login page.
+    // Public auth endpoints are surfaced to their callers as-is (no refresh).
     const isMeCall           = url.includes("/me/");
     const isNotificationCall = url.includes("/notifications/");
     const isPublicEndpoint   = url.includes("/accounts/signup/") ||
@@ -75,7 +87,7 @@ api.interceptors.response.use(
     } catch (e) {
       _flush(e);
       // FIX 2: only redirect if we are NOT already on an auth page.
-      // Without this check, arriving at /login triggers another redirect
+      // Without this guard, arriving at /login triggers another redirect
       // to /login, which triggers another, forever.
       const p = window.location.pathname;
       const onAuthPage =
@@ -198,7 +210,10 @@ export function AuthProvider({ children }) {
 
   const switchProfile = selectProfile;
 
-  // ── Step 2B — enter teacher context (account password) ────────────────────
+  // ── Step 2B — enter a teaching track (account password) ────────────────────
+  // `track` is optional and one of "academy" | "skill" (backend contract). When
+  // omitted the backend defaults to academy-if-approved, else the first approved
+  // track. Error codes map to the switcher's inline messages.
   const enterTeacherMode = async (password, track) => {
     try {
       await api.post("/accounts/context/teacher/", { password, track });
@@ -209,6 +224,24 @@ export function AuthProvider({ children }) {
       const code = err?.response?.data?.code;
       if (code === "no_teacher")    return { needsSignup: true };
       if (code === "not_approved")  return { notApproved: true };
+      if (code === "track_pending") return { trackPending: true };
+      if (code === "track_locked")  return { trackLocked: true };
+      return Promise.reject({ message: extractError(err), raw: err });
+    }
+  };
+
+  // ── Switch between already-held teaching tracks (no password) ──────────────
+  // Moves an in-track teacher between Academy/Skill-Dev without re-confirming the
+  // account password (POST /accounts/context/teacher/track/). Same per-track
+  // gates as enterTeacherMode.
+  const switchTrack = async (track) => {
+    try {
+      await api.post("/accounts/context/teacher/track/", { track });
+      setLoading(true);
+      await bootstrap();
+      return { ok: true };
+    } catch (err) {
+      const code = err?.response?.data?.code;
       if (code === "track_pending") return { trackPending: true };
       if (code === "track_locked")  return { trackLocked: true };
       return Promise.reject({ message: extractError(err), raw: err });
@@ -263,15 +296,17 @@ export function AuthProvider({ children }) {
   };
 
   // ── Logout ─────────────────────────────────────────────────────────────────
-  // Does NOT do window.location.href — the caller (Navbar.handleLogout) uses
-  // navigate("/login") which keeps React Router in control and avoids a hard
-  // reload that would restart the bootstrap loop.
-  const logout = async () => {
+  // Clears state, then by default hard-redirects to LOGIN_URL — the dashboard
+  // apps have no in-app /login route, so they rely on this. Callers that want to
+  // keep React Router in control (e.g. the public frontend forum, which stays on
+  // a public page) pass { redirect: false } and navigate themselves.
+  const logout = async ({ redirect = true } = {}) => {
     try { await api.post("/accounts/logout/"); } catch { /* ignore */ }
     setUser(null);
     setProfiles([]);
     setTeacherInfo(null);
     setContext(null);
+    if (redirect) window.location.href = LOGIN_URL;
   };
 
   // ── Role check ─────────────────────────────────────────────────────────────
@@ -302,7 +337,7 @@ export function AuthProvider({ children }) {
         isAuthenticated, needsProfileSelection, isTeacherContext, isLearnerContext,
         loading, api,
         login, selectProfile, switchProfile,
-        enterTeacherMode, setProfilePin,
+        enterTeacherMode, switchTrack, setProfilePin,
         signup, lookupEmail, checkEmail, logout, hasRole, hasPermission, bootstrap,
       }}
     >
@@ -313,7 +348,24 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  // Defensive fallback: returning a null-shaped context (instead of throwing)
+  // keeps shared components from crashing if they ever render outside the
+  // provider (e.g. inside an error boundary or a not-yet-mounted shell).
+  if (!ctx) {
+    console.warn("useAuth was called outside AuthProvider.");
+    return {
+      user: null, profiles: [], teacherInfo: null, context: null,
+      activeProfile: null, isAuthenticated: false, needsProfileSelection: false,
+      isTeacherContext: false, isLearnerContext: false, loading: false, api,
+      login: async () => null, selectProfile: async () => null, switchProfile: async () => null,
+      enterTeacherMode: async () => ({ ok: false }), switchTrack: async () => ({ ok: false }),
+      setProfilePin: async () => null,
+      signup: async () => null, checkEmail: async () => ({}),
+      lookupEmail: async () => ({ profiles: [], has_teacher: false }),
+      logout: () => {}, hasRole: () => false, hasPermission: () => false,
+      bootstrap: async () => null,
+    };
+  }
   return ctx;
 }
 

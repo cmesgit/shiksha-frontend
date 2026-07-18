@@ -59,6 +59,9 @@ export function ForumProvider({ children }) {
     }
   }, [isAuthenticated]);
 
+  // Forum is ACCOUNT-level (community identity, saved/following belong to the
+  // account, not a learner profile), so it deliberately does NOT re-hydrate on
+  // a profile switch — the forum state is shared across all profiles.
   useEffect(() => { hydrate(); }, [hydrate]);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 

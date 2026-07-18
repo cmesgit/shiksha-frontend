@@ -90,7 +90,7 @@ function Header() {
                     <span>Moderator Panel</span>
                   </button>
                 )}
-                <button className="fm2-menu-item danger" onClick={async () => { setMenuOpen(false); await logout(); navigate("/forum"); }}>
+                <button className="fm2-menu-item danger" onClick={async () => { setMenuOpen(false); await logout({ redirect: false }); navigate("/forum"); }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5M21 12H9" /></svg>
                   Log out
                 </button>

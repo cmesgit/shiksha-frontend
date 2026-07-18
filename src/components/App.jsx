@@ -139,9 +139,15 @@ function RedirectExternal({ to }) {
 }
 
 function App() {
-  const { isAuthenticated, isLearnerContext, isTeacherContext, loading } = useAuth();
+  const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
   const location = useLocation();
   useAnalytics();
+
+  // Counselling is PROFILE-level: intake, matches, bookings and assessments
+  // belong to the active learner profile. Key its data routes by the active
+  // profile id so an in-place profile switch remounts them (fresh fetch, and no
+  // risk of a form loaded for one profile saving under another).
+  const cKey = activeProfile?.id || "acct";
 
   // Adding a teaching track to an already-signed-in account is the one signup
   // flow allowed while authenticated (it skips email/username and just takes
@@ -248,12 +254,12 @@ function App() {
         <Route path="/counselling"                    element={<Page><CounsellingLanding /></Page>} />
         <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
         <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
-        <Route path="/counselling/profile"            element={<Page><CounsellingProfile /></Page>} />
-        <Route path="/counselling/path"               element={<Page><CounsellingPath /></Page>} />
-        <Route path="/counselling/counsellors"        element={<Page><CounsellingMatches /></Page>} />
-        <Route path="/counselling/counsellors/:id"    element={<Page><CounsellingCounsellor /></Page>} />
+        <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
+        <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
+        <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
+        <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
-               element={<Page><CounsellingAssessment /></Page>} />
+               element={<Page key={cKey}><CounsellingAssessment /></Page>} />
         <Route path="/counselling/assessment"
                element={<Navigate to="/counselling/counsellors" replace />} />
         <Route path="/explore"                 element={<ExplorePage><Explore /></ExplorePage>} />
