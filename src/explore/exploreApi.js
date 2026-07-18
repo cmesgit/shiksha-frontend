@@ -31,7 +31,12 @@ import {
   AUTHORS, DOCUMENTS, COLLECTIONS, TYPE_META, DOC_TYPES_UPLOAD,
 } from "./data/exploreSeed";
 
-const USE_MOCK = false;
+// Explore runs on the local seed until the backend `documents` app is
+// deployed to the API this frontend points at. The reachable dev API
+// (api.dev.shikshacom.com) does not yet serve /explore/*, so flipping this to
+// false leaves every Explore page hanging on a failed request. Keep true until
+// the endpoints in the header comment are live, then flip to go live.
+const USE_MOCK = true;
 
 // Simulate network latency so loading states are exercised in dev.
 const wait = (ms = 220) => new Promise((r) => setTimeout(r, ms));

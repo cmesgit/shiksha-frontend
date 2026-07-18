@@ -138,6 +138,36 @@ function RedirectExternal({ to }) {
   return null;
 }
 
+// Where to send a user who just authenticated on /login. Prefer wherever they
+// were actually headed — an explicit ?next= (set by ForumContext.requireAuth)
+// or the post_auth_redirect stored by ProtectedRoute — so logging in from the
+// forum/explore/etc. returns there. Only when there is NO in-app destination do
+// we fall back to the context dashboard (the old always-dashboard behaviour).
+function LoginRedirect() {
+  const { isLearnerContext, isTeacherContext } = useAuth();
+  const location = useLocation();
+
+  const next = new URLSearchParams(location.search).get("next");
+  let stored = null;
+  try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
+  const target = next || stored;
+  // Only honour a safe same-site path — never an absolute/protocol-relative URL,
+  // and never bounce straight back into an auth/profile-gate page.
+  const isLocalTarget = !!target && target.startsWith("/") && !target.startsWith("//")
+    && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(target);
+
+  useEffect(() => {
+    if (isLocalTarget && stored) {
+      try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
+    }
+  }, [isLocalTarget, stored]);
+
+  if (isLocalTarget) return <Navigate to={target} replace />;
+  if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
+  if (isTeacherContext) return <RedirectExternal to={TEACHER_DASHBOARD_URL} />;
+  return <Navigate to="/pick-profile" replace />;
+}
+
 function App() {
   const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
   const location = useLocation();
@@ -205,19 +235,14 @@ function App() {
 
         {/*
           /login — only show the login form if the user is NOT authenticated.
-          If they are authenticated:
-            - learner context  → send to the student dashboard (cross-domain, hard redirect)
-            - teacher context  → send to the teacher dashboard (cross-domain, hard redirect)
-            - account context  → send to pick-profile (still on this domain)
+          Once authenticated, <LoginRedirect> decides where to go: back to the
+          in-app page they came from (?next= / post_auth_redirect) if any, else
+          the context dashboard (learner/teacher) or pick-profile.
         */}
         <Route path="/login" element={
           !isAuthenticated
             ? <Page><Login /></Page>
-            : isLearnerContext
-              ? <RedirectExternal to={APP_DASHBOARD_URL} />
-              : isTeacherContext
-                ? <RedirectExternal to={TEACHER_DASHBOARD_URL} />
-                : <Navigate to="/pick-profile" replace />
+            : <LoginRedirect />
         } />
 
         <Route path="/signup" element={

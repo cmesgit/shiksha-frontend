@@ -313,11 +313,14 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 
 const Navbar = () => {
   const { isAuthenticated, user, loading, isTeacherContext, hasRole, hasPermission } = useAuth();
-  // Match the backend gate (staff / RBAC permission / role). A moderator of
-  // EITHER surface (forum or the Explore document library) sees the entry.
-  const canModerate = isAuthenticated && (
-    hasPermission("forum.moderate") || hasPermission("documents.moderate") ||
-    hasRole("ADMIN") || hasRole("MODERATOR")
+  // Forum and Explore moderation are SEPARATE pages with SEPARATE RBAC
+  // permissions, so each gets its own entry. ADMIN/MODERATOR roles grant both
+  // (matching the backend); a permission-only moderator sees just their surface.
+  const canModForum = isAuthenticated && (
+    hasPermission("forum.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
+  );
+  const canModExplore = isAuthenticated && (
+    hasPermission("documents.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
   );
   const navigate = useNavigate();
   const location = useLocation();
@@ -573,14 +576,24 @@ const Navbar = () => {
                   >
                     Dashboard <IcExternal />
                   </button>
-                  {canModerate && (
+                  {canModForum && (
                     <Link
                       to="/moderator"
                       className="skn-mod-link"
-                      title="Moderator Panel"
-                      aria-label="Moderator Panel"
+                      title="Forum Moderation"
+                      aria-label="Forum Moderation"
                     >
                       <IcShield />
+                    </Link>
+                  )}
+                  {canModExplore && (
+                    <Link
+                      to="/explore/moderator"
+                      className="skn-mod-link"
+                      title="Explore Moderation"
+                      aria-label="Explore Moderation"
+                    >
+                      <IcLibrary />
                     </Link>
                   )}
                   <NotificationBell />
@@ -736,13 +749,22 @@ const Navbar = () => {
           {!loading &&
             (isAuthenticated && user ? (
               <>
-                {canModerate && (
+                {canModForum && (
                   <Link
                     to="/moderator"
                     className="skn-btn skn-btn-ghost skn-wide"
                     onClick={closeAll}
                   >
-                    <IcShield /> Moderator Panel
+                    <IcShield /> Forum Moderation
+                  </Link>
+                )}
+                {canModExplore && (
+                  <Link
+                    to="/explore/moderator"
+                    className="skn-btn skn-btn-ghost skn-wide"
+                    onClick={closeAll}
+                  >
+                    <IcLibrary /> Explore Moderation
                   </Link>
                 )}
                 <button

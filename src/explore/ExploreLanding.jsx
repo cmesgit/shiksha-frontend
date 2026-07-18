@@ -6,25 +6,24 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
 import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
 import "./Explore.css";
 
 export default function ExploreLanding() {
   const nav = useNavigate();
-  const { isAuthenticated, hasRole, hasPermission } = useAuth();
-  // The Explore library's own moderator entry — a SECOND, separate moderator
-  // tab from the forum's. Gated to documents-library moderators (backend
-  // IsDocumentsModerator is the real boundary).
-  const canModerate = isAuthenticated && (
-    hasPermission("documents.moderate") || hasRole("ADMIN") || hasRole("MODERATOR"));
+  // Explore Moderation is reached from the shared site Navbar (a dedicated entry
+  // next to Forum Moderation), so the hero no longer carries its own pill.
   const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [q, setQ] = useState("");
 
   useEffect(() => {
     let alive = true;
-    getLanding().then((d) => alive && setData(d));
+    setLoadError(false);
+    getLanding()
+      .then((d) => alive && setData(d))
+      .catch(() => alive && setLoadError(true));
     return () => { alive = false; };
   }, []);
 
@@ -38,22 +37,7 @@ export default function ExploreLanding() {
       {/* hero */}
       <section className="exp-hero">
         <div className="exp-wrap">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-            <p className="exp-eyebrow">● Explore the knowledge library</p>
-            {canModerate && (
-              <button
-                onClick={() => nav("/explore/moderator")}
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer",
-                  background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.22)",
-                  borderRadius: 999, padding: "6px 14px", color: "#fff",
-                  font: "600 12px Poppins,sans-serif",
-                }}
-              >
-                🛡 Explore Moderation
-              </button>
-            )}
-          </div>
+          <p className="exp-eyebrow">● Explore the knowledge library</p>
           <h1>Discover, read &amp; share.</h1>
           <p className="exp-hero-lead">
             Research papers, books, notes, question papers and more — from students and
@@ -84,7 +68,19 @@ export default function ExploreLanding() {
         </div>
       </section>
 
-      {!data ? <Loading /> : (
+      {loadError ? (
+        <div className="exp-in">
+          <section className="exp-section">
+            <div className="exp-wrap" style={{ textAlign: "center", padding: "48px 20px" }}>
+              <h2 style={{ font: "800 18px Montserrat,sans-serif", color: "#125027", margin: "0 0 8px" }}>Couldn't load the library</h2>
+              <p style={{ font: "400 13px Poppins,sans-serif", color: "rgba(14,28,15,.55)", margin: "0 0 18px" }}>
+                Something went wrong fetching documents. Please try again.
+              </p>
+              <button className="exp-btn exp-btn-primary" onClick={() => window.location.reload()}>Retry</button>
+            </div>
+          </section>
+        </div>
+      ) : !data ? <Loading /> : (
         <div className="exp-in">
           {/* categories */}
           <section className="exp-section">
