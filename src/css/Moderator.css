@@ -588,62 +588,14 @@
 .mod-toast span { font-size: 13.5px; font-weight: 500; }
 
 /* ============================================================
-   Added for this port (not present in Admin-dashboard's Moderator.css):
-   a light self-contained header bar, since this app doesn't have the
-   Admin-dashboard's sidebar shell (AdminLayout) — see ModeratorPanel.jsx
-   and the /become-faculty precedent (src/pages/FacultyIntro.jsx) this
-   follows for "route ships its own nav instead of the marketing chrome".
-   ============================================================ */
-.mod-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  margin-bottom: 8px;
-}
-.mod-header-brand { font-size: 15px; font-weight: 700; color: #1f2937; }
-.mod-header-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4b5563;
-  text-decoration: none;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 6px 12px;
-  background: #fff;
-  transition: background 0.15s;
-}
-.mod-header-back:hover { background: #f3f4f6; }
-
-/* ============================================================
    fm2 RETHEME — scoped to .fm2-mod (the ModeratorPanel root).
    Repaints the moderator panel in the ShikshaCom Forum green/cream
    design system (Montserrat headings, #125027 accent, cream bg) to
-   match the reskinned forum. Structural rules above are untouched.
+   match the reskinned forum. The panel renders the shared site <Navbar />
+   and a breadcrumb page header (see ModeratorPanel.jsx) — no standalone
+   chrome of its own.
    ============================================================ */
 .fm2-mod { background: #edf2e8; min-height: 100vh; font-family: Poppins, sans-serif; }
-
-/* Top marquee (same as the forum chrome) */
-.fm2-mod .fm2-topstrip { background: #3a3a3a; height: 34px; display: flex; align-items: center; padding: 0 24px; overflow: hidden; }
-.fm2-mod .fm2-topstrip marquee { line-height: 34px; color: rgba(255,255,255,.78); font-size: 12px; letter-spacing: .15px; }
-.fm2-mod .fm2-topstrip marquee span { margin-right: 32px; }
-.fm2-mod .fm2-blink { color: #ff8f01; font-weight: 700; }
-
-/* Header bar → dark forest green */
-.fm2-mod .mod-header { background: #0d1e14; border-bottom: none; margin-bottom: 0; }
-.fm2-mod .mod-header-brand { display: inline-flex; align-items: center; gap: 8px; color: #fff; font: 800 15px Montserrat, sans-serif; text-decoration: none; }
-.fm2-mod .mod-header-brand svg { color: #4fd39a; }
-.fm2-mod .mod-header-back { color: rgba(255,255,255,.9); background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
-.fm2-mod .mod-header-back:hover { background: rgba(255,255,255,.18); }
 
 /* Title */
 .fm2-mod .dashboard-title { font-family: Montserrat, sans-serif; color: #125027; }

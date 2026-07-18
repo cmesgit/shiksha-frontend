@@ -272,9 +272,11 @@ function App() {
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
-            (distinct from the forum's /moderator). Ships its own chrome, so no
-            <Page>/<ExplorePage> wrapper. Gated on the documents.moderate RBAC
-            permission (backend IsDocumentsModerator is the real boundary). */}
+            (distinct from the forum's /moderator). Renders the shared site
+            <Navbar /> itself (like /moderator), so it sits outside the
+            <Page>/<ExplorePage> wrapper but still reads as part of the site.
+            Gated on the documents.moderate RBAC permission (backend
+            IsDocumentsModerator is the real boundary). */}
         <Route path="/explore/moderator" element={
           <RequireRole permissions={["documents.moderate"]} roles={["ADMIN", "MODERATOR"]}>
             <ExploreModeratorPanel />
@@ -315,8 +317,9 @@ function App() {
           Gated on the ADMIN/MODERATOR role (same server-side IsForumModerator/
           is_staff checks on the backend remain the real security boundary —
           this route is lazy-loaded so anonymous visitors never download it).
-          Renders WITHOUT the marketing <Page> chrome — it ships its own
-          minimal header, same precedent as /become-faculty above.
+          Sits outside the marketing <Page> wrapper but renders the shared
+          site <Navbar /> itself (same integration the forum uses), so it reads
+          as part of the site rather than a standalone tool.
         */}
         <Route path="/moderator" element={
           <RequireRole permissions={["forum.moderate"]} roles={["ADMIN", "MODERATOR"]}>

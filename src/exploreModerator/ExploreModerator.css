@@ -1,5 +1,6 @@
-/* Explore Moderation panel — standalone chrome matching the delivered
-   "ShikshaCom Explore Moderation.html" design, in the shared ShikshaCom fm2
+/* Explore Moderation panel — matches the delivered
+   "ShikshaCom Explore Moderation.html" design (the standalone marquee + brand
+   bar were dropped in favour of the shared site <Navbar />), in the fm2
    palette (green #125027 / dark-green #0d1e14 / orange #e07900 / red #c0392b,
    Montserrat headings + Poppins body). Prefix: .em2-* so it never touches the
    rest of the app. */
@@ -24,46 +25,12 @@
   color: var(--ink);
 }
 
-/* ── top marquee ── */
-.em2-topstrip {
-  background: #3a3a3a; color: #e8e8e8; font-size: 11.5px;
-  padding: 6px 0; overflow: hidden;
-}
-.em2-topstrip span { margin: 0 10px; }
-.em2-blink { color: var(--orange); font-weight: 800; }
-
-/* ── header ── */
-.em2-header {
-  background: #fff; border-bottom: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 26px;
-}
-.em2-brand { display: flex; align-items: center; gap: 11px; cursor: pointer; }
-.em2-logo { width: 40px; height: 40px; object-fit: contain; }
-.em2-brand-name { font: 900 18px/1 Montserrat, sans-serif; color: var(--green); margin: 0; }
-.em2-brand-tag { font: 600 9px/1 Poppins, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 3px 0 0; }
-.em2-hright { display: flex; align-items: center; gap: 12px; }
-.em2-modbadge {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--cream); border: 1px solid var(--line); border-radius: 999px;
-  padding: 5px 12px 5px 6px;
-}
-.em2-modbadge .av {
-  width: 28px; height: 28px; border-radius: 50%; background: var(--green);
-  color: #fff; font: 800 11px Poppins, sans-serif; display: grid; place-items: center;
-}
-.em2-modbadge .nm { font: 700 12px Poppins, sans-serif; color: var(--ink); }
-.em2-back {
-  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-  background: none; border: 1px solid var(--line); border-radius: 8px;
-  padding: 7px 12px; font: 600 12px Poppins, sans-serif; color: var(--green); cursor: pointer;
-}
-.em2-back:hover { background: var(--cream); }
-
 /* ── hero ── */
 .em2-hero { background: var(--green-d); color: #fff; padding: 22px 26px 24px; }
 .em2-crumb { font: 400 11px Poppins, sans-serif; color: #9ec4a9; margin-bottom: 6px; }
 .em2-crumb b { color: #fff; font-weight: 600; }
+.em2-crumb a { color: #9ec4a9; text-decoration: none; }
+.em2-crumb a:hover { color: #fff; }
 .em2-hero h1 { font: 900 24px/1.05 Montserrat, sans-serif; margin: 0 0 4px; }
 .em2-hero p { font: 400 12.5px Poppins, sans-serif; color: #b9d4c0; margin: 0; }
 .em2-pills { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
@@ -200,15 +167,6 @@
 .em2-log-pill.ok { background: #e6f4ea; color: var(--green); }
 .em2-log-pill.warn { background: #fff8e8; color: #9a6400; }
 .em2-log-pill.bad { background: #fdf0ee; color: var(--danger); }
-
-/* footer */
-.em2-footer { background: var(--green-d); color: #b9d4c0; padding: 26px; margin-top: 20px; }
-.em2-footer-inner { max-width: 1220px; margin: 0 auto; display: flex; gap: 40px; flex-wrap: wrap; }
-.em2-footer h4 { font: 900 14px Montserrat, sans-serif; color: #fff; margin: 0 0 4px; }
-.em2-footer .tag { font: 400 11.5px Poppins, sans-serif; max-width: 260px; }
-.em2-footer .col-hd { font: 800 10px Poppins, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #7ea589; margin-bottom: 8px; }
-.em2-footer a, .em2-footer .lnk { display: block; color: #cfe3d5; font: 500 12px Poppins, sans-serif; text-decoration: none; padding: 2px 0; cursor: pointer; }
-.em2-footer-note { max-width: 1220px; margin: 18px auto 0; font: 400 10.5px Poppins, sans-serif; color: #6f987b; border-top: 1px solid rgba(255,255,255,.1); padding-top: 12px; }
 
 @media (max-width: 860px) {
   .em2-layout { grid-template-columns: 1fr; }

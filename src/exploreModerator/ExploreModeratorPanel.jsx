@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 import { useToast } from "../contexts/ToastContext";
 import { getExploreAnalytics } from "../api/exploreModeration";
 import ReportedDocuments from "./ReportedDocuments";
 import DuplicateReview from "./DuplicateReview";
 import UploaderManagement from "./UploaderManagement";
 import Analytics from "./Analytics";
-import logo from "../assets/Shiksha.png";
+import Navbar from "../components/Navbar";
 import "./ExploreModerator.css";
 
-// Standalone panel matching "ShikshaCom Explore Moderation.html". Renders its
-// own chrome (no marketing <Page> wrapper) — same precedent as /moderator.
-// Sections mirror the design: Reported Documents · Duplicate Review ·
-// Uploader Management · Analytics. Gated (route + backend) on documents.moderate.
+// Panel matching "ShikshaCom Explore Moderation.html", merged into the site
+// body: it renders the shared site <Navbar /> (same integration the forum and
+// /moderator use) instead of the old standalone marquee + brand bar, followed
+// by the design's dark hero (breadcrumb + title + stat pills). Sections mirror
+// the design: Reported Documents · Duplicate Review · Uploader Management ·
+// Analytics. Gated (route + backend) on documents.moderate.
 
 const SECTIONS = [
   { id: "reports", label: "Reported Documents", badge: true },
@@ -30,16 +31,8 @@ const RULES = [
   "Protect uploader privacy",
 ];
 
-const initialsOf = (s) => {
-  const parts = String(s || "").replace(/[^a-zA-Z ]/g, " ").split(" ").filter(Boolean);
-  if (!parts.length) return "MO";
-  return ((parts[0][0] || "") + (parts[1]?.[0] || parts[0][1] || "")).toUpperCase();
-};
-
 const ExploreModeratorPanel = () => {
-  const { user } = useAuth();
   const { showToast } = useToast();
-  const navigate = useNavigate();
   const [section, setSection] = useState("reports");
   const [counts, setCounts] = useState({ reports: 0, duplicates: 0 });
   const [stats, setStats] = useState({ reported_docs: 0, duplicate_uploads: 0 });
@@ -58,9 +51,6 @@ const ExploreModeratorPanel = () => {
     refresh();
   }, [refresh, showToast]);
 
-  const name = user?.username || "Moderator";
-  const initials = initialsOf(user?.username || user?.email);
-
   const MONTH_ROWS = [
     ["Reports resolved", month.reports_resolved],
     ["Uploads published", month.uploads_published],
@@ -71,31 +61,12 @@ const ExploreModeratorPanel = () => {
 
   return (
     <div className="em2">
-      <div className="em2-topstrip">
-        <span>Review reported documents · verify uploads · keep the library trustworthy.</span>
-        <span className="em2-blink">|</span>
-        <span>Protect students from plagiarism, copyright abuse and fraudulent material.</span>
-      </div>
-
-      <header className="em2-header">
-        <div className="em2-brand" onClick={() => navigate("/explore")} role="button" tabIndex={0}>
-          <img className="em2-logo" src={logo} alt="ShikshaCom" />
-          <div>
-            <h1 className="em2-brand-name">ShikshaCom</h1>
-            <p className="em2-brand-tag">Explore Moderation</p>
-          </div>
-        </div>
-        <div className="em2-hright">
-          <div className="em2-modbadge">
-            <span className="av">{initials}</span>
-            <span className="nm">{name}</span>
-          </div>
-          <Link to="/explore" className="em2-back">← Back to Explore</Link>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="em2-hero">
-        <div className="em2-crumb">ShikshaCom <b>›</b> Explore <b>›</b> Moderation</div>
+        <div className="em2-crumb">
+          <Link to="/">ShikshaCom</Link> <b>›</b> <Link to="/explore">Explore</Link> <b>›</b> Moderation
+        </div>
         <h1>Explore Moderation</h1>
         <p>Review reported documents · verify uploads · manage uploaders · keep the library trustworthy</p>
         <div className="em2-pills">
@@ -162,28 +133,6 @@ const ExploreModeratorPanel = () => {
           </main>
         </div>
       </div>
-
-      <footer className="em2-footer">
-        <div className="em2-footer-inner">
-          <div>
-            <h4>EXPLORE MODERATION</h4>
-            <div className="tag">Keep the ShikshaCom document library safe, original and trustworthy for every student.</div>
-          </div>
-          <div>
-            <div className="col-hd">Panel</div>
-            {SECTIONS.map((s) => (
-              <span className="lnk" key={s.id} onClick={() => setSection(s.id)}>{s.label}</span>
-            ))}
-          </div>
-          <div>
-            <div className="col-hd">Resources</div>
-            <span className="lnk">Content Policy</span>
-            <span className="lnk">Copyright / DMCA</span>
-            <span className="lnk">Ban Appeals</span>
-          </div>
-        </div>
-        <div className="em2-footer-note">© 2026 ShikshaCom · Explore Moderation · For internal use only</div>
-      </footer>
     </div>
   );
 };

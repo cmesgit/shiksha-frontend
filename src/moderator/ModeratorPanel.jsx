@@ -10,6 +10,7 @@ import UserManagement from "./UserManagement";
 import Analytics from "./Analytics";
 import AllThreads from "./AllThreads";
 import ActivityLog from "./ActivityLog";
+import Navbar from "../components/Navbar";
 import { useToast } from "../contexts/ToastContext";
 import { getModAnalytics } from "../api/moderation";
 import "../css/Dashboard.css";
@@ -31,32 +32,26 @@ const STAT_CARDS = [
   { key: "actions_today", label: "Actions today", icon: ShieldCheck, tone: "green" },
 ];
 
-// This app has no equivalent to Admin-dashboard's AdminLayout sidebar shell,
-// so the panel ships its own minimal header instead — same pattern as
-// /become-faculty (see src/pages/FacultyIntro.jsx's doc comment): the route
-// renders without the marketing <Page> chrome (no public Navbar/Footer).
-const ModeratorHeader = () => (
-  <>
-    <div className="fm2-topstrip">
-      <marquee direction="left">
-        <span>Moderator tools — keep the community safe, helpful and on-topic.</span>
-        <span className="fm2-blink">|</span>
-        <span>Review reports · handle the auto-rejected queue · manage users</span>
-      </marquee>
+// The moderator panel now merges into the site body: it renders the real
+// shared <Navbar /> (same integration the forum uses in ForumLayout) instead
+// of the old standalone chrome, followed by a breadcrumb page header ported
+// from the Forum Moderator mockup's PAGE HEADER block.
+const PageHeader = () => (
+  <div style={{ background: "#fff", borderBottom: "1px solid #dce8cc" }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 20px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+      <div>
+        <div style={{ font: "400 11px Poppins,sans-serif", color: "#8a9e82", marginBottom: 3 }}>
+          <Link to="/" style={{ color: "#125027", textDecoration: "none" }}>ShikshaCom</Link>
+          <span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span>
+          <Link to="/forum" style={{ color: "#4a5e3a", textDecoration: "none" }}>Forum</Link>
+          <span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span>
+          <span style={{ color: "#4a5e3a" }}>Moderator Panel</span>
+        </div>
+        <h1 style={{ font: "900 20px/1 Montserrat,sans-serif", color: "#125027", margin: "0 0 2px" }}>Moderator Panel</h1>
+        <p style={{ font: "400 12px Poppins,sans-serif", color: "#8a9e82", margin: 0 }}>Review reports · manage users · keep discussions safe and on-topic</p>
+      </div>
     </div>
-    <div className="mod-header">
-      <Link to="/forum" className="mod-header-brand">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-        ShikshaCom · Moderator Panel
-      </Link>
-      <Link to="/forum" className="mod-header-back">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        Back to forum
-      </Link>
-    </div>
-  </>
+  </div>
 );
 
 const ModeratorPanel = () => {
@@ -86,10 +81,9 @@ const ModeratorPanel = () => {
 
   return (
     <div className="fm2-mod">
-      <ModeratorHeader />
+      <Navbar />
+      <PageHeader />
       <div className="dashboard-wrapper">
-        <h1 className="dashboard-title">Moderator Panel</h1>
-
         <div className="mod-stat-grid">
           {STAT_CARDS.map(({ key, label, icon: Icon, tone }) => (
             <div key={key} className="mod-stat-card">

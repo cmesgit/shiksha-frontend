@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation, useSearchParams } from "react-router-
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { ForumProvider, useForum } from "./ForumContext";
-import RightRail from "./components/RightRail";
+import HowItWorks from "./components/HowItWorks";
 import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
 import "./forum.css";
@@ -157,7 +157,7 @@ function Shell() {
           <main style={{ display: "flex", flexDirection: "column", gap: 13, minWidth: 0 }}>
             <Outlet />
           </main>
-          <RightRail />
+          <HowItWorks />
         </div>
       </div>
     </div>
