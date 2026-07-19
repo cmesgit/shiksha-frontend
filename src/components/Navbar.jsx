@@ -14,6 +14,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
+import { LayoutDashboard } from "lucide-react";
 
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL } from "../config/urls";
@@ -601,6 +602,13 @@ const Navbar = () => {
                     teacherSignupUrl="/signup?role=teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}
+                    quickActions={[
+                      {
+                        label: "Dashboard",
+                        icon: <LayoutDashboard size={17} />,
+                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_URL : APP_URL; },
+                      },
+                    ]}
                   />
                 </div>
               ) : (
