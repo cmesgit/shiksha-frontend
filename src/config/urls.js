@@ -30,6 +30,7 @@ const PROD = {
   TEACHER: "https://teacher.shikshacom.com",
   API:     "https://api.shikshacom.com/api",   // includes /api
   WS:      "api.shikshacom.com",
+  ADMIN:   "https://admin.shikshacom.com",
 };
 
 const DEV = {
@@ -38,6 +39,7 @@ const DEV = {
   TEACHER: "https://teacher.dev.shikshacom.com",
   API:     "https://api.dev.shikshacom.com/api", // includes /api
   WS:      "api.dev.shikshacom.com",
+  ADMIN:   "https://admin.dev.shikshacom.com",
 };
 
 const ENV = isDev ? DEV : PROD;
@@ -53,6 +55,9 @@ const _teacherRaw  = clean(import.meta.env.VITE_TEACHER_URL || ENV.TEACHER);
 export const TEACHER_URL          = _teacherRaw.replace(/\/teacher\/dashboard\/?$/, "");
 export const TEACHER_DASHBOARD_URL = TEACHER_URL + "/teacher/dashboard";
 export const WS_HOST     =       import.meta.env.VITE_WS_HOST     || ENV.WS;
+// Admin-dashboard — separate app/domain, own login. Just an outbound link
+// target (see Navbar's Moderator/Admin nav entry); no SSO with this app.
+export const ADMIN_URL   = clean(import.meta.env.VITE_ADMIN_URL   || ENV.ADMIN);
 
 // API_URL: if the env var is set it must already include /api.
 // If not set, the fallback already has /api baked in.

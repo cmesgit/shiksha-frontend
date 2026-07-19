@@ -1,37 +1,46 @@
+/* Manage Profiles — light theme, consistent with the ProfilePicker
+   ("Who's learning?") screen and the white marketing <Page> it renders in.
+   Palette: green #0f9d6b / dark #0b5b3e, ink text on white cards. */
+
 .mp-page {
   max-width: 560px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
-  min-height: 100vh;
-  color: #f5f5dc;
+  padding: 32px 16px 64px;
+  min-height: 60vh;
+  color: #16281a;
 }
 
 .mp-header {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 28px;
 }
 
 .mp-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
   margin: 0;
+  color: #0b5b3e;
 }
 
 .mp-back {
+  align-self: flex-start;
   background: none;
   border: none;
-  color: #3fad4e;
-  font-size: 1rem;
+  color: #0f9d6b;
+  font-size: .95rem;
+  font-weight: 600;
   cursor: pointer;
   padding: 0;
+  text-decoration: none;
 }
+.mp-back:hover { text-decoration: underline; }
 
 .mp-error {
-  color: #ffb4ab;
-  background: rgba(192,57,43,.18);
-  border: 1px solid rgba(192,57,43,.3);
+  color: #c0392b;
+  background: #fdecea;
+  border: 1px solid rgba(192,57,43,.25);
   padding: .6rem .85rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -43,34 +52,36 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
+  background: #fff;
+  border: 1px solid #e2ecd6;
   border-radius: 12px;
   padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(14,28,15,.05);
 }
 
-.mp-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.mp-name { font-weight: 600; font-size: .98rem; }
-.mp-tag  { font-size: .75rem; color: #9db8a2; }
+.mp-info { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mp-name { font-weight: 700; font-size: .98rem; color: #16281a; }
+.mp-tag  { font-size: .75rem; color: #5a8c6a; }
 
 .mp-actions { display: flex; gap: 8px; }
 
 .mp-btn {
   padding: .4rem .9rem;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.06);
-  color: #f5f5dc;
+  border: 1px solid rgba(15,80,39,.2);
+  background: #fff;
+  color: #0b5b3e;
   font-size: .85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background .15s;
+  transition: background .15s, border-color .15s;
 }
-.mp-btn:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+.mp-btn:hover:not(:disabled) { background: #e7f6ee; border-color: #0f9d6b; }
 .mp-btn:disabled { opacity: .5; cursor: not-allowed; }
-.mp-btn--primary { background: #3fad4e; border-color: #3fad4e; color: #fff; font-weight: 600; }
-.mp-btn--primary:hover:not(:disabled) { background: #35963f; }
-.mp-btn--del { border-color: rgba(192,57,43,.4); color: #ffb4ab; }
-.mp-btn--del:hover:not(:disabled) { background: rgba(192,57,43,.18); }
+.mp-btn--primary { background: #0f9d6b; border-color: #0f9d6b; color: #fff; }
+.mp-btn--primary:hover:not(:disabled) { background: #0b5b3e; border-color: #0b5b3e; }
+.mp-btn--del { border-color: rgba(192,57,43,.35); color: #c0392b; }
+.mp-btn--del:hover:not(:disabled) { background: #fdecea; border-color: #c0392b; }
 .mp-btn--edit { }
 
 .mp-add {
@@ -78,20 +89,20 @@
   width: 100%;
   padding: 14px;
   border-radius: 12px;
-  border: 1px dashed rgba(63,173,78,.4);
-  background: rgba(63,173,78,.06);
-  color: #3fad4e;
+  border: 1px dashed rgba(15,157,107,.5);
+  background: rgba(15,157,107,.06);
+  color: #0f9d6b;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: background .15s;
 }
-.mp-add:hover { background: rgba(63,173,78,.12); }
+.mp-add:hover { background: rgba(15,157,107,.12); }
 
 .mp-spinner {
   width: 36px; height: 36px;
-  border: 3px solid rgba(63,173,78,.2);
-  border-top-color: #3fad4e;
+  border: 3px solid rgba(15,157,107,.2);
+  border-top-color: #0f9d6b;
   border-radius: 50%;
   animation: mpSpin .8s linear infinite;
   margin: 40px auto;
@@ -101,50 +112,63 @@
 /* Modal */
 .mp-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.6);
+  background: rgba(11,45,20,.55);
+  backdrop-filter: blur(3px);
   display: flex; align-items: center; justify-content: center;
   z-index: 999; padding: 16px;
 }
 
 .mp-modal {
-  background: #0d2e14;
-  border: 1px solid rgba(255,255,255,.1);
+  background: #fff;
+  border: 1px solid #e2ecd6;
   border-radius: 16px;
   padding: 28px 24px;
-  width: 100%; max-width: 400px;
-  display: flex; flex-direction: column; gap: 16px;
+  width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 24px 60px rgba(11,45,20,.25);
 }
 
-.mp-modal h2 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #f5f5dc; }
+.mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mp-sec {
+  margin-top: 6px; font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: #0b5b3e; border-bottom: 1px solid #eef3e9; padding-bottom: 4px;
+}
+.mp-hint { margin: 0; font-size: .8rem; color: #6f8a76; line-height: 1.45; }
+@media (max-width: 520px) { .mp-grid { grid-template-columns: 1fr; } }
+
+.mp-modal h2 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #0b5b3e; }
 
 .mp-modal label {
   display: flex; flex-direction: column; gap: 6px;
-  font-size: .88rem; color: #cfe8d4;
+  font-size: .88rem; font-weight: 600; color: #35513f;
 }
 
 .mp-modal input,
 .mp-modal select {
   padding: .55rem .8rem;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.07);
-  color: #f5f5dc;
+  border: 1px solid rgba(15,80,39,.2);
+  background: #fff;
+  color: #16281a;
   font-size: .95rem;
 }
+.mp-modal input:focus,
+.mp-modal select:focus { outline: none; border-color: #0f9d6b; }
 
-.mp-modal input::placeholder { color: #6b8a72; }
+.mp-modal input::placeholder { color: #9db8a2; }
 
 .mp-emojis { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 
 .mp-emoji {
   font-size: 1.4rem;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.1);
+  background: #f4f8f0;
+  border: 1px solid #e2ecd6;
   border-radius: 8px;
   width: 40px; height: 40px;
   cursor: pointer; transition: background .15s;
 }
-.mp-emoji:hover { background: rgba(255,255,255,.14); }
-.mp-emoji--sel { border-color: #3fad4e; background: rgba(63,173,78,.2); }
+.mp-emoji:hover { background: #e7f6ee; }
+.mp-emoji--sel { border-color: #0f9d6b; background: rgba(15,157,107,.18); }
 
 .mp-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }

@@ -1,0 +1,34 @@
+/* ============================================================
+   theme.css — ShikshaCom shared design tokens (green redesign)
+   New --sk-* names: safe to load globally, no collisions with
+   any existing stylesheet variables.
+   ============================================================ */
+:root {
+  /* brand greens (reconciled from the approved home + nav designs) */
+  --sk-green: #0f9d6b;        /* primary action green  */
+  --sk-green-dark: #0b5b3e;   /* hover / pressed       */
+  --sk-green-deep: #004a33;   /* brand ink (nav logo)  */
+  --sk-mint: #e7f6ee;         /* soft green tint       */
+  --sk-paper: #f6faf7;        /* alt section wash      */
+
+  /* neutrals */
+  --sk-ink: #0b2e20;
+  --sk-ink-2: #2b4237;
+  --sk-body: #5e7469;
+  --sk-line: #edf3ee;
+
+  /* supporting accents */
+  --sk-orange: #ff9900;       /* tagline accent        */
+  --sk-gold: #ffb21d;
+  --sk-violet: #7c5cfc;
+  --sk-blue: #3b82f6;
+  --sk-red: #e14d2a;
+  --sk-pink: #ec4e86;
+  --sk-teal: #12b3a6;
+
+  /* type + shadows */
+  --sk-font: "Poppins", system-ui, -apple-system, sans-serif;
+  --sk-sh-sm: 0 6px 22px rgba(11, 46, 32, 0.06);
+  --sk-sh: 0 18px 46px rgba(11, 91, 62, 0.12);
+  --sk-sh-lg: 0 30px 70px rgba(11, 46, 32, 0.14);
+}

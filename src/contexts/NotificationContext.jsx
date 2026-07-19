@@ -19,7 +19,10 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [isAuthenticated]);
 
-  // Fetch notifications only when authenticated, poll every 30 seconds
+  // These are FORUM notifications, which are ACCOUNT-level — they are shared
+  // across all profiles and intentionally do NOT reset on a profile switch.
+  // (Profile-scoped academy notifications live in the real-time
+  // useNotificationSocket feed, which the backend scopes per identity.)
   useEffect(() => {
     if (!isAuthenticated) {
       setNotifications([]);

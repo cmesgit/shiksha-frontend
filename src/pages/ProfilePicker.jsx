@@ -36,7 +36,7 @@ const Avatar = ({ profile }) => {
 const ProfilePicker = () => {
   const {
     profiles, teacherInfo, context, isAuthenticated, loading,
-    selectProfile, enterTeacherMode,
+    selectProfile, enterTeacherMode, setProfilePin,
   } = useAuth();
   const navigate = useNavigate();
 
@@ -44,6 +44,9 @@ const ProfilePicker = () => {
   const [pin, setPin]         = useState("");
   const [busy, setBusy]       = useState(false);
   const [error, setError]     = useState("");
+  const [forgotFor, setForgotFor] = useState(null); // profile id resetting its PIN
+  const [resetPin, setResetPin]   = useState("");
+  const [resetPw, setResetPw]     = useState("");
   const [leaving, setLeaving] = useState(null); // label shown during fade-out before redirect
 
   // Teacher-mode: reveal password, then (if 2 approved tracks) choose a dashboard.
@@ -81,10 +84,27 @@ const ProfilePicker = () => {
       `Opening ${TRACK_NAME[track]}…`
     );
 
+  // Forgot PIN → reset with the account password (no old PIN), then open.
+  const resetAndGo = async (profile) => {
+    setError("");
+    if (!/^\d{4,6}$/.test(resetPin)) { setError("PIN must be 4–6 digits."); return; }
+    if (!resetPw) { setError("Enter your account password."); return; }
+    setBusy(true);
+    try {
+      await setProfilePin(profile.id, resetPin, resetPw);
+      await selectProfile(profile.id, resetPin);
+      goLearner(profile.display_name);
+    } catch (err) {
+      setError(err?.message || "Could not reset the PIN.");
+      setBusy(false);
+    }
+  };
+
   const choose = async (profile) => {
     setError("");
     if (profile.requires_pin && pinFor !== profile.id) {
       setPinFor(profile.id);
+      setForgotFor(null);
       setPin("");
       return;
     }
@@ -181,7 +201,7 @@ const ProfilePicker = () => {
                 {p.requires_pin && <span className="pp-lock">🔒</span>}
               </button>
 
-              {pinFor === p.id && p.requires_pin && (
+              {pinFor === p.id && p.requires_pin && forgotFor !== p.id && (
                 <div className="pp-pin-row pp-reveal">
                   <input
                     className="pp-pin"
@@ -196,6 +216,33 @@ const ProfilePicker = () => {
                   />
                   <button className="pp-pin-go" disabled={busy || pin.length < 4} onClick={() => choose(p)}>
                     Go
+                  </button>
+                  <button type="button" className="pp-forgot"
+                    onClick={() => { setForgotFor(p.id); setResetPin(""); setResetPw(""); setError(""); }}>
+                    Forgot PIN?
+                  </button>
+                </div>
+              )}
+
+              {forgotFor === p.id && (
+                <div className="pp-pin-row pp-reveal" style={{ flexWrap: "wrap", gap: 8, width: "min(240px, 78vw)" }}>
+                  <input
+                    className="pp-pin" inputMode="numeric" maxLength={6} placeholder="New PIN"
+                    value={resetPin} autoFocus disabled={busy}
+                    onChange={(e) => setResetPin(e.target.value.replace(/\D/g, ""))}
+                  />
+                  <input
+                    className="pp-pin" type="password" autoComplete="current-password"
+                    placeholder="Account password" value={resetPw} disabled={busy}
+                    style={{ letterSpacing: "normal" }}
+                    onChange={(e) => setResetPw(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && resetAndGo(p)}
+                  />
+                  <button className="pp-pin-go" disabled={busy} onClick={() => resetAndGo(p)}>
+                    Reset &amp; open
+                  </button>
+                  <button type="button" className="pp-forgot" onClick={() => setForgotFor(null)}>
+                    Back
                   </button>
                 </div>
               )}

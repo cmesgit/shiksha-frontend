@@ -6,6 +6,13 @@ import "./ManageProfiles.css";
 /* ─── Avatar ────────────────────────────────────────────────────────────── */
 const EMOJIS = ["🧑","👦","👧","🧒","👨","👩","🎓","📚","⭐","🌟"];
 
+/* LearnerProfile academic options — mirror accounts.models.LearnerProfile. */
+const CLASS_OPTS   = [["", "—"], ["8", "Class 8"], ["9", "Class 9"], ["10", "Class 10"], ["11", "Class 11"], ["12", "Class 12"]];
+const STREAM_OPTS  = [["", "—"], ["science", "Science"], ["commerce", "Commerce"], ["arts", "Arts"]];
+const BOARD_OPTS   = [["", "—"], ["cbse", "CBSE"], ["icse", "ICSE"], ["mbse", "Mizoram Board (MBSE)"], ["nios", "NIOS"], ["other", "Other State Board"]];
+const STUDYING_OPTS = [["", "—"], ["yes", "Yes"], ["no", "No"]];
+const HIGHED_OPTS  = [["", "—"], ["below_8", "Below Class 8"], ["8", "Class 8"], ["9", "Class 9"], ["10", "Class 10"], ["11", "Class 11"], ["12", "Class 12"]];
+
 const Avatar = ({ p, size = 56 }) => {
   const s = { width: size, height: size, borderRadius: "50%", objectFit: "cover" };
   if (p.avatar_type === "image" && p.avatar)
@@ -40,10 +47,30 @@ function BackButton({ isTeacherContext, isLearnerContext }) {
 }
 
 /* ─── Form ──────────────────────────────────────────────────────────────── */
-const BLANK = { display_name: "", relationship: "DEPENDENT", pin: "", avatar_emoji: "" };
+const BLANK = {
+  display_name: "", relationship: "DEPENDENT", avatar_emoji: "",
+  first_name: "", last_name: "", phone: "", gender: "", date_of_birth: "",
+  state: "", district: "", city_town: "", pin_code: "",
+  currently_studying: "", current_class: "", stream: "", board: "",
+  board_other: "", school_name: "", academic_year: "",
+  highest_education: "", reason_not_studying: "",
+  father_name: "", father_phone: "", mother_name: "", mother_phone: "",
+  guardian_name: "", guardian_phone: "", parent_guardian_email: "",
+};
+
+function Field({ label, children }) {
+  return <label className="mp-field"><span>{label}</span>{children}</label>;
+}
+function Sel({ value, onChange, opts }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      {opts.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+    </select>
+  );
+}
 
 function ProfileForm({ initial, isCreate, onSave, onCancel, saving, error }) {
-  const [form, setForm] = useState(initial || BLANK);
+  const [form, setForm] = useState({ ...BLANK, ...(initial || {}) });
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   return (
@@ -52,33 +79,22 @@ function ProfileForm({ initial, isCreate, onSave, onCancel, saving, error }) {
 
       {error && <p className="mp-error">{error}</p>}
 
-      <label>
-        Display name *
+      <Field label="Display name *">
         <input value={form.display_name}
           onChange={e => set("display_name", e.target.value)}
           placeholder="e.g. Rami or Child 1" autoFocus />
-      </label>
+      </Field>
 
       {isCreate && (
-        <label>
-          Relationship
+        <Field label="Relationship">
           <select value={form.relationship} onChange={e => set("relationship", e.target.value)}>
             <option value="DEPENDENT">Child / Dependent</option>
             <option value="SELF">Myself (account holder)</option>
           </select>
-        </label>
+        </Field>
       )}
 
-      <label>
-        PIN <span style={{ fontWeight: 400, color: "#9db8a2" }}>(optional, 4–6 digits)</span>
-        <input inputMode="numeric" maxLength={6} value={form.pin}
-          onChange={e => set("pin", e.target.value.replace(/\D/g, ""))}
-          placeholder={isCreate ? "Leave blank for no PIN" : "Leave blank to keep current PIN"}
-          style={{ letterSpacing: "0.25em" }} />
-      </label>
-
-      <label>
-        Avatar emoji <span style={{ fontWeight: 400, color: "#9db8a2" }}>(optional)</span>
+      <Field label="Avatar emoji (optional)">
         <div className="mp-emojis">
           {EMOJIS.map(em => (
             <button key={em} type="button"
@@ -88,12 +104,147 @@ function ProfileForm({ initial, isCreate, onSave, onCancel, saving, error }) {
             </button>
           ))}
         </div>
-      </label>
+      </Field>
+
+      {!isCreate && (
+        <>
+          <div className="mp-sec">Personal details</div>
+          <div className="mp-grid">
+            <Field label="First name"><input value={form.first_name} onChange={e => set("first_name", e.target.value)} /></Field>
+            <Field label="Last name"><input value={form.last_name} onChange={e => set("last_name", e.target.value)} /></Field>
+            <Field label="Phone"><input value={form.phone} onChange={e => set("phone", e.target.value)} /></Field>
+            <Field label="Date of birth"><input type="date" value={form.date_of_birth || ""} onChange={e => set("date_of_birth", e.target.value)} /></Field>
+          </div>
+          <Field label="Gender">
+            <Sel value={form.gender} onChange={v => set("gender", v)}
+              opts={[["", "Prefer not to specify"], ["male", "Male"], ["female", "Female"], ["other", "Other"], ["prefer_not_to_say", "Prefer not to say"]]} />
+          </Field>
+          <div className="mp-grid">
+            <Field label="State"><input value={form.state} onChange={e => set("state", e.target.value)} /></Field>
+            <Field label="District"><input value={form.district} onChange={e => set("district", e.target.value)} /></Field>
+            <Field label="City / town"><input value={form.city_town} onChange={e => set("city_town", e.target.value)} /></Field>
+            <Field label="Pincode"><input value={form.pin_code} onChange={e => set("pin_code", e.target.value)} /></Field>
+          </div>
+
+          <div className="mp-sec">Academic details</div>
+          <div className="mp-grid">
+            <Field label="Currently studying?"><Sel value={form.currently_studying} onChange={v => set("currently_studying", v)} opts={STUDYING_OPTS} /></Field>
+            <Field label="Class"><Sel value={form.current_class} onChange={v => set("current_class", v)} opts={CLASS_OPTS} /></Field>
+            <Field label="Stream"><Sel value={form.stream} onChange={v => set("stream", v)} opts={STREAM_OPTS} /></Field>
+            <Field label="Board"><Sel value={form.board} onChange={v => set("board", v)} opts={BOARD_OPTS} /></Field>
+          </div>
+          {form.board === "other" && (
+            <Field label="Board name (other)"><input value={form.board_other} onChange={e => set("board_other", e.target.value)} /></Field>
+          )}
+          <div className="mp-grid">
+            <Field label="School / institution"><input value={form.school_name} onChange={e => set("school_name", e.target.value)} /></Field>
+            <Field label="Academic year"><input value={form.academic_year} onChange={e => set("academic_year", e.target.value)} placeholder="e.g. 2025–26" /></Field>
+          </div>
+          {form.currently_studying === "no" && (
+            <>
+              <Field label="Highest education"><Sel value={form.highest_education} onChange={v => set("highest_education", v)} opts={HIGHED_OPTS} /></Field>
+              <Field label="Reason for not studying"><input value={form.reason_not_studying} onChange={e => set("reason_not_studying", e.target.value)} /></Field>
+            </>
+          )}
+
+          <div className="mp-sec">Parent / guardian</div>
+          <div className="mp-grid">
+            <Field label="Father's name"><input value={form.father_name} onChange={e => set("father_name", e.target.value)} /></Field>
+            <Field label="Father's phone"><input value={form.father_phone} onChange={e => set("father_phone", e.target.value)} /></Field>
+            <Field label="Mother's name"><input value={form.mother_name} onChange={e => set("mother_name", e.target.value)} /></Field>
+            <Field label="Mother's phone"><input value={form.mother_phone} onChange={e => set("mother_phone", e.target.value)} /></Field>
+            <Field label="Guardian's name"><input value={form.guardian_name} onChange={e => set("guardian_name", e.target.value)} /></Field>
+            <Field label="Guardian's phone"><input value={form.guardian_phone} onChange={e => set("guardian_phone", e.target.value)} /></Field>
+          </div>
+          <Field label="Parent / guardian email">
+            <input type="email" value={form.parent_guardian_email} onChange={e => set("parent_guardian_email", e.target.value)} />
+          </Field>
+        </>
+      )}
+
+      {isCreate && (
+        <Field label="PIN (optional, 4–6 digits)">
+          <input inputMode="numeric" maxLength={6} value={form.pin || ""}
+            onChange={e => set("pin", e.target.value.replace(/\D/g, ""))}
+            placeholder="Leave blank for no PIN" style={{ letterSpacing: "0.25em" }} />
+        </Field>
+      )}
 
       <div className="mp-modal-footer">
         <button className="mp-btn" onClick={onCancel} disabled={saving}>Cancel</button>
         <button className="mp-btn mp-btn--primary" onClick={() => onSave(form)} disabled={saving}>
           {saving ? "Saving…" : "Save"}
+        </button>
+      </div>
+      {!isCreate && (
+        <p className="mp-hint">To change this profile's PIN, use the PIN button on the profile row (your account password is required).</p>
+      )}
+    </div>
+  );
+}
+
+/* ─── PIN modal (set / change / reset / remove — account password required) ─ */
+function PinModal({ profile, onSave, onCancel, saving, error }) {
+  const [mode, setMode] = useState(profile.requires_pin ? "change" : "set"); // set|change|remove
+  const [pin, setPin] = useState("");
+  const [password, setPassword] = useState("");
+  return (
+    <div className="mp-modal" onClick={e => e.stopPropagation()}>
+      <h2>{profile.requires_pin ? "Change / reset PIN" : "Set PIN"}</h2>
+      <p className="mp-hint">{profile.display_name}</p>
+      {error && <p className="mp-error">{error}</p>}
+
+      {profile.requires_pin && (
+        <div className="mp-emojis" style={{ marginBottom: 10 }}>
+          <button type="button" className={`mp-btn ${mode !== "remove" ? "mp-btn--primary" : ""}`}
+            onClick={() => setMode("change")}>Change / reset</button>
+          <button type="button" className={`mp-btn ${mode === "remove" ? "mp-btn--del" : ""}`}
+            onClick={() => setMode("remove")}>Remove PIN</button>
+        </div>
+      )}
+
+      {mode !== "remove" && (
+        <Field label="New PIN (4–6 digits)">
+          <input inputMode="numeric" maxLength={6} value={pin}
+            onChange={e => setPin(e.target.value.replace(/\D/g, ""))}
+            style={{ letterSpacing: "0.25em" }} autoFocus />
+        </Field>
+      )}
+      <Field label="Account password">
+        <input type="password" autoComplete="current-password" value={password}
+          onChange={e => setPassword(e.target.value)} />
+      </Field>
+      {mode !== "remove" && (
+        <p className="mp-hint">Forgot the current PIN? You don't need it — your account password resets it.</p>
+      )}
+
+      <div className="mp-modal-footer">
+        <button className="mp-btn" onClick={onCancel} disabled={saving}>Cancel</button>
+        <button className={`mp-btn ${mode === "remove" ? "mp-btn--del" : "mp-btn--primary"}`}
+          onClick={() => onSave({ pin: mode === "remove" ? "" : pin, password })} disabled={saving}>
+          {saving ? "Saving…" : mode === "remove" ? "Remove PIN" : "Save PIN"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Delete modal (account password required) ──────────────────────────── */
+function DeleteModal({ profile, onConfirm, onCancel, saving, error }) {
+  const [password, setPassword] = useState("");
+  return (
+    <div className="mp-modal" onClick={e => e.stopPropagation()}>
+      <h2>Remove profile</h2>
+      <p className="mp-hint">Removing “{profile.display_name}” can’t be undone. Enter your account password to confirm.</p>
+      {error && <p className="mp-error">{error}</p>}
+      <Field label="Account password">
+        <input type="password" autoComplete="current-password" value={password}
+          onChange={e => setPassword(e.target.value)} autoFocus />
+      </Field>
+      <div className="mp-modal-footer">
+        <button className="mp-btn" onClick={onCancel} disabled={saving}>Cancel</button>
+        <button className="mp-btn mp-btn--del" onClick={() => onConfirm(password)} disabled={saving}>
+          {saving ? "Removing…" : "Remove profile"}
         </button>
       </div>
     </div>
@@ -108,7 +259,7 @@ export default function ManageProfiles() {
   const [pageLoading, setPageLoading] = useState(true);
   const [pageError, setPageError] = useState("");
 
-  // Modal: null | { mode: "create"|"edit", profile?: {} }
+  // Modal: null | { mode: "create"|"edit"|"pin"|"delete", profile?: {} }
   const [modal, setModal]   = useState(null);
   const [saving, setSaving] = useState(false);
   const [formErr, setFormErr] = useState("");
@@ -137,13 +288,21 @@ export default function ManageProfiles() {
   }, []);
 
   const openCreate = () => { setFormErr(""); setModal({ mode: "create" }); };
-  const openEdit   = p  => { setFormErr(""); setModal({ mode: "edit", profile: p }); };
+  const openEdit   = async (p) => {
+    setFormErr("");
+    // Fetch the full detail (the list is lean — no academic/guardian fields).
+    let full = p;
+    try { const res = await api.get(`/accounts/profiles/${p.id}/`); full = { ...p, ...res.data }; } catch { /* keep lean */ }
+    setModal({ mode: "edit", profile: full });
+  };
+  const openPin    = p => { setFormErr(""); setModal({ mode: "pin", profile: p }); };
+  const openDelete = p => { setFormErr(""); setModal({ mode: "delete", profile: p }); };
   const closeModal = () => { setModal(null); };
 
   const handleSave = async (form) => {
     setFormErr("");
     if (!form.display_name.trim()) { setFormErr("Display name is required."); return; }
-    if (form.pin && !/^\d{4,6}$/.test(form.pin)) {
+    if (modal.mode === "create" && form.pin && !/^\d{4,6}$/.test(form.pin)) {
       setFormErr("PIN must be 4–6 digits."); return;
     }
     setSaving(true);
@@ -152,13 +311,22 @@ export default function ManageProfiles() {
       if (modal.mode === "create") {
         payload.append("display_name", form.display_name.trim());
         payload.append("relationship", form.relationship);
-        if (form.pin)         payload.append("pin", form.pin);
+        if (form.pin)          payload.append("pin", form.pin);
         if (form.avatar_emoji) payload.append("avatar_emoji", form.avatar_emoji);
         await api.post("/accounts/profiles/", payload);
       } else {
-        payload.append("display_name", form.display_name.trim());
-        if (form.pin !== undefined) payload.append("pin", form.pin);
-        if (form.avatar_emoji !== undefined) payload.append("avatar_emoji", form.avatar_emoji);
+        // NOTE: PIN is intentionally NOT sent here — it needs the account
+        // password and goes through the PIN modal / pin endpoint.
+        const FIELDS = [
+          "display_name", "avatar_emoji",
+          "first_name", "last_name", "phone", "gender", "date_of_birth",
+          "state", "district", "city_town", "pin_code",
+          "currently_studying", "current_class", "stream", "board", "board_other",
+          "school_name", "academic_year", "highest_education", "reason_not_studying",
+          "father_name", "father_phone", "mother_name", "mother_phone",
+          "guardian_name", "guardian_phone", "parent_guardian_email",
+        ];
+        FIELDS.forEach(k => payload.append(k, k === "display_name" ? form[k].trim() : (form[k] || "")));
         await api.patch(`/accounts/profiles/${modal.profile.id}/`, payload);
       }
       await load();
@@ -176,17 +344,35 @@ export default function ManageProfiles() {
     }
   };
 
-  const handleDelete = async (p) => {
-    if (!window.confirm(`Remove "${p.display_name}"? This cannot be undone.`)) return;
-    setPageError("");
+  const handleSavePin = async ({ pin, password }) => {
+    setFormErr("");
+    if (pin && !/^\d{4,6}$/.test(pin)) { setFormErr("PIN must be 4–6 digits."); return; }
+    if (!password) { setFormErr("Enter your account password."); return; }
+    setSaving(true);
     try {
-      await api.delete(`/accounts/profiles/${p.id}/`);
+      await api.post("/accounts/profiles/pin/", { profile_id: modal.profile.id, pin, password });
       await load();
       await bootstrap();
+      closeModal();
     } catch (err) {
       const d = err?.response?.data;
-      setPageError(typeof d?.detail === "string" ? d.detail : "Could not remove profile.");
-    }
+      setFormErr(d?.password || d?.pin || (typeof d === "string" ? d : "Could not update PIN."));
+    } finally { setSaving(false); }
+  };
+
+  const handleDelete = async (password) => {
+    setFormErr("");
+    if (!password) { setFormErr("Enter your account password."); return; }
+    setSaving(true);
+    try {
+      await api.delete(`/accounts/profiles/${modal.profile.id}/`, { data: { password } });
+      await load();
+      await bootstrap();
+      closeModal();
+    } catch (err) {
+      const d = err?.response?.data;
+      setFormErr(d?.password || d?.detail || (typeof d === "string" ? d : "Could not remove profile."));
+    } finally { setSaving(false); }
   };
 
   return (
@@ -215,8 +401,11 @@ export default function ManageProfiles() {
               </div>
               <div className="mp-actions">
                 <button className="mp-btn mp-btn--edit" onClick={() => openEdit(p)}>Edit</button>
-                {profiles.length > 1 && (
-                  <button className="mp-btn mp-btn--del" onClick={() => handleDelete(p)}>
+                <button className="mp-btn" onClick={() => openPin(p)}>
+                  {p.requires_pin ? "PIN" : "Set PIN"}
+                </button>
+                {profiles.length > 1 && !p.is_default && (
+                  <button className="mp-btn mp-btn--del" onClick={() => openDelete(p)}>
                     Remove
                   </button>
                 )}
@@ -232,21 +421,27 @@ export default function ManageProfiles() {
 
       {modal && (
         <div className="mp-overlay" onClick={closeModal}>
-          <ProfileForm
-            initial={
-              modal.mode === "edit"
-                ? { display_name: modal.profile.display_name,
-                    relationship: modal.profile.relationship,
-                    pin: "", avatar_emoji: modal.profile.avatar_type === "emoji"
-                      ? modal.profile.avatar : "" }
-                : undefined
-            }
-            isCreate={modal.mode === "create"}
-            onSave={handleSave}
-            onCancel={closeModal}
-            saving={saving}
-            error={formErr}
-          />
+          {(modal.mode === "create" || modal.mode === "edit") && (
+            <ProfileForm
+              initial={modal.mode === "edit" ? {
+                ...modal.profile,
+                avatar_emoji: modal.profile.avatar_type === "emoji" ? modal.profile.avatar : "",
+              } : undefined}
+              isCreate={modal.mode === "create"}
+              onSave={handleSave}
+              onCancel={closeModal}
+              saving={saving}
+              error={formErr}
+            />
+          )}
+          {modal.mode === "pin" && (
+            <PinModal profile={modal.profile} onSave={handleSavePin}
+              onCancel={closeModal} saving={saving} error={formErr} />
+          )}
+          {modal.mode === "delete" && (
+            <DeleteModal profile={modal.profile} onConfirm={handleDelete}
+              onCancel={closeModal} saving={saving} error={formErr} />
+          )}
         </div>
       )}
     </div>

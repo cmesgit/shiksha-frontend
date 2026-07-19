@@ -1,30 +1,22 @@
-import Hero from "./Hero";
-import About from "./About";
-import Stats from "./Stats";
-import HowItWorks from "./HowItWorks";
-import Navbar from './Navbar';
-import CoursePreview from './CoursePreview';
-import Footer from './Footer';
-import AboutShiksha from "./AboutShiksha";
-import LearningPathways from "./LearningPathways";
+/**
+ * HomePage.jsx — landing page shell.
+ *
+ * The previous section stack (Hero / About / Stats / AboutShiksha /
+ * HowItWorks / LearningPathways / CoursePreview) has been replaced by
+ * the redesigned page in ./home/HomeGreen.jsx. The old components are
+ * left untouched in the repo for rollback and for the routes that
+ * still use them (e.g. /about).
+ */
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import HomeGreen from "./home/HomeGreen";
 
 const HomePage = () => {
   return (
     <div className="page-content">
       <Navbar />
-   
-
-      {/*NEW LANDING SECTIONS */}
-      <Hero />
-      <About />
-      <Stats />
-       <AboutShiksha />
-      <HowItWorks />
-      {/* EXISTING CONTENT */}
-      <LearningPathways />
-      <CoursePreview />
+      <HomeGreen />
       <Footer />
-      
     </div>
   );
 };

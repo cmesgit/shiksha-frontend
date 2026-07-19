@@ -39,7 +39,7 @@ function readErr(err, fallback) {
 }
 
 export default function Login() {
-  const { login, lookupEmail } = useAuth();
+  const { login } = useAuth();
   const location = useLocation();
 
   const [step, setStep]             = useState(STEP_EMAIL);
@@ -64,19 +64,12 @@ export default function Login() {
     setError("");
     if (!email.trim()) { setError("Please enter your email."); return; }
     setSubmitting(true);
-    try {
-      // Pre-auth lookup returns display names only (no secrets). Used purely
-      // to greet the user; failure is non-blocking and never reveals whether
-      // the email exists beyond what the picker already shows.
-      const data = await lookupEmail(email);
-      const first = (data?.profiles || [])[0];
-      setGreetName(first?.display_name || "");
-    } catch {
-      setGreetName("");
-    } finally {
-      setSubmitting(false);
-      setStep(STEP_PW);
-    }
+    // No pre-auth profile lookup: returning a real person's profile names for
+    // any typed email is an enumeration + child-privacy leak. Greeting by name
+    // now happens after login (the /me/ response carries the profile list).
+    setGreetName("");
+    setSubmitting(false);
+    setStep(STEP_PW);
   };
 
   /* ── Step 2: password → real login → let App.jsx route by context ── */

@@ -477,7 +477,11 @@ const Courses = () => {
   );
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  // Seeded from navigation state so the navbar / homepage hero search
+  // can deep-link into this page with a pre-filled query.
+  const [searchQuery, setSearchQuery] = useState(
+    location.state?.searchQuery || ''
+  );
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
   const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
 
@@ -579,6 +583,12 @@ const Courses = () => {
       setSelectedBoard(null);
       setSelectedClass(null);
       setActiveCourse(null);
+    }
+    // Keep the search box in sync when a new query arrives via
+    // navigation state (e.g. searching from the navbar while already
+    // on this page).
+    if (location.state?.searchQuery != null) {
+      setSearchQuery(location.state.searchQuery);
     }
   }, [location.state]);
 

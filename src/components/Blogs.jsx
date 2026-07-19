@@ -1,13 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import blogsData from "../data/blogsData";
+import { getAllBlogCards } from "../api/contentApi";
 import "../css/Blogs.css";
 
 const Blogs = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [cmsCards, setCmsCards] = useState([]);
+
+  // CMS-managed posts merge in on top of the local registry.
+  // Legacy entries render immediately; when the API answers, any post
+  // whose slug also exists in the CMS is replaced by the CMS version
+  // (so a migrated/edited chapter wins), and brand-new CMS posts are
+  // prepended. If the API is unreachable, this stays [] and the page
+  // behaves exactly as before.
+  useEffect(() => {
+    let alive = true;
+    getAllBlogCards().then((cards) => {
+      if (alive) setCmsCards(cards);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const allBlogs = useMemo(() => {
+    if (!cmsCards.length) return blogsData;
+    const cmsSlugs = new Set(cmsCards.map((c) => c.slug));
+    return [
+      ...cmsCards,
+      ...blogsData.filter((b) => !cmsSlugs.has(b.slug)),
+    ];
+  }, [cmsCards]);
 
   const filtered = searchQuery.trim()
-    ? blogsData.filter((blog) => {
+    ? allBlogs.filter((blog) => {
         const q = searchQuery.trim().toLowerCase();
         return (
           blog.title?.toLowerCase().includes(q) ||
@@ -16,7 +43,7 @@ const Blogs = () => {
           blog.slug?.toLowerCase().includes(q)
         );
       })
-    : blogsData;
+    : allBlogs;
 
   return (
     <div className="blogs-list-page">
@@ -63,13 +90,24 @@ const Blogs = () => {
               className="blog-list-card"
             >
               <div className="blog-list-image-wrap">
-                <img
-                  src={blog.thumbnail}
-                  alt={blog.title}
-                  className="blog-list-image"
-                  loading="lazy"
-                  decoding="async"
-                />
+                {blog.thumbnail ? (
+                  <img
+                    src={blog.thumbnail}
+                    alt={blog.title}
+                    className="blog-list-image"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <div
+                    className="blog-list-image"
+                    style={{
+                      background:
+                        "linear-gradient(135deg,#0F9D6B 0%,#0B5B3E 100%)",
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
                 <span className="blog-list-category">{blog.category}</span>
               </div>
 

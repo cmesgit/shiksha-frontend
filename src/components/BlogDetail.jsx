@@ -14,9 +14,15 @@
 //
 // Slugs are identical to before (class-9/economics/chapter-1), so all existing
 // /blogs/<slug> links keep working.
+//
+// CMS layer (added): the chapter is first requested from the content API
+// (/api/content/blogs/<slug>/). Posts created or migrated in Django admin
+// render from there; anything not in the CMS falls back to the static
+// fragment below, so the migration can happen one chapter at a time.
 
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getBlogPost } from "../api/contentApi";
 
 const BASE = (import.meta.env.VITE_BLOG_CDN_BASE || "/blog-content").replace(/\/$/, "");
 
@@ -84,26 +90,55 @@ const BlogDetail = () => {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    fetch(`${BASE}/${slug}.html`, { signal: ctrl.signal })
-      .then((res) => {
-        if (res.status === 404) { setStatus("notfound"); return null; }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then((text) => {
-        if (text == null) return;
-        htmlCache.set(slug, text);
-        setHtml(text);
-        setStatus("ready");
-        const m = text.match(/<h1[^>]*>(.*?)<\/h1>/s);
-        if (m) {
-          const title = m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-          if (title) document.title = `${title} · Shiksha`;
-        }
-      })
-      .catch((err) => {
-        if (err.name !== "AbortError") setStatus("error");
-      });
+    const show = (text, title) => {
+      htmlCache.set(slug, text);
+      setHtml(text);
+      setStatus("ready");
+      const heading =
+        title ||
+        (() => {
+          const m = text.match(/<h1[^>]*>(.*?)<\/h1>/s);
+          return m
+            ? m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+            : "";
+        })();
+      if (heading) document.title = `${heading} · Shiksha`;
+    };
+
+    // Legacy path: the pre-extracted static fragment on the CDN.
+    const fetchStaticFragment = () =>
+      fetch(`${BASE}/${slug}.html`, { signal: ctrl.signal })
+        .then((res) => {
+          if (res.status === 404) { setStatus("notfound"); return null; }
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.text();
+        })
+        .then((text) => {
+          if (text == null) return;
+          // SPA/CDN fallbacks can answer 200 with the app shell instead
+          // of a real 404 — a full document is never a valid fragment.
+          if (/^\s*(<!doctype\s+html|<html[\s>])/i.test(text)) {
+            setStatus("notfound");
+            return;
+          }
+          show(text);
+        })
+        .catch((err) => {
+          if (err.name !== "AbortError") setStatus("error");
+        });
+
+    // CMS-first: posts created/migrated in the admin come from the API.
+    // A real 404 (post not in the CMS yet) falls back to the static
+    // fragment; a transport error also tries the fragment so the reader
+    // still gets the chapter even if the API is briefly down.
+    getBlogPost(slug).then((result) => {
+      if (ctrl.signal.aborted) return;
+      if (result.status === "ok") {
+        show(result.post.body_html, result.post.seo_title || result.post.title);
+        return;
+      }
+      fetchStaticFragment();
+    });
 
     return () => ctrl.abort();
   }, [slug]);
