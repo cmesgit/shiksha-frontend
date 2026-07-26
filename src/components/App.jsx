@@ -14,6 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import Profile from "../pages/Profile";
 import { ExploreProvider } from "../explore/ExploreStore";
+import ExploreToolbar from "../explore/ExploreToolbar";
 
 import "../css/App.css";
 
@@ -43,6 +44,7 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreLibrary   = lazy(() => import("../explore/LibraryPage"));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
+const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 // Legacy research-hub landing kept for its own route.
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
@@ -109,11 +111,12 @@ function Page({ children }) {
   );
 }
 
-// Explore pages share a client-side library store (saved / following / etc.).
+// Explore pages share a client-side library store (saved / following / etc.)
+// and a persistent Explore toolbar (My Library / Moderator / Upload access).
 function ExplorePage({ children }) {
   return (
     <ExploreProvider>
-      <Page>{children}</Page>
+      <Page><ExploreToolbar />{children}</Page>
     </ExploreProvider>
   );
 }
@@ -294,6 +297,7 @@ function App() {
         <Route path="/explore/collections"     element={<ExplorePage><CollectionsList /></ExplorePage>} />
         <Route path="/explore/collections/:id" element={<ExplorePage><CollectionPage /></ExplorePage>} />
         <Route path="/explore/library"         element={<ExplorePage><ExploreLibrary /></ExplorePage>} />
+        <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface

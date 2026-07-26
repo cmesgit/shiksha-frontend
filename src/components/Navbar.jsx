@@ -43,7 +43,6 @@ import {
   IcHelp,
   IcChat,
   IcEye,
-  IcShield,
 } from "./home/HomeIcons";
 
 /* ────────────────────────── MENU DATA ────────────────────────── */
@@ -313,16 +312,10 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 /* ────────────────────────── NAVBAR ────────────────────────── */
 
 const Navbar = () => {
-  const { isAuthenticated, user, loading, isTeacherContext, hasRole, hasPermission } = useAuth();
-  // Forum and Explore moderation are SEPARATE pages with SEPARATE RBAC
-  // permissions, so each gets its own entry. ADMIN/MODERATOR roles grant both
-  // (matching the backend); a permission-only moderator sees just their surface.
-  const canModForum = isAuthenticated && (
-    hasPermission("forum.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
-  );
-  const canModExplore = isAuthenticated && (
-    hasPermission("documents.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
-  );
+  const { isAuthenticated, user, loading, isTeacherContext } = useAuth();
+  // Forum & Explore moderation entries now live inside their own surfaces
+  // (forum left sidebar / Explore toolbar), each gated there with its own RBAC
+  // permission — no longer in the global top navbar.
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -577,26 +570,9 @@ const Navbar = () => {
                   >
                     Dashboard <IcExternal />
                   </button>
-                  {canModForum && (
-                    <Link
-                      to="/moderator"
-                      className="skn-mod-link"
-                      title="Forum Moderation"
-                      aria-label="Forum Moderation"
-                    >
-                      <IcShield />
-                    </Link>
-                  )}
-                  {canModExplore && (
-                    <Link
-                      to="/explore/moderator"
-                      className="skn-mod-link"
-                      title="Explore Moderation"
-                      aria-label="Explore Moderation"
-                    >
-                      <IcLibrary />
-                    </Link>
-                  )}
+                  {/* Forum & Explore Moderation entries now live inside their
+                      own sections (forum sidebar / Explore toolbar), not in the
+                      global top navbar. */}
                   <NotificationBell />
                   <ProfileSwitcher
                     teacherSignupUrl="/signup?role=teacher"
@@ -757,24 +733,7 @@ const Navbar = () => {
           {!loading &&
             (isAuthenticated && user ? (
               <>
-                {canModForum && (
-                  <Link
-                    to="/moderator"
-                    className="skn-btn skn-btn-ghost skn-wide"
-                    onClick={closeAll}
-                  >
-                    <IcShield /> Forum Moderation
-                  </Link>
-                )}
-                {canModExplore && (
-                  <Link
-                    to="/explore/moderator"
-                    className="skn-btn skn-btn-ghost skn-wide"
-                    onClick={closeAll}
-                  >
-                    <IcLibrary /> Explore Moderation
-                  </Link>
-                )}
+                {/* Forum & Explore Moderation moved into their own sections. */}
                 <button
                   type="button"
                   className="skn-btn skn-btn-solid skn-wide"
