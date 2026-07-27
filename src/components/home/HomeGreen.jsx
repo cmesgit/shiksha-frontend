@@ -19,6 +19,9 @@ import {
   COURSE_TABS,
   FEATURED_COURSES,
   WHY_CHOOSE_CHECKS,
+  RESOURCES,
+  COLLAB_CHIPS,
+  COLLAB_STATS,
   FAQS,
 } from "./homeData";
 import { getFaqs, getShowcaseCourses, toShowcaseCard } from "../../api/contentApi";
@@ -41,10 +44,16 @@ import {
   IcPlay,
   IcStar,
   IcPlus,
+  IcLightbulb,
+  IcSparkles,
+  IcTrendingUp,
+  IcMonitor,
+  IcGlobe,
 } from "./HomeIcons";
 
 import heroArt from "../../assets/home/hero-illustration.svg";
 import whyArt from "../../assets/home/why-illustration.svg";
+import collabArt from "../../assets/home/collab-illustration.svg";
 import "../../css/HomeGreen.css";
 
 const ICONS = {
@@ -57,6 +66,10 @@ const ICONS = {
   book: IcBook,
   target: IcTarget,
   briefcase: IcBriefcase,
+  lightbulb: IcLightbulb,
+  sparkles: IcSparkles,
+  trendingup: IcTrendingUp,
+  monitor: IcMonitor,
 };
 
 /* tiny thumbnail glyphs used on course cards */
@@ -102,11 +115,24 @@ const scrollToPrograms = () => {
 function Hero() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
 
   const goSearch = () => {
-    navigate("/courses", {
-      state: { resetCourses: Date.now(), searchQuery: query.trim() },
-    });
+    const q = query.trim();
+    if (category === "school") {
+      navigate("/courses", {
+        state: {
+          resetCourses: Date.now(),
+          searchQuery: q,
+          selectedBoardGroup: "central",
+          selectedBoard: "cbse",
+        },
+      });
+    } else if (category === "jee" || category === "neet" || category === "upsc") {
+      navigate("/general-studies");
+    } else {
+      navigate("/courses", { state: { resetCourses: Date.now(), searchQuery: q } });
+    }
   };
 
   return (
@@ -176,6 +202,17 @@ function Hero() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && goSearch()}
             />
+            <select
+              aria-label="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="all">All Programs</option>
+              <option value="school">School Academics</option>
+              <option value="jee">IIT-JEE</option>
+              <option value="neet">NEET</option>
+              <option value="upsc">UPSC</option>
+            </select>
             <button className="hm-btn hm-btn-coral" type="button" onClick={goSearch}>
               Search now
             </button>
@@ -662,6 +699,154 @@ function WhyChoose() {
   );
 }
 
+/* ═══════════════════ RESOURCES & SUPPORT ═══════════════════ */
+function ResourcesSupport() {
+  const navigate = useNavigate();
+  return (
+    <section className="hm-sec" id="hm-resources">
+      <div className="hm-wrap">
+        <div className="hm-sec-head hm-rv">
+          <span className="hm-eyebrow">
+            <u>Resources &amp; Support</u>
+          </span>
+          <h2>
+            Beyond the <span className="hm-em">classroom</span>
+          </h2>
+          <p>
+            Extra resources, guidance and opportunities to support students
+            throughout their academic journey.
+          </p>
+        </div>
+        <div className="hm-res-grid">
+          {RESOURCES.map((res) => {
+            const Icon = ICONS[res.icon];
+            return (
+              <article
+                className="hm-res-card hm-rv"
+                key={res.title}
+                style={{ "--grad": res.grad, "--tint": res.tint, "--ghost": res.ghost }}
+              >
+                <span className="hm-res-ghost" aria-hidden="true">
+                  <svg viewBox="0 0 200 200" fill="none">
+                    <circle cx="148" cy="152" r="66" fill="currentColor" opacity=".10" />
+                    <circle cx="148" cy="152" r="66" stroke="currentColor" strokeWidth="1.5" opacity=".16" />
+                    <circle cx="86" cy="128" r="30" stroke="currentColor" strokeWidth="1.5" opacity=".13" />
+                    <circle cx="172" cy="92" r="11" fill="currentColor" opacity=".14" />
+                  </svg>
+                </span>
+                <span className="hm-res-ic">
+                  <Icon />
+                </span>
+                <h3>{res.title}</h3>
+                <p>{res.text}</p>
+                <button
+                  type="button"
+                  className="hm-res-link"
+                  onClick={() => navigate(res.to)}
+                >
+                  {res.cta} <IcArrowRight />
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════ LIVE COLLABORATION ═══════════════════ */
+function LiveCollaboration() {
+  const navigate = useNavigate();
+  const chips = (keySuffix) => (
+    <div className="hm-chip-group" key={keySuffix} aria-hidden={keySuffix === "b" ? true : undefined}>
+      {COLLAB_CHIPS.map((chip) => {
+        const Icon = ICONS[chip.icon];
+        return (
+          <span className="hm-chip" key={chip.label + keySuffix}>
+            <span className="hm-ci" style={{ background: chip.grad }}>
+              <Icon />
+            </span>
+            {chip.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <section className="hm-sec hm-peach hm-collab" id="hm-collaborate">
+      <div className="hm-wrap">
+        <div className="hm-collab-grid">
+          <div className="hm-collab-copy hm-rv">
+            <span className="hm-eyebrow hm-left">
+              <u>Live Collaboration</u>
+            </span>
+            <h2>
+              Learn together, <span className="hm-em">anywhere</span>
+            </h2>
+            <p className="hm-collab-sub">
+              Host or join secure live sessions for classes, meetings,
+              workshops, mentoring, interviews, study groups, and
+              collaborative discussions — all from one platform.
+            </p>
+
+            <div className="hm-chip-marquee">
+              <div className="hm-chip-track">
+                {chips("a")}
+                {chips("b")}
+              </div>
+            </div>
+
+            <div className="hm-collab-actions">
+              <button className="hm-btn hm-btn-coral" type="button" onClick={() => navigate("/login")}>
+                Join Session <IcArrowRight />
+              </button>
+              <button
+                className="hm-btn hm-btn-ghost"
+                type="button"
+                onClick={() => navigate("/become-faculty")}
+              >
+                Host Session <IcPlus />
+              </button>
+            </div>
+
+            <div className="hm-collab-stats">
+              {COLLAB_STATS.map((s) => (
+                <span className="hm-stat" key={s}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="hm-collab-vis hm-rv">
+            <span className="hm-collab-shape hm-cs1" aria-hidden="true" />
+            <span className="hm-collab-shape hm-cs2" aria-hidden="true" />
+            <span className="hm-collab-shape hm-cs3" aria-hidden="true" />
+            <svg className="hm-collab-shape hm-cs4" viewBox="0 0 80 24" fill="none" aria-hidden="true">
+              <path d="M2 12c8-9 16 9 24 0s16-9 24 0 16 9 24 0" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+            </svg>
+
+            <div className="hm-glass">
+              <img src={collabArt} alt="A live class in session on ShikshaCom" />
+            </div>
+
+            <div className="hm-collab-badge hm-cb-top" aria-hidden="true">
+              <span className="hm-collab-dot" />
+              Live now
+            </div>
+            <div className="hm-collab-badge hm-cb-bottom" aria-hidden="true">
+              <IcGlobe className="hm-collab-badge-ic" />
+              Available for everyone
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ═══════════════════ FAQ ═══════════════════ */
 function Faq() {
   const [open, setOpen] = useState(-1);
@@ -782,6 +967,8 @@ export default function HomeGreen() {
       <Categories />
       <FeaturedCourses />
       <WhyChoose />
+      <ResourcesSupport />
+      <LiveCollaboration />
       <Faq />
       <Cta />
     </main>
