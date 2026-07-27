@@ -564,10 +564,10 @@ function FeaturedCourses() {
                         type="button"
                         className="hm-fc-enroll"
                         onClick={() =>
-                          navigate("/courses", {
+                          navigate(c.to || "/courses", {
                             state: {
-                              selectedBoardGroup: "central",
-                              selectedBoard: "cbse",
+                              ...(c.state || { selectedBoardGroup: "central", selectedBoard: "cbse" }),
+                              ...(c.courseId ? { openCourseId: c.courseId } : null),
                             },
                           })
                         }

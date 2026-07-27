@@ -128,4 +128,7 @@ export const toShowcaseCard = (c) => ({
   to: c.link_path || undefined,
   state:
     c.link_state && Object.keys(c.link_state).length ? c.link_state : undefined,
+  // Real course this card is linked to (if any) — lets the click deep-link
+  // straight into that course on the Courses.jsx catalog, not just its board.
+  courseId: c.course || undefined,
 });

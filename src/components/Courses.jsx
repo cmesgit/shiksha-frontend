@@ -3,12 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
-import { courseData, mbseCourseData } from '../data/courseData';
 import BoardSvg from './BoardSvg';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
+import { getPublicCourseDetail } from '../api/coursesApi';
+import { usePublicBoards, isBoardLocked, useBoardClasses } from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
 import cbseImg from '../assets/courses/Cbse.jpg';
@@ -18,15 +19,6 @@ import niosImg from '../assets/courses/Nios.svg';
 import aissceImg from '../assets/courses/Aissce.svg';
 import bseapImg from '../assets/courses/Bseap.svg';
 import mbseImg from '../assets/courses/Mbse.jpg';
-import class8Img from '../assets/courses/class8.jpg';
-import class9Img from '../assets/courses/class9.jpg';
-import class10Img from '../assets/courses/class10.jpg';
-import class11ArtsImg from '../assets/courses/class11-Arts.jpg';
-import class11ComImg from '../assets/courses/class11-Com.jpg';
-import class11SciImg from '../assets/courses/class11-Sci.jpg';
-import class12ArtsImg from '../assets/courses/class12-Arts.jpg';
-import class12ComImg from '../assets/courses/class12-Com.jpg';
-import class12SciImg from '../assets/courses/class12-Sci.jpg';
 import centralImg from '../assets/courses/central.jpeg';
 import stateImg from '../assets/courses/state.jpeg';
 
@@ -118,134 +110,6 @@ const BOARD_OPTIONS = {
   ],
 };
 
-const CLASSES = [
-  {
-    id: 'class8',
-    title: 'Class 8',
-    price: '₹1,500',
-    image: class8Img,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      cbse: '3b54e0cf-9e17-4652-b5de-110735c1ed8e',
-      mbse: '2b24c4a0-787e-4a0d-acf3-29e9f4e921cf',
-    },
-  },
-  {
-    id: 'class9',
-    title: 'Class 9',
-    price: '₹1,500',
-    image: class9Img,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      cbse: '26b5b4ce-5b0a-4381-a492-c134676881f2',
-      mbse: '9fac2eae-5a90-411e-994d-d2613923cddf',
-    },
-  },
-  {
-    id: 'class10',
-    title: 'Class 10',
-    price: '₹1,500',
-    image: class10Img,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      cbse: '41ec43ac-bac7-4a68-b5d6-eda2acd85585',
-      mbse: 'cfe07ab8-1508-4c14-8181-8ba21d4cb331',
-    },
-  },
-  {
-    id: 'class11science',
-    title: 'Class 11',
-    subtitle: 'Science',
-    price: '₹1,500',
-    image: class11SciImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: 'eb7700aa-a95b-4eeb-a4e4-cdffe9c27a73',
-    },
-  },
-  {
-    id: 'class11commerce',
-    title: 'Class 11',
-    subtitle: 'Commerce',
-    price: '₹1,500',
-    image: class11ComImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: '51724c07-b13a-4413-85d8-d7cf2561fabb',
-    },
-  },
-  {
-    id: 'class11arts',
-    title: 'Class 11',
-    subtitle: 'Arts',
-    price: '₹1,500',
-    image: class11ArtsImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: '24056c0b-1d46-411a-912d-5fecd2b8d90f',
-    },
-  },
-  {
-    id: 'class12science',
-    title: 'Class 12',
-    subtitle: 'Science',
-    price: '₹1,500',
-    image: class12SciImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: '6493ae70-6f47-48e9-b3a7-cb345432cf0d',
-    },
-  },
-  {
-    id: 'class12commerce',
-    title: 'Class 12',
-    subtitle: 'Commerce',
-    price: '₹1,500',
-    image: class12ComImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: '933a79ca-b5ed-4df4-926d-2d241c3efde9',
-    },
-  },
-  {
-    id: 'class12arts',
-    title: 'Class 12',
-    subtitle: 'Arts',
-    price: '₹1,500',
-    image: class12ArtsImg,
-    duration: '1 Year',
-    fee: '1500',
-    access: 'Full Course Access',
-    mode: 'Online',
-    courseIds: {
-      mbse: 'e0ccb831-57d4-49a1-818f-cc6d234db5af',
-    },
-  },
-];
 
 const SectionHeader = ({ title, subtitle, trail = [], onTrailClick, rightSlot }) => (
   <div className="courses-hero">
@@ -484,6 +348,18 @@ const Courses = () => {
   );
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
   const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
+  const [activeCourseLoading, setActiveCourseLoading] = useState(false);
+  // A homepage/showcase card linked to a specific real course (see
+  // homeData/HomeGreen's `openCourseId` state key) can deep-link past the
+  // board page straight into that class — captured once on mount, same as
+  // selectedBoardGroup/selectedBoard above.
+  const [pendingOpenCourseId] = useState(location.state?.openCourseId || null);
+
+  // Real backend data: which boards currently have published courses (drives
+  // "Coming Soon" locking) and the real course catalog for whichever board is
+  // selected — replaces the old hardcoded CLASSES array / courseData.js.
+  const boards = usePublicBoards();
+  const { classes: liveClasses } = useBoardClasses(boards, selectedBoard);
 
   const goToState = (nextState) => {
     const state = {
@@ -606,18 +482,30 @@ const Courses = () => {
     return BOARD_OPTIONS[selectedBoardGroup]?.find((item) => item.id === selectedBoard) || null;
   }, [selectedBoardGroup, selectedBoard]);
 
-  const resolvedCourseData = useMemo(() => {
-    if (selectedBoard === 'mbse') return mbseCourseData;
-    return courseData;
-  }, [selectedBoard]);
+  // Live-locked view of the static board catalogs: same marketing copy/images,
+  // but `locked` now reflects the real backend (is_active + has a published
+  // course) instead of a hardcoded boolean per entry.
+  const liveBoardOptions = useMemo(() => {
+    const withLiveLock = (list) =>
+      list.map((b) => ({ ...b, locked: isBoardLocked(boards, b.title, b.locked) }));
+    return {
+      central: withLiveLock(BOARD_OPTIONS.central),
+      state: withLiveLock(BOARD_OPTIONS.state),
+    };
+  }, [boards]);
+
+  const liveAllBoards = useMemo(
+    () => ALL_BOARDS.map((b) => ({ ...b, locked: isBoardLocked(boards, b.title, b.locked) })),
+    [boards]
+  );
 
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
 
     const pool = selectedBoardGroup
-      ? BOARD_OPTIONS[selectedBoardGroup] || []
-      : ALL_BOARDS;
+      ? liveBoardOptions[selectedBoardGroup] || []
+      : liveAllBoards;
 
     return pool.filter(
       (b) =>
@@ -625,7 +513,7 @@ const Courses = () => {
         b.desc.toLowerCase().includes(q) ||
         (b.groupLabel || '').toLowerCase().includes(q)
     );
-  }, [searchQuery, selectedBoardGroup]);
+  }, [searchQuery, selectedBoardGroup, liveBoardOptions, liveAllBoards]);
 
   const handleSearchBoardSelect = (board) => {
     if (board.locked) return;
@@ -697,22 +585,45 @@ const Courses = () => {
     setActiveCourse(null);
   };
 
-  const handleClassSelect = (cls) => {
-    const course = resolvedCourseData[cls.id];
+  const handleClassSelect = async (cls) => {
+    setSelectedClass(cls);
+    setActiveCourseLoading(true);
 
     goToState({
       selectedBoardGroup,
       selectedBoard,
       selectedClass: cls,
-      activeCourse: course || null,
+      activeCourse: null,
     });
 
-    setSelectedClass(cls);
+    const courseId = cls.courseIds?.[selectedBoard];
+    const detail = await getPublicCourseDetail(courseId);
+    setActiveCourseLoading(false);
 
-    if (course) {
-      setActiveCourse(course);
-    }
+    if (!detail) return; // unpublished/not found — stay on the class grid
+
+    setActiveCourse({
+      title: detail.title,
+      desc: detail.description,
+      price: detail.price != null
+        ? `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`
+        : '₹1,500',
+      topics: (detail.subjects || []).map((s) => ({
+        title: s.name,
+        textbook: s.textbook,
+        chapters: (s.chapters || []).map((c) => c.title),
+      })),
+    });
   };
+
+  // Once the board's real class list has loaded, auto-open the specific
+  // class a showcase card deep-linked to (see `pendingOpenCourseId` above).
+  // Guarded on `!selectedClass` so this only ever fires once.
+  useEffect(() => {
+    if (!pendingOpenCourseId || !selectedBoard || selectedClass || liveClasses.length === 0) return;
+    const match = liveClasses.find((cls) => cls.courseIds?.[selectedBoard] === pendingOpenCourseId);
+    if (match) handleClassSelect(match);
+  }, [pendingOpenCourseId, selectedBoard, selectedClass, liveClasses]);
 
   const handleEnrollNow = (cls) => {
     if (!isAuthenticated) {
@@ -792,6 +703,16 @@ const Courses = () => {
     </div>
   );
 
+  if (activeCourseLoading) {
+    return (
+      <section className="courses-page">
+        <div className="courses-container">
+          <p className="courses-search-empty">Loading course…</p>
+        </div>
+      </section>
+    );
+  }
+
   if (activeCourse) {
     const activeCourseId = selectedClass?.courseIds?.[selectedBoard];
     return (
@@ -829,12 +750,12 @@ const Courses = () => {
 
   if (selectedBoard) {
     const classesToShow = searchQuery.trim()
-      ? CLASSES.filter((cls) =>
+      ? liveClasses.filter((cls) =>
           `${cls.title} ${cls.subtitle || ''}`
             .toLowerCase()
             .includes(searchQuery.trim().toLowerCase())
         )
-      : CLASSES;
+      : liveClasses;
 
     return (
       <section className="courses-page">
@@ -901,7 +822,7 @@ const Courses = () => {
   if (selectedBoardGroup) {
     const boardsToShow = searchQuery.trim()
       ? searchResults
-      : BOARD_OPTIONS[selectedBoardGroup] || [];
+      : liveBoardOptions[selectedBoardGroup] || [];
 
     return (
       <section className="courses-page">
