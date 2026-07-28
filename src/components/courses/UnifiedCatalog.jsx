@@ -32,26 +32,53 @@ const ChevronIcon = ({ expanded }) => (
   </span>
 );
 
-function BoardChipRow({ boards, selectedBoard, onSelectBoard, onLockedClick }) {
+const GROUP_LABELS = { CENTRAL: 'Central Board', STATE: 'State Board' };
+
+function BoardChip({ board, boards, selectedBoard, onSelectBoard, onLockedClick }) {
+  const locked = isBoardLocked(boards, board.slug, false);
+  const active = board.slug === selectedBoard;
   return (
-    <div className="uc-chip-row">
-      {boards.map((b) => {
-        const locked = isBoardLocked(boards, b.slug, false);
-        const active = b.slug === selectedBoard;
-        return (
-          <button
-            key={b.slug}
-            type="button"
-            className={`uc-chip${active ? ' uc-chip--active' : ''}${locked ? ' uc-chip--locked' : ''}`}
-            aria-pressed={active}
-            aria-disabled={locked}
-            onClick={() => (locked ? onLockedClick(b) : onSelectBoard(b.slug))}
-          >
-            {b.name}
-            {locked && <em className="uc-chip__soon">soon</em>}
-          </button>
-        );
-      })}
+    <button
+      type="button"
+      className={`uc-chip${active ? ' uc-chip--active' : ''}${locked ? ' uc-chip--locked' : ''}`}
+      aria-pressed={active}
+      aria-disabled={locked}
+      onClick={() => (locked ? onLockedClick(board) : onSelectBoard(board.slug))}
+    >
+      {board.name}
+      {locked && <em className="uc-chip__soon">soon</em>}
+    </button>
+  );
+}
+
+function BoardGroupSection({ type, groupBoards, boards, selectedBoard, onSelectBoard, onLockedClick, expanded, onToggle }) {
+  if (groupBoards.length === 0) return null;
+  return (
+    <div className="uc-board-group">
+      <button
+        type="button"
+        className="uc-board-group__header"
+        aria-expanded={expanded}
+        onClick={onToggle}
+      >
+        <span className="uc-board-group__label">{GROUP_LABELS[type] || type}</span>
+        <span className="uc-board-group__count">{groupBoards.length}</span>
+        <ChevronIcon expanded={expanded} />
+      </button>
+      {expanded && (
+        <div className="uc-chip-row">
+          {groupBoards.map((b) => (
+            <BoardChip
+              key={b.slug}
+              board={b}
+              boards={boards}
+              selectedBoard={selectedBoard}
+              onSelectBoard={onSelectBoard}
+              onLockedClick={onLockedClick}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -216,6 +243,11 @@ const UnifiedCatalog = ({
 }) => {
   const [notifyBoard, setNotifyBoard] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Which board-type sections (CENTRAL/STATE) are expanded — a Set so the
+  // user can have both open at once; starts empty and picks up the current
+  // board's group automatically below, without ever forcing a
+  // manually-opened section shut.
+  const [expandedGroups, setExpandedGroups] = useState(() => new Set());
 
   // Only the cross-board fetch needs debouncing (network calls per
   // keystroke would be wasteful) — the current board's list filters
@@ -224,6 +256,25 @@ const UnifiedCatalog = ({
     const t = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(t);
   }, [search]);
+
+  // Whenever the selected board belongs to a section that isn't open yet,
+  // open it — covers first load, a cross-board-match click, and a navbar
+  // deep-link landing on a board in the other group.
+  useEffect(() => {
+    if (!boards || !selectedBoard) return;
+    const board = boards.find((b) => b.slug === selectedBoard);
+    if (!board || expandedGroups.has(board.board_type)) return;
+    setExpandedGroups((prev) => new Set(prev).add(board.board_type));
+  }, [boards, selectedBoard, expandedGroups]);
+
+  const toggleGroup = (type) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return next;
+    });
+  };
 
   const crossMatches = useCrossBoardMatches(boards, debouncedSearch, selectedBoard);
 
@@ -255,12 +306,21 @@ const UnifiedCatalog = ({
         </div>
 
         {boards && (
-          <BoardChipRow
-            boards={boards}
-            selectedBoard={selectedBoard}
-            onSelectBoard={onSelectBoard}
-            onLockedClick={setNotifyBoard}
-          />
+          <div className="uc-board-groups">
+            {['CENTRAL', 'STATE'].map((type) => (
+              <BoardGroupSection
+                key={type}
+                type={type}
+                groupBoards={boards.filter((b) => b.board_type === type)}
+                boards={boards}
+                selectedBoard={selectedBoard}
+                onSelectBoard={onSelectBoard}
+                onLockedClick={setNotifyBoard}
+                expanded={expandedGroups.has(type)}
+                onToggle={() => toggleGroup(type)}
+              />
+            ))}
+          </div>
         )}
 
         {notifyBoard && <NotifyBanner board={notifyBoard} onClose={() => setNotifyBoard(null)} />}

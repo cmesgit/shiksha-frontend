@@ -4,7 +4,7 @@
    token system. */
 
 .uc-card {
-  max-width: 900px;
+  max-width: 980px;
   margin: 0 auto;
   background: #fff;
   border-radius: 18px;
@@ -63,6 +63,55 @@
   flex: 1;
   background: transparent;
   color: var(--sk-ink);
+}
+
+/* Board groups (Central Board / State Board, each collapsible) */
+.uc-board-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.uc-board-group {
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.uc-board-group__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sk-font);
+}
+
+.uc-board-group__label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--sk-ink);
+  flex: 1;
+}
+
+.uc-board-group__count {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--sk-body);
+  background: var(--sk-paper);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.uc-board-group .uc-chip-row {
+  padding: 0 14px 14px;
+  margin-bottom: 0;
 }
 
 /* Board chips */
@@ -207,7 +256,7 @@
 .uc-class-row {
   background: #fff;
   border: 1px solid var(--sk-line);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -216,8 +265,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 16px;
+  padding: 18px 20px;
   background: none;
   border: none;
   cursor: pointer;
@@ -226,10 +275,10 @@
 }
 
 .uc-class-row__imageWrap {
-  width: 44px;
-  height: 44px;
+  width: 96px;
+  height: 96px;
   flex: none;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -244,31 +293,33 @@
 }
 
 .uc-class-row__imagePlaceholder {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--sk-green-dark);
   text-align: center;
   line-height: 1.2;
-  padding: 2px;
+  padding: 4px;
 }
 
 .uc-class-row__text {
   display: flex;
   flex-direction: column;
+  gap: 4px;
   flex: 1;
   min-width: 0;
 }
 
 .uc-class-row__title {
-  font-size: 14px;
+  font-size: 19px;
   color: var(--sk-ink);
 }
 
 .uc-class-row__subtitle {
   font-weight: 500;
+  font-size: 15px;
 }
 
 .uc-class-row__meta {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--sk-body);
 }
 
@@ -293,11 +344,11 @@
 }
 
 .uc-class-row__detail {
-  padding: 0 14px 16px;
+  padding: 0 20px 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 14px;
-  font-size: 12.5px;
+  gap: 10px 16px;
+  font-size: 13.5px;
   color: var(--sk-ink-2);
 }
 
@@ -308,16 +359,16 @@
 .uc-class-row__actions {
   grid-column: 1 / -1;
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .uc-btn {
   flex: 1;
-  border-radius: 8px;
-  padding: 9px;
+  border-radius: 9px;
+  padding: 11px;
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: 13.5px;
   cursor: pointer;
   font-family: var(--sk-font);
   border: none;
@@ -349,8 +400,8 @@
 
 /* Skeleton loading rows */
 .uc-skeleton-row {
-  height: 58px;
-  border-radius: 12px;
+  height: 132px;
+  border-radius: 16px;
   background: linear-gradient(90deg, #eef2ee 25%, #f6f9f6 37%, #eef2ee 63%);
   background-size: 400% 100%;
   animation: uc-pulse 1.2s ease infinite;
@@ -374,5 +425,23 @@
 @media (max-width: 640px) {
   .uc-notify__input {
     width: 100%;
+  }
+
+  .uc-class-row__header {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .uc-class-row__imageWrap {
+    width: 64px;
+    height: 64px;
+  }
+
+  .uc-class-row__title {
+    font-size: 16px;
+  }
+
+  .uc-skeleton-row {
+    height: 96px;
   }
 }

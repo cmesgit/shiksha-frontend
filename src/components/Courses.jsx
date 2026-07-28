@@ -59,17 +59,28 @@ const Courses = () => {
   const { classes: liveClasses, loading: classesLoading } = useBoardClasses(boards, selectedBoard);
 
   // Default board once boards have loaded and nothing is selected yet: a
-  // navbar/homepage deep-link wins, then the remembered last board, then the
-  // first unlocked board.
+  // navbar/homepage deep-link wins (a specific board, or — from the navbar's
+  // "View All Central/State Boards" link — just a board_type group, in which
+  // case the first unlocked board in that group stands in for it), then the
+  // remembered last board, then the first unlocked board overall.
   useEffect(() => {
     if (!boards || selectedBoard) return;
     const resolve = (slug) => {
       const b = slug && boards.find((x) => x.slug === slug);
       return b && b.has_published_courses ? b : null;
     };
+    const resolveGroup = (group) => {
+      const boardType = (group || '').toUpperCase();
+      if (!boardType) return null;
+      return boards.find((b) => b.board_type === boardType && b.has_published_courses) || null;
+    };
     const firstUnlocked = boards.find((b) => b.has_published_courses);
     const match =
-      resolve(location.state?.selectedBoard) || resolve(loadLastBoard()) || firstUnlocked || boards[0];
+      resolve(location.state?.selectedBoard) ||
+      resolveGroup(location.state?.selectedBoardGroup) ||
+      resolve(loadLastBoard()) ||
+      firstUnlocked ||
+      boards[0];
     if (match) setSelectedBoard(match.slug);
   }, [boards, selectedBoard, location.state]);
 
@@ -169,7 +180,26 @@ const Courses = () => {
     if (location.state?.searchQuery != null) {
       setSearchQuery(location.state.searchQuery);
     }
-  }, [location.state]);
+    // A navbar/homepage course link clicked while already sitting on this
+    // page (same route, fresh `state`) should still switch boards — the
+    // initial-mount default-board effect above only ever fires once.
+    if (boards) {
+      const wantedSlug = location.state?.selectedBoard;
+      const wantedGroup = location.state?.selectedBoardGroup;
+      let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
+      if (!target && wantedGroup) {
+        target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
+      }
+      if (target && target.slug !== selectedBoard) {
+        setSelectedBoard(target.slug);
+        setExpandedClassId(null);
+        // Don't clobber an explicit searchQuery arriving in the same state
+        // payload (handled just above) — only clear it for a plain board switch.
+        if (location.state?.searchQuery == null) setSearchQuery('');
+        saveLastBoard(target.slug);
+      }
+    }
+  }, [location.state, boards, selectedBoard]);
 
   useEffect(() => {
     setEnrollModalCourseId(null);
