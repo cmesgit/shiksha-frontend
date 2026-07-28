@@ -1,0 +1,378 @@
+/* UnifiedCatalog.css — the redesigned /courses catalog. Uses the shared
+   --sk-* theme tokens (theme.css, loaded globally via Navbar/Footer) rather
+   than hardcoding hex, unlike the rest of Courses.css which predates the
+   token system. */
+
+.uc-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: var(--sk-sh);
+  overflow: hidden;
+  border: 1px solid var(--sk-line);
+  font-family: var(--sk-font);
+}
+
+.uc-card__header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--sk-line);
+}
+
+.uc-card__title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--sk-ink);
+}
+
+.uc-card__subtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sk-body);
+}
+
+.uc-card__filters {
+  padding: 18px 22px;
+  background: var(--sk-paper);
+}
+
+/* Search box */
+.uc-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+}
+
+.uc-search-icon {
+  display: flex;
+  color: #8a9791;
+  flex: none;
+}
+
+.uc-search-input {
+  border: none;
+  outline: none;
+  font-family: var(--sk-font);
+  font-size: 13.5px;
+  flex: 1;
+  background: transparent;
+  color: var(--sk-ink);
+}
+
+/* Board chips */
+.uc-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.uc-chip {
+  border: 1px solid var(--sk-line);
+  background: #fff;
+  color: var(--sk-ink-2);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--sk-font);
+}
+
+.uc-chip--active {
+  border-color: var(--sk-green);
+  background: var(--sk-green);
+  color: #fff;
+}
+
+.uc-chip--locked {
+  color: #b7c2ba;
+  cursor: pointer;
+}
+
+.uc-chip__soon {
+  font-style: normal;
+  opacity: 0.7;
+  margin-left: 5px;
+  font-size: 11px;
+}
+
+/* Notify banner */
+.uc-notify {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #fff3e2;
+  border: 1px solid #f3dcb3;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+}
+
+.uc-notify__text {
+  font-size: 12.5px;
+  color: #a8764a;
+  flex: 1;
+  min-width: 160px;
+}
+
+.uc-notify__input {
+  border: 1px solid #f3dcb3;
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: var(--sk-font);
+  width: 160px;
+}
+
+.uc-notify__btn {
+  background: var(--sk-gold);
+  border: none;
+  color: var(--sk-ink);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: var(--sk-font);
+}
+
+.uc-notify__btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.uc-notify__close {
+  border: none;
+  background: none;
+  color: #a8764a;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.uc-notify__error {
+  flex-basis: 100%;
+  color: var(--sk-red);
+  font-size: 11.5px;
+}
+
+/* Cross-board matches */
+.uc-cross-matches {
+  margin-bottom: 14px;
+}
+
+.uc-cross-matches__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sk-body);
+  margin-bottom: 6px;
+}
+
+.uc-cross-matches__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.uc-cross-match {
+  text-align: left;
+  background: #fff;
+  border: 1px dashed var(--sk-line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: var(--sk-ink-2);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sk-font);
+}
+
+/* Class list */
+.uc-class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.uc-class-row {
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.uc-class-row__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sk-font);
+}
+
+.uc-class-row__imageWrap {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sk-mint);
+}
+
+.uc-class-row__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uc-class-row__imagePlaceholder {
+  font-size: 8px;
+  color: var(--sk-green-dark);
+  text-align: center;
+  line-height: 1.2;
+  padding: 2px;
+}
+
+.uc-class-row__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.uc-class-row__title {
+  font-size: 14px;
+  color: var(--sk-ink);
+}
+
+.uc-class-row__subtitle {
+  font-weight: 500;
+}
+
+.uc-class-row__meta {
+  font-size: 12px;
+  color: var(--sk-body);
+}
+
+.uc-class-row__seats {
+  font-weight: 700;
+  color: var(--sk-green-dark);
+}
+
+.uc-class-row__seats--low {
+  color: var(--sk-red);
+}
+
+.uc-chevron {
+  display: inline-flex;
+  color: var(--sk-body);
+  transition: transform 0.15s;
+  flex: none;
+}
+
+.uc-chevron--open {
+  transform: rotate(180deg);
+}
+
+.uc-class-row__detail {
+  padding: 0 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  font-size: 12.5px;
+  color: var(--sk-ink-2);
+}
+
+.uc-class-row__detailItem span {
+  color: var(--sk-body);
+}
+
+.uc-class-row__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.uc-btn {
+  flex: 1;
+  border-radius: 8px;
+  padding: 9px;
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-family: var(--sk-font);
+  border: none;
+}
+
+.uc-btn--primary {
+  background: var(--sk-green);
+  color: #fff;
+}
+
+.uc-btn--primary:disabled {
+  background: #9ec9b8;
+  cursor: not-allowed;
+}
+
+.uc-btn--secondary {
+  background: #fff;
+  color: var(--sk-green-dark);
+  border: 1px solid var(--sk-green);
+}
+
+.uc-empty {
+  text-align: center;
+  color: var(--sk-body);
+  font-size: 13px;
+  padding: 18px 0;
+  margin: 0;
+}
+
+/* Skeleton loading rows */
+.uc-skeleton-row {
+  height: 58px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #eef2ee 25%, #f6f9f6 37%, #eef2ee 63%);
+  background-size: 400% 100%;
+  animation: uc-pulse 1.2s ease infinite;
+}
+
+@keyframes uc-pulse {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-skeleton-row {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .uc-notify__input {
+    width: 100%;
+  }
+}

@@ -47,6 +47,23 @@ export async function getPublicCourseBySlug(slug) {
 }
 
 /**
+ * "Notify me when {board} launches" lead capture on a locked board chip.
+ * Unlike the read-only getters above, the caller needs to know whether the
+ * submit actually failed (rate-limited, bad email, etc.), so this resolves
+ * to {ok, error} instead of swallowing every error into a fallback value.
+ */
+export async function submitBoardNotify(boardId, email) {
+  if (!boardId || !email) return { ok: false, error: "Missing board or email." };
+  try {
+    await api.post(`/courses/public/boards/${boardId}/notify/`, { email });
+    return { ok: true };
+  } catch (e) {
+    const detail = e?.response?.data?.detail;
+    return { ok: false, error: detail || "Something went wrong. Please try again." };
+  }
+}
+
+/**
  * The homepage "Featured courses" grid — /courses/public/featured/. Replaces
  * the old /content/showcase/ + toShowcaseCard for this section: price/thumbnail
  * here are already derived server-side from the linked Course/Board, so this

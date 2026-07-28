@@ -3,329 +3,32 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
-import BoardSvg from './BoardSvg';
+import UnifiedCatalog from './courses/UnifiedCatalog';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
-import { usePublicBoards, isBoardLocked, useBoardClasses } from '../hooks/usePublicCourses';
+import { usePublicBoards, useBoardClasses } from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
-import cbseImg from '../assets/courses/Cbse.jpg';
-import icseImg from '../assets/courses/Icse.svg';
-import ibImg from '../assets/courses/Ib.svg';
-import niosImg from '../assets/courses/Nios.svg';
-import aissceImg from '../assets/courses/Aissce.svg';
-import bseapImg from '../assets/courses/Bseap.svg';
-import mbseImg from '../assets/courses/Mbse.jpg';
-import centralImg from '../assets/courses/central.jpeg';
-import stateImg from '../assets/courses/state.jpeg';
+const LAST_BOARD_KEY = 'shiksha.courses.lastBoard';
 
-const BOARD_GROUPS = [
-  {
-    id: 'central',
-    title: 'Central Board',
-    desc: 'National Curriculum Boards',
-    image: centralImg,
-  },
-  {
-    id: 'state',
-    title: 'State Board',
-    desc: 'Regional Curriculum Boards',
-    image: stateImg,
-  },
-];
-
-const BOARD_OPTIONS = {
-  central: [
-    {
-      id: 'cbse',
-      title: 'CBSE',
-      desc: 'Central Board of Secondary Education. Most widely followed board in India.',
-      image: cbseImg,
-    },
-    {
-      id: 'icse',
-      title: 'ICSE',
-      desc: 'Indian Certificate of Secondary Education.',
-      image: icseImg,
-      locked: true,
-    },
-    {
-      id: 'ib',
-      title: 'IB',
-      desc: 'International Baccalaureate.',
-      image: ibImg,
-      locked: true,
-    },
-    {
-      id: 'nios',
-      title: 'NIOS',
-      desc: 'The National Institute of Open Schooling.',
-      image: niosImg,
-      locked: true,
-    },
-    {
-      id: 'aissce',
-      title: 'AISSCE',
-      desc: 'All India Senior School Certificate Examination.',
-      image: aissceImg,
-      locked: true,
-    },
-  ],
-  state: [
-    {
-      id: 'mbse',
-      title: 'MBSE',
-      desc: 'Mizoram Board of School Education.',
-      image: mbseImg,
-    },
-    { id: 'bseap',    title: 'BSEAP',    desc: 'Board of Secondary Education, Andhra Pradesh.',                              image: bseapImg, locked: true },
-    { id: 'asseb',    title: 'ASSEB',    desc: 'Assam State School Education Board.',                                        boardCode: 'ASSEB',    locked: true },
-    { id: 'bseb',     title: 'BSEB',     desc: 'Bihar School Examination Board.',                                            boardCode: 'BSEB',     locked: true },
-    { id: 'cgbse',    title: 'CGBSE',    desc: 'Chhattisgarh Board of Secondary Education.',                                 boardCode: 'CGBSE',    locked: true },
-    { id: 'gbshse',   title: 'GBSHSE',   desc: 'Goa Board of Secondary and Higher Secondary Education.',                     boardCode: 'GBSHSE',   locked: true },
-    { id: 'gseb',     title: 'GSEB',     desc: 'Gujarat Secondary and Higher Secondary Education Board.',                    boardCode: 'GSEB',     locked: true },
-    { id: 'bseh',     title: 'BSEH',     desc: 'Board of School Education Haryana.',                                         boardCode: 'BSEH',     locked: true },
-    { id: 'hpbose',   title: 'HPBOSE',   desc: 'Himachal Pradesh Board of School Education.',                                boardCode: 'HPBOSE',   locked: true },
-    { id: 'jac',      title: 'JAC',      desc: 'Jharkhand Academic Council.',                                                boardCode: 'JAC',      locked: true },
-    { id: 'kseab',    title: 'KSEAB',    desc: 'Karnataka School Examination and Assessment Board.',                         boardCode: 'KSEAB',    locked: true },
-    { id: 'kbpe',     title: 'KBPE',     desc: 'Kerala Board of Public Examinations.',                                       boardCode: 'KBPE',     locked: true },
-    { id: 'mpbse',    title: 'MPBSE',    desc: 'Madhya Pradesh Board of Secondary Education.',                               boardCode: 'MPBSE',    locked: true },
-    { id: 'msbshse',  title: 'MSBSHSE',  desc: 'Maharashtra State Board of Secondary and Higher Secondary Education.',       boardCode: 'MSBSHSE',  locked: true },
-    { id: 'bosem',    title: 'BOSEM',    desc: 'Manipur Board of Secondary Education.',                                      boardCode: 'BOSEM',    locked: true },
-    { id: 'cohsem',   title: 'COHSEM',   desc: 'Council of Higher Secondary Education, Manipur.',                           boardCode: 'COHSEM',   locked: true },
-    { id: 'mbose',    title: 'MBOSE',    desc: 'Meghalaya Board of School Education.',                                       boardCode: 'MBOSE',    locked: true },
-    { id: 'nbse',     title: 'NBSE',     desc: 'Nagaland Board of School Education.',                                        boardCode: 'NBSE',     locked: true },
-    { id: 'bseodisha',title: 'BSE Odisha',desc: 'Board of Secondary Education, Odisha.',                                     boardCode: 'BSE Odisha', locked: true },
-    { id: 'pseb',     title: 'PSEB',     desc: 'Punjab School Education Board.',                                             boardCode: 'PSEB',     locked: true },
-    { id: 'rbse',     title: 'RBSE',     desc: 'Board of Secondary Education, Rajasthan.',                                   boardCode: 'RBSE',     locked: true },
-    { id: 'tnbse',    title: 'TNBSE',    desc: 'Tamil Nadu State Board.',                                                    boardCode: 'TNBSE',    locked: true },
-    { id: 'tsbse',    title: 'TSBSE',    desc: 'Telangana Board of Secondary Education.',                                    boardCode: 'TSBSE',    locked: true },
-    { id: 'tbse',     title: 'TBSE',     desc: 'Tripura Board of Secondary Education.',                                      boardCode: 'TBSE',     locked: true },
-    { id: 'upmsp',    title: 'UPMSP',    desc: 'Board of High School and Intermediate Education Uttar Pradesh.',             boardCode: 'UPMSP',    locked: true },
-    { id: 'ubse',     title: 'UBSE',     desc: 'Uttarakhand Board of School Education.',                                     boardCode: 'UBSE',     locked: true },
-    { id: 'wbbse',    title: 'WBBSE',    desc: 'West Bengal Board of Secondary Education.',                                  boardCode: 'WBBSE',    locked: true },
-  ],
-};
-
-
-const SectionHeader = ({ title, subtitle, trail = [], onTrailClick, rightSlot }) => (
-  <div className="courses-hero">
-    {trail.length > 0 && (
-      <div className="courses-breadcrumb">
-        {trail.map((item, index) => {
-          const isLast = index === trail.length - 1;
-
-          return (
-            <span key={item.key}>
-              <button
-                type="button"
-                className={`courses-breadcrumb__item ${isLast ? 'is-active' : ''}`}
-                onClick={() => !isLast && onTrailClick(item.key)}
-                disabled={isLast}
-              >
-                {item.label}
-              </button>
-              {!isLast && <span className="courses-breadcrumb__sep">&gt;</span>}
-            </span>
-          );
-        })}
-      </div>
-    )}
-
-    <div className="courses-hero__row">
-      <h1 className="courses-title">{title}</h1>
-      {rightSlot && <div className="courses-hero__right">{rightSlot}</div>}
-    </div>
-    {subtitle && <p className="courses-subtitle">{subtitle}</p>}
-  </div>
-);
-
-const CourseTile = ({
-  image,
-  boardCode,
-  title,
-  subtitle,
-  desc,
-  price,
-  buttonText = 'Browse',
-  onClick,
-  locked = false,
-}) => {
-  const handleClick = locked ? undefined : onClick;
-
-  return (
-    <article
-      className={`courses-tile${locked ? ' courses-tile--locked' : ''}`}
-      onClick={handleClick}
-      role={locked ? 'img' : 'button'}
-      tabIndex={locked ? -1 : 0}
-      onKeyDown={(e) => {
-        if (!locked && (e.key === 'Enter' || e.key === ' ')) onClick();
-      }}
-    >
-      {locked && (
-        <div className="courses-tile__coming-soon">
-          <span className="courses-tile__lock-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-          <span className="courses-tile__coming-label">Coming Soon</span>
-        </div>
-      )}
-
-      <div className="courses-tile__imageWrap">
-        {image ? (
-          <img src={image} alt={title} className="courses-tile__image" />
-        ) : boardCode ? (
-          <BoardSvg code={boardCode} />
-        ) : (
-          <div className="courses-tile__imagePlaceholder">Course Image</div>
-        )}
-      </div>
-
-      <div className="courses-tile__content">
-        {subtitle && <span className="courses-tile__tag">{subtitle}</span>}
-        <h3 className="courses-tile__title">{title}</h3>
-        {desc && <p className="courses-tile__desc">{desc}</p>}
-
-        <div className="courses-tile__footer">
-          {price ? <span className="courses-tile__price">{price}</span> : <span />}
-          <button
-            type="button"
-            className="courses-tile__btn"
-            disabled={locked}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!locked) onClick();
-            }}
-          >
-            {locked ? 'Coming Soon' : buttonText}
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-};
-
-const ClassCourseTile = ({
-  image,
-  title,
-  subtitle,
-  desc,
-  duration,
-  fee,
-  access,
-  mode,
-  onViewDetails,
-  onEnroll,
-  enrollmentStatus,
-}) => {
-  const isEnrolled = enrollmentStatus === 'APPROVED';
-  const isPending = enrollmentStatus === 'PENDING';
-
-  let enrollBtnLabel = 'ENROLL NOW';
-  let enrollBtnClass = 'courses-tile__btn courses-tile__btn--primary';
-  if (isEnrolled) {
-    enrollBtnLabel = 'ENROLLED';
-    enrollBtnClass += ' courses-tile__btn--enrolled';
-  } else if (isPending) {
-    enrollBtnLabel = 'PENDING APPROVAL';
-    enrollBtnClass += ' courses-tile__btn--pending';
+function loadLastBoard() {
+  try {
+    return localStorage.getItem(LAST_BOARD_KEY);
+  } catch {
+    return null;
   }
+}
 
-  return (
-    <article
-      className={`courses-tile courses-tile--detailed${
-        isEnrolled ? ' courses-tile--enrolled' : ''
-      }`}
-      role="button"
-      tabIndex={0}
-      onClick={onViewDetails}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onViewDetails();
-      }}
-    >
-      <div className="courses-tile__imageWrap">
-        {image ? (
-          <img
-            src={image}
-            alt={`${title}${subtitle ? ` ${subtitle}` : ''}`}
-            className="courses-tile__image"
-          />
-        ) : (
-          <div className="courses-tile__imagePlaceholder">Course Image</div>
-        )}
-      </div>
-
-      <div className="courses-tile__content courses-tile__content--detailed">
-        <div className="courses-tile__heading">
-          <h3 className="courses-tile__title">{title}</h3>
-          {subtitle && <span className="courses-tile__stream">{subtitle}</span>}
-        </div>
-
-        {desc && <p className="courses-tile__desc">{desc}</p>}
-
-        <div className="courses-details-box">
-          <div className="courses-details-box__item">
-            <span>Duration:</span>
-            <strong>{duration}</strong>
-          </div>
-
-          <div className="courses-details-box__item">
-            <span>Fee:</span>
-            <strong>₹{fee}/month</strong>
-          </div>
-
-          <div className="courses-details-box__item">
-            <span>Access:</span>
-            <strong>{access}</strong>
-          </div>
-
-          <div className="courses-details-box__item">
-            <span>Mode:</span>
-            <strong>{mode}</strong>
-          </div>
-        </div>
-
-        <div className="courses-tile__actions">
-          <button
-            type="button"
-            className={enrollBtnClass}
-            disabled={isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isPending) return;
-              onEnroll();
-            }}
-          >
-            {enrollBtnLabel}
-          </button>
-
-          <button
-            type="button"
-            className="courses-tile__btn courses-tile__btn--secondary"
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetails();
-            }}
-          >
-            View Details
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-};
-
-const ALL_BOARDS = [
-  ...BOARD_OPTIONS.central.map((b) => ({ ...b, groupId: 'central', groupLabel: 'Central Board' })),
-  ...BOARD_OPTIONS.state.map((b) => ({ ...b, groupId: 'state', groupLabel: 'State Board' })),
-];
+function saveLastBoard(slug) {
+  try {
+    localStorage.setItem(LAST_BOARD_KEY, slug);
+  } catch {
+    // private-mode / storage-full — remembering the board is a nicety, not required
+  }
+}
 
 const Courses = () => {
   const location = useLocation();
@@ -334,39 +37,46 @@ const Courses = () => {
   const { isAuthenticated, user } = useAuth();
   const { openWithMessage } = useProfileModal();
 
-  const [selectedBoardGroup, setSelectedBoardGroup] = useState(
-    location.state?.selectedBoardGroup || null
-  );
-  const [selectedBoard, setSelectedBoard] = useState(
-    location.state?.selectedBoard || null
-  );
+  const [selectedBoard, setSelectedBoard] = useState(location.state?.selectedBoard || null);
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
-  // Seeded from navigation state so the navbar / homepage hero search
-  // can deep-link into this page with a pre-filled query.
-  const [searchQuery, setSearchQuery] = useState(
-    location.state?.searchQuery || ''
-  );
+  // Seeded from navigation state so the navbar / homepage hero search can
+  // deep-link into this page with a pre-filled query.
+  const [searchQuery, setSearchQuery] = useState(location.state?.searchQuery || '');
+  const [expandedClassId, setExpandedClassId] = useState(null);
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
   const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
   const [activeCourseLoading, setActiveCourseLoading] = useState(false);
   // A homepage/showcase card linked to a specific real course (see
-  // homeData/HomeGreen's `openCourseId` state key) can deep-link past the
-  // board page straight into that class — captured once on mount, same as
-  // selectedBoardGroup/selectedBoard above.
+  // homeData/HomeGreen's `openCourseId` state key) can deep-link straight
+  // into that class's expanded row — captured once on mount.
   const [pendingOpenCourseId] = useState(location.state?.openCourseId || null);
 
   // Real backend data: which boards currently have published courses (drives
   // "Coming Soon" locking) and the real course catalog for whichever board is
-  // selected — replaces the old hardcoded CLASSES array / courseData.js.
+  // selected.
   const boards = usePublicBoards();
-  const { classes: liveClasses } = useBoardClasses(boards, selectedBoard);
+  const { classes: liveClasses, loading: classesLoading } = useBoardClasses(boards, selectedBoard);
 
-  // Direct visit to /courses/<slug> ("View Details" is now a real, shareable
+  // Default board once boards have loaded and nothing is selected yet: a
+  // navbar/homepage deep-link wins, then the remembered last board, then the
+  // first unlocked board.
+  useEffect(() => {
+    if (!boards || selectedBoard) return;
+    const resolve = (slug) => {
+      const b = slug && boards.find((x) => x.slug === slug);
+      return b && b.has_published_courses ? b : null;
+    };
+    const firstUnlocked = boards.find((b) => b.has_published_courses);
+    const match =
+      resolve(location.state?.selectedBoard) || resolve(loadLastBoard()) || firstUnlocked || boards[0];
+    if (match) setSelectedBoard(match.slug);
+  }, [boards, selectedBoard, location.state]);
+
+  // Direct visit to /courses/<slug> ("Syllabus" gives this a real, shareable
   // URL) — resolve the course by slug and open it straight to the detail
-  // view. Runs once boards has loaded so the board group/board breadcrumb
-  // can be set too; guarded on `activeCourse` so it never re-fires after the
-  // learner navigates elsewhere on this page.
+  // view. Guarded on `activeCourse` so it never re-fires after the learner
+  // navigates elsewhere on this page.
   useEffect(() => {
     if (!slugParam || !boards || activeCourse) return;
     let cancelled = false;
@@ -375,13 +85,8 @@ const Courses = () => {
       if (cancelled) return;
       setActiveCourseLoading(false);
       if (!detail) return;
-      const liveBoard = detail.board
-        ? boards.find((b) => b.name === detail.board.name)
-        : null;
-      if (liveBoard) {
-        setSelectedBoardGroup(liveBoard.board_type === 'CENTRAL' ? 'central' : 'state');
-        setSelectedBoard(liveBoard.slug);
-      }
+      const liveBoard = detail.board ? boards.find((b) => b.name === detail.board.name) : null;
+      if (liveBoard) setSelectedBoard(liveBoard.slug);
       setActiveCourse({
         title: detail.title,
         desc: detail.description,
@@ -400,58 +105,19 @@ const Courses = () => {
     };
   }, [slugParam, boards, activeCourse]);
 
-  const goToState = (nextState) => {
-    const state = {
-      selectedBoardGroup,
-      selectedBoard,
-      selectedClass,
-      activeCourse,
-      ...nextState,
-    };
-
-    window.history.pushState(state, '');
-  };
-
-  useEffect(() => {
-    window.history.replaceState(
-      {
-        selectedBoardGroup,
-        selectedBoard,
-        selectedClass,
-        activeCourse,
-      },
-      ''
-    );
-  }, []);
-
+  // The catalog itself never pushes history (board switch / search / expand
+  // are all plain state updates) — the only history entry this page ever
+  // creates is the Syllabus -> /courses/:slug transition, so browser Back
+  // from there just needs to return to the catalog.
   useEffect(() => {
     const handleBrowserBack = () => {
-      if (activeCourse) {
-        setActiveCourse(null);
-        return;
-      }
-
-      if (selectedClass) {
-        setSelectedClass(null);
-        return;
-      }
-
-      if (selectedBoard) {
-        setSelectedBoard(null);
-        return;
-      }
-
-      if (selectedBoardGroup) {
-        setSelectedBoardGroup(null);
-      }
+      if (activeCourse) setActiveCourse(null);
     };
-
     window.addEventListener('popstate', handleBrowserBack);
-
     return () => {
       window.removeEventListener('popstate', handleBrowserBack);
     };
-  }, [activeCourse, selectedClass, selectedBoard, selectedBoardGroup]);
+  }, [activeCourse]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -490,18 +156,16 @@ const Courses = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [selectedBoardGroup, selectedBoard, selectedClass, activeCourse]);
+  }, [activeCourse]);
 
   useEffect(() => {
     if (location.state?.resetCourses) {
-      setSelectedBoardGroup(null);
       setSelectedBoard(null);
-      setSelectedClass(null);
+      setExpandedClassId(null);
       setActiveCourse(null);
     }
-    // Keep the search box in sync when a new query arrives via
-    // navigation state (e.g. searching from the navbar while already
-    // on this page).
+    // Keep the search box in sync when a new query arrives via navigation
+    // state (e.g. searching from the navbar while already on this page).
     if (location.state?.searchQuery != null) {
       setSearchQuery(location.state.searchQuery);
     }
@@ -511,135 +175,37 @@ const Courses = () => {
     setEnrollModalCourseId(null);
   }, [location.pathname]);
 
-  const currentBoardGroup = useMemo(
-    () => BOARD_GROUPS.find((item) => item.id === selectedBoardGroup),
-    [selectedBoardGroup]
+  const currentBoard = useMemo(
+    () => (boards && selectedBoard ? boards.find((b) => b.slug === selectedBoard) : null),
+    [boards, selectedBoard]
   );
+  const currentBoardGroupLabel =
+    currentBoard?.board_type === 'CENTRAL'
+      ? 'Central Board'
+      : currentBoard?.board_type === 'STATE'
+      ? 'State Board'
+      : undefined;
 
-  const currentBoard = useMemo(() => {
-    if (!selectedBoardGroup || !selectedBoard) return null;
-    return BOARD_OPTIONS[selectedBoardGroup]?.find((item) => item.id === selectedBoard) || null;
-  }, [selectedBoardGroup, selectedBoard]);
-
-  // Live-locked view of the static board catalogs: same marketing copy/images,
-  // but `locked` now reflects the real backend (is_active + has a published
-  // course) instead of a hardcoded boolean per entry.
-  const liveBoardOptions = useMemo(() => {
-    const withLiveLock = (list) =>
-      list.map((b) => ({ ...b, locked: isBoardLocked(boards, b.id, b.locked) }));
-    return {
-      central: withLiveLock(BOARD_OPTIONS.central),
-      state: withLiveLock(BOARD_OPTIONS.state),
-    };
-  }, [boards]);
-
-  const liveAllBoards = useMemo(
-    () => ALL_BOARDS.map((b) => ({ ...b, locked: isBoardLocked(boards, b.id, b.locked) })),
-    [boards]
-  );
-
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-
-    const pool = selectedBoardGroup
-      ? liveBoardOptions[selectedBoardGroup] || []
-      : liveAllBoards;
-
-    return pool.filter(
-      (b) =>
-        b.title.toLowerCase().includes(q) ||
-        b.desc.toLowerCase().includes(q) ||
-        (b.groupLabel || '').toLowerCase().includes(q)
-    );
-  }, [searchQuery, selectedBoardGroup, liveBoardOptions, liveAllBoards]);
-
-  const handleSearchBoardSelect = (board) => {
-    if (board.locked) return;
-
-    goToState({
-      selectedBoardGroup: board.groupId,
-      selectedBoard: board.id,
-      selectedClass: null,
-      activeCourse: null,
-    });
-
+  const handleSelectBoard = (slug) => {
+    setSelectedBoard(slug);
+    setExpandedClassId(null);
     setSearchQuery('');
-    setSelectedBoardGroup(board.groupId);
-    setSelectedBoard(board.id);
-    setSelectedClass(null);
-    setActiveCourse(null);
+    saveLastBoard(slug);
   };
 
-  const handleTrailClick = (key) => {
-    setSearchQuery('');
-
-    if (key === 'boards') {
-      setSelectedBoardGroup(null);
-      setSelectedBoard(null);
-      setSelectedClass(null);
-      setActiveCourse(null);
-      return;
-    }
-
-    if (key === 'boardGroup') {
-      setSelectedBoard(null);
-      setSelectedClass(null);
-      setActiveCourse(null);
-      return;
-    }
-
-    if (key === 'board') {
-      setSelectedClass(null);
-      setActiveCourse(null);
-    }
+  const handleToggleExpand = (id, forceOpen = false) => {
+    setExpandedClassId((prev) => (forceOpen ? id : prev === id ? null : id));
   };
 
-  const handleBoardGroupSelect = (groupId) => {
-    goToState({
-      selectedBoardGroup: groupId,
-      selectedBoard: null,
-      selectedClass: null,
-      activeCourse: null,
-    });
-
-    setSearchQuery('');
-    setSelectedBoardGroup(groupId);
-    setSelectedBoard(null);
-    setSelectedClass(null);
-    setActiveCourse(null);
-  };
-
-  const handleBoardSelect = (boardId) => {
-    goToState({
-      selectedBoardGroup,
-      selectedBoard: boardId,
-      selectedClass: null,
-      activeCourse: null,
-    });
-
-    setSearchQuery('');
-    setSelectedBoard(boardId);
-    setSelectedClass(null);
-    setActiveCourse(null);
-  };
-
-  const handleClassSelect = async (cls) => {
+  const handleSyllabus = async (cls) => {
     setSelectedClass(cls);
     setActiveCourseLoading(true);
-
-    goToState({
-      selectedBoardGroup,
-      selectedBoard,
-      selectedClass: cls,
-      activeCourse: null,
-    });
 
     const courseId = cls.courseIds?.[selectedBoard];
     const detail = await getPublicCourseDetail(courseId);
     setActiveCourseLoading(false);
 
-    if (!detail) return; // unpublished/not found — stay on the class grid
+    if (!detail) return; // unpublished/not found — stay on the catalog
 
     setActiveCourse({
       title: detail.title,
@@ -654,26 +220,21 @@ const Courses = () => {
       })),
     });
 
-    // Give this course a real, shareable URL (View Details no longer stays
-    // parked on the bare /courses path) — same manual-history convention
-    // goToState already uses, just with a path this time.
+    // Give this course a real, shareable URL.
     if (detail.slug) {
-      window.history.pushState(
-        { selectedBoardGroup, selectedBoard, selectedClass: cls, activeCourse: true },
-        '',
-        `/courses/${detail.slug}`
-      );
+      window.history.pushState({ activeCourse: true }, '', `/courses/${detail.slug}`);
     }
   };
 
-  // Once the board's real class list has loaded, auto-open the specific
-  // class a showcase card deep-linked to (see `pendingOpenCourseId` above).
-  // Guarded on `!selectedClass` so this only ever fires once.
+  // Once the board's real class list has loaded, auto-expand the specific
+  // class a showcase card deep-linked to (see `pendingOpenCourseId` above) —
+  // in place, not a full navigation into the detail view. Guarded on
+  // `!expandedClassId` so this only ever fires once.
   useEffect(() => {
-    if (!pendingOpenCourseId || !selectedBoard || selectedClass || liveClasses.length === 0) return;
+    if (!pendingOpenCourseId || !selectedBoard || expandedClassId || liveClasses.length === 0) return;
     const match = liveClasses.find((cls) => cls.courseIds?.[selectedBoard] === pendingOpenCourseId);
-    if (match) handleClassSelect(match);
-  }, [pendingOpenCourseId, selectedBoard, selectedClass, liveClasses]);
+    if (match) setExpandedClassId(match.id);
+  }, [pendingOpenCourseId, selectedBoard, expandedClassId, liveClasses]);
 
   const handleEnrollNow = (cls) => {
     if (!isAuthenticated) {
@@ -691,7 +252,7 @@ const Courses = () => {
     if (!courseId) {
       alert(
         `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
-          currentBoard?.title || 'this board'
+          currentBoard?.name || 'this board'
         }.`
       );
       return;
@@ -704,54 +265,6 @@ const Courses = () => {
 
     setEnrollModalCourseId(courseId);
   };
-
-  const searchBar = (placeholder = 'Search boards…') => (
-    <div className="courses-search-box">
-      <svg
-        className="courses-search-icon"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-
-      <input
-        type="text"
-        className="courses-search-input"
-        placeholder={placeholder}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-
-      {searchQuery && (
-        <button
-          className="courses-search-clear"
-          onClick={() => setSearchQuery('')}
-          aria-label="Clear"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      )}
-    </div>
-  );
 
   if (activeCourseLoading) {
     return (
@@ -771,14 +284,14 @@ const Courses = () => {
           course={activeCourse}
           courseId={activeCourseId}
           enrollmentStatus={enrollmentStatusByCourseId[activeCourseId]}
-          boardGroup={currentBoardGroup?.title}
-          board={currentBoard?.title}
+          boardGroup={currentBoardGroupLabel}
+          board={currentBoard?.name}
           selectedClass={
             selectedClass?.subtitle
               ? `${selectedClass.title} (${selectedClass.subtitle})`
               : selectedClass?.title
           }
-          onBack={(level) => { handleTrailClick(level); }}
+          onBack={() => setActiveCourse(null)}
           onEnroll={() => {
             if (!isAuthenticated) { navigate('/login'); return; }
             if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {
@@ -798,185 +311,30 @@ const Courses = () => {
     );
   }
 
-  if (selectedBoard) {
-    const classesToShow = searchQuery.trim()
-      ? liveClasses.filter((cls) =>
-          `${cls.title} ${cls.subtitle || ''}`
-            .toLowerCase()
-            .includes(searchQuery.trim().toLowerCase())
-        )
-      : liveClasses;
-
-    return (
-      <section className="courses-page">
-        <div className="courses-container">
-          <SectionHeader
-            title="Courses"
-            subtitle=""
-            trail={[
-              { key: 'boards', label: 'Boards' },
-              { key: 'boardGroup', label: currentBoardGroup?.title || 'Board Type' },
-              { key: 'board', label: currentBoard?.title || 'Board' },
-            ]}
-            onTrailClick={handleTrailClick}
-            rightSlot={searchBar('Search course…')}
-          />
-
-          {searchQuery.trim() && (
-            <p className="courses-search-count">
-              {classesToShow.length} result{classesToShow.length !== 1 ? 's' : ''} for &ldquo;
-              {searchQuery.trim()}&rdquo;
-            </p>
-          )}
-
-          {classesToShow.length > 0 ? (
-            <div className="courses-grid courses-grid--classes">
-              {classesToShow.map((cls) => {
-                const cid = cls.courseIds?.[selectedBoard];
-                const status = cid ? enrollmentStatusByCourseId[cid] : undefined;
-
-                return (
-                  <ClassCourseTile
-                    key={cls.id}
-                    image={cls.image}
-                    title={cls.title}
-                    subtitle={cls.subtitle}
-                    desc={cls.desc}
-                    duration={cls.duration}
-                    fee={cls.fee}
-                    access={cls.access}
-                    mode={cls.mode}
-                    onViewDetails={() => handleClassSelect(cls)}
-                    onEnroll={() => handleEnrollNow(cls)}
-                    enrollmentStatus={status}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <p className="courses-search-empty">
-              No classes found for &ldquo;{searchQuery.trim()}&rdquo;
-            </p>
-          )}
-        </div>
-        {enrollModalCourseId && (
-          <EnrollModal
-            courseId={enrollModalCourseId}
-            onClose={() => setEnrollModalCourseId(null)}
-          />
-        )}
-      </section>
-    );
-  }
-
-  if (selectedBoardGroup) {
-    const boardsToShow = searchQuery.trim()
-      ? searchResults
-      : liveBoardOptions[selectedBoardGroup] || [];
-
-    return (
-      <section className="courses-page">
-        <div className="courses-container">
-          <SectionHeader
-            title={currentBoardGroup?.title || 'Boards'}
-            subtitle=""
-            trail={[
-              { key: 'boards', label: 'Boards' },
-              { key: 'boardGroup', label: currentBoardGroup?.title || 'Board Type' },
-            ]}
-            onTrailClick={handleTrailClick}
-            rightSlot={searchBar()}
-          />
-
-          {searchQuery.trim() && (
-            <p className="courses-search-count">
-              {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;
-              {searchQuery.trim()}&rdquo;
-            </p>
-          )}
-
-          {boardsToShow.length > 0 ? (
-            <div className="courses-grid courses-grid--board-options">
-              {boardsToShow.map((board) => (
-                <CourseTile
-                  key={board.id}
-                  image={board.image}
-                  boardCode={board.boardCode}
-                  title={board.title}
-                  desc={board.desc}
-                  buttonText="Browse"
-                  locked={board.locked}
-                  onClick={() => handleBoardSelect(board.id)}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="courses-search-empty">
-              No boards found for &ldquo;{searchQuery.trim()}&rdquo;
-            </p>
-          )}
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="courses-page">
       <div className="courses-container">
-        <SectionHeader
-          title="Boards"
-          subtitle=""
-          trail={[{ key: 'boards', label: 'Boards' }]}
-          onTrailClick={handleTrailClick}
-          rightSlot={searchBar()}
+        <UnifiedCatalog
+          boards={boards}
+          selectedBoard={selectedBoard}
+          onSelectBoard={handleSelectBoard}
+          classes={liveClasses}
+          classesLoading={classesLoading}
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          expandedClassId={expandedClassId}
+          onToggleExpand={handleToggleExpand}
+          enrollmentStatusByCourseId={enrollmentStatusByCourseId}
+          onEnroll={handleEnrollNow}
+          onSyllabus={handleSyllabus}
         />
-
-        {searchQuery.trim() ? (
-          searchResults.length > 0 ? (
-            <div>
-              <p className="courses-search-count">
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;
-                {searchQuery.trim()}&rdquo;
-              </p>
-
-              <div className="courses-grid courses-grid--board-options">
-                {searchResults.map((board) => (
-                  <div key={board.id} className="courses-search-result">
-                    <span className="courses-search-group-tag">{board.groupLabel}</span>
-
-                    <CourseTile
-                      image={board.image}
-                      boardCode={board.boardCode}
-                      title={board.title}
-                      desc={board.desc}
-                      buttonText="Browse"
-                      locked={board.locked}
-                      onClick={() => handleSearchBoardSelect(board)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="courses-search-empty">
-              No boards found for &ldquo;{searchQuery.trim()}&rdquo;
-            </p>
-          )
-        ) : (
-          <div className="courses-grid courses-grid--boards">
-            {BOARD_GROUPS.map((board) => (
-              <CourseTile
-                key={board.id}
-                image={board.image}
-                title={board.title}
-                desc={board.desc}
-                buttonText="Browse"
-                onClick={() => handleBoardGroupSelect(board.id)}
-              />
-            ))}
-          </div>
-        )}
       </div>
+      {enrollModalCourseId && (
+        <EnrollModal
+          courseId={enrollModalCourseId}
+          onClose={() => setEnrollModalCourseId(null)}
+        />
+      )}
     </section>
   );
 };
