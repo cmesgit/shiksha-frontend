@@ -24,7 +24,8 @@ import {
   COLLAB_STATS,
   FAQS,
 } from "./homeData";
-import { getFaqs, getShowcaseCourses, toShowcaseCard } from "../../api/contentApi";
+import { getFaqs } from "../../api/contentApi";
+import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
 import {
   IcArrowRight,
   IcArrowLeft,
@@ -483,8 +484,8 @@ function FeaturedCourses() {
 
   useEffect(() => {
     let alive = true;
-    getShowcaseCourses().then((rows) => {
-      if (alive && rows.length) setCourses(rows.map(toShowcaseCard));
+    getPublicFeatured().then((rows) => {
+      if (alive && rows.length) setCourses(rows.map(toFeaturedCard));
     });
     return () => {
       alive = false;

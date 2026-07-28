@@ -273,6 +273,7 @@ function App() {
         <Route path="/faq"             element={<Page><Faq /></Page>} />
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
         <Route path="/courses"         element={<Page><Courses /></Page>} />
+        <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
         <Route path="/placements"      element={<Page><Placements /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />

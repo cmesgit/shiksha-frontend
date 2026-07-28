@@ -1,37 +1,22 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import blogsData from "../data/blogsData";
+import React, { useEffect, useState } from "react";
 import { getAllBlogCards } from "../api/contentApi";
+import BlogCard from "./BlogCard";
+import "./BlogCard.css";
 import "../css/Blogs.css";
 
 const Blogs = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [cmsCards, setCmsCards] = useState([]);
+  const [allBlogs, setAllBlogs] = useState([]);
 
-  // CMS-managed posts merge in on top of the local registry.
-  // Legacy entries render immediately; when the API answers, any post
-  // whose slug also exists in the CMS is replaced by the CMS version
-  // (so a migrated/edited chapter wins), and brand-new CMS posts are
-  // prepended. If the API is unreachable, this stays [] and the page
-  // behaves exactly as before.
   useEffect(() => {
     let alive = true;
     getAllBlogCards().then((cards) => {
-      if (alive) setCmsCards(cards);
+      if (alive) setAllBlogs(cards);
     });
     return () => {
       alive = false;
     };
   }, []);
-
-  const allBlogs = useMemo(() => {
-    if (!cmsCards.length) return blogsData;
-    const cmsSlugs = new Set(cmsCards.map((c) => c.slug));
-    return [
-      ...cmsCards,
-      ...blogsData.filter((b) => !cmsSlugs.has(b.slug)),
-    ];
-  }, [cmsCards]);
 
   const filtered = searchQuery.trim()
     ? allBlogs.filter((blog) => {
@@ -82,50 +67,9 @@ const Blogs = () => {
       </div>
 
       {filtered.length > 0 ? (
-        <div className="blogs-grid">
+        <div className="blg-grid">
           {filtered.map((blog) => (
-            <Link
-              key={blog.id}
-              to={blog.slug ? `/blogs/${blog.slug}` : "#"}
-              className="blog-list-card"
-            >
-              <div className="blog-list-image-wrap">
-                {blog.thumbnail ? (
-                  <img
-                    src={blog.thumbnail}
-                    alt={blog.title}
-                    className="blog-list-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  <div
-                    className="blog-list-image"
-                    style={{
-                      background:
-                        "linear-gradient(135deg,#0F9D6B 0%,#0B5B3E 100%)",
-                    }}
-                    aria-hidden="true"
-                  />
-                )}
-                <span className="blog-list-category">{blog.category}</span>
-              </div>
-
-              <div className="blog-list-content">
-                <h2>{blog.title}</h2>
-                {blog.subtitle && <p>{blog.subtitle}</p>}
-
-                {blog.tags?.length > 0 && (
-                  <div className="blog-list-tags">
-                    {blog.tags.slice(0, 4).map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="blog-list-read">Read Blog →</div>
-              </div>
-            </Link>
+            <BlogCard key={blog.id} post={blog} to={blog.slug ? `/blogs/${blog.slug}` : "#"} />
           ))}
         </div>
       ) : (

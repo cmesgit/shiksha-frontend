@@ -1,30 +1,13 @@
-// PLACEMENT: <landing-page repo>/src/components/BlogDetail.jsx  (FULL REPLACEMENT)
+// PLACEMENT: <landing-page repo>/src/components/BlogDetail.jsx
 //
-// WHAT CHANGED vs the previous version
-// ────────────────────────────────────
-// The 114-entry lazy() component map is gone. Chapters are now static HTML
-// fragments produced by scripts/extract-blogs.mjs and served from
-//   import.meta.env.VITE_BLOG_CDN_BASE   (e.g. https://blog.b-cdn.net/blog-content)
-// falling back to /blog-content (the local public/ copy) when unset.
-//
-// Why: a chapter is now a ~11 KB gzipped HTML fetch that paints as it streams —
-// no JS chunk to download+parse+execute on low-end phones, FAQ accordions are
-// native <details> (work with JS disabled), and repeat visits can be cached by
-// a service worker. The back-button / scroll-top UI is unchanged.
-//
-// Slugs are identical to before (class-9/economics/chapter-1), so all existing
-// /blogs/<slug> links keep working.
-//
-// CMS layer (added): the chapter is first requested from the content API
-// (/api/content/blogs/<slug>/). Posts created or migrated in Django admin
-// render from there; anything not in the CMS falls back to the static
-// fragment below, so the migration can happen one chapter at a time.
+// All 114 legacy chapters are imported into the CMS (content.BlogPost,
+// import_blog_fragments) with the same slugs as before
+// (class-9/economics/chapter-1), so every /blogs/<slug> link resolves via
+// the content API alone — no static-fragment/CDN fallback needed anymore.
 
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getBlogPost } from "../api/contentApi";
-
-const BASE = (import.meta.env.VITE_BLOG_CDN_BASE || "/blog-content").replace(/\/$/, "");
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
 const htmlCache = new Map();
@@ -105,39 +88,15 @@ const BlogDetail = () => {
       if (heading) document.title = `${heading} · Shiksha`;
     };
 
-    // Legacy path: the pre-extracted static fragment on the CDN.
-    const fetchStaticFragment = () =>
-      fetch(`${BASE}/${slug}.html`, { signal: ctrl.signal })
-        .then((res) => {
-          if (res.status === 404) { setStatus("notfound"); return null; }
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.text();
-        })
-        .then((text) => {
-          if (text == null) return;
-          // SPA/CDN fallbacks can answer 200 with the app shell instead
-          // of a real 404 — a full document is never a valid fragment.
-          if (/^\s*(<!doctype\s+html|<html[\s>])/i.test(text)) {
-            setStatus("notfound");
-            return;
-          }
-          show(text);
-        })
-        .catch((err) => {
-          if (err.name !== "AbortError") setStatus("error");
-        });
-
-    // CMS-first: posts created/migrated in the admin come from the API.
-    // A real 404 (post not in the CMS yet) falls back to the static
-    // fragment; a transport error also tries the fragment so the reader
-    // still gets the chapter even if the API is briefly down.
     getBlogPost(slug).then((result) => {
       if (ctrl.signal.aborted) return;
       if (result.status === "ok") {
         show(result.post.body_html, result.post.seo_title || result.post.title);
-        return;
+      } else if (result.status === "notfound") {
+        setStatus("notfound");
+      } else {
+        setStatus("error");
       }
-      fetchStaticFragment();
     });
 
     return () => ctrl.abort();

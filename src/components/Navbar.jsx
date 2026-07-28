@@ -21,6 +21,7 @@ import { APP_URL, TEACHER_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
+import { getPublicNavMenu } from "../api/coursesApi";
 import "../css/theme.css";
 import "../css/SiteNav.css";
 import {
@@ -50,13 +51,16 @@ import {
 const CBSE_STATE = { selectedBoardGroup: "central", selectedBoard: "cbse" };
 const MBSE_STATE = { selectedBoardGroup: "state", selectedBoard: "mbse" };
 
-const COURSES_MENU = [
+// Static first-paint fallback — also the shape the live nav-menu API merges
+// into (see mergeLiveNavMenu below). "Skill & Career" has no course-catalog
+// backing, so it never changes.
+const STATIC_COURSES_MENU = [
   {
     title: "School Education",
     icon: IcBook,
     tabs: [
       {
-        id: "cbse",
+        id: "central",
         label: "CBSE Board",
         heading: "Central Board (CBSE)",
         links: [
@@ -127,6 +131,35 @@ const COURSES_MENU = [
     ],
   },
 ];
+
+// Merges the live /courses/public/nav-menu/ categories ("school",
+// "competitive") into the static menu shape. Only replaces the parts the API
+// actually covers: the school tabs wholesale, and just the "Exam tracks"
+// section's links (the static "Prepare" section — General Studies/Current
+// Affairs — isn't course-catalog data, so it's left untouched). Returns the
+// static menu unchanged if the API has nothing usable yet.
+function mergeLiveNavMenu(categories) {
+  if (!categories.length) return STATIC_COURSES_MENU;
+  const school = categories.find((c) => c.key === "school");
+  const competitive = categories.find((c) => c.key === "competitive");
+
+  return STATIC_COURSES_MENU.map((cat) => {
+    if (cat.title === "School Education" && school?.tabs?.length) {
+      return { ...cat, tabs: school.tabs };
+    }
+    if (cat.title === "Competitive Exams" && competitive?.sections?.[0]?.links?.length) {
+      return {
+        ...cat,
+        sections: cat.sections.map((sec) =>
+          sec.heading === "Exam tracks"
+            ? { ...sec, links: competitive.sections[0].links }
+            : sec
+        ),
+      };
+    }
+    return cat;
+  });
+}
 
 const RESOURCES_MENU = [
   { title: "Blogs", icon: IcFileText, to: "/blogs", desc: "Chapter-wise study articles." },
@@ -204,12 +237,12 @@ function IconCard({ item, onGo }) {
 
 /* ────────────────────────── MEGA PANELS ────────────────────────── */
 
-function CoursesMega({ onGo }) {
-  const [schoolTab, setSchoolTab] = useState("cbse");
+function CoursesMega({ onGo, menu }) {
+  const [schoolTab, setSchoolTab] = useState("central");
 
   return (
     <div className="skn-mega-grid skn-mega-courses">
-      {COURSES_MENU.map((cat) => {
+      {menu.map((cat) => {
         const Icon = cat.icon;
         return (
           <div className="skn-mcol" key={cat.title}>
@@ -328,10 +361,23 @@ const Navbar = () => {
   const [isMac, setIsMac] = useState(false);
   const [announcement, setAnnouncement] = useState(null);
   const [announceDismissed, setAnnounceDismissed] = useState(false);
+  const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
 
   const headerRef = useRef(null);
   const searchRef = useRef(null);
   const closeTimer = useRef(null);
+
+  /* Courses mega-menu — CMS/catalog-driven boards + exam tracks, merged over
+     the static fallback so the menu never renders empty while this loads. */
+  useEffect(() => {
+    let alive = true;
+    getPublicNavMenu().then((categories) => {
+      if (alive) setCoursesMenu(mergeLiveNavMenu(categories));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   /* sitewide announcement strip — CMS-driven, hidden entirely if the
      API is unreachable or nothing is currently live. Dismissal persists
@@ -465,7 +511,7 @@ const Navbar = () => {
 
   const megaFor = (id) =>
     id === "courses" ? (
-      <CoursesMega onGo={closeAll} />
+      <CoursesMega onGo={closeAll} menu={coursesMenu} />
     ) : id === "resources" ? (
       <CardsMega items={RESOURCES_MENU} onGo={closeAll} cols={3} />
     ) : (
@@ -670,7 +716,7 @@ const Navbar = () => {
             open={openAcc === "courses"}
             onToggle={() => setOpenAcc(openAcc === "courses" ? "" : "courses")}
           >
-            {COURSES_MENU.map((cat) => (
+            {coursesMenu.map((cat) => (
               <div className="skn-dgroup" key={cat.title}>
                 <h5>{cat.title}</h5>
                 {(cat.tabs

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
-import { getPublicCourseDetail } from '../api/coursesApi';
+import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
 import { usePublicBoards, isBoardLocked, useBoardClasses } from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
@@ -330,6 +330,7 @@ const ALL_BOARDS = [
 const Courses = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { slug: slugParam } = useParams();
   const { isAuthenticated, user } = useAuth();
   const { openWithMessage } = useProfileModal();
 
@@ -360,6 +361,44 @@ const Courses = () => {
   // selected — replaces the old hardcoded CLASSES array / courseData.js.
   const boards = usePublicBoards();
   const { classes: liveClasses } = useBoardClasses(boards, selectedBoard);
+
+  // Direct visit to /courses/<slug> ("View Details" is now a real, shareable
+  // URL) — resolve the course by slug and open it straight to the detail
+  // view. Runs once boards has loaded so the board group/board breadcrumb
+  // can be set too; guarded on `activeCourse` so it never re-fires after the
+  // learner navigates elsewhere on this page.
+  useEffect(() => {
+    if (!slugParam || !boards || activeCourse) return;
+    let cancelled = false;
+    setActiveCourseLoading(true);
+    getPublicCourseBySlug(slugParam).then((detail) => {
+      if (cancelled) return;
+      setActiveCourseLoading(false);
+      if (!detail) return;
+      const liveBoard = detail.board
+        ? boards.find((b) => b.name === detail.board.name)
+        : null;
+      if (liveBoard) {
+        setSelectedBoardGroup(liveBoard.board_type === 'CENTRAL' ? 'central' : 'state');
+        setSelectedBoard(liveBoard.slug);
+      }
+      setActiveCourse({
+        title: detail.title,
+        desc: detail.description,
+        price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+        highlights: detail.details?.highlights,
+        includes: detail.details?.includes,
+        topics: (detail.subjects || []).map((s) => ({
+          title: s.name,
+          textbook: s.textbook,
+          chapters: (s.chapters || []).map((c) => c.title),
+        })),
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [slugParam, boards, activeCourse]);
 
   const goToState = (nextState) => {
     const state = {
@@ -487,7 +526,7 @@ const Courses = () => {
   // course) instead of a hardcoded boolean per entry.
   const liveBoardOptions = useMemo(() => {
     const withLiveLock = (list) =>
-      list.map((b) => ({ ...b, locked: isBoardLocked(boards, b.title, b.locked) }));
+      list.map((b) => ({ ...b, locked: isBoardLocked(boards, b.id, b.locked) }));
     return {
       central: withLiveLock(BOARD_OPTIONS.central),
       state: withLiveLock(BOARD_OPTIONS.state),
@@ -495,7 +534,7 @@ const Courses = () => {
   }, [boards]);
 
   const liveAllBoards = useMemo(
-    () => ALL_BOARDS.map((b) => ({ ...b, locked: isBoardLocked(boards, b.title, b.locked) })),
+    () => ALL_BOARDS.map((b) => ({ ...b, locked: isBoardLocked(boards, b.id, b.locked) })),
     [boards]
   );
 
@@ -605,15 +644,26 @@ const Courses = () => {
     setActiveCourse({
       title: detail.title,
       desc: detail.description,
-      price: detail.price != null
-        ? `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`
-        : '₹1,500',
+      price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+      highlights: detail.details?.highlights,
+      includes: detail.details?.includes,
       topics: (detail.subjects || []).map((s) => ({
         title: s.name,
         textbook: s.textbook,
         chapters: (s.chapters || []).map((c) => c.title),
       })),
     });
+
+    // Give this course a real, shareable URL (View Details no longer stays
+    // parked on the bare /courses path) — same manual-history convention
+    // goToState already uses, just with a path this time.
+    if (detail.slug) {
+      window.history.pushState(
+        { selectedBoardGroup, selectedBoard, selectedClass: cls, activeCourse: true },
+        '',
+        `/courses/${detail.slug}`
+      );
+    }
   };
 
   // Once the board's real class list has loaded, auto-open the specific

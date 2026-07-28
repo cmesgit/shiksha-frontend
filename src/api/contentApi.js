@@ -97,38 +97,3 @@ export async function getAnnouncements() {
   }
 }
 
-export async function getShowcaseCourses() {
-  try {
-    const { data } = await api.get("/content/showcase/");
-    return data || [];
-  } catch {
-    return [];
-  }
-}
-
-// Normalize a CMS ShowcaseCourse to the exact shape HomeGreen's
-// FeaturedCourses component already renders (homeData.js FEATURED_COURSES
-// entries). `soon` is derived the same way the backend documents it:
-// an empty price with a tutor name set means "Coming Soon".
-export const toShowcaseCard = (c) => ({
-  cats: Array.isArray(c.categories) ? c.categories : [],
-  lvl: c.level_label,
-  ribbon: c.ribbon || null,
-  stars: c.stars,
-  count: c.review_count,
-  title: c.title,
-  fact: c.fact_line,
-  price: c.price_label || undefined,
-  tutor: c.tutor_name || undefined,
-  explore: !!c.is_explore_card,
-  soon: !c.price_label && !!c.tutor_name,
-  grad: c.gradient_css,
-  img: c.img || "",
-  icon: c.icon,
-  to: c.link_path || undefined,
-  state:
-    c.link_state && Object.keys(c.link_state).length ? c.link_state : undefined,
-  // Real course this card is linked to (if any) — lets the click deep-link
-  // straight into that course on the Courses.jsx catalog, not just its board.
-  courseId: c.course || undefined,
-});

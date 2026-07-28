@@ -40,12 +40,14 @@ export function usePublicBoards() {
   return boards;
 }
 
-/** Whether a board (matched by display title, e.g. "CBSE") should render as
+/** Whether a board (matched by slug, e.g. "cbse") should render as
  * locked/"Coming Soon". Trusts the static fallback while boards are still
- * loading, so CBSE/MBSE don't flash locked before the first request resolves. */
-export function isBoardLocked(boards, boardTitle, fallbackLocked) {
+ * loading, so CBSE/MBSE don't flash locked before the first request resolves.
+ * Matched by slug, not display name — a name like "BSE Odisha" never matches
+ * its own slug ("bseodisha") under a naive case-insensitive string compare. */
+export function isBoardLocked(boards, boardSlug, fallbackLocked) {
   if (!boards) return fallbackLocked;
-  const match = boards.find((b) => b.name.toLowerCase() === (boardTitle || "").toLowerCase());
+  const match = boards.find((b) => b.slug === boardSlug);
   return !match || !match.has_published_courses;
 }
 
@@ -59,7 +61,7 @@ export function useBoardClasses(boards, boardSlug) {
   useEffect(() => {
     const board =
       boards && boardSlug
-        ? boards.find((b) => b.name.toLowerCase() === boardSlug.toLowerCase())
+        ? boards.find((b) => b.slug === boardSlug)
         : null;
 
     let cancelled = false;
