@@ -55,6 +55,8 @@ const Payment          = lazy(() => import("./Payment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
+const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
+const Marketplace      = lazy(() => import("../pages/Marketplace"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
@@ -102,10 +104,11 @@ function ScrollToTop() {
 }
 
 function Page({ children }) {
+  const { pathname } = useLocation();
   return (
     <div className="page-content">
       <Navbar />
-      {children}
+      <div key={pathname} className="page-fade">{children}</div>
       <Footer />
     </div>
   );
@@ -319,6 +322,8 @@ function App() {
         <Route path="/skill-development" element={<Navigate to="/skill/browse" replace />} />
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
+        <Route path="/live"          element={<LiveLanding />} />
+        <Route path="/marketplace"   element={<Marketplace />} />
 
         {/*
           Faculty / Academy entry points.

@@ -68,7 +68,9 @@ export default function Discovery({ nav, initialSkill = "all" }) {
               const key = s.slug || s.id;
               return (
                 <button key={key} onClick={() => setActiveSkill(key)} className={"sd-chip " + (activeSkill === key ? "sd-chip-on" : "")}>
-                  <span style={{ color: activeSkill === key ? "#fff" : s.color, fontWeight: 700 }}>{s.icon}</span> {s.label}
+                  {s.image
+                    ? <img src={s.image} alt="" style={{ width: 14, height: 14, borderRadius: 4, objectFit: "cover", verticalAlign: "middle", marginRight: 4 }} />
+                    : <span style={{ color: activeSkill === key ? "#fff" : s.color, fontWeight: 700 }}>{s.icon}</span>} {s.label}
                 </button>
               );
             })}

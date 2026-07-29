@@ -1,0 +1,15 @@
+.live-page { min-height: 100vh; background: #f5f0e6; font-family: "Poppins", sans-serif; }
+.live-hero { max-width: 700px; margin: 0 auto; padding: 64px 24px 100px; }
+.live-card { background: #fff; border: 1px solid #e5e0d8; border-radius: 20px; padding: 40px; text-align: center; }
+.live-card h1 { font-size: 32px; font-weight: 900; color: #041f09; letter-spacing: -1px; margin: 0 0 8px; }
+.live-sub { font-size: 14px; color: #6b7280; margin: 0 0 28px; }
+.live-new-btn { width: 100%; background: #041f09; color: #fff; border: none; border-radius: 12px; padding: 16px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.live-new-btn:hover { background: #0a4018; }
+.live-new-btn:disabled { opacity: .6; cursor: not-allowed; }
+.live-join-row { display: flex; gap: 8px; margin-top: 16px; }
+.live-join-row input { flex: 1; border: 1.5px solid #d4cfc9; border-radius: 10px; padding: 12px 14px; font-size: 14px; font-family: inherit; outline: none; }
+.live-join-row input:focus { border-color: #0a7d8c; }
+.live-join-row button { background: #eef7fb; color: #0a7d8c; border: none; border-radius: 10px; padding: 0 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.live-join-row button:hover { background: #dcedf3; }
+.live-error { color: #ef4444; font-size: 13px; margin: 12px 0 0; }
+.live-helper { font-size: 11.5px; color: #94a3b8; margin: 18px 0 0; }

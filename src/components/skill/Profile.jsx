@@ -198,22 +198,25 @@ export default function Profile({ t, nav, initialMode }) {
     setModal({ ok: "buy" });
   }
 
-  // FIX 1: after sending, redirect to the student app's SkillMessages page
-  // with teacher_profile_id so it opens the live WS DM immediately.
-  // t.teacher_profile_id = TeacherProfile UUID (from ExpertCardSerializer after backend fix).
+  // Messaging is delivered over the live WebSocket chat (the `chat` app),
+  // which has no REST send — hand off to the student app's SkillMessages
+  // inbox with the draft in the query string instead, same as
+  // ExpertProfilePage.jsx's MessageComposer. (The old POST
+  // /skill/conversations/ route was deleted along with the skills
+  // messaging model — calling it here always 404'd silently while this
+  // still showed a false "message sent" success state.)
   async function confirmMsg() {
-    setModal("busy");
-    try {
-      await skillApi.messageExpert(t.id, msgText);
-    } catch (e) {
-      console.warn("messageExpert failed (demo continues):", e?.message);
+    if (!t.teacher_profile_id) {
+      setModal({ ok: "msg" });
+      return;
     }
+    const dest =
+      `${APP_URL}/skill-messages` +
+      `?teacherProfileId=${encodeURIComponent(t.teacher_profile_id)}` +
+      `&expertName=${encodeURIComponent(t.name)}` +
+      `&draft=${encodeURIComponent(msgText)}`;
     setModal({ ok: "msg" });
-    // Redirect after a short pause so the user sees the success state
-    if (t.teacher_profile_id) {
-      const dest = `${APP_URL}/skill-messages?teacherProfileId=${t.teacher_profile_id}&expertName=${encodeURIComponent(t.name)}`;
-      setTimeout(() => { window.location.href = dest; }, 1400);
-    }
+    setTimeout(() => { window.location.href = dest; }, 1400);
   }
 
   function openBook() { setSlot(null); setBTopic(""); setBDur(0); setOpenSlotCount(null); setModal("book"); }

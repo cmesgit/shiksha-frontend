@@ -588,6 +588,16 @@ const Navbar = () => {
                 </button>
               ))}
             </div>
+
+            {/* Single-destination links — not mega-menu categories, so they
+                sit outside NAV_ITEMS/skn-pill as plain links (same pattern
+                already used for Login/Signup below). */}
+            <Link to="/marketplace" className="skn-navbtn" onClick={closeAll}>
+              Marketplace
+            </Link>
+            <Link to="/live" className="skn-navbtn" onClick={closeAll}>
+              Live
+            </Link>
           </nav>
 
           {/* Right actions */}
@@ -769,6 +779,13 @@ const Navbar = () => {
               )}
             </div>
           </DrawerAccordion>
+
+          <Link to="/marketplace" className="skn-mlink" onClick={closeAll}>
+            <span>Marketplace</span>
+          </Link>
+          <Link to="/live" className="skn-mlink" onClick={closeAll}>
+            <span>Live</span>
+          </Link>
 
           <Link to="/become-faculty" className="skn-mlink skn-strong" onClick={closeAll}>
             <span>Become a Faculty</span>

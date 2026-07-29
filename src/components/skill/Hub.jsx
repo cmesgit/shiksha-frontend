@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Icon } from "./icons";
 import { SKILL_CATEGORIES as FALLBACK_CATS } from "./data";
-import { fetchTeachers } from "../../api/skillApi";
+import { fetchTeachers, fetchMarketingBlocks } from "../../api/skillApi";
 import api from "../../api/apiClient";
 
 export default function Hub({ nav }) {
   const [categories, setCategories] = useState(FALLBACK_CATS);
   const [teacherCounts, setTeacherCounts] = useState({});
+  const [marketing, setMarketing] = useState({});
 
   useEffect(() => {
     // Fetch real categories
@@ -27,7 +28,17 @@ export default function Hub({ nav }) {
         setTeacherCounts(counts);
       })
       .catch(() => {/* ignore, counts stay 0 */});
+
+    fetchMarketingBlocks().then(setMarketing);
   }, []);
+
+  // CMS-managed copy, falling back to the built-in default when the block is
+  // missing/inactive so an empty CMS never breaks the page.
+  const hub = marketing.hub;
+  const hubHeading = hub?.heading || "Learn a skill directly from someone who does it.";
+  const hubBody = hub?.body || "Guest teachers from across Mizoram offer short, focused sessions in their specialty — outside the regular school curriculum.";
+  const learnHeading = hub?.subheading || "I want to learn a skill";
+  const teachHeading = hub?.cta_label || "I want to teach my craft";
 
   return (
     <div className="sd-screen sd-grid-bg" style={{ padding: "40px 48px 60px", position: "relative", minHeight: 600 }}>
@@ -45,11 +56,12 @@ export default function Hub({ nav }) {
 
         <h1 style={{ fontSize: 52, fontWeight: 900, color: "var(--c-forest)", letterSpacing: "-1.8px",
           lineHeight: 1.05, marginTop: 18, maxWidth: 720 }}>
-          Learn a skill <span style={{ color: "var(--c-orange)" }}>directly</span> from someone who&nbsp;does&nbsp;it.
+          {hub?.heading
+            ? hubHeading
+            : <>Learn a skill <span style={{ color: "var(--c-orange)" }}>directly</span> from someone who&nbsp;does&nbsp;it.</>}
         </h1>
         <p style={{ marginTop: 14, fontSize: 15.5, color: "var(--c-ink-soft)", maxWidth: 560, lineHeight: 1.65 }}>
-          Guest teachers from across Mizoram offer short, focused sessions in their specialty
-          &mdash; outside the regular school curriculum.
+          {hubBody}
         </p>
 
         {/* Two doors */}
@@ -67,7 +79,7 @@ export default function Hub({ nav }) {
               <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" }}>For learners</span>
             </div>
             <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 26, marginTop: 14, letterSpacing: "-.6px" }}>
-              I want to learn a skill
+              {learnHeading}
             </div>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,.6)", marginTop: 8, lineHeight: 1.6 }}>
               Browse guest teachers, pick someone whose work you like, book a session.
@@ -89,7 +101,7 @@ export default function Hub({ nav }) {
               <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" }}>For teachers</span>
             </div>
             <div style={{ fontFamily: "var(--font-head)", fontWeight: 800, fontSize: 26, marginTop: 14, letterSpacing: "-.6px", color: "var(--c-forest)" }}>
-              I want to teach my craft
+              {teachHeading}
             </div>
             <p style={{ fontSize: 13, color: "var(--c-ink-soft)", marginTop: 8, lineHeight: 1.6 }}>
               Register as a guest teacher, list your master skills, pass a quick screening, set your rate.
@@ -123,7 +135,9 @@ export default function Hub({ nav }) {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = s.color; e.currentTarget.style.background = "#fdfaf0"; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--c-border)"; e.currentTarget.style.background = "#fff"; }}>
                   <div style={{ width: 38, height: 38, borderRadius: 10, background: s.color + "22", color: s.color,
-                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700 }}>{s.icon}</div>
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, overflow: "hidden" }}>
+                    {s.image ? <img src={s.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : s.icon}
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--c-forest)" }}>{s.label}</div>
                     <div style={{ fontSize: 11, color: "var(--c-ink-soft)" }}>{count} {count === 1 ? "teacher" : "teachers"}</div>

@@ -11,6 +11,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/apiClient";
+import { fetchMarketingBlocks } from "../api/skillApi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./SkillBrowsePage.css";
@@ -55,10 +56,24 @@ export default function SkillBrowsePage() {
   const [cat, setCat]               = useState(params.get("cat") || "all");
   const [search, setSearch]         = useState(params.get("q") || "");
   const [loading, setLoading]       = useState(true);
+  const [marketing, setMarketing]   = useState({});
 
   useEffect(() => {
     api.get("/skill/categories/").then(r => setCategories(r.data || [])).catch(() => {});
+    fetchMarketingBlocks().then(setMarketing);
   }, []);
+
+  // CMS-managed copy, falling back to the built-in default when the block is
+  // missing/inactive so an empty CMS never breaks the page.
+  const hero = marketing.browse_hero;
+  const heroLabel = hero?.subheading || "Skill Development";
+  const heroTitle = hero?.heading || "Find a teacher for any skill";
+  const heroSub = hero?.body || "Browse verified experts from across Mizoram. Book a session when you find the right match — no sign-up needed to look.";
+  const teachBanner = marketing.teach_banner;
+  const teachHeading = teachBanner?.heading || "Are you an expert at something?";
+  const teachBody = teachBanner?.body || "Share your craft with students across Mizoram. Create a teaching account — it takes less than 5 minutes.";
+  const teachCta = teachBanner?.cta_label || "I want to teach my craft →";
+  const teachCtaUrl = teachBanner?.cta_url || "/signup?role=teacher&skill=true";
 
   useEffect(() => {
     setLoading(true);
@@ -76,9 +91,9 @@ export default function SkillBrowsePage() {
       <Navbar />
       <div className="sbp-hero">
         <div className="sbp-hero__inner">
-          <p className="sbp-hero__label">Skill Development</p>
-          <h1 className="sbp-hero__title">Find a teacher for any skill</h1>
-          <p className="sbp-hero__sub">Browse verified experts from across Mizoram. Book a session when you find the right match — no sign-up needed to look.</p>
+          <p className="sbp-hero__label">{heroLabel}</p>
+          <h1 className="sbp-hero__title">{heroTitle}</h1>
+          <p className="sbp-hero__sub">{heroSub}</p>
           <div className="sbp-search-bar">
             <span className="sbp-search-icon">🔍</span>
             <input value={search} onChange={e => setSearch(e.target.value)}
@@ -95,7 +110,9 @@ export default function SkillBrowsePage() {
           {categories.map(c => (
             <button key={c.id||c.slug} className={`sbp-cat ${cat === (c.slug||c.id) ? "on" : ""}`}
               onClick={() => setCat(c.slug||c.id)}>
-              {c.icon && <span>{c.icon} </span>}{c.label}
+              {c.image
+                ? <img src={c.image} alt="" style={{ width: 16, height: 16, borderRadius: 4, objectFit: "cover", marginRight: 6, verticalAlign: "middle" }} />
+                : c.icon && <span>{c.icon} </span>}{c.label}
             </button>
           ))}
         </div>
@@ -119,12 +136,12 @@ export default function SkillBrowsePage() {
 
         <div className="sbp-teach-banner">
           <div className="sbp-teach-banner__txt">
-            <h3>Are you an expert at something?</h3>
-            <p>Share your craft with students across Mizoram. Create a teaching account — it takes less than 5 minutes.</p>
+            <h3>{teachHeading}</h3>
+            <p>{teachBody}</p>
           </div>
           <button className="sbp-teach-banner__btn"
-            onClick={() => navigate("/signup?role=teacher&skill=true")}>
-            I want to teach my craft →
+            onClick={() => navigate(teachCtaUrl)}>
+            {teachCta}
           </button>
         </div>
       </div>

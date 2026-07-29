@@ -46,6 +46,20 @@ export async function fetchAvailability(expertId) {
   }
 }
 
+/* ── Marketing copy (SkillDev CMS) ─────────────────────────────
+   GET /skill/marketing/ → { <key>: {heading, subheading, body, cta_label,
+   cta_url, image, is_active}, ... }. Resolves to {} on any failure so every
+   caller falls back to its own hardcoded copy — an empty/unreachable CMS
+   never breaks the page. */
+export async function fetchMarketingBlocks() {
+  try {
+    const { data } = await api.get("/skill/marketing/");
+    return data || {};
+  } catch {
+    return {};
+  }
+}
+
 /* ── Payment config ───────────────────────────────────────────
    GET /skill/payment-config/ → active payment mode + payee details.
    Booking / course-buy screens call this on load to decide between a
