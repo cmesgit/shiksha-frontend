@@ -800,13 +800,13 @@ function LiveCollaboration() {
             </div>
 
             <div className="hm-collab-actions">
-              <button className="hm-btn hm-btn-coral" type="button" onClick={() => navigate("/login")}>
+              <button className="hm-btn hm-btn-coral" type="button" onClick={() => navigate("/live")}>
                 Join Session <IcArrowRight />
               </button>
               <button
                 className="hm-btn hm-btn-ghost"
                 type="button"
-                onClick={() => navigate("/become-faculty")}
+                onClick={() => navigate("/live")}
               >
                 Host Session <IcPlus />
               </button>
@@ -814,9 +814,9 @@ function LiveCollaboration() {
 
             <div className="hm-collab-stats">
               {COLLAB_STATS.map((s) => (
-                <span className="hm-stat" key={s}>
+                <button className="hm-stat" type="button" key={s} onClick={() => navigate("/live")}>
                   {s}
-                </span>
+                </button>
               ))}
             </div>
           </div>

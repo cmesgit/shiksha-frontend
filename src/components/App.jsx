@@ -56,6 +56,7 @@ const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
+const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const Marketplace      = lazy(() => import("../pages/Marketplace"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
@@ -323,6 +324,9 @@ function App() {
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
         <Route path="/live"          element={<LiveLanding />} />
+        <Route path="/live/room/:id" element={
+          <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
+        } />
         <Route path="/marketplace"   element={<Marketplace />} />
 
         {/*

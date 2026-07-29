@@ -1,29 +1,28 @@
 /**
  * LiveLanding.jsx — public "/live" page: host or join an instant video room.
  *
- * This app never touches LiveKit directly — starting or joining a room hands
- * off to the app that actually owns the real-time room UI (student-dashboard
- * for a student/guest, teacher-dashboard when the current user is in teacher
- * context), the same cross-app redirect pattern Booking.jsx already uses for
- * SkillDev session booking. Anyone who isn't entitled (no active enrollment)
- * gets a 15-minute countdown once they join someone else's room; hosting is
- * always unlimited.
+ * The whole flow — landing, hosting, joining, and the actual LiveKit room —
+ * stays on this app's own domain (no cross-app redirect to app./teacher.
+ * subdomains). Starting or joining a room navigates to /live/room/:id,
+ * which renders GroupSessionLive.jsx locally. Anyone who isn't entitled (no
+ * active enrollment) gets a 15-minute countdown once they join someone
+ * else's room; hosting is always unlimited.
  */
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import { useAuth } from "../contexts/AuthContext";
-import { APP_URL, TEACHER_URL, LOGIN_URL } from "../config/urls";
+import { LOGIN_URL } from "../config/urls";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "./LiveLanding.css";
 
 export default function LiveLanding() {
-  const { isAuthenticated, isTeacherContext } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState("");
-
-  const destinationBase = isTeacherContext ? TEACHER_URL : APP_URL;
 
   const requireLogin = () => {
     window.location.href = LOGIN_URL;
@@ -35,7 +34,7 @@ export default function LiveLanding() {
     setError("");
     try {
       const { data } = await api.post("/sessions/group-sessions/instant/", {});
-      window.location.href = `${destinationBase}/group-session/live/${data.id}`;
+      navigate(`/live/room/${data.id}`);
     } catch {
       setError("Couldn't start a meeting. Please try again.");
       setStarting(false);
@@ -46,9 +45,9 @@ export default function LiveLanding() {
     if (!isAuthenticated) return requireLogin();
     const trimmed = code.trim();
     if (!trimmed) return;
-    // No separate lookup needed here — the destination app's GroupSessionLive
-    // page already resolves a pasted code (or a full room id) itself.
-    window.location.href = `${destinationBase}/group-session/live/${encodeURIComponent(trimmed)}`;
+    // No separate lookup needed here — GroupSessionLive.jsx already
+    // resolves a pasted code (or a full room id) itself.
+    navigate(`/live/room/${encodeURIComponent(trimmed)}`);
   };
 
   return (
