@@ -152,6 +152,12 @@
   font-size: 11px;
 }
 
+.uc-chip--more {
+  border-style: dashed;
+  color: var(--sk-body);
+  background: var(--sk-paper);
+}
+
 /* Notify banner */
 .uc-notify {
   display: flex;

@@ -12,7 +12,7 @@
 // this file only owns UI-local concerns: the notify-me banner and the
 // debounce timer for cross-board search.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { isBoardLocked, useCrossBoardMatches } from '../../hooks/usePublicCourses';
 import { submitBoardNotify } from '../../api/coursesApi';
 import '../../css/UnifiedCatalog.css';
@@ -51,8 +51,24 @@ function BoardChip({ board, boards, selectedBoard, onSelectBoard, onLockedClick 
   );
 }
 
+// How many board chips show before collapsing the rest behind "+N more" —
+// State alone can have 25+ boards (mostly locked), so even an expanded
+// section stays compact until the user actually asks to see everything.
+const CHIP_CAP = 6;
+
 function BoardGroupSection({ type, groupBoards, boards, selectedBoard, onSelectBoard, onLockedClick, expanded, onToggle }) {
+  const [showAll, setShowAll] = useState(false);
   if (groupBoards.length === 0) return null;
+
+  // If a deep-link (navbar/cross-board-match) selected a board past the cap,
+  // reveal it rather than hiding the active chip behind "+N more".
+  const capped = groupBoards.slice(0, CHIP_CAP);
+  const selectedBeyondCap =
+    !capped.some((b) => b.slug === selectedBoard) && groupBoards.some((b) => b.slug === selectedBoard);
+  const revealAll = showAll || selectedBeyondCap;
+  const visible = revealAll ? groupBoards : capped;
+  const hiddenCount = groupBoards.length - visible.length;
+
   return (
     <div className="uc-board-group">
       <button
@@ -67,7 +83,7 @@ function BoardGroupSection({ type, groupBoards, boards, selectedBoard, onSelectB
       </button>
       {expanded && (
         <div className="uc-chip-row">
-          {groupBoards.map((b) => (
+          {visible.map((b) => (
             <BoardChip
               key={b.slug}
               board={b}
@@ -77,6 +93,20 @@ function BoardGroupSection({ type, groupBoards, boards, selectedBoard, onSelectB
               onLockedClick={onLockedClick}
             />
           ))}
+          {hiddenCount > 0 && (
+            <button type="button" className="uc-chip uc-chip--more" onClick={() => setShowAll(true)}>
+              +{hiddenCount} more
+            </button>
+          )}
+          {/* Only offered when clicking it will actually collapse the row —
+              while the selected board sits beyond the cap, revealAll stays
+              true regardless of showAll, so the button would otherwise be a
+              no-op that appears broken. */}
+          {showAll && !selectedBeyondCap && groupBoards.length > CHIP_CAP && (
+            <button type="button" className="uc-chip uc-chip--more" onClick={() => setShowAll(false)}>
+              Show less
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -243,11 +273,15 @@ const UnifiedCatalog = ({
 }) => {
   const [notifyBoard, setNotifyBoard] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  // Which board-type sections (CENTRAL/STATE) are expanded — a Set so the
-  // user can have both open at once; starts empty and picks up the current
-  // board's group automatically below, without ever forcing a
-  // manually-opened section shut.
-  const [expandedGroups, setExpandedGroups] = useState(() => new Set());
+  // Only one board-type section (CENTRAL/STATE) open at a time — keeps the
+  // picker compact instead of both lists stacking on top of each other.
+  const [expandedGroup, setExpandedGroup] = useState(null);
+  // Tracks which board we last auto-opened a section for, so that effect
+  // only reacts to an actual NEW selection (navbar deep-link, cross-board
+  // match, first load) — not to `expandedGroup` itself changing, which
+  // previously made a manually-collapsed section for the selected board's
+  // own group snap back open on every render.
+  const autoExpandedForRef = useRef(null);
 
   // Only the cross-board fetch needs debouncing (network calls per
   // keystroke would be wasteful) — the current board's list filters
@@ -257,23 +291,15 @@ const UnifiedCatalog = ({
     return () => clearTimeout(t);
   }, [search]);
 
-  // Whenever the selected board belongs to a section that isn't open yet,
-  // open it — covers first load, a cross-board-match click, and a navbar
-  // deep-link landing on a board in the other group.
   useEffect(() => {
-    if (!boards || !selectedBoard) return;
+    if (!boards || !selectedBoard || autoExpandedForRef.current === selectedBoard) return;
+    autoExpandedForRef.current = selectedBoard;
     const board = boards.find((b) => b.slug === selectedBoard);
-    if (!board || expandedGroups.has(board.board_type)) return;
-    setExpandedGroups((prev) => new Set(prev).add(board.board_type));
-  }, [boards, selectedBoard, expandedGroups]);
+    if (board) setExpandedGroup(board.board_type);
+  }, [boards, selectedBoard]);
 
   const toggleGroup = (type) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
-      return next;
-    });
+    setExpandedGroup((prev) => (prev === type ? null : type));
   };
 
   const crossMatches = useCrossBoardMatches(boards, debouncedSearch, selectedBoard);
@@ -316,7 +342,7 @@ const UnifiedCatalog = ({
                 selectedBoard={selectedBoard}
                 onSelectBoard={onSelectBoard}
                 onLockedClick={setNotifyBoard}
-                expanded={expandedGroups.has(type)}
+                expanded={expandedGroup === type}
                 onToggle={() => toggleGroup(type)}
               />
             ))}
