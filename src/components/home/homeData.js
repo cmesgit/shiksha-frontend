@@ -103,15 +103,15 @@ export const FEATURED_COURSES = [
   { cats: ["class8-12"], lvl: "Arts", ribbon: null, stars: 4, count: 58, title: "Class 12 · Arts", fact: CLASS_FACT, price: "1,500", grad: "rgba(59,130,246,0.72),rgba(29,78,216,0.88)", img: IMG("photo-1514369118554-e20d93546b30"), icon: "book" },
   // ── Boards ──
   { cats: ["boards", "all"], lvl: "National Board", ribbon: "Popular", stars: 5, count: 312, title: "CBSE (Central Board)", fact: "Expert Faculty · Classes 8–12", explore: true, grad: "rgba(15,157,107,0.72),rgba(11,91,62,0.88)", img: IMG("photo-1741699428220-65f37f3fbbcb"), icon: "book", to: "/courses", state: { selectedBoardGroup: "central", selectedBoard: "cbse" } },
-  { cats: ["boards"], lvl: "Regional", ribbon: null, stars: 4, count: 89, title: "Regional Boards", fact: "MBSE & more", explore: true, grad: "rgba(20,184,160,0.72),rgba(11,91,62,0.88)", img: IMG("photo-1598981457915-aea220950616"), icon: "book", to: "/courses", state: { selectedBoardGroup: "state", selectedBoard: "mbse" } },
+  { cats: ["boards"], lvl: "Regional", ribbon: null, stars: 4, count: 89, title: "Regional Boards", fact: "MBSE & more", explore: true, grad: "rgba(20,184,160,0.72),rgba(11,91,62,0.88)", img: IMG("photo-1598981457915-aea220950616"), icon: "compass", to: "/courses", state: { selectedBoardGroup: "state", selectedBoard: "mbse" } },
   // ── Competitive (launching soon) ──
-  { cats: ["competitive", "all"], lvl: "Medical", ribbon: "Popular", stars: 5, count: 41, title: "NEET Preparation", fact: "Live + Recorded · Launching soon", tutor: "Dr. D. Ralte", soon: true, grad: "rgba(236,78,134,0.72),rgba(193,58,104,0.88)", img: IMG("photo-1505751172876-fa1923c5c528"), icon: "flask" },
-  { cats: ["competitive"], lvl: "Civil Services", ribbon: null, stars: 4, count: 75, title: "UPSC & Civil Services", fact: "Live + Recorded · Launching soon", tutor: "K. Zoramthanga", soon: true, grad: "rgba(255,178,29,0.72),rgba(242,140,15,0.88)", img: IMG("photo-1554475900-0a0350e3fc7b"), icon: "book" },
-  { cats: ["competitive"], lvl: "Engineering", ribbon: null, stars: 5, count: 63, title: "IIT-JEE Preparation", fact: "Live + Recorded · Launching soon", tutor: "A. Sharma", soon: true, grad: "rgba(124,92,252,0.72),rgba(75,52,199,0.88)", img: IMG("photo-1614283226124-5a2f0f23752b"), icon: "calc" },
-  { cats: ["competitive"], lvl: "SSC · Banking", ribbon: null, stars: 4, count: 54, title: "Government Exams", fact: "Live + Recorded · Launching soon", tutor: "T. Lalhmingthanga", soon: true, grad: "rgba(20,184,160,0.72),rgba(11,91,62,0.88)", img: IMG("photo-1584982751601-97dcc096659c"), icon: "book" },
-  { cats: ["competitive"], lvl: "NDA · CDS", ribbon: null, stars: 4, count: 38, title: "Defence Exams", fact: "Live + Recorded · Launching soon", tutor: "Maj. R. Singh (Retd.)", soon: true, grad: "rgba(59,130,246,0.72),rgba(29,78,216,0.88)", img: IMG("photo-1590821091890-bdcc3c1e2b37"), icon: "book" },
-  { cats: ["competitive"], lvl: "Accountancy", ribbon: null, stars: 5, count: 47, title: "CA Program", fact: "Live + Recorded · Launching soon", tutor: "CA V. Malsawma", soon: true, grad: "rgba(15,157,107,0.72),rgba(20,184,160,0.88)", img: IMG("photo-1532187643603-ba119ca4109e"), icon: "calc" },
-  { cats: ["competitive"], lvl: "Olympiads", ribbon: null, stars: 4, count: 29, title: "Olympiad & Foundation", fact: "Live + Recorded · Launching soon", tutor: "R. Vanlalhriati", soon: true, grad: "rgba(255,122,69,0.72),rgba(225,77,42,0.88)", img: IMG("photo-1741699428220-65f37f3fbbcb"), icon: "flask" },
+  { cats: ["competitive", "all"], lvl: "Medical", ribbon: "Popular", stars: 5, count: 41, title: "NEET Preparation", fact: "Live + Recorded · Launching soon", tutor: "Dr. D. Ralte", avColor: "#0B5B3E", soon: true, grad: "rgba(236,78,134,0.72),rgba(193,58,104,0.88)", img: IMG("photo-1505751172876-fa1923c5c528"), icon: "flask" },
+  { cats: ["competitive"], lvl: "Civil Services", ribbon: null, stars: 4, count: 75, title: "UPSC & Civil Services", fact: "Live + Recorded · Launching soon", tutor: "K. Zoramthanga", avColor: "#FFB21D", soon: true, grad: "rgba(255,178,29,0.72),rgba(242,140,15,0.88)", img: IMG("photo-1554475900-0a0350e3fc7b"), icon: "book" },
+  { cats: ["competitive"], lvl: "Engineering", ribbon: null, stars: 5, count: 63, title: "IIT-JEE Preparation", fact: "Live + Recorded · Launching soon", tutor: "A. Sharma", avColor: "#E14D2A", soon: true, grad: "rgba(124,92,252,0.72),rgba(75,52,199,0.88)", img: IMG("photo-1614283226124-5a2f0f23752b"), icon: "calc" },
+  { cats: ["competitive"], lvl: "SSC · Banking", ribbon: null, stars: 4, count: 54, title: "Government Exams", fact: "Live + Recorded · Launching soon", tutor: "T. Lalhmingthanga", avColor: "#12b3a6", soon: true, grad: "rgba(20,184,160,0.72),rgba(11,91,62,0.88)", img: IMG("photo-1584982751601-97dcc096659c"), icon: "book" },
+  { cats: ["competitive"], lvl: "NDA · CDS", ribbon: null, stars: 4, count: 38, title: "Defence Exams", fact: "Live + Recorded · Launching soon", tutor: "Maj. R. Singh (Retd.)", avColor: "#3b82f6", soon: true, grad: "rgba(59,130,246,0.72),rgba(29,78,216,0.88)", img: IMG("photo-1590821091890-bdcc3c1e2b37"), icon: "book" },
+  { cats: ["competitive"], lvl: "Accountancy", ribbon: null, stars: 5, count: 47, title: "CA Program", fact: "Live + Recorded · Launching soon", tutor: "CA V. Malsawma", avColor: "#0F9D6B", soon: true, grad: "rgba(15,157,107,0.72),rgba(20,184,160,0.88)", img: IMG("photo-1532187643603-ba119ca4109e"), icon: "calc" },
+  { cats: ["competitive"], lvl: "Olympiads", ribbon: null, stars: 4, count: 29, title: "Olympiad & Foundation", fact: "Live + Recorded · Launching soon", tutor: "R. Vanlalhriati", avColor: "#FF7A45", soon: true, grad: "rgba(255,122,69,0.72),rgba(225,77,42,0.88)", img: IMG("photo-1741699428220-65f37f3fbbcb"), icon: "flask" },
 ];
 
 /* ── WHY CHOOSE SHIKSHACOM (checklist) ── */
@@ -175,6 +175,26 @@ export const RESOURCES = [
     cta: "View opportunities",
     to: "/upcoming",
   },
+  {
+    icon: "library",
+    grad: "linear-gradient(135deg,#EC4E86 0%,#9D174D 100%)",
+    tint: "#FDECF3",
+    ghost: "#EC4E86",
+    title: "Explore Library",
+    text: "Access notes, study materials, eBooks, previous year papers, guides and curated learning resources in one place.",
+    cta: "Explore Library",
+    to: "/explore",
+  },
+  {
+    icon: "researchhub",
+    grad: "linear-gradient(135deg,#06B6D4 0%,#0E5F73 100%)",
+    tint: "#E4F4FA",
+    ghost: "#0891B2",
+    title: "Research Hub",
+    text: "Discover research papers, journals, articles, case studies and curated academic resources for deeper learning.",
+    cta: "Explore Research",
+    to: "/explore/research-hub",
+  },
 ];
 
 /* ── LIVE COLLABORATION ── */
@@ -182,7 +202,7 @@ export const COLLAB_CHIPS = [
   { icon: "video", grad: "linear-gradient(135deg,#12b47a,#0B5B3E)", label: "HD Video Meetings" },
   { icon: "monitor", grad: "linear-gradient(135deg,#3b82f6,#1d4ed8)", label: "Screen Sharing" },
   { icon: "chat", grad: "linear-gradient(135deg,#7C5CFC,#12b3a6)", label: "Live Chat" },
-  { icon: "shield", grad: "linear-gradient(135deg,#F59E0B,#E14D2A)", label: "Secure Collaboration" },
+  { icon: "lock", grad: "linear-gradient(135deg,#F59E0B,#E14D2A)", label: "Secure Collaboration" },
 ];
 
 export const COLLAB_STATS = ["Education", "Business", "Communities", "Workshops"];

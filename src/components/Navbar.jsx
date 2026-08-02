@@ -580,7 +580,12 @@ const Navbar = () => {
                     setOpenMenu(item.id);
                   }}
                   onClick={() =>
-                    setOpenMenu((prev) => (prev === item.id ? null : item.id))
+                    // Hover already opens this on desktop (mouseenter fires
+                    // before click for any mouse user), so a plain toggle
+                    // here would immediately close what hover just opened.
+                    // Click only needs to *open* — closing is handled by
+                    // mouseleave/outside-click/Escape/route change.
+                    setOpenMenu(item.id)
                   }
                 >
                   {item.label}

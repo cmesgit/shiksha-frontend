@@ -61,6 +61,13 @@ export const IcShield = (p) => (
   </S>
 );
 
+export const IcLock = (p) => (
+  <S {...p}>
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </S>
+);
+
 export const IcPhone = (p) => (
   <S {...p}>
     <rect x="5" y="2" width="14" height="20" rx="2" />
@@ -121,6 +128,22 @@ export const IcPlay = (p) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
     <path d="M8 5v14l11-7z" />
   </svg>
+);
+
+export const IcPlayCircle = (p) => (
+  <S sw={1.9} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M10 8.5 16 12l-6 3.5Z" />
+  </S>
+);
+
+export const IcCalendar = (p) => (
+  <S {...p}>
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M16 2v4" />
+    <path d="M8 2v4" />
+    <path d="M3 10h18" />
+  </S>
 );
 
 export const IcStar = ({ off = false, ...p }) => (
@@ -243,7 +266,7 @@ export const IcSparkles = (p) => (
 );
 
 export const IcTrendingUp = (p) => (
-  <S sw={2.4} {...p}>
+  <S {...p}>
     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
     <polyline points="16 7 22 7 22 13" />
   </S>

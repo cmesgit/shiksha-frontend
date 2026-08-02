@@ -29,11 +29,11 @@ import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
 import {
   IcArrowRight,
   IcArrowLeft,
-  IcSearch,
   IcVideo,
   IcCheck,
   IcGradCap,
   IcShield,
+  IcLock,
   IcPhone,
   IcEye,
   IcChat,
@@ -50,6 +50,10 @@ import {
   IcTrendingUp,
   IcMonitor,
   IcGlobe,
+  IcLibrary,
+  IcCompass,
+  IcCalendar,
+  IcPlayCircle,
 } from "./HomeIcons";
 
 import heroArt from "../../assets/home/hero-illustration.svg";
@@ -61,6 +65,7 @@ const ICONS = {
   video: IcVideo,
   gradcap: IcGradCap,
   shield: IcShield,
+  lock: IcLock,
   phone: IcPhone,
   eye: IcEye,
   chat: IcChat,
@@ -71,6 +76,8 @@ const ICONS = {
   sparkles: IcSparkles,
   trendingup: IcTrendingUp,
   monitor: IcMonitor,
+  library: IcLibrary,
+  researchhub: IcCompass,
 };
 
 /* tiny thumbnail glyphs used on course cards */
@@ -98,6 +105,13 @@ const ThumbIcon = ({ kind }) => {
         <path d="M8.5 8h7M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01" />
       </svg>
     );
+  if (kind === "compass")
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="m14.8 9.2-1.6 4.8-4.8 1.6 1.6-4.8z" />
+      </svg>
+    );
   return (
     <svg {...common}>
       <path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z" />
@@ -114,113 +128,64 @@ const scrollToPrograms = () => {
 
 /* ═══════════════════ HERO ═══════════════════ */
 function Hero() {
-  const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("all");
-
-  const goSearch = () => {
-    const q = query.trim();
-    if (category === "school") {
-      navigate("/courses", {
-        state: {
-          resetCourses: Date.now(),
-          searchQuery: q,
-          selectedBoardGroup: "central",
-          selectedBoard: "cbse",
-        },
-      });
-    } else if (category === "jee" || category === "neet" || category === "upsc") {
-      navigate("/general-studies");
-    } else {
-      navigate("/courses", { state: { resetCourses: Date.now(), searchQuery: q } });
-    }
-  };
-
   return (
-    <section className="hm-hero hm-wrap">
+    <section className="hm-hero hm-wrap" aria-labelledby="hm-hero-title">
+      <div className="hm-hero-deco" aria-hidden="true">
+        <span className="hm-hero-dots hm-hero-dots-a" />
+        <span className="hm-hero-dots hm-hero-dots-b" />
+        <span className="hm-hero-ring" />
+        <span className="hm-hero-squiggle">
+          <svg viewBox="0 0 100 28" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+            <path d="M3 14 Q9 0 15.5 14 Q22 28 28.5 14 Q35 0 41.5 14 Q48 28 54.5 14 Q61 0 67.5 14 Q74 28 80.5 14 Q87 0 93.5 14" />
+          </svg>
+        </span>
+      </div>
+
       <div className="hm-hero-grid">
-        <div className="hm-hero-vis hm-rv">
-          <svg className="hm-doodle hm-d1" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-            <ellipse cx="40" cy="40" rx="37" ry="19" stroke="currentColor" strokeWidth="2" transform="rotate(32 40 40)" />
-            <circle cx="75" cy="28" r="3.5" fill="currentColor" />
-          </svg>
-          <svg className="hm-doodle hm-d2" viewBox="0 0 96 24" fill="none" aria-hidden="true">
-            <path d="M2 12c8-9 16 9 24 0s16-9 24 0 16 9 24 0" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-          </svg>
-          <span className="hm-doodle hm-d3" />
-          <span className="hm-doodle hm-d4" />
+        <div className="hm-hero-copy">
+          <p className="hm-hero-badge hm-hero-rise hm-hero-d1">
+            <i aria-hidden="true" />
+            Empowerment Through Education
+          </p>
 
-          <div className="hm-hero-disc">
-            <div className="hm-hero-art">
-              <img src={heroArt} alt="Students and a teacher in an online classroom" />
-            </div>
-          </div>
+          <h1 id="hm-hero-title" className="hm-hero-title hm-hero-rise hm-hero-d2">
+            <span className="hm-hero-lead">Empowering Students Through</span>
+            <span className="hm-hero-punch">Better Learning.</span>
+          </h1>
 
-          <div className="hm-float hm-f1">
-            <span className="hm-fi" style={{ background: "var(--coral-soft)", color: "var(--coral)" }}>
-              <IcVideo />
-            </span>
-            <div>
-              <b>Live class</b>
-              <span>Class 10 · Maths · now</span>
-            </div>
-            <span className="hm-livedot" />
-          </div>
-          <div className="hm-float hm-f2">
-            <span className="hm-fi" style={{ background: "#dff5e9", color: "var(--green)" }}>
-              <IcCheck />
-            </span>
-            <div>
-              <b>Doubt cleared</b>
-              <span>Notes shared · 5:42 PM</span>
-            </div>
+          <p className="hm-hero-sub hm-hero-rise hm-hero-d3">
+            ShikshaCom combines quality education, expert mentorship, collaborative
+            learning, and trusted resources to help every student reach their academic goals.
+          </p>
+
+          <div className="hm-hero-cta-row hm-hero-rise hm-hero-d4">
+            <Link className="hm-btn hm-btn-coral" to="/courses">
+              Explore Courses
+              <IcArrowRight />
+            </Link>
+            <button type="button" className="hm-btn hm-btn-ghost" onClick={scrollToPrograms}>
+              <IcCalendar />
+              Book a Tutor
+            </button>
           </div>
         </div>
 
-        <div className="hm-hero-copy hm-rv">
-          <h1>
-            Learn every day &amp; ace school and{" "}
-            <span className="hm-mark">
-              competitive exams
-              <svg viewBox="0 0 300 70" fill="none" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M150 6C90 4 20 12 10 34c-9 20 60 30 140 30s148-11 140-31C282 14 214 5 150 6z" stroke="currentColor" strokeWidth="3" fill="none" />
-              </svg>
-            </span>
-          </h1>
-          <p className="hm-hero-sub">
-            Structured learning for Classes 8–12, board examinations and
-            national-level competitive exams — with expert educators, live
-            &amp; recorded classes, and flexible digital learning.
-          </p>
-          <div className="hm-searchbar">
-            <span className="hm-si">
-              <IcSearch width="19" height="19" />
-            </span>
-            <input
-              placeholder='Try "Class 10 Maths" or "NEET Biology"…'
-              aria-label="Search courses"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && goSearch()}
-            />
-            <select
-              aria-label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="all">All Programs</option>
-              <option value="school">School Academics</option>
-              <option value="jee">IIT-JEE</option>
-              <option value="neet">NEET</option>
-              <option value="upsc">UPSC</option>
-            </select>
-            <button className="hm-btn hm-btn-coral" type="button" onClick={goSearch}>
-              Search now
-            </button>
+        <div className="hm-hero-visual hm-hero-rise hm-hero-d5">
+          <span className="hm-hero-blob" aria-hidden="true" />
+
+          <span className="hm-hero-fl hm-hero-fl-cap" aria-hidden="true">
+            <IcGradCap />
+          </span>
+          <span className="hm-hero-fl hm-hero-fl-book" aria-hidden="true">
+            <IcBook />
+          </span>
+          <span className="hm-hero-fl hm-hero-fl-play" aria-hidden="true">
+            <IcPlayCircle />
+          </span>
+
+          <div className="hm-hero-art">
+            <img src={heroArt} alt="Students and a teacher in an online classroom" />
           </div>
-          <p className="hm-hero-tag">
-            <b>Guest preview free</b> · CBSE · NCERT · MBSE aligned · Live + Recorded
-          </p>
         </div>
       </div>
     </section>
@@ -585,7 +550,7 @@ function FeaturedCourses() {
                   ) : c.soon ? (
                     <>
                       <span className="hm-fc-tutor">
-                        <span className="hm-fc-av" style={{ background: "#0B5B3E" }}>
+                        <span className="hm-fc-av" style={{ background: c.avColor }}>
                           {c.tutor[0]}
                         </span>
                         {c.tutor}
@@ -703,6 +668,32 @@ function WhyChoose() {
 /* ═══════════════════ RESOURCES & SUPPORT ═══════════════════ */
 function ResourcesSupport() {
   const navigate = useNavigate();
+  const scrollRef = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const updateEdges = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 2);
+    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 2);
+  };
+
+  useEffect(() => {
+    updateEdges();
+    window.addEventListener("resize", updateEdges);
+    return () => window.removeEventListener("resize", updateEdges);
+  }, []);
+
+  const scrollByCard = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.querySelector(".hm-res-card");
+    const gap = parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap || "22");
+    const step = (card?.getBoundingClientRect().width || 280) + gap;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
   return (
     <section className="hm-sec" id="hm-resources">
       <div className="hm-wrap">
@@ -718,38 +709,65 @@ function ResourcesSupport() {
             throughout their academic journey.
           </p>
         </div>
-        <div className="hm-res-grid">
-          {RESOURCES.map((res) => {
-            const Icon = ICONS[res.icon];
-            return (
-              <article
-                className="hm-res-card hm-rv"
-                key={res.title}
-                style={{ "--grad": res.grad, "--tint": res.tint, "--ghost": res.ghost }}
-              >
-                <span className="hm-res-ghost" aria-hidden="true">
-                  <svg viewBox="0 0 200 200" fill="none">
-                    <circle cx="148" cy="152" r="66" fill="currentColor" opacity=".10" />
-                    <circle cx="148" cy="152" r="66" stroke="currentColor" strokeWidth="1.5" opacity=".16" />
-                    <circle cx="86" cy="128" r="30" stroke="currentColor" strokeWidth="1.5" opacity=".13" />
-                    <circle cx="172" cy="92" r="11" fill="currentColor" opacity=".14" />
-                  </svg>
-                </span>
-                <span className="hm-res-ic">
-                  <Icon />
-                </span>
-                <h3>{res.title}</h3>
-                <p>{res.text}</p>
-                <button
-                  type="button"
-                  className="hm-res-link"
-                  onClick={() => navigate(res.to)}
+        <div className="hm-res-rail">
+          <div
+            className="hm-res-scroll"
+            ref={scrollRef}
+            onScroll={updateEdges}
+            tabIndex={0}
+          >
+            {RESOURCES.map((res) => {
+              const Icon = ICONS[res.icon];
+              return (
+                <article
+                  className="hm-res-card hm-rv"
+                  key={res.title}
+                  style={{ "--grad": res.grad, "--tint": res.tint, "--ghost": res.ghost }}
                 >
-                  {res.cta} <IcArrowRight />
-                </button>
-              </article>
-            );
-          })}
+                  <span className="hm-res-ghost" aria-hidden="true">
+                    <svg viewBox="0 0 200 200" fill="none">
+                      <circle cx="148" cy="152" r="66" fill="currentColor" opacity=".10" />
+                      <circle cx="148" cy="152" r="66" stroke="currentColor" strokeWidth="1.5" opacity=".16" />
+                      <circle cx="86" cy="128" r="30" stroke="currentColor" strokeWidth="1.5" opacity=".13" />
+                      <circle cx="172" cy="92" r="11" fill="currentColor" opacity=".14" />
+                    </svg>
+                  </span>
+                  <span className="hm-res-ic">
+                    <Icon />
+                  </span>
+                  <h3>{res.title}</h3>
+                  <p>{res.text}</p>
+                  <button
+                    type="button"
+                    className="hm-res-link"
+                    onClick={() => navigate(res.to)}
+                  >
+                    {res.cta} <IcArrowRight />
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <div className="hm-res-nav">
+            <button
+              type="button"
+              className="hm-arrow"
+              aria-label="Previous resources"
+              disabled={atStart}
+              onClick={() => scrollByCard(-1)}
+            >
+              <IcArrowLeft />
+            </button>
+            <button
+              type="button"
+              className="hm-arrow"
+              aria-label="Next resources"
+              disabled={atEnd}
+              onClick={() => scrollByCard(1)}
+            >
+              <IcArrowRight />
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -825,9 +843,11 @@ function LiveCollaboration() {
             <span className="hm-collab-shape hm-cs1" aria-hidden="true" />
             <span className="hm-collab-shape hm-cs2" aria-hidden="true" />
             <span className="hm-collab-shape hm-cs3" aria-hidden="true" />
-            <svg className="hm-collab-shape hm-cs4" viewBox="0 0 80 24" fill="none" aria-hidden="true">
-              <path d="M2 12c8-9 16 9 24 0s16-9 24 0 16 9 24 0" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-            </svg>
+            <span className="hm-collab-shape hm-cs4" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="12" cy="12" r="10" strokeDasharray="3 4" />
+              </svg>
+            </span>
 
             <div className="hm-glass">
               <img src={collabArt} alt="A live class in session on ShikshaCom" />
