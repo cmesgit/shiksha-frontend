@@ -10,16 +10,25 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getIntake } from "../api/counselling";
+import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import CounsellingShell from "./CounsellingShell";
 import { buildCareerPath } from "./careerPath";
-import { guideBySlug } from "./data/guides";
 import { GuideCard } from "./LandingPage";
+import useCounsellorsLive from "./useCounsellorsLive";
 
 export default function MyPathPage() {
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { live: counsellorsLive } = useCounsellorsLive();
   const [intake, setIntake] = useState(null);
   const [error, setError] = useState("");
+  const [guideIndex, setGuideIndex] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    getGuideIndex().then((cards) => mounted && setGuideIndex(cards.map(toGuideCard)));
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -77,7 +86,9 @@ export default function MyPathPage() {
             <Link to="/counselling/profile" style={{ color: "#1b9c85", fontWeight: 700 }}>Edit profile</Link>
           </p>
         </div>
-        <Link className="sc-btn" to="/counselling/counsellors">Find my counsellors →</Link>
+        <Link className="sc-btn" to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+          {counsellorsLive ? "Find my counsellors →" : "All career guides →"}
+        </Link>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 20 }}>
@@ -104,9 +115,10 @@ export default function MyPathPage() {
 
       <div className="sc-h2row"><h2 className="sc-h2">Related career guides</h2></div>
       <div className="sc-grid3">
-        {path.relatedGuides.map(guideBySlug).filter(Boolean).map((g) => (
-          <GuideCard key={g.slug} g={g} />
-        ))}
+        {path.relatedGuides
+          .map((slug) => guideIndex.find((g) => g.slug === slug))
+          .filter(Boolean)
+          .map((g) => <GuideCard key={g.slug} g={g} />)}
       </div>
     </CounsellingShell>
   );

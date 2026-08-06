@@ -124,8 +124,11 @@ const STATIC_COURSES_MENU = [
         heading: "Career Guidance",
         links: [
           { label: "Career Counselling", to: "/counselling" },
-          { label: "Admission in India", to: "/counselling" },
-          { label: "Admission Abroad", to: "/counselling" },
+          { label: "Admission in India", to: "/counselling/guides/study-in-india" },
+          // No source guide exists yet for study-abroad admissions —
+          // point this at a real page once one is written, not at a
+          // domestic guide that doesn't answer the question.
+          { label: "Admission Abroad", soon: true },
         ],
       },
     ],
