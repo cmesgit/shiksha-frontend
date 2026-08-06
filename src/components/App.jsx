@@ -31,6 +31,7 @@ const CounsellingLanding    = lazy(() => import("../counselling/LandingPage"));
 const CounsellingLibrary    = lazy(() => import("../counselling/LibraryPage"));
 const CounsellingGuide      = lazy(() => import("../counselling/GuidePage"));
 const CounsellingProfile    = lazy(() => import("../counselling/ProfileWizard"));
+const CounsellingSpark      = lazy(() => import("../counselling/SparkFinder"));
 const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
@@ -288,6 +289,7 @@ function App() {
         <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
         <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
+        <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
         <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
