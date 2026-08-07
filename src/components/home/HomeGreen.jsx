@@ -86,6 +86,10 @@ const ICONS = {
   eye: IcEye,
   chat: IcChat,
   book: IcBook,
+  // "school" is the CMS's HomeCategory icon key (content/models.py
+  // HomeCategoryIcon) — aliased to the same glyph the static "School
+  // Education" category card already used.
+  school: IcBook,
   target: IcTarget,
   briefcase: IcBriefcase,
 };
