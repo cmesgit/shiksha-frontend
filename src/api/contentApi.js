@@ -129,3 +129,49 @@ export const toShowcaseCard = (c) => ({
   state:
     c.link_state && Object.keys(c.link_state).length ? c.link_state : undefined,
 });
+
+/* ── Homepage: hero banner / browse categories / closing CTA ────── */
+
+// Resolves to null if no active row is configured (backend returns 204) —
+// callers fall back to the static hero/CTA copy in homeData.js.
+export async function getHeroBanner() {
+  try {
+    const { data } = await api.get("/content/hero/");
+    return data && Object.keys(data).length ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getHomeCta() {
+  try {
+    const { data } = await api.get("/content/cta/");
+    return data && Object.keys(data).length ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getHomeCategories() {
+  try {
+    const { data } = await api.get("/content/categories/");
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+// Normalize a CMS HomeCategory to the exact shape HomeGreen's Categories
+// component already renders (homeData.js CATEGORIES entries).
+export const toCategoryCard = (c) => ({
+  icon: c.icon,
+  grad: `g-${c.gradient}`,
+  title: c.name,
+  sub: c.tagline,
+  pills: Array.isArray(c.pills) ? c.pills : [],
+  stat: c.stat_text,
+  cta: c.cta_text,
+  to: c.link_path || "/courses",
+  state:
+    c.link_state && Object.keys(c.link_state).length ? c.link_state : undefined,
+});

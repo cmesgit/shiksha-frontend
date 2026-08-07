@@ -133,6 +133,73 @@ export const WHY_CHOOSE_CHECKS = [
   },
 ];
 
+/* ── RESOURCES & SUPPORT (horizontal rail) ── */
+export const RESOURCES = [
+  {
+    icon: "forum",
+    grad: "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)",
+    tint: "#EAF6F0",
+    title: "Community Forum",
+    text: "Connect with fellow learners, ask questions and join discussions.",
+    cta: "Visit forum",
+    to: "/forum",
+  },
+  {
+    icon: "lifebuoy",
+    grad: "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)",
+    tint: "#FDF0E6",
+    title: "Counselling",
+    text: "Get academic and career guidance to choose the right path.",
+    cta: "Get guidance",
+    to: "/counselling",
+  },
+  {
+    icon: "zap",
+    grad: "linear-gradient(135deg,#7C5CFC 0%,#12b3a6 100%)",
+    tint: "#EFEBFD",
+    title: "Skill Development",
+    text: "Practical courses to build skills beyond the syllabus.",
+    cta: "Explore skills",
+    to: "/skill/browse",
+  },
+  {
+    icon: "trendup",
+    grad: "linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)",
+    tint: "#EAF1FD",
+    title: "Placement & Opportunities",
+    text: "Stay informed about placements and career opportunities.",
+    cta: "View opportunities",
+    to: "/placements",
+  },
+  {
+    icon: "library",
+    grad: "linear-gradient(135deg,#EC4E86 0%,#9D174D 100%)",
+    tint: "#FDECF3",
+    title: "Explore Library",
+    text: "Access notes, study materials, eBooks, previous year papers, guides and curated learning resources in one place.",
+    cta: "Explore Library",
+    to: "/explore/library",
+  },
+  {
+    icon: "compass",
+    grad: "linear-gradient(135deg,#06B6D4 0%,#0E5F73 100%)",
+    tint: "#E4F4FA",
+    title: "Research Hub",
+    text: "Discover research papers, journals, articles, case studies and curated academic resources for deeper learning.",
+    cta: "Explore Research",
+    to: "/explore/research-hub",
+  },
+];
+
+/* ── LIVE COLLABORATION ── */
+export const COLLAB_CHIPS = [
+  { icon: "video", grad: "linear-gradient(135deg,#12b47a,#0B5B3E)", label: "HD Video Meetings" },
+  { icon: "screen", grad: "linear-gradient(135deg,#3b82f6,#1d4ed8)", label: "Screen Sharing" },
+  { icon: "chat", grad: "linear-gradient(135deg,#7C5CFC,#12b3a6)", label: "Live Chat" },
+  { icon: "shield", grad: "linear-gradient(135deg,#F59E0B,#E14D2A)", label: "Secure Collaboration" },
+];
+export const COLLAB_STATS = ["Education", "Business", "Communities", "Workshops"];
+
 /* ── FAQ ── */
 export const FAQS = [
   {

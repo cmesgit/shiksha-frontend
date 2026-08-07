@@ -19,9 +19,20 @@ import {
   COURSE_TABS,
   FEATURED_COURSES,
   WHY_CHOOSE_CHECKS,
+  RESOURCES,
+  COLLAB_CHIPS,
+  COLLAB_STATS,
   FAQS,
 } from "./homeData";
-import { getFaqs, getShowcaseCourses, toShowcaseCard } from "../../api/contentApi";
+import {
+  getFaqs,
+  getShowcaseCourses,
+  toShowcaseCard,
+  getHeroBanner,
+  getHomeCategories,
+  toCategoryCard,
+  getHomeCta,
+} from "../../api/contentApi";
 import {
   IcArrowRight,
   IcArrowLeft,
@@ -41,11 +52,31 @@ import {
   IcPlay,
   IcStar,
   IcPlus,
+  IcForum,
+  IcLibrary,
+  IcCompass,
+  IcLifeBuoy,
+  IcZap,
+  IcTrendUp,
+  IcScreen,
+  IcGlobe,
 } from "./HomeIcons";
 
 import heroArt from "../../assets/home/hero-illustration.svg";
 import whyArt from "../../assets/home/why-illustration.svg";
+import collabArt from "../../assets/home/collaborate-illustration.svg";
 import "../../css/HomeGreen.css";
+
+const RES_ICONS = {
+  forum: IcForum,
+  lifebuoy: IcLifeBuoy,
+  zap: IcZap,
+  trendup: IcTrendUp,
+  library: IcLibrary,
+  compass: IcCompass,
+};
+
+const COLLAB_ICONS = { video: IcVideo, screen: IcScreen, chat: IcChat, shield: IcShield };
 
 const ICONS = {
   video: IcVideo,
@@ -55,9 +86,34 @@ const ICONS = {
   eye: IcEye,
   chat: IcChat,
   book: IcBook,
+  // "school" is the CMS's HomeCategory icon key (content/models.py
+  // HomeCategoryIcon) — aliased to the same glyph the static "School
+  // Education" category card already used.
+  school: IcBook,
   target: IcTarget,
   briefcase: IcBriefcase,
 };
+
+/* CMS-editable link fields (HeroBanner/HomeCategory/HomeCta) are plain free
+ * text, not guaranteed in-app paths — an absolute URL handed to react-router's
+ * <Link> would be treated as an app-relative path and silently mis-navigate,
+ * so render a plain anchor for anything that looks like a full URL. */
+const isExternalLink = (url) => /^([a-z][a-z0-9+.-]*:)?\/\//i.test(url || "");
+
+function SmartLink({ to, className, children }) {
+  if (isExternalLink(to)) {
+    return (
+      <a className={className} href={to} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link className={className} to={to}>
+      {children}
+    </Link>
+  );
+}
 
 /* tiny thumbnail glyphs used on course cards */
 const ThumbIcon = ({ kind }) => {
@@ -102,12 +158,32 @@ const scrollToPrograms = () => {
 function Hero() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  // Static headline/sub render immediately; a CMS hero banner (if any admin
+  // has configured one) fully replaces the copy + adds an optional eyebrow
+  // pill and CTA row — same replace-if-present pattern as FeaturedCourses/Faq.
+  const [banner, setBanner] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    getHeroBanner().then((b) => {
+      if (alive && b) setBanner(b);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const goSearch = () => {
     navigate("/courses", {
       state: { resetCourses: Date.now(), searchQuery: query.trim() },
     });
   };
+
+  const heading = banner?.heading || "Learn every day & ace school and";
+  const highlight = banner?.heading_highlight || "competitive exams";
+  const sub =
+    banner?.subheading ||
+    "Structured learning for Classes 8–12, board examinations and national-level competitive exams — with expert educators, live & recorded classes, and flexible digital learning.";
 
   return (
     <section className="hm-hero hm-wrap">
@@ -125,7 +201,7 @@ function Hero() {
 
           <div className="hm-hero-disc">
             <div className="hm-hero-art">
-              <img src={heroArt} alt="Students and a teacher in an online classroom" />
+              <img src={banner?.image || heroArt} alt="Students and a teacher in an online classroom" />
             </div>
           </div>
 
@@ -151,20 +227,21 @@ function Hero() {
         </div>
 
         <div className="hm-hero-copy hm-rv">
+          {banner?.eyebrow && (
+            <span className="hm-hero-badge">
+              <i /> {banner.eyebrow}
+            </span>
+          )}
           <h1>
-            Learn every day &amp; ace school and{" "}
+            {heading}{" "}
             <span className="hm-mark">
-              competitive exams
+              {highlight}
               <svg viewBox="0 0 300 70" fill="none" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M150 6C90 4 20 12 10 34c-9 20 60 30 140 30s148-11 140-31C282 14 214 5 150 6z" stroke="currentColor" strokeWidth="3" fill="none" />
               </svg>
             </span>
           </h1>
-          <p className="hm-hero-sub">
-            Structured learning for Classes 8–12, board examinations and
-            national-level competitive exams — with expert educators, live
-            &amp; recorded classes, and flexible digital learning.
-          </p>
+          <p className="hm-hero-sub">{sub}</p>
           <div className="hm-searchbar">
             <span className="hm-si">
               <IcSearch width="19" height="19" />
@@ -183,6 +260,20 @@ function Hero() {
           <p className="hm-hero-tag">
             <b>Guest preview free</b> · CBSE · NCERT · MBSE aligned · Live + Recorded
           </p>
+          {(banner?.primary_cta_text || banner?.secondary_cta_text) && (
+            <div className="hm-hero-ctas">
+              {banner?.primary_cta_text && (
+                <SmartLink className="hm-btn hm-btn-coral" to={banner.primary_cta_link || "/signup"}>
+                  {banner.primary_cta_text} <IcArrowRight />
+                </SmartLink>
+              )}
+              {banner?.secondary_cta_text && (
+                <SmartLink className="hm-btn hm-btn-ghost" to={banner.secondary_cta_link || "/courses"}>
+                  {banner.secondary_cta_text} <IcArrowRight />
+                </SmartLink>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -366,6 +457,20 @@ function Audience() {
 /* ═══════════════════ BROWSE CATEGORIES ═══════════════════ */
 function Categories() {
   const navigate = useNavigate();
+  // Static cards render immediately; CMS categories fully replace them if
+  // any are active — same replace-if-present pattern as FeaturedCourses/Faq.
+  const [categories, setCategories] = useState(CATEGORIES);
+
+  useEffect(() => {
+    let alive = true;
+    getHomeCategories().then((rows) => {
+      if (alive && rows.length) setCategories(rows.map(toCategoryCard));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   return (
     <section className="hm-sec hm-peach" id="hm-programs" style={{ paddingTop: 0 }}>
       <div className="hm-wrap">
@@ -382,10 +487,10 @@ function Categories() {
           </p>
         </div>
         <div className="hm-cats">
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const Icon = ICONS[cat.icon];
             return (
-              <div className="hm-cat hm-rv" key={cat.title}>
+              <div className="hm-cat hm-rv hm-in" key={cat.title}>
                 <div className={`hm-cat-head hm-${cat.grad}`}>
                   <div className="hm-cat-head-row">
                     <span className="hm-cat-ic">
@@ -413,7 +518,9 @@ function Categories() {
                     className="hm-cat-cta"
                     type="button"
                     onClick={() =>
-                      navigate(cat.to, cat.state ? { state: cat.state } : undefined)
+                      isExternalLink(cat.to)
+                        ? window.open(cat.to, "_blank", "noopener,noreferrer")
+                        : navigate(cat.to, cat.state ? { state: cat.state } : undefined)
                     }
                   >
                     {cat.cta} <IcArrowRight />
@@ -662,6 +769,141 @@ function WhyChoose() {
   );
 }
 
+/* ═══════════════════ RESOURCES & SUPPORT ═══════════════════ */
+function Resources() {
+  const navigate = useNavigate();
+  const trackRef = useRef(null);
+
+  const nudge = (dir) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.querySelector(".hm-res-card");
+    const step = card ? Math.round(card.getBoundingClientRect().width) + 22 : 280;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+  return (
+    <section className="hm-sec" id="hm-resources">
+      <div className="hm-wrap">
+        <div className="hm-sec-head hm-rv">
+          <span className="hm-eyebrow">
+            <u>Resources &amp; Support</u>
+          </span>
+          <h2>
+            Beyond the <span className="hm-em">classroom</span>
+          </h2>
+          <p>
+            Extra resources, guidance and opportunities to support students
+            throughout their academic journey.
+          </p>
+        </div>
+        <div className="hm-res-rail">
+          <div className="hm-res-scroll hm-rv" ref={trackRef}>
+            {RESOURCES.map((r) => {
+              const Icon = RES_ICONS[r.icon];
+              return (
+                <article
+                  className="hm-res-card"
+                  key={r.title}
+                  style={{ "--hm-res-grad": r.grad }}
+                >
+                  <span className="hm-res-ic">
+                    <Icon />
+                  </span>
+                  <h3>{r.title}</h3>
+                  <p>{r.text}</p>
+                  <button type="button" className="hm-res-link" onClick={() => navigate(r.to)}>
+                    {r.cta} <IcArrowRight />
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          <div className="hm-res-nav">
+            <button className="hm-arrow" aria-label="Previous resources" type="button" onClick={() => nudge(-1)}>
+              <IcArrowLeft />
+            </button>
+            <button className="hm-arrow" aria-label="Next resources" type="button" onClick={() => nudge(1)}>
+              <IcArrowRight />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════ LIVE COLLABORATION ═══════════════════ */
+function Collaborate() {
+  return (
+    <section className="hm-sec hm-peach">
+      <div className="hm-wrap hm-collab-grid">
+        <div className="hm-collab-copy hm-rv">
+          <span className="hm-eyebrow hm-left">
+            <u>Live Collaboration</u>
+          </span>
+          <h2>
+            Learn together, <span className="hm-em">anywhere</span>
+          </h2>
+          <p className="hm-collab-sub">
+            Host or join secure live sessions for classes, meetings, workshops,
+            mentoring, interviews, study groups, and collaborative discussions
+            — all from one platform.
+          </p>
+          <div className="hm-chip-marquee">
+            <div className="hm-chip-track">
+              {[0, 1].map((g) => (
+                <div className="hm-chip-group" key={g} aria-hidden={g === 1 ? true : undefined}>
+                  {COLLAB_CHIPS.map((c) => {
+                    const Icon = COLLAB_ICONS[c.icon];
+                    return (
+                      <span className="hm-chip" key={c.label}>
+                        <span className="hm-chip-ic" style={{ background: c.grad }}>
+                          <Icon />
+                        </span>
+                        {c.label}
+                      </span>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="hm-collab-actions">
+            <Link className="hm-btn hm-btn-coral" to="/dashboard">
+              Join Session <IcArrowRight />
+            </Link>
+            <Link className="hm-btn hm-btn-ghost" to="/dashboard">
+              Host Session <IcPlus />
+            </Link>
+          </div>
+          <div className="hm-collab-stats">
+            {COLLAB_STATS.map((s) => (
+              <span className="hm-collab-stat" key={s}>
+                {s}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="hm-collab-vis hm-rv">
+          <span className="hm-collab-badge hm-top">
+            <span className="hm-livedot" />
+            Live now
+          </span>
+          <span className="hm-collab-badge hm-bottom">
+            <IcGlobe />
+            Available for everyone
+          </span>
+          <div className="hm-collab-glass">
+            <img src={collabArt} alt="A live collaboration session in progress" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ═══════════════════ FAQ ═══════════════════ */
 function Faq() {
   const [open, setOpen] = useState(-1);
@@ -738,6 +980,30 @@ function Faq() {
 
 /* ═══════════════════ CTA ═══════════════════ */
 function Cta() {
+  // Static copy renders immediately; a CMS closing-CTA row fully replaces
+  // it if active — same replace-if-present pattern as the hero banner.
+  const [cta, setCta] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    getHomeCta().then((row) => {
+      if (alive && row) setCta(row);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const eyebrow = cta?.eyebrow || "Start Your Journey";
+  const heading = cta?.heading || "Your learning starts here";
+  const sub =
+    cta?.subheading ||
+    "Create your free account, explore courses with Guest Preview, and begin your journey toward academic excellence.";
+  const primaryText = cta?.primary_text || "Create free account";
+  const primaryLink = cta?.primary_link || "/signup";
+  const secondaryText = cta?.secondary_text || "Browse as guest";
+  const secondaryLink = cta?.secondary_link || "";
+
   return (
     <section className="hm-sec" style={{ paddingTop: 0 }}>
       <div className="hm-wrap">
@@ -749,20 +1015,23 @@ function Cta() {
             <path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5" />
           </svg>
           <span className="hm-eyebrow">
-            <u>Start Your Journey</u>
+            <u>{eyebrow}</u>
           </span>
-          <h2>Your learning starts here</h2>
-          <p>
-            Create your free account, explore courses with Guest Preview, and
-            begin your journey toward academic excellence.
-          </p>
+          <h2>{heading}</h2>
+          <p>{sub}</p>
           <div className="hm-cta-actions">
-            <Link className="hm-btn hm-btn-white" to="/signup">
-              Create free account <IcArrowRight />
-            </Link>
-            <button className="hm-btn hm-btn-out" type="button" onClick={scrollToPrograms}>
-              Browse as guest <IcEye />
-            </button>
+            <SmartLink className="hm-btn hm-btn-white" to={primaryLink}>
+              {primaryText} <IcArrowRight />
+            </SmartLink>
+            {secondaryLink ? (
+              <SmartLink className="hm-btn hm-btn-out" to={secondaryLink}>
+                {secondaryText} <IcEye />
+              </SmartLink>
+            ) : (
+              <button className="hm-btn hm-btn-out" type="button" onClick={scrollToPrograms}>
+                {secondaryText} <IcEye />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -782,6 +1051,8 @@ export default function HomeGreen() {
       <Categories />
       <FeaturedCourses />
       <WhyChoose />
+      <Resources />
+      <Collaborate />
       <Faq />
       <Cta />
     </main>
