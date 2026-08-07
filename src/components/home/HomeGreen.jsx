@@ -180,7 +180,7 @@ function Hero() {
 
           <div className="hm-hero-disc">
             <div className="hm-hero-art">
-              <img src={heroArt} alt="Students and a teacher in an online classroom" />
+              <img src={banner?.image || heroArt} alt="Students and a teacher in an online classroom" />
             </div>
           </div>
 
