@@ -94,6 +94,27 @@ const ICONS = {
   briefcase: IcBriefcase,
 };
 
+/* CMS-editable link fields (HeroBanner/HomeCategory/HomeCta) are plain free
+ * text, not guaranteed in-app paths — an absolute URL handed to react-router's
+ * <Link> would be treated as an app-relative path and silently mis-navigate,
+ * so render a plain anchor for anything that looks like a full URL. */
+const isExternalLink = (url) => /^([a-z][a-z0-9+.-]*:)?\/\//i.test(url || "");
+
+function SmartLink({ to, className, children }) {
+  if (isExternalLink(to)) {
+    return (
+      <a className={className} href={to} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link className={className} to={to}>
+      {children}
+    </Link>
+  );
+}
+
 /* tiny thumbnail glyphs used on course cards */
 const ThumbIcon = ({ kind }) => {
   const common = {
@@ -242,14 +263,14 @@ function Hero() {
           {(banner?.primary_cta_text || banner?.secondary_cta_text) && (
             <div className="hm-hero-ctas">
               {banner?.primary_cta_text && (
-                <Link className="hm-btn hm-btn-coral" to={banner.primary_cta_link || "/signup"}>
+                <SmartLink className="hm-btn hm-btn-coral" to={banner.primary_cta_link || "/signup"}>
                   {banner.primary_cta_text} <IcArrowRight />
-                </Link>
+                </SmartLink>
               )}
               {banner?.secondary_cta_text && (
-                <Link className="hm-btn hm-btn-ghost" to={banner.secondary_cta_link || "/courses"}>
+                <SmartLink className="hm-btn hm-btn-ghost" to={banner.secondary_cta_link || "/courses"}>
                   {banner.secondary_cta_text} <IcArrowRight />
-                </Link>
+                </SmartLink>
               )}
             </div>
           )}
@@ -469,7 +490,7 @@ function Categories() {
           {categories.map((cat) => {
             const Icon = ICONS[cat.icon];
             return (
-              <div className="hm-cat hm-rv" key={cat.title}>
+              <div className="hm-cat hm-rv hm-in" key={cat.title}>
                 <div className={`hm-cat-head hm-${cat.grad}`}>
                   <div className="hm-cat-head-row">
                     <span className="hm-cat-ic">
@@ -497,7 +518,9 @@ function Categories() {
                     className="hm-cat-cta"
                     type="button"
                     onClick={() =>
-                      navigate(cat.to, cat.state ? { state: cat.state } : undefined)
+                      isExternalLink(cat.to)
+                        ? window.open(cat.to, "_blank", "noopener,noreferrer")
+                        : navigate(cat.to, cat.state ? { state: cat.state } : undefined)
                     }
                   >
                     {cat.cta} <IcArrowRight />
@@ -997,13 +1020,13 @@ function Cta() {
           <h2>{heading}</h2>
           <p>{sub}</p>
           <div className="hm-cta-actions">
-            <Link className="hm-btn hm-btn-white" to={primaryLink}>
+            <SmartLink className="hm-btn hm-btn-white" to={primaryLink}>
               {primaryText} <IcArrowRight />
-            </Link>
+            </SmartLink>
             {secondaryLink ? (
-              <Link className="hm-btn hm-btn-out" to={secondaryLink}>
+              <SmartLink className="hm-btn hm-btn-out" to={secondaryLink}>
                 {secondaryText} <IcEye />
-              </Link>
+              </SmartLink>
             ) : (
               <button className="hm-btn hm-btn-out" type="button" onClick={scrollToPrograms}>
                 {secondaryText} <IcEye />
