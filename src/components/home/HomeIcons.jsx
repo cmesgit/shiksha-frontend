@@ -223,3 +223,31 @@ export const IcExternal = (p) => (
     <path d="M7 17L17 7M9 7h8v8" />
   </S>
 );
+
+export const IcLifeBuoy = (p) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="4" />
+    <path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24" />
+  </S>
+);
+
+export const IcZap = (p) => (
+  <S {...p}>
+    <path d="M13 2 3 14h8l-1 8 10-12h-8z" />
+  </S>
+);
+
+export const IcTrendUp = (p) => (
+  <S sw={2.2} {...p}>
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+    <polyline points="16 7 22 7 22 13" />
+  </S>
+);
+
+export const IcScreen = (p) => (
+  <S {...p}>
+    <rect x="2" y="3" width="20" height="14" rx="2" />
+    <path d="M8 21h8M12 17v4" />
+  </S>
+);
