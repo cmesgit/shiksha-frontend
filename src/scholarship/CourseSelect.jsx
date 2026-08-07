@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import ScholarshipShell from "./ScholarshipShell";
 import { getFlowCourseId, setFlowCourseId } from "./flowState";
+import { radioKeyDown } from "./a11y";
 
 export default function CourseSelect() {
   const navigate = useNavigate();
@@ -49,13 +50,17 @@ export default function CourseSelect() {
           <p style={{ color: "var(--sch-ink-45)" }}>No scholarship-eligible courses are available right now.</p>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 36 }}>
+        <div role="radiogroup" aria-label="Course" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 36 }}>
           {(courses || []).map((c) => {
             const isSel = selected === c.id;
             return (
               <div
                 key={c.id}
+                role="radio"
+                aria-checked={isSel}
+                tabIndex={0}
                 onClick={() => setSelected(c.id)}
+                onKeyDown={radioKeyDown(() => setSelected(c.id))}
                 className="sch-card"
                 style={{
                   padding: 24, cursor: "pointer", transition: "transform .2s, box-shadow .2s",

@@ -18,6 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { startGuardianVerification, getGuardianVerificationStatus, getScholarshipConfig } from "../api/scholarshipApi";
 import ScholarshipShell from "./ScholarshipShell";
+import { radioKeyDown } from "./a11y";
 
 const UIDAI_GENERATE_URL =
   "https://uidai.gov.in/en/307-faqs/aadhaar-online-services/aadhaar-paperless-offline-e-kyc/10731-how-to-generate-offline-aadhaar-2.html";
@@ -164,11 +165,15 @@ export default function Verify() {
         {enabledMethods === null ? (
           <p style={{ color: "var(--sch-ink-45)" }}>Loading verification options…</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
+          <div role="radiogroup" aria-label="Verification method" style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
             {visibleMethods.map(([key, title, desc, tag]) => (
               <div
                 key={key}
+                role="radio"
+                aria-checked={method === key}
+                tabIndex={0}
                 onClick={() => setMethod(key)}
+                onKeyDown={radioKeyDown(() => setMethod(key))}
                 className="sch-card"
                 style={{
                   padding: "20px 22px", display: "flex", alignItems: "center", gap: 16, cursor: "pointer",

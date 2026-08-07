@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   answerQuestion, clearAnswer, getExamQuestions, getExamSession, logCheatSignal,
 } from "../api/scholarshipApi";
+import { radioKeyDown } from "./a11y";
 import "./scholarship.tokens.css";
 import "./scholarship.css";
 
@@ -198,15 +199,23 @@ export default function Exam() {
           </div>
           <p style={{ fontSize: "clamp(19px, 2.2vw, 24px)", fontWeight: 500, letterSpacing: "-.01em", lineHeight: 1.45, marginBottom: 28 }}>{q.text}</p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 11, marginBottom: 24 }}>
+          <div role="radiogroup" aria-label={`Question ${current + 1} options`} style={{ display: "flex", flexDirection: "column", gap: 11, marginBottom: 24 }}>
             {q.options.map((opt, i) => {
               const isSel = q.selected_option_index === i;
               return (
-                <div key={i} onClick={() => handleSelect(i)} style={{
-                  display: "flex", alignItems: "center", gap: 16, borderRadius: 13, padding: "16px 18px", cursor: "pointer",
-                  border: `1.5px solid ${isSel ? "var(--sch-green)" : "var(--sch-border)"}`,
-                  background: isSel ? "var(--sch-green-tint-soft)" : "#fff", transition: "transform .18s",
-                }}>
+                <div
+                  key={i}
+                  role="radio"
+                  aria-checked={isSel}
+                  tabIndex={0}
+                  onClick={() => handleSelect(i)}
+                  onKeyDown={radioKeyDown(() => handleSelect(i))}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 16, borderRadius: 13, padding: "16px 18px", cursor: "pointer",
+                    border: `1.5px solid ${isSel ? "var(--sch-green)" : "var(--sch-border)"}`,
+                    background: isSel ? "var(--sch-green-tint-soft)" : "#fff", transition: "transform .18s",
+                  }}
+                >
                   <span style={{
                     width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 13, flexShrink: 0,
                     background: isSel ? "var(--sch-green)" : "var(--sch-surface-exam)", color: isSel ? "#fff" : "var(--sch-ink-60)",
