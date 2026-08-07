@@ -97,3 +97,39 @@ export async function getAnnouncements() {
   }
 }
 
+/* ── Homepage content (Hero/WhyShiksha/etc. heading+copy, list items,
+   decorative floaters) ───────────────────────────────────────────── */
+
+export async function getHomeContent(section) {
+  try {
+    const { data } = await api.get("/content/home-content/", {
+      params: { section },
+    });
+    return (data && data[0]) || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getHomeListItems(section) {
+  try {
+    const { data } = await api.get("/content/home-list-items/", {
+      params: { section },
+    });
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getHomeFloaters(section) {
+  try {
+    const { data } = await api.get("/content/home-floaters/", {
+      params: { section },
+    });
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+

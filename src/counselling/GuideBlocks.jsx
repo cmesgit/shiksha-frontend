@@ -14,7 +14,29 @@
 
 import React, { useState } from "react";
 
-export default function Block({ b }) {
+function readStored(storageKey) {
+  if (!storageKey) return {};
+  try {
+    return JSON.parse(localStorage.getItem(storageKey) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeStored(storageKey, value) {
+  if (!storageKey) return;
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  } catch {
+    // Storage full/disabled — the activity still works for this visit,
+    // it just won't survive a refresh. Not worth surfacing an error for.
+  }
+}
+
+// `storageKey` uniquely identifies one block instance (guide + section +
+// block index — see GuidePage.jsx) so checklist/worksheet answers survive
+// a refresh or a later visit, without any backend call or login.
+export default function Block({ b, storageKey }) {
   switch (b.t) {
     case "p":
       return <p>{b.text}</p>;
@@ -100,23 +122,7 @@ export default function Block({ b }) {
       );
 
     case "checklist":
-      return (
-        <ul className="sc-checklist">
-          {b.items.map((item, i) => {
-            const text = typeof item === "string" ? item : item.text;
-            const note = typeof item === "string" ? null : item.note;
-            return (
-              <li key={i}>
-                <label>
-                  <input type="checkbox" />
-                  <span>{text}</span>
-                </label>
-                {note && <div className="sc-step-detail">{note}</div>}
-              </li>
-            );
-          })}
-        </ul>
-      );
+      return <Checklist b={b} storageKey={storageKey} />;
 
     case "faq":
       return (
@@ -131,7 +137,7 @@ export default function Block({ b }) {
       );
 
     case "worksheet":
-      return <Worksheet b={b} />;
+      return <Worksheet b={b} storageKey={storageKey} />;
 
     case "ref":
       return (
@@ -146,13 +152,51 @@ export default function Block({ b }) {
   }
 }
 
-// Worksheet answers are print-friendly / locally-jotted only — no
-// backend persistence. Login isn't required to read these guides today
+// Checklist answers persist to localStorage (see readStored/writeStored
+// above), not a backend — same reasoning as Worksheet below.
+function Checklist({ b, storageKey }) {
+  const [checked, setChecked] = useState(() => readStored(storageKey));
+  const toggle = (i) => {
+    setChecked((c) => {
+      const next = { ...c, [i]: !c[i] };
+      writeStored(storageKey, next);
+      return next;
+    });
+  };
+
+  return (
+    <ul className="sc-checklist">
+      {b.items.map((item, i) => {
+        const text = typeof item === "string" ? item : item.text;
+        const note = typeof item === "string" ? null : item.note;
+        return (
+          <li key={i}>
+            <label>
+              <input type="checkbox" checked={!!checked[i]} onChange={() => toggle(i)} />
+              <span>{text}</span>
+            </label>
+            {note && <div className="sc-step-detail">{note}</div>}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+// Worksheet answers persist to localStorage, keyed per block instance —
+// no backend, no auth. Login isn't required to read these guides today
 // ("free to read, no login needed"), and saving answers server-side
-// would mean gating a currently-public page behind auth.
-function Worksheet({ b }) {
-  const [values, setValues] = useState({});
-  const setField = (key, val) => setValues((v) => ({ ...v, [key]: val }));
+// would mean gating a currently-public page behind auth. localStorage
+// gets the same "it just works, nothing to log into" feel without that
+// trade-off — answers now survive a refresh/revisit instead of being
+// purely in-memory for the one render.
+function Worksheet({ b, storageKey }) {
+  const [values, setValues] = useState(() => readStored(storageKey));
+  const setField = (key, val) => setValues((v) => {
+    const next = { ...v, [key]: val };
+    writeStored(storageKey, next);
+    return next;
+  });
 
   return (
     <div className="sc-worksheet">

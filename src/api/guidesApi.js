@@ -96,5 +96,6 @@ export function toGuideCard(g) {
     stageOrder: g.stage_order,
     accent: g.accent,
     sectionCount: g.section_count ?? 0,
+    specializations: g.specializations || [],
   };
 }

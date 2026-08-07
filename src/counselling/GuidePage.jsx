@@ -27,6 +27,16 @@ import { GuideCard } from "./LandingPage";
 
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+// Mirrors GuideChapter.KIND_CHOICES (counseling/guide_models.py) — the
+// backend already groups chapters into these buckets for exactly this
+// purpose (see that model's comment), the frontend just never read `kind`
+// until now. Order controls tab display order.
+const KIND_ORDER = ["content", "worksheet", "action_plan", "parent_guide", "faq", "references"];
+const KIND_LABELS = {
+  content: "Content", worksheet: "Worksheets", action_plan: "Action plan",
+  parent_guide: "For parents", faq: "FAQ", references: "References",
+};
+
 export default function GuidePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -34,11 +44,13 @@ export default function GuidePage() {
   const [related, setRelated] = useState([]);
   const [chapterSlug, setChapterSlug] = useState(null);
   const [chapter, setChapter] = useState({ status: "loading", sections: [] });
+  const [activeKind, setActiveKind] = useState(null);
 
   useEffect(() => {
     let live = true;
     setState({ status: "loading" });
     setChapterSlug(null);
+    setActiveKind(null);
     getGuide(slug).then((res) => {
       if (!live) return;
       setState(res);
@@ -46,9 +58,6 @@ export default function GuidePage() {
         recordGuideView(res.guide.canonical_slug || slug);
         if (res.guide.is_alias && res.guide.canonical_slug) {
           navigate(`/counselling/guides/${res.guide.canonical_slug}`, { replace: true });
-        }
-        if (!(res.guide.sections?.length) && res.guide.chapters?.length) {
-          setChapterSlug(res.guide.chapters[0].slug);
         }
       }
     });
@@ -70,6 +79,42 @@ export default function GuidePage() {
 
   const canonicalSlug = state.status === "ok" ? (state.guide.canonical_slug || slug) : slug;
   const paginated = state.status === "ok" && !(state.guide.sections?.length) && state.guide.chapters?.length > 0;
+
+  // Chapters group into kind tabs (Content/Worksheets/For parents/...) —
+  // GuideChapter.kind was already serialized for exactly this, just never
+  // read by the frontend before. Content-first by default; if a guide has
+  // no "content" chapters (unusual), fall back to whichever kind sorts
+  // first.
+  const kindTabs = useMemo(() => {
+    if (!paginated) return [];
+    const counts = new Map();
+    (state.guide?.chapters || []).forEach((c) => {
+      const k = c.kind || "content";
+      counts.set(k, (counts.get(k) || 0) + 1);
+    });
+    return KIND_ORDER.filter((k) => counts.has(k)).map((k) => ({ key: k, label: KIND_LABELS[k], count: counts.get(k) }));
+  }, [paginated, state]);
+
+  useEffect(() => {
+    if (!paginated) return;
+    const chapters = state.guide?.chapters || [];
+    if (!chapters.length) return;
+    const hasContent = chapters.some((c) => (c.kind || "content") === "content");
+    const defaultKind = hasContent ? "content" : (chapters[0].kind || "content");
+    setActiveKind(defaultKind);
+    const firstOfKind = chapters.find((c) => (c.kind || "content") === defaultKind);
+    setChapterSlug((firstOfKind || chapters[0]).slug);
+  }, [paginated, state]);
+
+  const goToKind = (kind) => {
+    setActiveKind(kind);
+    const chapters = state.guide?.chapters || [];
+    const first = chapters.find((c) => (c.kind || "content") === kind);
+    if (first) {
+      setChapterSlug(first.slug);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (!paginated || !chapterSlug) return;
@@ -115,12 +160,14 @@ export default function GuidePage() {
 
   const tocItems = useMemo(() => {
     if (paginated) {
-      return (state.guide?.chapters || []).map((c) => ({ key: c.slug, title: c.title, isChapter: true }));
+      return (state.guide?.chapters || [])
+        .filter((c) => (c.kind || "content") === activeKind)
+        .map((c) => ({ key: c.slug, title: c.title, isChapter: true }));
     }
     return bodySections
       .filter((s) => s.displayTitle)
       .map((s) => ({ key: `sec-${slugify(s.displayTitle)}-${s.id ?? ""}`, title: s.displayTitle }));
-  }, [paginated, state, bodySections]);
+  }, [paginated, state, bodySections, activeKind]);
 
   if (state.status === "notfound") return <Navigate to="/counselling/guides" replace />;
 
@@ -145,7 +192,11 @@ export default function GuidePage() {
   }
 
   const guide = state.guide;
-  const chapterIndex = paginated ? guide.chapters.findIndex((c) => c.slug === chapterSlug) : -1;
+  // Prev/next stays within the active kind tab — crossing from a Content
+  // chapter straight into a Worksheet one on "Next chapter" would undercut
+  // the whole point of separating them into tabs.
+  const kindChapters = paginated ? guide.chapters.filter((c) => (c.kind || "content") === activeKind) : [];
+  const chapterIndex = paginated ? kindChapters.findIndex((c) => c.slug === chapterSlug) : -1;
   const goToChapter = (targetSlug) => {
     setChapterSlug(targetSlug);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -156,6 +207,16 @@ export default function GuidePage() {
       <span className={`sc-badge ${guide.accent}`} style={{ marginBottom: 10, display: "inline-block" }}>{guide.audience}</span>
       <h1 className="sc-h1" style={{ maxWidth: 760 }}>{guide.title}</h1>
       <p className="sc-sub">{guide.blurb}</p>
+
+      {kindTabs.length > 1 && (
+        <div className="sc-tabs">
+          {kindTabs.map((t) => (
+            <button key={t.key} className={`sc-tab${t.key === activeKind ? " on" : ""}`} onClick={() => goToKind(t.key)}>
+              {t.label} <span className="sc-tabnum">{t.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="sc-reader">
         <nav className="sc-toc" aria-label="Contents">
@@ -200,7 +261,9 @@ export default function GuidePage() {
                   {s.displayTitle}
                 </h2>
               )}
-              {(s.blocks || []).map((b, i) => <Block key={i} b={b} />)}
+              {(s.blocks || []).map((b, i) => (
+                <Block key={i} b={b} storageKey={`sc-activity:${canonicalSlug}:${s.id ?? s.displayTitle}:${i}`} />
+              ))}
             </section>
           ))}
 
@@ -209,15 +272,15 @@ export default function GuidePage() {
               <button
                 className="sc-btn ghost sm"
                 disabled={chapterIndex <= 0}
-                onClick={() => goToChapter(guide.chapters[chapterIndex - 1].slug)}
+                onClick={() => goToChapter(kindChapters[chapterIndex - 1].slug)}
               >
                 ← Previous chapter
               </button>
-              <span className="sc-note">Chapter {chapterIndex + 1} of {guide.chapters.length}</span>
+              <span className="sc-note">Chapter {chapterIndex + 1} of {kindChapters.length}</span>
               <button
                 className="sc-btn sm"
-                disabled={chapterIndex >= guide.chapters.length - 1}
-                onClick={() => goToChapter(guide.chapters[chapterIndex + 1].slug)}
+                disabled={chapterIndex >= kindChapters.length - 1}
+                onClick={() => goToChapter(kindChapters[chapterIndex + 1].slug)}
               >
                 Next chapter →
               </button>

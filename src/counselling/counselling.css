@@ -118,6 +118,39 @@
 .sc-toc button:hover { background: rgba(18,80,39,.06); color: #125027 }
 .sc-toc button.on { background: rgba(18,80,39,.09); color: #125027; font-weight: 700 }
 
+/* chapter kind tabs (Content / Worksheets / Action plan / For parents / FAQ / References) */
+.sc-tabs { display: flex; gap: 4px; margin: 6px 0 18px; border-bottom: 1px solid rgba(18,45,30,.1) }
+.sc-tab { appearance: none; background: none; border: none; padding: 11px 16px; font: 600 13.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 8px }
+.sc-tab:hover { color: #125027 }
+.sc-tab.on { color: #125027; border-bottom-color: #125027 }
+.sc-tabnum { font: 700 10.5px 'Poppins', sans-serif; background: rgba(18,80,39,.08); color: #125027; border-radius: 100px; padding: 2px 8px }
+
+/* library filter rail (guide library page) */
+.sc-lib-layout { display: grid; grid-template-columns: 280px minmax(0,1fr); gap: 24px; align-items: start }
+@media (max-width: 900px) { .sc-lib-layout { grid-template-columns: 1fr } .sc-rail { position: static } }
+.sc-rail { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 18px }
+.sc-railcard { background: #fff; border: 1px solid rgba(18,45,30,.09); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(14,28,15,.03); display: flex; flex-direction: column }
+.sc-rail-search { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border-bottom: 1px solid rgba(18,45,30,.09); flex: none }
+.sc-rail-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: 500 13px 'Poppins', sans-serif; color: #14201a }
+.sc-filter-scroll { max-height: 46vh; overflow-y: auto }
+.sc-filters-top { display: flex; align-items: center; justify-content: space-between; padding: 15px 17px; border-bottom: 1px solid rgba(18,45,30,.08) }
+.sc-filters-top h4 { font: 800 13px 'Montserrat', sans-serif; color: #125027; margin: 0 }
+.sc-filters-clear { background: none; border: none; color: #1b9c85; font: 700 11px 'Poppins', sans-serif; cursor: pointer; padding: 0 }
+.sc-fgroup { border-bottom: 1px solid rgba(18,45,30,.07) }
+.sc-fgroup:last-child { border-bottom: none }
+.sc-fgroup-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; background: none; border: none; padding: 13px 17px; cursor: pointer; font: 700 11px 'Poppins', sans-serif; color: #14201a; text-transform: uppercase; letter-spacing: .05em }
+.sc-fgroup-head svg { transition: transform .2s; flex: none; color: rgba(20,32,26,.4) }
+.sc-fgroup-head.closed svg { transform: rotate(-90deg) }
+.sc-fgroup-body { padding: 0 17px 13px }
+.sc-fopt { display: flex; align-items: center; gap: 9px; padding: 6px 0; cursor: pointer; font: 500 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.72) }
+.sc-fopt input { width: 16px; height: 16px; accent-color: #125027; flex: none; cursor: pointer; margin: 0 }
+.sc-fopt span { flex: 1; line-height: 1.35 }
+.sc-fopt em { font-style: normal; font-size: 11px; color: rgba(20,32,26,.38) }
+.sc-active { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 20px }
+.sc-active > span { font: 700 11px 'Poppins', sans-serif; color: rgba(20,32,26,.45); text-transform: uppercase; letter-spacing: .05em }
+.sc-fchip { display: inline-flex; align-items: center; gap: 6px; background: rgba(18,80,39,.07); border: 1px solid rgba(18,80,39,.18); color: #125027; border-radius: 8px; padding: 5px 12px; font: 600 11.5px 'Poppins', sans-serif; cursor: pointer }
+.sc-fchip:hover { background: rgba(18,80,39,.12) }
+
 /* paginated (chapter-by-chapter) reader — large guides only */
 .sc-chapter-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(9,62,5,.1); flex-wrap: wrap }
 .sc-prose { background: #fff; border: 1px solid rgba(9,62,5,.1); border-radius: 15px; padding: 30px clamp(20px, 4vw, 42px) }

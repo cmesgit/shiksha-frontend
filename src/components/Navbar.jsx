@@ -124,7 +124,11 @@ const STATIC_COURSES_MENU = [
         heading: "Career Guidance",
         links: [
           { label: "Career Counselling", to: "/counselling" },
-          { label: "Admission in India", to: "/counselling/guides/study-in-india" },
+          // Admission in India is a future directory of Indian
+          // colleges/universities with rankings — a different, bigger
+          // feature than the existing study-in-india guide (which stays
+          // reachable from the Career Counselling guide library instead).
+          { label: "Admission in India", soon: true },
           // No source guide exists yet for study-abroad admissions —
           // point this at a real page once one is written, not at a
           // domestic guide that doesn't answer the question.
@@ -597,15 +601,6 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Single-destination links — not mega-menu categories, so they
-                sit outside NAV_ITEMS/skn-pill as plain links (same pattern
-                already used for Login/Signup below). */}
-            <Link to="/marketplace" className="skn-navbtn" onClick={closeAll}>
-              Marketplace
-            </Link>
-            <Link to="/live" className="skn-navbtn" onClick={closeAll}>
-              Live
-            </Link>
           </nav>
 
           {/* Right actions */}
@@ -787,13 +782,6 @@ const Navbar = () => {
               )}
             </div>
           </DrawerAccordion>
-
-          <Link to="/marketplace" className="skn-mlink" onClick={closeAll}>
-            <span>Marketplace</span>
-          </Link>
-          <Link to="/live" className="skn-mlink" onClick={closeAll}>
-            <span>Live</span>
-          </Link>
 
           <Link to="/become-faculty" className="skn-mlink skn-strong" onClick={closeAll}>
             <span>Become a Faculty</span>
