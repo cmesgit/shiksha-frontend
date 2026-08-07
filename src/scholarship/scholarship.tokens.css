@@ -1,0 +1,171 @@
+/* Instant Scholarship design tokens — from the design handoff at
+   ~/Downloads/Shiksha Instant Scholarship Module/design_handoff_instant_scholarship/README.md
+   Deliberately namespaced (--sch-*) and scoped under .sch so this
+   green/gold/Newsreader system never bleeds onto the rest of the site,
+   which uses its own dashboard tokens.css (Montserrat/Poppins, blue/teal). */
+
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300..700;1,300..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+.sch {
+  --sch-green: #145c33;
+  --sch-green-hover: #0d3e22;
+  --sch-green-dark-surface: #0d3e22;
+  --sch-green-tint: #eef4f0;
+  --sch-green-tint-soft: #f1f7f3;
+  --sch-green-tint-faint: #f7faf8;
+  --sch-green-border-tint: #cfe2d6;
+  --sch-green-text-on-tint: #22402f;
+  --sch-green-text-on-tint-alt: #2e4a3a;
+
+  --sch-gold: #b8862f;
+  --sch-gold-light: #ebc777;
+  --sch-gold-surface: #f6eedc;
+  --sch-gold-surface-soft: #fdf6e7;
+  --sch-gold-border: #e8d9b4;
+  --sch-gold-text: #8a6318;
+  --sch-gold-text-deep: #7a5a16;
+
+  --sch-ink: #14211a;
+  --sch-ink-80: #3c4a42;
+  --sch-ink-60: #5f6b62;
+  --sch-ink-45: #7c8880;
+  --sch-ink-30: #9aa49c;
+
+  --sch-canvas: #faf9f5;
+  --sch-surface: #ffffff;
+  --sch-surface-exam: #f4f5f1;
+  --sch-border: #e4e3db;
+  --sch-border-strong: #d9d8ce;
+  --sch-border-faint: #eef0ec;
+  --sch-border-faintest: #f2f3ef;
+
+  --sch-danger: #7a2020;
+  --sch-danger-surface: #fbeeee;
+  --sch-danger-border: #e9c9c9;
+  --sch-danger-label: #9a3a3a;
+  --sch-success-dot: #7fd3a0;
+
+  --sch-font-display: "Newsreader", serif;
+  --sch-font-body: "Plus Jakarta Sans", sans-serif;
+
+  --sch-shadow-cta: 0 10px 26px -14px rgba(20, 92, 51, 0.75);
+  --sch-shadow-selected-card: 0 16px 34px -22px rgba(20, 92, 51, 0.55);
+  --sch-shadow-selected-option: 0 14px 30px -22px rgba(20, 92, 51, 0.55);
+  --sch-shadow-step-hover: 0 18px 34px -22px rgba(20, 33, 26, 0.4);
+  --sch-shadow-benefit-hover: 0 22px 44px -26px rgba(20, 33, 26, 0.42);
+  --sch-shadow-hero-card: 0 32px 70px -40px rgba(7, 42, 23, 0.9);
+
+  font-family: var(--sch-font-body);
+  color: var(--sch-ink);
+  background: var(--sch-canvas);
+}
+
+.sch h1, .sch h2, .sch .sch-serif {
+  font-family: var(--sch-font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.sch .sch-numeral {
+  font-family: var(--sch-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.sch button, .sch input, .sch select {
+  font-family: inherit;
+}
+
+.sch .sch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+  text-decoration: none;
+}
+
+.sch .sch-btn-primary {
+  background: var(--sch-green);
+  color: #fff;
+  box-shadow: var(--sch-shadow-cta);
+}
+.sch .sch-btn-primary:hover:not(:disabled) {
+  background: var(--sch-green-hover);
+  transform: translateY(-2px);
+}
+.sch .sch-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sch .sch-btn-secondary {
+  background: #fff;
+  color: var(--sch-ink);
+  border-color: var(--sch-border-strong);
+}
+.sch .sch-btn-secondary:hover:not(:disabled) {
+  border-color: var(--sch-green);
+}
+
+.sch .sch-btn-ghost {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.sch .sch-card {
+  background: var(--sch-surface);
+  border: 1.5px solid var(--sch-border);
+  border-radius: 16px;
+}
+
+.sch .sch-kicker {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sch-gold);
+}
+
+.sch .sch-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@keyframes sch-fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sch .sch-enter { animation: sch-fadeUp 0.45s ease; }
+
+@keyframes sch-spin {
+  to { transform: rotate(360deg); }
+}
+.sch .sch-spinner {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--sch-border-faint);
+  border-top-color: var(--sch-green);
+  animation: sch-spin 1s linear infinite;
+}
+
+@keyframes sch-pulse-dot {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.sch .sch-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sch-gold);
+  animation: sch-pulse-dot 1.8s infinite;
+}

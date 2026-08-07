@@ -36,6 +36,18 @@ const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
+// ── Instant Scholarship — pre-enrollment exam + discount flow ──
+const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
+const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
+const ScholarshipVerify       = lazy(() => import("../scholarship/Verify"));
+const ScholarshipDetails      = lazy(() => import("../scholarship/Details"));
+const ScholarshipEligibility  = lazy(() => import("../scholarship/Eligibility"));
+const ScholarshipInstructions = lazy(() => import("../scholarship/Instructions"));
+const ScholarshipExam         = lazy(() => import("../scholarship/Exam"));
+const ScholarshipEvaluating   = lazy(() => import("../scholarship/Evaluating"));
+const ScholarshipResult       = lazy(() => import("../scholarship/Result"));
+const ScholarshipCheckout     = lazy(() => import("../scholarship/Checkout"));
+const ScholarshipDone         = lazy(() => import("../scholarship/Confirmation"));
 // ── Explore (Scribd-style document hub) — new module under src/explore ──
 const Explore          = lazy(() => import("../explore/ExploreLanding"));
 const ExploreBrowse    = lazy(() => import("../explore/ExploreBrowse"));
@@ -297,6 +309,23 @@ function App() {
                element={<Page key={cKey}><CounsellingAssessment /></Page>} />
         <Route path="/counselling/assessment"
                element={<Navigate to="/counselling/counsellors" replace />} />
+
+        {/* Instant Scholarship — landing + course pick are public; identity
+            verification onward requires an account (that's the actual auth
+            gate — see Verify.jsx). Exam/Evaluating are intentionally full-
+            screen with no <Page> shell at all, per the design brief. */}
+        <Route path="/scholarship"                       element={<Page><ScholarshipLanding /></Page>} />
+        <Route path="/scholarship/course"                element={<ScholarshipCourse />} />
+        <Route path="/scholarship/verify"                element={<ProtectedRoute><ScholarshipVerify /></ProtectedRoute>} />
+        <Route path="/scholarship/details"               element={<ProtectedRoute><ScholarshipDetails /></ProtectedRoute>} />
+        <Route path="/scholarship/eligibility"            element={<ProtectedRoute><ScholarshipEligibility /></ProtectedRoute>} />
+        <Route path="/scholarship/instructions"           element={<ProtectedRoute><ScholarshipInstructions /></ProtectedRoute>} />
+        <Route path="/scholarship/exam/:sessionId"        element={<ProtectedRoute><ScholarshipExam /></ProtectedRoute>} />
+        <Route path="/scholarship/evaluating/:sessionId"  element={<ProtectedRoute><ScholarshipEvaluating /></ProtectedRoute>} />
+        <Route path="/scholarship/result/:sessionId"      element={<ProtectedRoute><ScholarshipResult /></ProtectedRoute>} />
+        <Route path="/scholarship/checkout/:sessionId"    element={<ProtectedRoute><ScholarshipCheckout /></ProtectedRoute>} />
+        <Route path="/scholarship/done"                   element={<ProtectedRoute><ScholarshipDone /></ProtectedRoute>} />
+
         <Route path="/explore"                 element={<ExplorePage><Explore /></ExplorePage>} />
         <Route path="/explore/browse"          element={<ExplorePage><ExploreBrowse /></ExplorePage>} />
         <Route path="/explore/doc/:id"         element={<ExplorePage><DocumentPage /></ExplorePage>} />
