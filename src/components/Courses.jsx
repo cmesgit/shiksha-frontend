@@ -363,7 +363,12 @@ const Courses = () => {
     <section className="courses-page">
       <CoursesHero onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       <CoursesPrograms boards={boards} onSelectGroup={handleSelectGroup} />
-      <div className="courses-container" ref={catalogRef}>
+      {/* Not .courses-container (legacy wrapper, own 28/18/14px responsive
+          padding scheme) — .wrap is the real site-wide gutter (ShikshaHome.css)
+          the hero/programs tiles above and the reused Faq/WhyChooseShiksha/
+          TeachersStudents sections below all share, so the catalog's edges
+          line up with them at every viewport width instead of drifting. */}
+      <div className="wrap" ref={catalogRef}>
         <UnifiedCatalog
           boards={boards}
           selectedBoard={selectedBoard}

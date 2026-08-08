@@ -12,8 +12,14 @@
   grid-template-columns: minmax(0, 1fr) 300px;
   gap: 28px;
   align-items: start;
-  max-width: 1180px;
-  margin: 0 auto;
+  /* No max-width/padding/centering here — the parent .wrap div
+     (Courses.jsx) already supplies the site-wide gutter and content
+     width; doubling it here (an earlier version of this rule did) either
+     stacks two paddings or drifts from the .wrap-based sections above and
+     below depending on viewport width, since .wrap's own responsive
+     behavior wouldn't be mirrored exactly by a second, independent
+     max-width/padding pair here. */
+  width: 100%;
 }
 
 /* ===== results column ===== */

@@ -7,7 +7,14 @@
 
 const css = `
 .ch-hero{padding:clamp(40px,6vw,72px) 0 clamp(28px,4vw,40px);text-align:center}
-.ch-hero .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+/* Text stays narrower than the page's full content column for readability,
+   but nests INSIDE the site's real .wrap (ShikshaHome.css, max-width:1180px;
+   padding:0 24px) instead of defining its own competing wrap width — every
+   other section on this page (the catalog below, and the reused
+   WhyChooseShiksha/TeachersStudents/Faq) shares that same outer edge, and a
+   second, differently-sized "wrap" here made the page look inconsistently
+   aligned as you scroll. */
+.ch-hero-inner{max-width:600px;margin:0 auto}
 .ch-eyebrow{display:inline-flex;font-family:var(--sk-font);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sk-green);margin:0 0 14px}
 .ch-hero h1{font-family:var(--sk-font);font-size:clamp(28px,4.2vw,40px);font-weight:800;color:var(--sk-ink);margin:0;line-height:1.2;letter-spacing:-.01em}
 .ch-hero h1 em{font-style:normal;color:var(--sk-green)}
@@ -22,10 +29,12 @@ export default function CoursesHero({ onBrowse }) {
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <section className="ch-hero">
         <div className="wrap">
-          <span className="ch-eyebrow">Find your course</span>
-          <h1>Discover the right course for your <em>learning journey</em></h1>
-          <p>Live classes, tests and notes mapped to your board&rsquo;s syllabus — pick a board and class below to get started.</p>
-          <button type="button" className="ch-cta" onClick={onBrowse}>Browse courses</button>
+          <div className="ch-hero-inner">
+            <span className="ch-eyebrow">Find your course</span>
+            <h1>Discover the right course for your <em>learning journey</em></h1>
+            <p>Live classes, tests and notes mapped to your board&rsquo;s syllabus — pick a board and class below to get started.</p>
+            <button type="button" className="ch-cta" onClick={onBrowse}>Browse courses</button>
+          </div>
         </div>
       </section>
     </>

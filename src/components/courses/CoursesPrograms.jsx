@@ -11,7 +11,11 @@
 
 const css = `
 .cp-sec{padding:0 0 clamp(30px,4vw,46px)}
-.cp-sec .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+/* Deliberately no .cp-sec .wrap override here — the real site-wide .wrap
+   (ShikshaHome.css, max-width:1180px; padding:0 24px) is what every other
+   section on this page shares; a narrower scoped copy made this section's
+   edges not line up with the catalog below it or the FAQ/testimonials
+   sections reused further down. See CoursesHero.jsx for the same fix. */
 .cp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .cp-card{background:#fff;border-radius:22px;overflow:hidden;box-shadow:var(--sk-sh-sm);transition:transform .25s,box-shadow .25s;cursor:pointer;border:none;text-align:left;font-family:var(--sk-font);padding:0}
 .cp-card:hover{transform:translateY(-6px);box-shadow:var(--sk-sh-lg)}
