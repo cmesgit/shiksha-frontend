@@ -435,66 +435,6 @@ const UnifiedCatalog = ({
 
   return (
     <div className="uc-page">
-      <aside className={`uc-fpanel${drawerOpen ? ' uc-fpanel--open' : ''}`} aria-label="Course filters">
-        <div className="uc-fhead">
-          <h3><FilterIcon /> Filters</h3>
-          <button type="button" className="uc-freset" onClick={resetAll}>Reset</button>
-          <button type="button" className="uc-fclose" aria-label="Close filters" onClick={() => setDrawerOpen(false)}>&times;</button>
-        </div>
-
-        {boards && (
-          <div className="uc-fboards">
-            {['CENTRAL', 'STATE'].map((type) => (
-              <BoardGroupSection
-                key={type}
-                type={type}
-                groupBoards={boards.filter((b) => b.board_type === type)}
-                boards={boards}
-                selectedBoard={selectedBoard}
-                onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
-                onLockedClick={setNotifyBoard}
-                expanded={expandedGroup === type}
-                onToggle={() => toggleGroup(type)}
-              />
-            ))}
-          </div>
-        )}
-
-        {notifyBoard && <NotifyBanner board={notifyBoard} onClose={() => setNotifyBoard(null)} />}
-
-        {classTitles.length > 0 && (
-          <section className="uc-fgroup">
-            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Class</button>
-            <div className="uc-fbody">
-              <div className="uc-fchips">
-                <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
-                {classTitles.map((t) => (
-                  <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {showStreams && streamOptions.length > 0 && (
-          <section className="uc-fgroup">
-            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Stream</button>
-            <div className="uc-fbody">
-              <div className="uc-fchips">
-                <button type="button" className={`uc-pill${streamFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter(null)}>All</button>
-                {streamOptions.map((s) => (
-                  <button key={s} type="button" className={`uc-pill${streamFilter === s ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter((prev) => (prev === s ? null : s))}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-      </aside>
-
       <div className="uc-results">
         <div className="uc-resbar">
           <div className="uc-searchbox">
@@ -577,6 +517,66 @@ const UnifiedCatalog = ({
           </div>
         )}
       </div>
+
+      <aside className={`uc-fpanel${drawerOpen ? ' uc-fpanel--open' : ''}`} aria-label="Course filters">
+        <div className="uc-fhead">
+          <h3><FilterIcon /> Filters</h3>
+          <button type="button" className="uc-freset" onClick={resetAll}>Reset</button>
+          <button type="button" className="uc-fclose" aria-label="Close filters" onClick={() => setDrawerOpen(false)}>&times;</button>
+        </div>
+
+        {boards && (
+          <div className="uc-fboards">
+            {['CENTRAL', 'STATE'].map((type) => (
+              <BoardGroupSection
+                key={type}
+                type={type}
+                groupBoards={boards.filter((b) => b.board_type === type)}
+                boards={boards}
+                selectedBoard={selectedBoard}
+                onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
+                onLockedClick={setNotifyBoard}
+                expanded={expandedGroup === type}
+                onToggle={() => toggleGroup(type)}
+              />
+            ))}
+          </div>
+        )}
+
+        {notifyBoard && <NotifyBanner board={notifyBoard} onClose={() => setNotifyBoard(null)} />}
+
+        {classTitles.length > 0 && (
+          <section className="uc-fgroup">
+            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Class</button>
+            <div className="uc-fbody">
+              <div className="uc-fchips">
+                <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
+                {classTitles.map((t) => (
+                  <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {showStreams && streamOptions.length > 0 && (
+          <section className="uc-fgroup">
+            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Stream</button>
+            <div className="uc-fbody">
+              <div className="uc-fchips">
+                <button type="button" className={`uc-pill${streamFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter(null)}>All</button>
+                {streamOptions.map((s) => (
+                  <button key={s} type="button" className={`uc-pill${streamFilter === s ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter((prev) => (prev === s ? null : s))}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </aside>
 
       {drawerOpen && <div className="uc-scrim" onClick={() => setDrawerOpen(false)} />}
 
