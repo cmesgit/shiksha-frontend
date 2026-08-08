@@ -46,6 +46,36 @@ const ClockIcon = () => (
     <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
   </svg>
 );
+const BookIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z" /><path d="M4 19a2 2 0 0 0 2 2h14" />
+  </svg>
+);
+const FlaskIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.5 3h5M10 3v5.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3" /><path d="M7.5 15h9" />
+  </svg>
+);
+const ChartIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 20V10M10 20V4M16 20v-7" /><path d="M2 20h20" />
+  </svg>
+);
+const GlobeIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18" />
+  </svg>
+);
+// Purely decorative — which icon a card's thumbnail shows, derived from the
+// real stream (Science/Commerce/Arts) when there is one. Not a data field,
+// just a visual pick, unlike the mockup's stars/review counts/learner
+// counts (none of which exist on the real Course model — left out).
+function ThumbIcon({ subtitle }) {
+  if (subtitle === 'Science') return <FlaskIcon />;
+  if (subtitle === 'Commerce') return <ChartIcon />;
+  if (subtitle === 'Arts') return <GlobeIcon />;
+  return <BookIcon />;
+}
 const ArrowIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14M13 6l6 6-6 6" />
@@ -165,6 +195,26 @@ function NotifyBanner({ board, onClose }) {
   );
 }
 
+// Decorative gradient only — cycles through a fixed palette by stream (real
+// data) or, for classes with no stream, by class_level so cards don't all
+// render the same flat green. Not tied to anything the mockup's stars/
+// counts implied about a specific course.
+const THUMB_GRADIENTS = {
+  Science: 'linear-gradient(135deg,#7C5CFC 0%,#4B34C7 100%)',
+  Commerce: 'linear-gradient(135deg,#3b82f6 0%,#1D4ED8 100%)',
+  Arts: 'linear-gradient(135deg,#ec4e86 0%,#C13A68 100%)',
+};
+const NEUTRAL_GRADIENTS = [
+  'linear-gradient(135deg,var(--sk-green) 0%,var(--sk-green-dark) 100%)',
+  'linear-gradient(135deg,#12b3a6 0%,#0B5B3E 100%)',
+  'linear-gradient(135deg,#FFB21D 0%,#F28C0F 100%)',
+];
+function thumbGradient(cls) {
+  if (cls.subtitle && THUMB_GRADIENTS[cls.subtitle]) return THUMB_GRADIENTS[cls.subtitle];
+  const idx = cls.classLevel != null ? cls.classLevel % NEUTRAL_GRADIENTS.length : 0;
+  return NEUTRAL_GRADIENTS[idx];
+}
+
 function priceBlock(cls) {
   const showMrp = cls.mrp && cls.mrp !== cls.fee;
   return (
@@ -183,17 +233,27 @@ function CourseCard({ cls, board, onOpen, onEnroll, enrollmentStatus }) {
   if (isEnrolled) enrollLabel = 'Enrolled';
   else if (isPending) enrollLabel = 'Pending';
   const seatsLow = cls.seatsLeft != null && cls.seatsLeft <= 8;
+  // Real class_level -> a "CLASS 8" ribbon, same field the earlier fee/
+  // subject-count facts already use — falls back to the admin-set `badge`
+  // (a real, CMS-editable field) only when class_level isn't present.
+  const ribbon = cls.classLevel ? `Class ${cls.classLevel}` : cls.badge;
+  // Stream (Science/Commerce/Arts) is real data and shown as its own pill.
+  // For classes with no stream, "Board year" for 10/12 vs "Foundation"
+  // otherwise is a plain fact about the Indian school system tied to the
+  // real class_level — not a per-course statistic like the mockup's
+  // "4,100 learners" (which has no backing field at all).
+  const levelPill = cls.subtitle || (cls.classLevel === 10 || cls.classLevel === 12 ? 'Board year' : cls.classLevel ? 'Foundation' : null);
 
   return (
     <article className="uc-gridcard" onClick={() => onOpen(cls)}>
-      <div className="uc-gridcard__thumb">
-        {cls.badge && <span className="uc-gridcard__ribbon">{cls.badge}</span>}
+      <div className="uc-gridcard__thumb" style={cls.image ? undefined : { background: thumbGradient(cls) }}>
+        {ribbon && <span className="uc-gridcard__ribbon">{ribbon}</span>}
         {cls.image ? (
           <img src={cls.image} alt="" className="uc-gridcard__img" />
         ) : (
-          <span className="uc-gridcard__placeholder">{board?.name || 'Course'}</span>
+          <span className="uc-gridcard__placeholder-icon"><ThumbIcon subtitle={cls.subtitle} /></span>
         )}
-        {cls.subtitle && <span className="uc-gridcard__pill">{cls.subtitle}</span>}
+        {levelPill && <span className="uc-gridcard__pill">{levelPill}</span>}
       </div>
       <div className="uc-gridcard__body">
         <span className="uc-gridcard__board">{board?.name}</span>
