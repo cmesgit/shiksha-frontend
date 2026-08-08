@@ -18,7 +18,7 @@
 // Class/stream/sort filters and the modal's own open state are new,
 // UI-local concerns owned here, same split as before this redesign.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { isBoardLocked, useCrossBoardMatches } from '../../hooks/usePublicCourses';
 import { submitBoardNotify } from '../../api/coursesApi';
 import '../../css/UnifiedCatalog.css';
@@ -87,8 +87,10 @@ const CheckIcon = () => (
   </svg>
 );
 
-const GROUP_LABELS = { CENTRAL: 'Central Board', STATE: 'State Board' };
-const CHIP_CAP = 6;
+const BOARD_TABS = [
+  { type: 'CENTRAL', label: 'Central' },
+  { type: 'STATE', label: 'State' },
+];
 const SORTS = [
   { value: 'rec', label: 'Recommended' },
   { value: 'fee-asc', label: 'Lowest fee' },
@@ -103,6 +105,10 @@ function feeNumber(feeStr) {
   return Number.isNaN(n) ? 0 : n;
 }
 
+// A locked ("Coming Soon") board stays clickable rather than `disabled` —
+// clicking it opens the real NotifyBanner below. The design reference
+// disables these outright, but it has no notify feature to reach; this app
+// does, and a `disabled` button swallows the click that opens it.
 function BoardChip({ board, boards, selectedBoard, onSelectBoard, onLockedClick }) {
   const locked = isBoardLocked(boards, board.slug, false);
   const active = board.slug === selectedBoard;
@@ -110,57 +116,13 @@ function BoardChip({ board, boards, selectedBoard, onSelectBoard, onLockedClick 
     <button
       type="button"
       className={`uc-fopt${active ? ' uc-fopt--on' : ''}`}
-      disabled={locked}
-      title={board.name}
+      title={locked ? `${board.name} — coming soon, tap to get notified` : board.name}
       onClick={() => (locked ? onLockedClick(board) : onSelectBoard(board.slug))}
     >
       <span className="uc-fradio"><CheckIcon /></span>
       <b>{board.name}</b>
       {locked && <span className="uc-fsoon">Soon</span>}
     </button>
-  );
-}
-
-function BoardGroupSection({ type, groupBoards, boards, selectedBoard, onSelectBoard, onLockedClick, expanded, onToggle }) {
-  const [showAll, setShowAll] = useState(false);
-  if (groupBoards.length === 0) return null;
-
-  const capped = groupBoards.slice(0, CHIP_CAP);
-  const selectedBeyondCap =
-    !capped.some((b) => b.slug === selectedBoard) && groupBoards.some((b) => b.slug === selectedBoard);
-  const revealAll = showAll || selectedBeyondCap;
-  const visible = revealAll ? groupBoards : capped;
-  const hiddenCount = groupBoards.length - visible.length;
-
-  return (
-    <section className="uc-fgroup">
-      <button type="button" className="uc-ftitle" aria-expanded={expanded} onClick={onToggle}>
-        {GROUP_LABELS[type] || type}
-        <ChevronIcon expanded={expanded} />
-      </button>
-      {expanded && (
-        <div className="uc-fbody">
-          <div className="uc-flist">
-            {visible.map((b) => (
-              <BoardChip
-                key={b.slug}
-                board={b}
-                boards={boards}
-                selectedBoard={selectedBoard}
-                onSelectBoard={onSelectBoard}
-                onLockedClick={onLockedClick}
-              />
-            ))}
-          </div>
-          {hiddenCount > 0 && (
-            <button type="button" className="uc-fmore" onClick={() => setShowAll(true)}>+{hiddenCount} more</button>
-          )}
-          {showAll && !selectedBeyondCap && groupBoards.length > CHIP_CAP && (
-            <button type="button" className="uc-fmore" onClick={() => setShowAll(false)}>Show less</button>
-          )}
-        </div>
-      )}
-    </section>
   );
 }
 
@@ -335,6 +297,21 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, enrollment
   );
 }
 
+// Collapsible filter section — the reference panel's Board/Class/Stream
+// groups are all individually collapsible, which also lets a learner shrink
+// the panel on a long board list.
+function FilterGroup({ title, open, onToggle, children }) {
+  return (
+    <section className="uc-fgroup">
+      <button type="button" className="uc-ftitle" aria-expanded={open} onClick={onToggle}>
+        {title}
+        <ChevronIcon expanded={open} />
+      </button>
+      {open && <div className="uc-fbody">{children}</div>}
+    </section>
+  );
+}
+
 function SkeletonCards() {
   return (
     <div className="uc-grid">
@@ -359,8 +336,11 @@ const UnifiedCatalog = ({
 }) => {
   const [notifyBoard, setNotifyBoard] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [expandedGroup, setExpandedGroup] = useState(null);
-  const autoExpandedForRef = useRef(null);
+  // Which Central/State tab the board list shows, and the "find a board"
+  // query that narrows it — the design reference's board-picker shape.
+  const [boardCategory, setBoardCategory] = useState('CENTRAL');
+  const [boardQuery, setBoardQuery] = useState('');
+  const [collapsed, setCollapsed] = useState({});
   const [classFilter, setClassFilter] = useState(null);
   const [streamFilter, setStreamFilter] = useState(null);
   const [sortBy, setSortBy] = useState('rec');
@@ -371,12 +351,17 @@ const UnifiedCatalog = ({
     return () => clearTimeout(t);
   }, [search]);
 
-  useEffect(() => {
-    if (!boards || !selectedBoard || autoExpandedForRef.current === selectedBoard) return;
-    autoExpandedForRef.current = selectedBoard;
+  // Keep the board tab following whichever board is actually selected (a
+  // navbar/homepage deep-link can select a State board while the panel is
+  // still on Central). Adjusted synchronously during render, the same
+  // pattern the class/stream reset below already uses, rather than an
+  // effect that would cost an extra render cascade.
+  const [prevBoardForTab, setPrevBoardForTab] = useState(null);
+  if (boards && selectedBoard && selectedBoard !== prevBoardForTab) {
+    setPrevBoardForTab(selectedBoard);
     const board = boards.find((b) => b.slug === selectedBoard);
-    if (board) setExpandedGroup(board.board_type);
-  }, [boards, selectedBoard]);
+    if (board && board.board_type !== boardCategory) setBoardCategory(board.board_type);
+  }
 
   // A board switch invalidates class/stream filters from the previous
   // board's own class list (e.g. "Class 12" selected, switch to a board
@@ -392,9 +377,19 @@ const UnifiedCatalog = ({
     setStreamFilter(null);
   }
 
-  const toggleGroup = (type) => setExpandedGroup((prev) => (prev === type ? null : type));
+  const toggleGroup = (key) => setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
   const crossMatches = useCrossBoardMatches(boards, debouncedSearch, selectedBoard);
   const currentBoard = boards?.find((b) => b.slug === selectedBoard) || null;
+
+  // Boards in the active Central/State tab, narrowed by the panel's own
+  // "find a board" box (matches name or slug, so "wb" finds WBBSE).
+  const bq = boardQuery.trim().toLowerCase();
+  const tabBoards = useMemo(() => {
+    if (!boards) return [];
+    return boards
+      .filter((b) => b.board_type === boardCategory)
+      .filter((b) => !bq || b.name.toLowerCase().includes(bq) || (b.slug || '').toLowerCase().includes(bq));
+  }, [boards, boardCategory, bq]);
 
   const classTitles = useMemo(
     () => Array.from(new Set(classes.map((c) => c.title))),
@@ -428,6 +423,7 @@ const UnifiedCatalog = ({
     setClassFilter(null);
     setStreamFilter(null);
     setSortBy('rec');
+    setBoardQuery('');
     onSearchChange('');
   };
 
@@ -526,55 +522,75 @@ const UnifiedCatalog = ({
         </div>
 
         {boards && (
-          <div className="uc-fboards">
-            {['CENTRAL', 'STATE'].map((type) => (
-              <BoardGroupSection
-                key={type}
-                type={type}
-                groupBoards={boards.filter((b) => b.board_type === type)}
-                boards={boards}
-                selectedBoard={selectedBoard}
-                onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
-                onLockedClick={setNotifyBoard}
-                expanded={expandedGroup === type}
-                onToggle={() => toggleGroup(type)}
+          <FilterGroup title="Board" open={!collapsed.board} onToggle={() => toggleGroup('board')}>
+            <div className="uc-fseg" role="tablist">
+              {BOARD_TABS.map((t) => (
+                <button
+                  key={t.type}
+                  type="button"
+                  role="tab"
+                  aria-selected={boardCategory === t.type}
+                  onClick={() => { setBoardCategory(t.type); setBoardQuery(''); }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <div className="uc-ffind">
+              <SearchIcon />
+              <input
+                type="text"
+                placeholder="Find a board"
+                aria-label="Find a board"
+                value={boardQuery}
+                onChange={(e) => setBoardQuery(e.target.value)}
               />
-            ))}
-          </div>
+            </div>
+            {tabBoards.length > 0 ? (
+              <div className="uc-flist">
+                {tabBoards.map((b) => (
+                  <BoardChip
+                    key={b.slug}
+                    board={b}
+                    boards={boards}
+                    selectedBoard={selectedBoard}
+                    onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
+                    onLockedClick={setNotifyBoard}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="uc-fnone">No board matches “{boardQuery.trim()}”.</p>
+            )}
+          </FilterGroup>
         )}
 
         {notifyBoard && <NotifyBanner board={notifyBoard} onClose={() => setNotifyBoard(null)} />}
 
         {classTitles.length > 0 && (
-          <section className="uc-fgroup">
-            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Class</button>
-            <div className="uc-fbody">
-              <div className="uc-fchips">
-                <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
-                {classTitles.map((t) => (
-                  <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
-                    {t}
-                  </button>
-                ))}
-              </div>
+          <FilterGroup title="Class" open={!collapsed.class} onToggle={() => toggleGroup('class')}>
+            <div className="uc-fchips">
+              <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
+              {classTitles.map((t) => (
+                <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
+                  {t}
+                </button>
+              ))}
             </div>
-          </section>
+          </FilterGroup>
         )}
 
         {showStreams && streamOptions.length > 0 && (
-          <section className="uc-fgroup">
-            <button type="button" className="uc-ftitle" aria-expanded="true" disabled>Stream</button>
-            <div className="uc-fbody">
-              <div className="uc-fchips">
-                <button type="button" className={`uc-pill${streamFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter(null)}>All</button>
-                {streamOptions.map((s) => (
-                  <button key={s} type="button" className={`uc-pill${streamFilter === s ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter((prev) => (prev === s ? null : s))}>
-                    {s}
-                  </button>
-                ))}
-              </div>
+          <FilterGroup title="Stream" open={!collapsed.stream} onToggle={() => toggleGroup('stream')}>
+            <div className="uc-fchips">
+              <button type="button" className={`uc-pill${streamFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter(null)}>All</button>
+              {streamOptions.map((s) => (
+                <button key={s} type="button" className={`uc-pill${streamFilter === s ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter((prev) => (prev === s ? null : s))}>
+                  {s}
+                </button>
+              ))}
             </div>
-          </section>
+          </FilterGroup>
         )}
       </aside>
 

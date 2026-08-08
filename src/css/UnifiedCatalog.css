@@ -188,6 +188,33 @@
 .uc-ftitle:disabled { cursor: default; }
 .uc-fbody { padding-bottom: 15px; }
 
+/* Central/State segmented control + "find a board" box (design reference's
+   filter panel). These replace the old two-accordion + "+N more" board
+   layout: with 32 boards that grew the panel taller than the results
+   column, which is exactly what the capped, scrollable .uc-flist below
+   avoids. */
+.uc-fseg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--sk-paper);
+  border: 1px solid var(--sk-line); border-radius: 999px; padding: 4px; margin-bottom: 10px;
+}
+.uc-fseg button {
+  border: none; background: none; font-family: var(--sk-font); font-size: 12px; font-weight: 700;
+  padding: 8px 4px; border-radius: 999px; color: var(--sk-body); cursor: pointer;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.uc-fseg button:hover { color: var(--sk-ink); }
+.uc-fseg button[aria-selected="true"] { background: #fff; color: var(--sk-green-dark); box-shadow: 0 3px 10px rgba(11, 46, 32, .09); }
+
+.uc-ffind { position: relative; margin-bottom: 8px; }
+.uc-ffind svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--sk-body); }
+.uc-ffind input {
+  width: 100%; padding: 9px 12px 9px 33px; background: var(--sk-paper); border: 1px solid var(--sk-line);
+  border-radius: 12px; font-family: var(--sk-font); font-size: 12.5px; color: var(--sk-ink); outline: none;
+  transition: background .2s, border-color .2s;
+}
+.uc-ffind input:focus { background: #fff; border-color: var(--sk-green); }
+.uc-fnone { font-size: 12px; color: var(--sk-body); padding: 10px 2px; margin: 0; }
+
 .uc-flist { display: flex; flex-direction: column; gap: 2px; max-height: 220px; overflow-y: auto; }
 .uc-fopt {
   display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none;
@@ -206,8 +233,6 @@
 .uc-fopt:disabled { cursor: not-allowed; }
 .uc-fopt:disabled b { color: #9BAEA4; font-weight: 500; }
 .uc-fsoon { flex: none; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #B45309; background: #FFF3DC; border-radius: 999px; padding: 2px 6px; }
-.uc-fmore { background: none; border: none; font-family: var(--sk-font); font-size: 11.5px; font-weight: 600; color: var(--sk-body); cursor: pointer; padding: 6px 9px; }
-.uc-fmore:hover { color: var(--sk-green); }
 
 .uc-fchips { display: flex; flex-wrap: wrap; gap: 6px; }
 .uc-pill {
