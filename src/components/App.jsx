@@ -70,7 +70,6 @@ const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
-const Marketplace      = lazy(() => import("../pages/Marketplace"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
@@ -358,7 +357,6 @@ function App() {
         <Route path="/live/room/:id" element={
           <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
         } />
-        <Route path="/marketplace"   element={<Marketplace />} />
 
         {/*
           Faculty / Academy entry points.
