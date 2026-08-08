@@ -726,6 +726,12 @@
   gap: 10px;
   box-shadow: 0 -10px 40px rgba(11, 46, 32, 0.04);
 }
+.skn-drawer-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
 
 /* drawer accordions */
 .skn-acc {
@@ -837,6 +843,18 @@
   .skn-authed .skn-dash {
     padding: 9px 14px;
     font-size: 13px;
+  }
+  /* Same treatment as .skn-guest .skn-btn-ghost above (≤1024px): drop what
+     the drawer already offers instead, rather than let a fixed-size cluster
+     overflow the bar. Notifications + profile switcher move into
+     .skn-drawer-cta's authenticated branch; Dashboard stays (it's the
+     equivalent of the guest side's primary "Sign up" CTA, and already
+     shrinks via the rule above). Confirmed via computed layout at 340px:
+     without this, .skn-authed's last child was positioned ~200px past the
+     viewport edge, clipped rather than reachable. */
+  .skn-authed .skn-notif-wrap,
+  .skn-authed .ps-root {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -793,6 +793,25 @@ const Navbar = () => {
             (isAuthenticated && user ? (
               <>
                 {/* Forum & Explore Moderation moved into their own sections. */}
+                {/* Notifications + profile switcher: hidden from the top bar
+                    below 640px (SiteNav.css) since .skn-authed doesn't shrink
+                    to fit narrow phones — surfaced here instead so they stay
+                    reachable, not just Dashboard. */}
+                <div className="skn-drawer-account-row">
+                  <NotificationBell />
+                  <ProfileSwitcher
+                    teacherSignupUrl="/signup?role=teacher"
+                    learnUrl={APP_URL}
+                    teachUrl={TEACHER_URL}
+                    quickActions={[
+                      {
+                        label: "Dashboard",
+                        icon: <LayoutDashboard size={17} />,
+                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_URL : APP_URL; },
+                      },
+                    ]}
+                  />
+                </div>
                 <button
                   type="button"
                   className="skn-btn skn-btn-solid skn-wide"
