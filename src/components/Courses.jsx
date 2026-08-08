@@ -57,6 +57,7 @@ const Courses = () => {
   // into that class's expanded row — captured once on mount.
   const [pendingOpenCourseId] = useState(location.state?.openCourseId || null);
   const catalogRef = useRef(null);
+  const programsRef = useRef(null);
 
   // Real backend data: which boards currently have published courses (drives
   // "Coming Soon" locking) and the real course catalog for whichever board is
@@ -229,18 +230,6 @@ const Courses = () => {
     saveLastBoard(slug);
   };
 
-  // Landing-content "Central Boards"/"State Boards" tiles — same
-  // first-unlocked-board-in-group resolution the initial-mount default-board
-  // effect above already does for a navbar/homepage deep-link, factored out
-  // so the tile can reuse it directly instead of round-tripping through a
-  // fresh navigation state for a page the user is already on.
-  const handleSelectGroup = (group) => {
-    if (!boards) return;
-    const boardType = group.toUpperCase();
-    const match = boards.find((b) => b.board_type === boardType && b.has_published_courses) || boards.find((b) => b.board_type === boardType);
-    if (match) handleSelectBoard(match.slug);
-  };
-
   const handleToggleExpand = (id, forceOpen = false) => {
     setExpandedClassId((prev) => (forceOpen ? id : prev === id ? null : id));
   };
@@ -361,8 +350,17 @@ const Courses = () => {
 
   return (
     <section className="courses-page">
-      <CoursesHero onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
-      <CoursesPrograms boards={boards} onSelectGroup={handleSelectGroup} />
+      <CoursesHero
+        onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        onBrowseCategories={() => programsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+      />
+      <div ref={programsRef}>
+        <CoursesPrograms
+          boards={boards}
+          onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          onSkillBrowse={() => navigate('/skill/browse')}
+        />
+      </div>
       {/* Not .courses-container (legacy wrapper, own 28/18/14px responsive
           padding scheme) — .wrap is the real site-wide gutter (ShikshaHome.css)
           the hero/programs tiles above and the reused Faq/WhyChooseShiksha/
