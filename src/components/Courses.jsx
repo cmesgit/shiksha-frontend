@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
 import UnifiedCatalog from './courses/UnifiedCatalog';
+import CoursesHero from './courses/CoursesHero';
+import CoursesPrograms from './courses/CoursesPrograms';
+import WhyChooseShiksha from './home/WhyChooseShiksha';
+import TeachersStudents from './home/TeachersStudents';
+import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
@@ -51,6 +56,7 @@ const Courses = () => {
   // homeData/HomeGreen's `openCourseId` state key) can deep-link straight
   // into that class's expanded row — captured once on mount.
   const [pendingOpenCourseId] = useState(location.state?.openCourseId || null);
+  const catalogRef = useRef(null);
 
   // Real backend data: which boards currently have published courses (drives
   // "Coming Soon" locking) and the real course catalog for whichever board is
@@ -223,6 +229,18 @@ const Courses = () => {
     saveLastBoard(slug);
   };
 
+  // Landing-content "Central Boards"/"State Boards" tiles — same
+  // first-unlocked-board-in-group resolution the initial-mount default-board
+  // effect above already does for a navbar/homepage deep-link, factored out
+  // so the tile can reuse it directly instead of round-tripping through a
+  // fresh navigation state for a page the user is already on.
+  const handleSelectGroup = (group) => {
+    if (!boards) return;
+    const boardType = group.toUpperCase();
+    const match = boards.find((b) => b.board_type === boardType && b.has_published_courses) || boards.find((b) => b.board_type === boardType);
+    if (match) handleSelectBoard(match.slug);
+  };
+
   const handleToggleExpand = (id, forceOpen = false) => {
     setExpandedClassId((prev) => (forceOpen ? id : prev === id ? null : id));
   };
@@ -343,7 +361,9 @@ const Courses = () => {
 
   return (
     <section className="courses-page">
-      <div className="courses-container">
+      <CoursesHero onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+      <CoursesPrograms boards={boards} onSelectGroup={handleSelectGroup} />
+      <div className="courses-container" ref={catalogRef}>
         <UnifiedCatalog
           boards={boards}
           selectedBoard={selectedBoard}
@@ -359,6 +379,9 @@ const Courses = () => {
           onSyllabus={handleSyllabus}
         />
       </div>
+      <WhyChooseShiksha />
+      <TeachersStudents />
+      <Faq />
       {enrollModalCourseId && (
         <EnrollModal
           courseId={enrollModalCourseId}

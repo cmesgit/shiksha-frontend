@@ -34,6 +34,16 @@ function shapeClass(c, boardSlug) {
     image: c.thumbnail || null,
     duration: c.duration_weeks ? `${c.duration_weeks} Weeks` : "1 Year",
     fee: formatFee(c.price),
+    // mrp/discountLabel/badge are real, admin-CMS-editable Course fields
+    // that already exist on the backend (Courses.jsx's admin CMS work) but
+    // were never surfaced here — null/"" when unset, same "nothing to
+    // show" convention as `image`.
+    mrp: c.mrp != null ? formatFee(c.mrp) : null,
+    discountLabel: c.discount_label || "",
+    badge: c.badge || "",
+    isComingSoon: !!c.is_coming_soon,
+    subjectCount: c.subject_count ?? null,
+    classLevel: c.class_level ?? null,
     access: "Full Course Access",
     mode: "Online",
     // null = uncapped/no active batch; the class row hides the
