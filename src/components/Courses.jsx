@@ -5,7 +5,9 @@ import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
 import UnifiedCatalog from './courses/UnifiedCatalog';
 import CoursesHero from './courses/CoursesHero';
+import CoursesStrip from './courses/CoursesStrip';
 import CoursesPrograms from './courses/CoursesPrograms';
+import CoursesPromo, { CoursesFinalCta } from './courses/CoursesPromo';
 import WhyChooseShiksha from './home/WhyChooseShiksha';
 import TeachersStudents from './home/TeachersStudents';
 import Faq from './home/Faq';
@@ -354,6 +356,7 @@ const Courses = () => {
         onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
         onBrowseCategories={() => programsRef.current?.scrollIntoView({ behavior: 'smooth' })}
       />
+      <CoursesStrip />
       <div ref={programsRef}>
         <CoursesPrograms
           boards={boards}
@@ -382,9 +385,11 @@ const Courses = () => {
           onSyllabus={handleSyllabus}
         />
       </div>
+      <CoursesPromo onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       <WhyChooseShiksha />
       <TeachersStudents />
       <Faq />
+      <CoursesFinalCta onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       {enrollModalCourseId && (
         <EnrollModal
           courseId={enrollModalCourseId}
