@@ -32,6 +32,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
+import DOMPurify from "dompurify";
 import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
 
@@ -629,7 +630,7 @@ export default function FacultySignup({
                 <div style={{ fontWeight: 700, marginBottom: 8 }}>
                   {agreementText.title} <span style={{ fontSize: 12, color: "#9a8478" }}>· v{agreementText.version_number}</span>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderMarkdown(agreementText.body) }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderMarkdown(agreementText.body)) }} />
               </div>
             )}
 

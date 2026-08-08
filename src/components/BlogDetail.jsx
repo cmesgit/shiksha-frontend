@@ -7,6 +7,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
@@ -183,8 +184,11 @@ const BlogDetail = () => {
       {status === "loading" && <ChapterLoading />}
 
       {status === "ready" && html && (
-        // First-party build artifact from our own extractor — safe to inject.
-        <div dangerouslySetInnerHTML={{ __html: html }} />
+        // Originally "first-party build artifact, safe to inject" — no longer
+        // true since BlogPostAdminViewSet (content/admin_views.py) lets any
+        // IsContentEditor-role account write this content via the API, a
+        // lower-privilege role than full admin. Sanitize before rendering.
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
       )}
 
       {status === "notfound" && <h2>Blog not found</h2>}
