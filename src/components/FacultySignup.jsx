@@ -308,6 +308,18 @@ export default function FacultySignup({
       const state = await checkEmail(email.trim());
       if (state?.exists) {
         if (state.has_teacher) {
+          // An UNVERIFIED duplicate was a hard dead end: the track guard
+          // refuses a second application ("Log in instead"), but LoginView
+          // refuses an unverified account ("Email not verified."), and the
+          // 24h purge window meant an applicant who lost the verification
+          // email had no way forward at all. checkEmail already tells us which
+          // case this is, so send them to the one action that works.
+          if (!state.is_verified) {
+            return fail(
+              "You already started an application with this email, but it isn't verified yet. Check your inbox for the verification link — we can send you a fresh one.",
+              { label: "Resend verification email", to: "/resend-verification" },
+            );
+          }
           return fail(
             state.teacher_type === "GUEST"
               ? "This email is already registered as a Skill Dev expert. Add the Faculty track to that account instead of creating a new one."
