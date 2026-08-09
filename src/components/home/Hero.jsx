@@ -219,8 +219,14 @@ const DEFAULTS = {
     "learning, and trusted resources to help every student reach their academic goals.",
   cta_primary_label: "Explore Courses",
   cta_primary_href: "/courses",
+  // "Book a Tutor" is a booking intent, and 1:1 tutor booking lives on the
+  // Skill Dev expert directory — real availability slots, a real order/enrol
+  // call (see ExpertProfilePage). /counselling is career ADVICE, a different
+  // job, and its counsellor list is empty in production, so this CTA promised
+  // a booking that could not be made. Career guidance keeps its own CTA in the
+  // Resources section.
   cta_secondary_label: "Book a Tutor",
-  cta_secondary_href: "/counselling",
+  cta_secondary_href: "/skill/browse",
 };
 
 export default function Hero() {
