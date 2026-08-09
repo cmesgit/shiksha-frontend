@@ -44,12 +44,27 @@ const Courses = () => {
   const { isAuthenticated, user } = useAuth();
   const { openWithMessage } = useProfileModal();
 
-  const [selectedBoard, setSelectedBoard] = useState(location.state?.selectedBoard || null);
+  // Deep-link intent reaches this page two ways: router `state` (homepage
+  // cards, navbar links) or query params (?board=&group=&open=&q=). State is
+  // invisible in the URL, so it does not survive a reload, a shared link, or
+  // the login round-trip below — the query form is what makes those work. Both
+  // are read here, with state winning when present.
+  const deepLink = useMemo(() => {
+    const q = new URLSearchParams(location.search);
+    return {
+      selectedBoard: location.state?.selectedBoard || q.get('board') || null,
+      selectedBoardGroup: location.state?.selectedBoardGroup || q.get('group') || null,
+      openCourseId: location.state?.openCourseId || q.get('open') || null,
+      searchQuery: location.state?.searchQuery || q.get('q') || '',
+    };
+  }, [location.state, location.search]);
+
+  const [selectedBoard, setSelectedBoard] = useState(deepLink.selectedBoard);
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
   // Seeded from navigation state so the navbar / homepage hero search can
   // deep-link into this page with a pre-filled query.
-  const [searchQuery, setSearchQuery] = useState(location.state?.searchQuery || '');
+  const [searchQuery, setSearchQuery] = useState(deepLink.searchQuery);
   const [expandedClassId, setExpandedClassId] = useState(null);
   const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
   const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
@@ -57,7 +72,7 @@ const Courses = () => {
   // A homepage/showcase card linked to a specific real course (see
   // homeData/HomeGreen's `openCourseId` state key) can deep-link straight
   // into that class's expanded row — captured once on mount.
-  const [pendingOpenCourseId] = useState(location.state?.openCourseId || null);
+  const [pendingOpenCourseId] = useState(deepLink.openCourseId);
   const catalogRef = useRef(null);
   const programsRef = useRef(null);
 
@@ -85,13 +100,13 @@ const Courses = () => {
     };
     const firstUnlocked = boards.find((b) => b.has_published_courses);
     const match =
-      resolve(location.state?.selectedBoard) ||
-      resolveGroup(location.state?.selectedBoardGroup) ||
+      resolve(deepLink.selectedBoard) ||
+      resolveGroup(deepLink.selectedBoardGroup) ||
       resolve(loadLastBoard()) ||
       firstUnlocked ||
       boards[0];
     if (match) setSelectedBoard(match.slug);
-  }, [boards, selectedBoard, location.state]);
+  }, [boards, selectedBoard, deepLink]);
 
   // Direct visit to /courses/<slug> ("Syllabus" gives this a real, shareable
   // URL) — resolve the course by slug and open it straight to the detail
@@ -271,13 +286,27 @@ const Courses = () => {
   // `!expandedClassId` so this only ever fires once.
   useEffect(() => {
     if (!pendingOpenCourseId || !selectedBoard || expandedClassId || liveClasses.length === 0) return;
-    const match = liveClasses.find((cls) => cls.courseIds?.[selectedBoard] === pendingOpenCourseId);
+    // Compare as strings: course ids are numbers in router state but always
+    // strings out of a query param, so a strict === silently missed every
+    // ?open= deep link (and every post-login return).
+    const wanted = String(pendingOpenCourseId);
+    const match = liveClasses.find((cls) => String(cls.courseIds?.[selectedBoard]) === wanted);
     if (match) setExpandedClassId(match.id);
   }, [pendingOpenCourseId, selectedBoard, expandedClassId, liveClasses]);
 
   const handleEnrollNow = (cls) => {
     if (!isAuthenticated) {
-      navigate('/login');
+      // Come back to the exact class they were enrolling in. This used to be a
+      // bare navigate('/login'), which threw away the board AND the class: the
+      // learner signed up, landed on a dashboard, and had to rediscover the
+      // course from scratch — the single most expensive drop-off on the page.
+      // Encoded as query params (not router state) because only the URL
+      // survives the redirect; LoginRedirect in App.jsx validates `next`.
+      const back = new URLSearchParams();
+      if (selectedBoard) back.set('board', selectedBoard);
+      const wantedId = cls.courseIds?.[selectedBoard];
+      if (wantedId) back.set('open', String(wantedId));
+      navigate(`/login?next=${encodeURIComponent(`/courses?${back}`)}`);
       return;
     }
 

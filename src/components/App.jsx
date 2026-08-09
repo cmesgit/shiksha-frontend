@@ -24,6 +24,7 @@ const FacultySignup    = lazy(() => import("./FacultySignup"));
 const Enroll           = lazy(() => import("./Enroll"));
 const Courses          = lazy(() => import("./Courses"));
 const Placements       = lazy(() => import("./Placements"));
+const NotFound         = lazy(() => import("./NotFound"));
 const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
@@ -417,6 +418,19 @@ function App() {
           <Route path="profile" element={<ForumProfilePage />} />
           <Route path="u/:username" element={<UserProfilePage />} />
         </Route>
+
+        {/*
+          Catch-all 404. MUST stay last — React Router v6 ranks static routes
+          above this one, so it only wins when nothing else matched.
+
+          Before this existed an unmatched path rendered an empty <div
+          className="app"> — a blank white page, no nav, no way back (React
+          Router just logged "No routes matched location"). That is why
+          /become-faculty and /expert-apply above were patched in one at a
+          time as broken links got reported. New dead links now land here
+          instead of nowhere.
+        */}
+        <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
       </Suspense>
     </div>

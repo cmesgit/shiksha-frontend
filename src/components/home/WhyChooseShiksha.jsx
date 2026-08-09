@@ -141,9 +141,13 @@ export default function WhyChooseShiksha() {
               <div className="why-vis rv">
                 <div className="why-panel">
                   <div className="why-art" dangerouslySetInnerHTML={{ __html: ART_SVG }} />
-                  <button className="why-play" aria-label="Play intro">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                  </button>
+                  {/*
+                    A "Play intro" play button used to sit here with no onClick
+                    at all — it looked like a video and did nothing when
+                    clicked. Removed rather than stubbed: there is no intro
+                    video to play yet. Restore it (with a real handler) once one
+                    exists; the .why-play styles are still in the css below.
+                  */}
                 </div>
                 {Object.entries(BADGE_SLOTS).map(([slot, def]) => {
                   const f = floaters[slot];

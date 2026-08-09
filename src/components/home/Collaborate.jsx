@@ -120,7 +120,10 @@ const DEFAULTS_BLOCK = {
   cta_primary_label: "Join Session",
   cta_primary_href: "/live",
   cta_secondary_label: "Host Session",
-  cta_secondary_href: "/live",
+  // ?new=1 makes LiveLanding open a room immediately. Without it this pointed
+  // at the same bare "/live" as Join Session above, so the two buttons were
+  // indistinguishable in behaviour despite promising different things.
+  cta_secondary_href: "/live?new=1",
 };
 
 const DEFAULT_MARQUEE_CHIPS = [

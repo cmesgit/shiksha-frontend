@@ -1,8 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import '../css/Upcoming.css';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Upcoming = () => {
+  const navigate = useNavigate();
   const upcomingFeatures = [
     {
       title: "Teacher Registration Portal",
@@ -75,7 +77,12 @@ const Upcoming = () => {
             <h2>Stay Updated</h2>
             <p>Be the first to know when these features launch!</p>
             <div className="upcoming-cta-buttons">
-              <button className="upcoming-notify-btn">Notify Me</button>
+              {/* Was a dead button — no onClick, no notify endpoint exists.
+                  Points at /contact so the intent goes somewhere real; swap
+                  back to a proper email capture when there's a backend for it. */}
+              <button className="upcoming-notify-btn" onClick={() => navigate("/contact")}>
+                Notify Me
+              </button>
               <button className="upcoming-back-btn" onClick={() => window.history.back()}>
                 Back
               </button>
