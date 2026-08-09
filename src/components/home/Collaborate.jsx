@@ -1,5 +1,6 @@
 import { cloneElement, useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's Collaborate.jsx —
    shared tokens (--coral, --peach, etc.) and the .sec/.wrap/.eyebrow/.btn/.rv
@@ -220,14 +221,14 @@ export default function Collaborate() {
                 </div>
 
                 <div className="collab-actions">
-                  <a className="btn btn-coral" href={ctaPrimaryHref}>
+                  <CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
                     {ctaPrimaryLabel}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                  </a>
-                  <a className="btn btn-ghost" href={ctaSecondaryHref}>
+                  </CtaLink>
+                  <CtaLink className="btn btn-ghost" to={ctaSecondaryHref}>
                     {ctaSecondaryLabel}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-                  </a>
+                  </CtaLink>
                 </div>
 
                 <div className="stats">

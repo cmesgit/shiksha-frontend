@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import { useAuth } from "../../contexts/AuthContext";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's Cta.jsx — shared
    tokens (--coral, --coral-dark, etc.) and the .sec/.wrap/.eyebrow/.btn/.rv
@@ -33,12 +35,17 @@ const DEFAULTS = {
 export default function Cta() {
   const rootRef = useRef(null);
   const { block } = useHomeContent("cta");
+  const { isAuthenticated } = useAuth();
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
   const body = block?.body || DEFAULTS.body;
   const ctaPrimaryLabel = block?.cta_primary_label || DEFAULTS.cta_primary_label;
-  const ctaPrimaryHref = block?.cta_primary_href || DEFAULTS.cta_primary_href;
+  // "Create free account" only makes sense to a signed-out visitor; someone
+  // already signed in is sent back to the homepage instead of a signup form.
+  const ctaPrimaryHref = isAuthenticated
+    ? "/"
+    : block?.cta_primary_href || DEFAULTS.cta_primary_href;
   const ctaSecondaryLabel = block?.cta_secondary_label || DEFAULTS.cta_secondary_label;
   const ctaSecondaryHref = block?.cta_secondary_href || DEFAULTS.cta_secondary_href;
 
@@ -76,14 +83,14 @@ export default function Cta() {
               <p>{body}</p>
 
               <div className="cta-actions">
-                <a className="btn btn-white" href={ctaPrimaryHref}>
+                <CtaLink className="btn btn-white" to={ctaPrimaryHref}>
                   {ctaPrimaryLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                </a>
-                <a className="btn btn-out" href={ctaSecondaryHref}>
+                </CtaLink>
+                <CtaLink className="btn btn-out" to={ctaSecondaryHref}>
                   {ctaSecondaryLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
-                </a>
+                </CtaLink>
               </div>
             </div>
           </div>

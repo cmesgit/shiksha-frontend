@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's Resources.jsx —
    shared tokens (--coral, --line, --sh-sm, .sec/.wrap/.sec-head/.arrow, etc.)
@@ -194,10 +195,10 @@ export default function Resources() {
                       <span className="res-ic">{ICONS[c.icon] || FALLBACK_ICON}</span>
                       <h3>{c.title}</h3>
                       <p>{c.body}</p>
-                      <a className="res-link" href={c.cta_href || "#"}>
+                      <CtaLink className="res-link" to={c.cta_href || "#"}>
                         {c.cta_label}
                         {ARROW_ICON}
-                      </a>
+                      </CtaLink>
                     </article>
                   );
                 })}

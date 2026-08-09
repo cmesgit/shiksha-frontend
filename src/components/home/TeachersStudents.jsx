@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's TeachersStudents.jsx —
    shared tokens/classes (--coral, .sec, .peach, .eyebrow, .em, .btn, .rv, etc.)
@@ -54,7 +55,7 @@ const DUO_META = [
 ];
 
 const DEFAULT_ITEMS = [
-  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a tutor", cta_href: "/become-faculty", tint: "violet" },
+  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a tutor", cta_href: "/faculty/signup", tint: "violet" },
   { icon: "book", title: "Do you want to learn here?", body: "Preview courses as a guest, enrol in structured programs for your class or exam, and learn with live classes, recordings and doubt support.", cta_label: "Start learning", cta_href: "/courses", tint: "green" },
 ];
 
@@ -103,10 +104,10 @@ export default function TeachersStudents() {
                     <div className="duo-ill">{DUO_ILL[i]}</div>
                     <h3>{item.title}</h3>
                     <p>{item.body}</p>
-                    <a className={`btn ${meta.btnClass}`} href={item.cta_href || "#"}>
+                    <CtaLink className={`btn ${meta.btnClass}`} to={item.cta_href || "#"}>
                       {item.cta_label}
                       {ARROW}
-                    </a>
+                    </CtaLink>
                   </div>
                 );
               })}

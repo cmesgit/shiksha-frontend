@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's WhyChooseShiksha.jsx —
    shared tokens (--coral, --violet, --green, etc.) come from ShikshaHome.css,
@@ -178,10 +179,10 @@ export default function WhyChooseShiksha() {
                     </div>
                   ))}
                 </div>
-                <a className="btn btn-coral" href={ctaHref}>
+                <CtaLink className="btn btn-coral" to={ctaHref}>
                   {ctaLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                </a>
+                </CtaLink>
               </div>
             </div>
           </div>

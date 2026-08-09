@@ -1,4 +1,5 @@
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's Hero.jsx —
    shared tokens (--wash, --brand, etc.) come from ShikshaHome.css,
@@ -272,14 +273,14 @@ export default function Hero() {
             <p className="sh-hero-sub sh-rise sh-d3">{subhead}</p>
 
             <div className="sh-cta-row sh-rise sh-d4">
-              <a className="sh-btn sh-btn-primary" href={ctaPrimaryHref}>
+              <CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
                 {ctaPrimaryLabel}
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
-              </a>
-              <a className="sh-btn sh-btn-ghost" href={ctaSecondaryHref}>
+              </CtaLink>
+              <CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
                 {ctaSecondaryLabel}
-              </a>
+              </CtaLink>
             </div>
           </div>
 

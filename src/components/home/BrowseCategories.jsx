@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import CtaLink from "./CtaLink";
 
 /* Section-scoped styles, ported from the design handoff's BrowseCategories.jsx —
    shared tokens (--peach, --coral, --sh-sm, .sec/.wrap/.sec-head/.btn, etc.)
@@ -143,19 +144,19 @@ export default function BrowseCategories() {
                       {CHECK_ICON}
                       {c.stat_text}
                     </div>
-                    <a className="cat-cta" href={c.cta_href || "/courses"}>
+                    <CtaLink className="cat-cta" to={c.cta_href || "/courses"}>
                       {c.cta_label}
                       {ARROW_ICON}
-                    </a>
+                    </CtaLink>
                   </div>
                 </div>
               ))}
             </div>
             <div className="center rv">
-              <a className="btn btn-coral" href={ctaPrimaryHref}>
+              <CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
                 {ctaPrimaryLabel}
                 {ARROW_ICON}
-              </a>
+              </CtaLink>
             </div>
           </div>
         </section>
