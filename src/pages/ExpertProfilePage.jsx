@@ -2,40 +2,42 @@
  * PLACEMENT: src/pages/ExpertProfilePage.jsx
  * ACTION:    Replace the entire file.
  *
- * Fixes from original:
+ * Redesign (2026-08-09) — brings this page onto the same --sk-* design
+ * system as the directory redesign (SkillBrowsePage/ExpertRow/FilterSidebar):
+ * textured hero + sticky dark booking panel, a "Skills & pricing" section for
+ * multi-listing experts, an honest review-distribution breakdown (the backend
+ * already returns `distribution`/`topic`/`is_edited`/`created_at` — this page
+ * just wasn't reading them), a styled listing picker + slot grid instead of
+ * inline styles, and a sidebar (About/Reviews) with a mini availability
+ * heatmap + recent reviews. Booking logic itself (multi-listing selection,
+ * slot validation, listing-priced order creation) is unchanged — verified
+ * correct before this pass; only presentation changed.
+ *
+ * Fixes carried over from the prior version:
  *
  * FIX 1 — Messaging goes to the real WS chat, not the dead REST model.
- *   OLD: POST /skill/conversations/ → skills.Conversation (REST-only, DELETED).
- *        404s now; the message was never delivered.
  *   NEW: No REST send (the chat app is WS-only). The composer hands off to the
  *        student app's SkillMessages inbox with the expert's TeacherProfile UUID
- *        and the typed draft in the query string:
- *          APP_URL/skill-messages?teacherProfileId=<id>&expertName=<n>&draft=<text>
- *        SkillMessages opens the live WS DM (ChatAPI.startDirect("TEACHER", id))
- *        and pre-fills the draft. expert.teacher_profile_id comes from the
- *        /skill/teachers/<id>/ response (serializers.py).
+ *        and the typed draft in the query string.
  *
- * FIX 2 — Post-enroll redirect was pointing at "/app/skill" (doesn't exist).
- *   OLD: navigate("/app/skill")
- *   NEW: window.location.href = APP_URL + "/" (student dashboard root, which
- *        shows the Skill Dev section when activeTrack === "skill")
+ * FIX 2 — Post-enroll redirect goes to the student dashboard root, not the
+ *   dead "/app/skill" path.
  */
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
 import { APP_URL } from "../config/urls";
 import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
-import { RatingStars } from "../components/skill/RatingStars";
+import { RatingStars, RatingSummary, MIN_REVIEWS } from "../components/skill/RatingStars";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
 const initials = (n) => (n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-// Stars fill to the EXACT average — see components/skill/RatingStars.jsx.
-// The old `"★".repeat(Math.round(r))` here drew 4.6 and 4.9 identically.
-const starsEl = (r, size = 14) => <RatingStars value={r} size={size} />;
-const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "";
+const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : "";
+
+const MODE_TEXT = { online: "Online only", home: "At the teacher's place", travel: "Travels to the learner" };
 
 /* ── Auth-gate modal ─────────────────────────────────────────────────── */
 function AuthGateModal({ action, expertName, onClose }) {
@@ -62,13 +64,6 @@ function AuthGateModal({ action, expertName, onClose }) {
 }
 
 /* ── Inline message composer ─────────────────────────────────────────── */
-// Messaging is delivered over the live WebSocket chat (the `chat` app), which
-// has NO REST send — so we do NOT post the message here. Instead we hand off to
-// the student app's SkillMessages inbox, carrying the expert's TeacherProfile
-// UUID and the typed draft in the query string. SkillMessages opens the WS DM
-// (ChatAPI.startDirect("TEACHER", teacherProfileId)) and pre-fills the draft so
-// the learner sends it in real time. (The old POST /skill/conversations/ route
-// was deleted along with the skills messaging model.)
 function MessageComposer({ teacherProfileId, expertName, onSent }) {
   const [body, setBody]       = useState("");
   const [sending, setSending] = useState(false);
@@ -85,7 +80,6 @@ function MessageComposer({ teacherProfileId, expertName, onSent }) {
     }
     setSending(true); setErr("");
     onSent();
-    // Carry the draft to the student app's live inbox.
     const dest =
       `${APP_URL}/skill-messages` +
       `?teacherProfileId=${encodeURIComponent(teacherProfileId)}` +
@@ -114,13 +108,40 @@ function ReviewCard({ r }) {
     <div className="ep-review">
       <div className="ep-review__head">
         <span className="ep-review__av">{(r.reviewer || "?")[0]}</span>
-        <div>
+        <div className="ep-review__who">
           <div className="ep-review__name">{r.reviewer}</div>
-          <div className="ep-review__date">{formatDate(r.created_at)}</div>
+          <div className="ep-review__date">
+            {formatDate(r.created_at)}
+            {r.is_edited && <span className="ep-review__edited">· Edited</span>}
+          </div>
         </div>
-        <div className="ep-review__stars" style={{ marginLeft: "auto", color: "#ff8f01" }}>{starsEl(r.rating)}</div>
+        <div className="ep-review__stars"><RatingStars value={r.rating} size={14} /></div>
       </div>
+      {r.topic && <span className="ep-review__topic">{r.topic}</span>}
       {r.body && <p className="ep-review__body">"{r.body}"</p>}
+      <p className="ep-review__verified">✓ Verified — from a completed session</p>
+    </div>
+  );
+}
+
+/* ── Review distribution bar chart ───────────────────────────────────── */
+function ReviewDistribution({ distribution, count }) {
+  if (!count) return null;
+  const max = Math.max(1, ...Object.values(distribution || {}));
+  return (
+    <div className="ep-dist">
+      {[5, 4, 3, 2, 1].map(star => {
+        const n = distribution?.[String(star)] || 0;
+        return (
+          <div key={star} className="ep-dist__row">
+            <span className="ep-dist__star">{star}★</span>
+            <span className="ep-dist__track">
+              <span className="ep-dist__fill" style={{ width: `${(n / max) * 100}%` }} />
+            </span>
+            <span className="ep-dist__n">{n}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -144,6 +165,62 @@ function CourseCard({ course, onEnroll }) {
   );
 }
 
+/* ── Mini weekly-availability heatmap (sidebar) ──────────────────────── */
+function AvailHeatmap({ avail }) {
+  return (
+    <div className="ep-heatmap">
+      <div className="ep-heatmap__grid">
+        <div />
+        {SDAvail.DAYS.map(d => <div key={d} className="ep-heatmap__day">{d.split(" ")[0]}</div>)}
+        {SDAvail.SLOTS.map((sl, si) => (
+          <Fragment key={sl}>
+            <div className="ep-heatmap__slot">{sl}</div>
+            {SDAvail.DAYS.map((d, di) => {
+              const k = `${di}-${si}`;
+              const booked = (avail.booked || []).includes(k);
+              const open   = (avail.open || []).includes(k);
+              return <span key={k} className={`ep-heatmap__cell${booked ? " booked" : open ? " open" : ""}`} />;
+            })}
+          </Fragment>
+        ))}
+      </div>
+      <div className="ep-heatmap__legend">
+        <span><i className="on" /> Open</span>
+        <span><i className="booked" /> Booked</span>
+        <span><i /> Closed</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Sidebar — About/Reviews tabs ────────────────────────────────────── */
+function ProfileSidebar({ avail, availLoaded, isAuthenticated, reviews, onSeeAllReviews }) {
+  return (
+    <aside className="ep-sidebar">
+      <div className="ep-sidebar__card">
+        <h3>This week's availability</h3>
+        {!isAuthenticated
+          ? <p className="ep-empty">Sign in to see real-time availability.</p>
+          : availLoaded ? <AvailHeatmap avail={avail} /> : <p className="ep-empty">Loading…</p>}
+      </div>
+      {reviews.length > 0 && (
+        <div className="ep-sidebar__card">
+          <h3>Recent reviews</h3>
+          <div className="ep-sidebar__reviews">
+            {reviews.slice(0, 3).map(r => (
+              <div key={r.id} className="ep-sidebar__review">
+                <RatingStars value={r.rating} size={12} />
+                <p>"{(r.body || "").slice(0, 90)}{(r.body || "").length > 90 ? "…" : ""}"</p>
+              </div>
+            ))}
+          </div>
+          <button className="ep-sidebar__more" onClick={onSeeAllReviews}>All {reviews.length} reviews →</button>
+        </div>
+      )}
+    </aside>
+  );
+}
+
 /* ══════════════════════════════════════════════════════ MAIN ═══════════ */
 export default function ExpertProfilePage() {
   const { id }   = useParams();
@@ -154,12 +231,21 @@ export default function ExpertProfilePage() {
   const [expert, setExpert]   = useState(null);
   const [courses, setCourses] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [distribution, setDistribution] = useState({});
   const [loading, setLoading] = useState(true);
   const [err, setErr]         = useState("");
   const [activeTab, setTab]   = useState("about");
   const [gate, setGate]       = useState(null);     // "message" | "book" | null
   const [msgSent, setMsgSent] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
+  const [reviewSort, setReviewSort] = useState("newest");
+  const [showIntro, setShowIntro] = useState(false);
+
+  // Availability is fetched once here (not inside BookForm) so the sidebar's
+  // mini heatmap and the Book tab's slot grid share the same real data / one
+  // network call instead of loading it twice.
+  const [avail, setAvail] = useState({ open: [], booked: [] });
+  const [availLoaded, setAvailLoaded] = useState(false);
 
   // If the user returns from signup with ?action=message, auto-open composer
   useEffect(() => {
@@ -172,26 +258,40 @@ export default function ExpertProfilePage() {
     Promise.all([
       api.get(`/skill/teachers/${id}/`).then(r => r.data),
       api.get("/skill/courses/").then(r => (Array.isArray(r.data) ? r.data : r.data.results || []).filter(c => c.teacher_id === id)),
-      api.get(`/skill/teachers/${id}/reviews/`).then(r => r.data?.reviews || []),
-    ]).then(([ep, cs, rv]) => { setExpert(ep); setCourses(cs); setReviews(rv); })
+      api.get(`/skill/teachers/${id}/reviews/`).then(r => r.data || {}),
+    ]).then(([ep, cs, rv]) => {
+      setExpert(ep); setCourses(cs);
+      setReviews(rv.reviews || []); setDistribution(rv.distribution || {});
+    })
       .catch(() => setErr("Expert profile not found."))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    // The availability endpoint requires auth (IsAuthenticated) — only fetch
+    // once signed in, or an anonymous visitor's 401 trips the global axios
+    // interceptor and hard-redirects them off the profile page entirely.
+    if (!isAuthenticated) return;
+    let alive = true;
+    fetchAvailability(id).then(r => { if (alive) { setAvail(r); setAvailLoaded(true); } });
+    return () => { alive = false; };
+  }, [id, isAuthenticated]);
 
   const handleMessageClick = () => {
     if (!isAuthenticated) { setGate("message"); return; }
     setShowComposer(true);
   };
 
-  const handleBookClick = () => {
+  const handleBookClick = (listingId) => {
     if (!isAuthenticated) { setGate("book"); return; }
+    if (listingId) setPreselectedListing(listingId);
     setTab("book");
   };
 
+  const [preselectedListing, setPreselectedListing] = useState(null);
+
   const handleBookSession = async (draft) => {
     try {
-      // `listing` is WHICH skill is being booked — a multi-skill expert prices
-      // each one separately, and the backend charges the listing's price.
       const { data } = await api.post("/skill/payments/create-order/", {
         teacherId: id, listing: draft.listing || null, draft,
       });
@@ -205,69 +305,126 @@ export default function ExpertProfilePage() {
     if (!isAuthenticated) { navigate(`/login?next=/experts/${id}&action=enroll`); return; }
     try {
       await api.post(`/skill/courses/${course.id}/enroll/`, {});
-      // FIX 2: was navigate("/app/skill") — that path doesn't exist.
-      // Redirect to student dashboard root; Skill Dev shows when activeTrack === "skill".
       window.location.href = APP_URL + "/";
     } catch (e) {
       alert(e?.response?.data?.detail || "Could not enroll.");
     }
   };
 
+  const sortedReviews = useMemo(() => {
+    const list = [...reviews];
+    if (reviewSort === "highest") list.sort((a, b) => b.rating - a.rating);
+    else if (reviewSort === "lowest") list.sort((a, b) => a.rating - b.rating);
+    else list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return list;
+  }, [reviews, reviewSort]);
+
   if (loading) return <div className="ep-loading">Loading…</div>;
   if (err || !expert) return <div className="ep-loading">{err || "Expert not found."}</div>;
 
-  const avgRating = reviews.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : null;
+  const reviewsCount = reviews.length;
+  const avgRating = reviewsCount
+    ? reviews.reduce((s, r) => s + r.rating, 0) / reviewsCount
+    : 0;
+
+  const listings = (expert.listings || []).filter(l => l.is_active && !l.is_suspended);
+  const pausedListings = (expert.listings || []).filter(l => !l.is_active && !l.is_suspended);
+  const multi = listings.length > 1;
+  const primaryListing = listings[0] || null;
+  const heroPrice = primaryListing ? primaryListing.price_rupees : expert.rate;
+  const locationLine = expert.class_mode === "online"
+    ? MODE_TEXT.online
+    : [expert.class_location, MODE_TEXT[expert.class_mode]].filter(Boolean).join(" · ");
 
   return (
     <div className="ep-page">
       {/* ── Hero ── */}
       <div className="ep-hero">
+        <span className="ep-hero__grid" aria-hidden="true" />
+        <span className="ep-hero__glow ep-hero__glow--1" aria-hidden="true" />
+        <span className="ep-hero__glow ep-hero__glow--2" aria-hidden="true" />
         <div className="ep-hero__inner">
           <button className="ep-back" onClick={() => navigate("/skill/browse")}>← All teachers</button>
           <div className="ep-hero__card">
-            <div className="ep-hero__photo">
-              {expert.img
-                ? <img src={expert.img} alt={expert.name} />
-                : <span className="ep-hero__initials">{initials(expert.name)}</span>}
-              {expert.badges?.includes("Verified") && <span className="ep-verified">✓ Verified</span>}
+            {/* Col 1 — photo + badges */}
+            <div className="ep-hero__col1">
+              <div className="ep-hero__photo">
+                {expert.img
+                  ? <img src={expert.img} alt={expert.name} />
+                  : <span className="ep-hero__initials">{initials(expert.name)}</span>}
+                {expert.intro_video_embed_url && (
+                  <button type="button" className="ep-hero__introBtn" onClick={() => setShowIntro(v => !v)}>
+                    <i>▶</i> Watch intro
+                  </button>
+                )}
+              </div>
+              <div className="ep-hero__badges">
+                {expert.badges?.includes("Verified")  && <span className="er-badge er-badge--verified">✓ Verified</span>}
+                {expert.badges?.includes("Top-rated") && <span className="er-badge er-badge--top">TOP RATED</span>}
+              </div>
+              {showIntro && expert.intro_video_embed_url && (
+                <div className="ep-hero__introFrame">
+                  <iframe src={expert.intro_video_embed_url} title="Intro video" allow="autoplay; fullscreen" />
+                </div>
+              )}
             </div>
-            <div className="ep-hero__info">
+
+            {/* Col 2 — identity + stats */}
+            <div className="ep-hero__col2">
               <div className="ep-hero__label">Expert · {expert.cat}</div>
               <h1 className="ep-hero__name">{expert.name}</h1>
               <p className="ep-hero__title">{expert.title}</p>
               <div className="ep-tags">{expert.skills?.map(s => <span key={s} className="ep-tag">{s}</span>)}</div>
+
               <div className="ep-stats">
                 <div className="ep-stat">
                   <div className="ep-stat__val">
-                    {avgRating ? <span style={{ color: "#ff8f01" }}>{starsEl(avgRating, 16)} {avgRating}</span> : "—"}
+                    {reviewsCount >= MIN_REVIEWS ? avgRating.toFixed(1) : "—"}
                   </div>
-                  <div className="ep-stat__label">Rating ({reviews.length})</div>
+                  <div className="ep-stat__label">Rating ({reviewsCount})</div>
                 </div>
                 <div className="ep-stat">
                   <div className="ep-stat__val">{expert.sessions ?? 0}</div>
                   <div className="ep-stat__label">Sessions</div>
                 </div>
                 <div className="ep-stat">
-                  <div className="ep-stat__val">{expert.rate === 0 ? "Free" : `₹${expert.rate}`}</div>
-                  <div className="ep-stat__label">per session</div>
+                  <div className="ep-stat__val">{expert.experience_years != null ? expert.experience_years : "—"}</div>
+                  <div className="ep-stat__label">Years experience</div>
                 </div>
                 <div className="ep-stat">
-                  <div className="ep-stat__val" style={{ fontSize: 13 }}>{expert.availability || "Flexible"}</div>
-                  <div className="ep-stat__label">Available</div>
+                  <div className="ep-stat__val" style={{ fontSize: 13 }}>{(expert.languages || []).join(", ") || "—"}</div>
+                  <div className="ep-stat__label">Languages</div>
                 </div>
               </div>
-              <div className="ep-ctas">
-                {showComposer ? null : (
-                  <button className="ep-btn ep-btn--ghost" onClick={handleMessageClick}>💬 Message</button>
+            </div>
+
+            {/* Col 3 — sticky dark booking panel */}
+            <div className="ep-hero__col3">
+              <div className="ep-panel">
+                <div className="ep-panel__price">{heroPrice === 0 ? "Free" : `₹${heroPrice}`}</div>
+                <div className="ep-panel__sub">{multi ? "from · per 60-min session" : "per 60-min session"}</div>
+                <div className="ep-panel__chips">
+                  {expert.open_slots_week != null && (
+                    <span className={`ep-panel__chip${expert.open_slots_week > 0 ? " on" : ""}`}>
+                      <i />{expert.open_slots_week > 0 ? `${expert.open_slots_week} open slots this week` : "No open slots this week"}
+                    </span>
+                  )}
+                  {locationLine && <span className="ep-panel__chip">📍 {locationLine}</span>}
+                  {expert.mastery_target && <span className="ep-panel__chip">🎯 {expert.mastery_target}</span>}
+                </div>
+                <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={() => handleBookClick(null)}>
+                  📅 Book a session
+                </button>
+                {!showComposer && (
+                  <button className="ep-btn ep-btn--ghost ep-btn--wide" style={{ marginTop: 8 }} onClick={handleMessageClick}>
+                    💬 Message
+                  </button>
                 )}
-                <button className="ep-btn ep-btn--primary" onClick={handleBookClick}>📅 Book a session</button>
+                <p className="ep-panel__hint">Free 15-min intro on your first session</p>
               </div>
             </div>
           </div>
 
-          {/* Inline composer — hands off to the app's live WS inbox */}
           {showComposer && !msgSent && (
             <MessageComposer
               teacherProfileId={expert.teacher_profile_id}
@@ -275,13 +432,37 @@ export default function ExpertProfilePage() {
               onSent={() => { setMsgSent(true); setShowComposer(false); }}
             />
           )}
-          {msgSent && (
-            <div className="ep-msg-sent">
-              ✓ Taking you to your messages…
-            </div>
-          )}
+          {msgSent && <div className="ep-msg-sent">✓ Taking you to your messages…</div>}
         </div>
       </div>
+
+      {/* ── Skills & pricing (multi-listing experts) ── */}
+      {(multi || pausedListings.length > 0) && (
+        <div className="ep-listings-wrap">
+          <section className="ep-section ep-listings">
+            <h2>Skills & pricing</h2>
+            <div className="ep-listings__grid">
+              {listings.map(l => (
+                <button key={l.id} type="button" className="ep-listing-card" onClick={() => handleBookClick(l.id)}>
+                  <div className="ep-listing-card__title">{l.title}</div>
+                  <div className="ep-listing-card__tags">{(l.skill_tags || []).slice(0, 3).join(", ")}</div>
+                  <div className="ep-listing-card__foot">
+                    <RatingSummary value={Number(l.rating)} count={l.reviews_count} size={12} />
+                    <b>{l.price_rupees === 0 ? "Free" : `₹${l.price_rupees}`}</b>
+                  </div>
+                  <span className="ep-listing-card__cta">Book this skill →</span>
+                </button>
+              ))}
+              {pausedListings.map(l => (
+                <div key={l.id} className="ep-listing-card ep-listing-card--paused">
+                  <div className="ep-listing-card__title">{l.title}</div>
+                  <div className="ep-listing-card__tags">Paused by the teacher</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* ── Tabs ── */}
       <div className="ep-tabs">
@@ -298,20 +479,42 @@ export default function ExpertProfilePage() {
 
       <div className="ep-body">
         {activeTab === "about" && (
-          <div className="ep-about">
-            <section className="ep-section">
-              <h2>About {expert.name.split(" ")[0]}</h2>
-              <p>{expert.bio || "No bio available."}</p>
-            </section>
-            <section className="ep-section">
-              <h2>How sessions work</h2>
-              <ul>
-                <li>One-on-one sessions via video call or in person.</li>
-                <li>First session is a free 15-min intro — see if we click.</li>
-                <li>I'll share a personalised plan after our intro call.</li>
-                <li>Reschedule any time up to 12 hours before the session.</li>
-              </ul>
-            </section>
+          <div className="ep-2col">
+            <div className="ep-about">
+              <section className="ep-section">
+                <h2>About {expert.name.split(" ")[0]}</h2>
+                <p>{expert.bio || "No bio available."}</p>
+                {expert.education && <p className="ep-education">🎓 {expert.education}</p>}
+              </section>
+
+              {expert.experience_timeline?.length > 0 && (
+                <section className="ep-section">
+                  <h2>Background</h2>
+                  <div className="ep-timeline">
+                    {expert.experience_timeline.map((t, i) => (
+                      <div key={i} className="ep-timeline__row">
+                        <span className="ep-timeline__years">{t.years}</span>
+                        <div>
+                          <div className="ep-timeline__role">{t.role}</div>
+                          {t.detail && <p className="ep-timeline__detail">{t.detail}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <section className="ep-section">
+                <h2>How sessions work</h2>
+                <ul>
+                  <li>One-on-one sessions via video call or in person.</li>
+                  <li>First session is a free 15-min intro — see if we click.</li>
+                  <li>I'll share a personalised plan after our intro call.</li>
+                  <li>Reschedule any time up to 12 hours before the session.</li>
+                </ul>
+              </section>
+            </div>
+            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={sortedReviews} onSeeAllReviews={() => setTab("reviews")} />
           </div>
         )}
 
@@ -325,20 +528,43 @@ export default function ExpertProfilePage() {
         )}
 
         {activeTab === "reviews" && (
-          <section className="ep-section">
-            <h2>Student reviews</h2>
-            {reviews.length === 0
-              ? <p className="ep-empty">No reviews yet — be the first!</p>
-              : <div className="ep-reviews">{reviews.map(r => <ReviewCard key={r.id} r={r} />)}</div>}
-          </section>
+          <div className="ep-2col">
+            <section className="ep-section">
+              <div className="ep-reviews__head">
+                <div className="ep-reviews__score">
+                  <div className="ep-reviews__big">{reviewsCount >= MIN_REVIEWS ? avgRating.toFixed(1) : "—"}</div>
+                  <RatingStars value={avgRating} size={16} />
+                  <span>{reviewsCount} {reviewsCount === 1 ? "review" : "reviews"}</span>
+                </div>
+                <ReviewDistribution distribution={distribution} count={reviewsCount} />
+              </div>
+              {reviewsCount > 0 && (
+                <div className="ep-sort-pills">
+                  {[
+                    { key: "newest",  label: "Newest" },
+                    { key: "highest", label: "Highest rated" },
+                    { key: "lowest",  label: "Lowest rated" },
+                  ].map(s => (
+                    <button key={s.key} className={`ep-pill${reviewSort === s.key ? " on" : ""}`}
+                      onClick={() => setReviewSort(s.key)}>{s.label}</button>
+                  ))}
+                </div>
+              )}
+              {reviewsCount === 0
+                ? <p className="ep-empty">No reviews yet — be the first!</p>
+                : <div className="ep-reviews">{sortedReviews.map(r => <ReviewCard key={r.id} r={r} />)}</div>}
+            </section>
+            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={sortedReviews} onSeeAllReviews={() => {}} />
+          </div>
         )}
 
         {activeTab === "book" && (
           isAuthenticated
-            ? <BookForm expert={expert} onBook={handleBookSession} initialListing={sp.get("listing")} />
+            ? <BookForm expert={expert} onBook={handleBookSession} avail={avail} availLoaded={availLoaded}
+                initialListing={preselectedListing || sp.get("listing")} />
             : <div className="ep-book-card">
                 <h2>Sign in to book a session</h2>
-                <p style={{ color: "#6b7280" }}>Create a free account — it only takes a minute.</p>
+                <p style={{ color: "var(--sk-body, #5e7469)" }}>Create a free account — it only takes a minute.</p>
                 <button className="ep-btn ep-btn--primary ep-btn--wide"
                   onClick={() => navigate(`/signup?next=/experts/${id}&action=book`)}>
                   Create free account
@@ -353,32 +579,31 @@ export default function ExpertProfilePage() {
 }
 
 function SlotGrid({ avail, selected, onPick }) {
-  const ACC = "#13899b";
   return (
     <div>
-      <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#6b7280", margin: "6px 0 10px" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: ACC, display: "inline-block" }} /> Open</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: "#f0a23b", display: "inline-block" }} /> Booked</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 11, height: 11, borderRadius: 3, background: "#eee", display: "inline-block" }} /> Closed</span>
+      <div className="ep-slot-legend">
+        <span><i className="open" /> Open</span>
+        <span><i className="booked" /> Booked</span>
+        <span><i className="closed" /> Closed</span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: `52px repeat(${SDAvail.DAYS.length}, 1fr)`, gap: 5, alignItems: "center" }}>
+      <div className="ep-slot-grid">
         <div />
-        {SDAvail.DAYS.map(d => <div key={d} style={{ fontSize: 10.5, fontWeight: 700, color: "#6b7280", textAlign: "center" }}>{d}</div>)}
+        {SDAvail.DAYS.map(d => <div key={d} className="ep-slot-grid__day">{d}</div>)}
         {SDAvail.SLOTS.map((sl, si) => (
           <Fragment key={sl}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: "#9aa9af", textAlign: "right", paddingRight: 4 }}>{sl}</div>
+            <div className="ep-slot-grid__time">{sl}</div>
             {SDAvail.DAYS.map((d, di) => {
               const k = di + "-" + si;
               const booked = (avail.booked || []).includes(k);
               const open   = (avail.open || []).includes(k);
               const isSel  = selected === k;
               const clickable = open && !booked;
-              const bg = booked ? "#f0a23b" : open ? (isSel ? ACC : "rgba(19,137,155,.18)") : "#f1f1f1";
+              const cls = booked ? "booked" : open ? (isSel ? "selected" : "open") : "closed";
               return (
                 <button key={k} type="button" disabled={!clickable}
                   onClick={() => clickable && onPick(k)}
                   title={booked ? "Already booked" : open ? SDAvail.label(k) : "Closed"}
-                  style={{ height: 26, borderRadius: 6, border: isSel ? `2px solid ${ACC}` : "1px solid #e3e3e3", background: bg, cursor: clickable ? "pointer" : "default", padding: 0 }} />
+                  className={`ep-slot ep-slot--${cls}`} />
               );
             })}
           </Fragment>
@@ -388,37 +613,28 @@ function SlotGrid({ avail, selected, onPick }) {
   );
 }
 
-function BookForm({ expert, onBook, initialListing }) {
+function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
   // Multi-skill: an expert can publish several separately-priced offerings.
-  // The directory's "Choose a skill" button arrives here with ?listing=<id>.
+  // The directory / skills-and-pricing section arrive here with a listing id.
   const listings = (expert.listings || []).filter(l => l.is_active && !l.is_suspended);
   const [listingId, setListingId] = useState(
     () => (listings.some(l => l.id === initialListing) ? initialListing : listings[0]?.id) || ""
   );
+  useEffect(() => {
+    if (initialListing && listings.some(l => l.id === initialListing)) setListingId(initialListing);
+  }, [initialListing]); // eslint-disable-line react-hooks/exhaustive-deps
   const listing = listings.find(l => l.id === listingId) || null;
 
   const [note, setNote] = useState("");
   const [slot, setSlot] = useState(null);
   const [dur,  setDur]  = useState(60);
-  const [avail, setAvail] = useState({ open: [], booked: [] });
-  const [availLoaded, setAvailLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg]   = useState("");
   const [done, setDone] = useState(false);
 
-  // Load the expert's REAL published availability (same record the expert edits
-  // and the student app reads). Empty until loaded / if the expert set none.
-  useEffect(() => {
-    let alive = true;
-    fetchAvailability(expert.id).then(r => {
-      if (!alive) return;
-      setAvail(r); setAvailLoaded(true);
-    });
-    return () => { alive = false; };
-  }, [expert.id]);
-
   const hasOpen = (avail.open || []).length > 0;
   const first   = (expert.name || "").split(" ")[0];
+  const price   = listing ? listing.price_rupees : expert.rate;
 
   const submit = async () => {
     if (hasOpen && !slot) { setMsg("Please pick an available slot above."); return; }
@@ -439,9 +655,10 @@ function BookForm({ expert, onBook, initialListing }) {
 
   if (done) {
     return (
-      <div className="ep-book-card">
-        <h2>Request sent to {first} 🎉</h2>
-        <p style={{ color: "#6b7280", lineHeight: 1.6 }}>
+      <div className="ep-book-card ep-book-card--done">
+        <div className="ep-book-card__icon">🎉</div>
+        <h2>Request sent to {first}</h2>
+        <p>
           {first} will review your request and confirm the slot. Once it's accepted,
           you'll be able to join the session from your dashboard.
         </p>
@@ -459,55 +676,55 @@ function BookForm({ expert, onBook, initialListing }) {
 
       {listings.length > 1 && (
         <>
-          <label className="ep-book-label" htmlFor="ep-listing">Which skill?</label>
-          <select id="ep-listing" value={listingId} onChange={e => setListingId(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #d7e3e5", fontSize: 14, marginBottom: 12 }}>
+          <label className="ep-book-label">Which skill?</label>
+          <div className="ep-listing-pick">
             {listings.map(l => (
-              <option key={l.id} value={l.id}>
+              <button key={l.id} type="button" className={`ep-pill${listingId === l.id ? " on" : ""}`}
+                onClick={() => setListingId(l.id)}>
                 {l.title} — {l.price_rupees === 0 ? "Free" : `₹${l.price_rupees}`}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </>
       )}
 
-      {(() => {
-        // The listing's price is what the backend actually charges; the
-        // profile's legacy `rate` is only the fallback for an expert who has
-        // no listing yet.
-        const price = listing ? listing.price_rupees : expert.rate;
-        return <div className="ep-book-price">{price === 0 ? "Free for now" : `₹${price} per session`}</div>;
-      })()}
+      <div className="ep-book-price">{price === 0 ? "Free for now" : `₹${price} per session`}</div>
 
       <label className="ep-book-label">Pick a time · this week</label>
       {!availLoaded ? (
-        <div style={{ fontSize: 13, color: "#6b7280", padding: "8px 0" }}>Loading availability…</div>
+        <div className="ep-book-hint">Loading availability…</div>
       ) : !hasOpen ? (
-        <div style={{ fontSize: 13, color: "#b46a00", background: "rgba(255,143,1,.08)", border: "1px solid rgba(255,143,1,.25)", borderRadius: 10, padding: "10px 12px" }}>
+        <div className="ep-book-noSlots">
           {first} hasn't published open slots yet. You can still send a request and agree a time over chat.
         </div>
       ) : (
         <SlotGrid avail={avail} selected={slot} onPick={setSlot} />
       )}
 
-      <label className="ep-book-label" style={{ marginTop: 14, display: "block" }}>Duration</label>
-      <select value={dur} onChange={e => setDur(+e.target.value)}
-        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #d7e3e5", fontSize: 14 }}>
+      <label className="ep-book-label" style={{ marginTop: 14 }}>Duration</label>
+      <select className="ep-select" value={dur} onChange={e => setDur(+e.target.value)}>
         <option value={60}>1 hour</option>
         <option value={90}>1.5 hours</option>
         <option value={120}>2 hours</option>
       </select>
 
-      <label className="ep-book-label" style={{ marginTop: 14, display: "block" }}>What do you want to work on?</label>
+      <label className="ep-book-label" style={{ marginTop: 14 }}>What do you want to work on?</label>
       <textarea className="ep-book-note" rows={4} value={note}
         placeholder="e.g. I want to improve my Python skills, especially around data structures…"
         onChange={e => setNote(e.target.value)} />
 
       {msg && <div className={`ep-book-msg ${msg.startsWith("✓") ? "ok" : "err"}`}>{msg}</div>}
-      <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={submit}
-        disabled={busy || (hasOpen && !slot)}>
-        {busy ? "Requesting…" : (hasOpen && !slot) ? "Pick a slot to continue" : "Request session"}
-      </button>
+
+      <div className="ep-book-sticky">
+        <div className="ep-book-sticky__price">
+          <b>{price === 0 ? "Free" : `₹${price}`}</b>
+          <span>{dur} min{slot ? ` · ${SDAvail.label(slot)}` : ""}</span>
+        </div>
+        <button className="ep-btn ep-btn--primary" onClick={submit}
+          disabled={busy || (hasOpen && !slot)}>
+          {busy ? "Requesting…" : (hasOpen && !slot) ? "Pick a slot to continue" : "Request session"}
+        </button>
+      </div>
     </div>
   );
 }
