@@ -186,6 +186,19 @@ export default function FilterSidebar({ filters: f, categories = [], onChange, o
         <Toggle label="Has intro video"     on={f.hasVideo}  onClick={() => onChange("hasVideo", !f.hasVideo)} />
         <Toggle label="Available this week" on={f.availWeek} onClick={() => onChange("availWeek", !f.availWeek)} />
       </section>
+
+      {/* Always visible regardless of how long the directory list is — the
+          big "Are you an expert?" banner at the page bottom is easy to miss
+          once there are enough teachers to page/load-more through. This
+          rides the same sticky (desktop) / bottom-sheet (mobile) behavior
+          .fs-root already has, so it needs no layout changes of its own. */}
+      <a className="fs-teach" href="/signup?role=teacher&skill=true">
+        <span className="fs-teach__ico">🎓</span>
+        <span>
+          <b>Teach on ShikshaCom</b>
+          <em>Share your craft — takes 5 minutes</em>
+        </span>
+      </a>
     </aside>
   );
 }

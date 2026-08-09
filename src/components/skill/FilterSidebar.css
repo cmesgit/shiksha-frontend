@@ -59,3 +59,11 @@
 .fs-toggle__track.on { background: var(--sk-green, #0f9d6b); justify-content: flex-end; }
 .fs-toggle__track b { width: 18px; height: 18px; border-radius: 50%; background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,.2); display: block; }
+
+.fs-teach { display: flex; align-items: center; gap: 10px; margin: 4px 14px 16px;
+  padding: 12px 14px; border-radius: 12px; text-decoration: none;
+  background: rgba(255,153,0,.08); border: 1px solid rgba(255,153,0,.25); }
+.fs-teach:hover { border-color: rgba(255,153,0,.5); background: rgba(255,153,0,.13); }
+.fs-teach__ico { font-size: 20px; flex: none; }
+.fs-teach b { display: block; font-size: 12.5px; font-weight: 800; color: #b45309; }
+.fs-teach em { font-style: normal; display: block; font-size: 11px; color: var(--sk-body, #5e7469); margin-top: 1px; }
