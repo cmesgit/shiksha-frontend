@@ -1,0 +1,24 @@
+/* IntroAnimation.css — motion + sizing for the signup intro illustration. */
+
+.af-intro {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+}
+.af-intro svg { width: 100%; height: 100%; display: block; }
+
+@keyframes af-intro-float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes af-intro-float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes af-intro-breathe    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes af-intro-dash       { to { stroke-dashoffset: -40; } }
+
+.af-intro__float      { animation: af-intro-float 8s ease-in-out infinite; }
+.af-intro__float-slow { animation: af-intro-float-slow 9s ease-in-out infinite; }
+.af-intro__breathe    { animation: af-intro-breathe 5.4s ease-in-out infinite; }
+.af-intro__dash       { animation: af-intro-dash 3.2s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .af-intro *, .af-intro { animation: none !important; transition: none !important; }
+}

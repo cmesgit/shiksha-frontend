@@ -474,7 +474,7 @@ export default function Signup() {
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
   return (
-    <AuthShell role={accent} flowLabel={flowLabel}>
+    <AuthShell role={accent} flowLabel={flowLabel} intro>
       <div className="af-toprow">
         {step !== STEP_ROLE
           ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>
