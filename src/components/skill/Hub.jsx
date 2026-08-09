@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Icon } from "./icons";
 import { SKILL_CATEGORIES as FALLBACK_CATS } from "./data";
-import { fetchTeachers, fetchMarketingBlocks } from "../../api/skillApi";
+import { fetchMarketingBlocks } from "../../api/skillApi";
 import api from "../../api/apiClient";
 
 export default function Hub({ nav }) {
@@ -11,23 +11,19 @@ export default function Hub({ nav }) {
   const [marketing, setMarketing] = useState({});
 
   useEffect(() => {
-    // Fetch real categories
+    // Categories carry their own expert_count, computed server-side over the
+    // whole roster. Deriving it here from /skill/teachers/ used to work only
+    // because that endpoint returned every expert; it is paginated now, so a
+    // client-side tally would silently count the first 20 and no more.
     api.get("/skill/categories/")
       .then(r => {
-        if (Array.isArray(r.data) && r.data.length) setCategories(r.data);
+        if (!Array.isArray(r.data) || !r.data.length) return;
+        setCategories(r.data);
+        setTeacherCounts(Object.fromEntries(
+          r.data.filter(c => c.expert_count != null).map(c => [c.slug, c.expert_count])
+        ));
       })
       .catch(() => {/* keep fallback */});
-
-    // Fetch teachers to compute per-category counts
-    fetchTeachers()
-      .then(teachers => {
-        const counts = {};
-        teachers.forEach(t => {
-          if (t.cat) counts[t.cat] = (counts[t.cat] || 0) + 1;
-        });
-        setTeacherCounts(counts);
-      })
-      .catch(() => {/* ignore, counts stay 0 */});
 
     fetchMarketingBlocks().then(setMarketing);
   }, []);

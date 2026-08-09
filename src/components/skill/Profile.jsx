@@ -15,6 +15,7 @@
 import React, { useState, useEffect } from "react";
 import { SKILL_CATEGORIES } from "./data";
 import { SDAvail } from "./availability";
+import { RatingStars } from "./RatingStars";
 import * as skillApi from "../../api/skillApi";
 import { APP_URL } from "../../config/urls";
 import "./SkillProfile.css";
@@ -360,7 +361,20 @@ export default function Profile({ t, nav, initialMode }) {
               <div className="revhead"><h3 style={{ textTransform: "uppercase" }}>Learner reviews</h3><span className="big">★ {t.rating}</span><span className="cnt">({reviewN})</span></div>
               {reviews.list.map((r, i) => (
                 <div className="rev" key={i}>
-                  <div className="rh"><div className="who"><div className="av2">{(r.reviewer || "?")[0]}</div><div className="nm2">{r.reviewer}</div></div><div className="stq">{"★".repeat(r.rating || 5)}</div></div>
+                  <div className="rh">
+                    <div className="who">
+                      <div className="av2">{(r.reviewer || "?")[0]}</div>
+                      <div className="nm2">
+                        {r.reviewer}
+                        {/* created_at and is_edited are fetched today and were
+                            being thrown away — a dateless review reads as
+                            current forever. */}
+                        {r.created_at && <span className="revdate"> · {new Date(r.created_at).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}</span>}
+                        {r.is_edited && <span className="revdate"> · edited</span>}
+                      </div>
+                    </div>
+                    <div className="stq"><RatingStars value={r.rating} size={13} /></div>
+                  </div>
                   <p>{r.body}</p>
                 </div>
               ))}

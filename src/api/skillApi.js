@@ -18,11 +18,33 @@ import api from "./apiClient";
 const USE_MOCK = false;
 const wait = (ms = 600) => new Promise(r => setTimeout(r, ms));
 
-/* ── Teacher directory ────────────────────────────────────── */
+/* ── Teacher directory ──────────────────────────────────────
+   GET /skill/teachers/ is PAGINATED ({count, next, previous, results}) since
+   the browse redesign. Callers that only want the rows get them; the raw
+   envelope is available through fetchTeacherPage below. */
 export async function fetchTeachers(params = {}) {
   if (USE_MOCK) { await wait(200); const { TEACHERS } = await import("../components/skill/data"); return TEACHERS; }
   const { data } = await api.get("/skill/teachers/", { params });
-  return data;
+  return Array.isArray(data) ? data : data.results || [];
+}
+
+export async function fetchTeacherPage(params = {}) {
+  const { data } = await api.get("/skill/teachers/", { params });
+  if (Array.isArray(data)) return { count: data.length, next: null, results: data };
+  return { count: data.count, next: data.next, results: data.results || [] };
+}
+
+/* ── Directory stats (hero "at a glance") ────────────────────
+   GET /skill/directory-stats/ → {experts, categories, offline, price_p25,
+   price_p75}. Resolves to null on failure so the panel is omitted rather than
+   rendered with invented numbers. */
+export async function fetchDirectoryStats() {
+  try {
+    const { data } = await api.get("/skill/directory-stats/");
+    return data || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchTeacher(id) {
@@ -81,18 +103,31 @@ export async function fetchSkillPaymentConfig() {
 /* ── Teacher profile: reviews + self-paced course ─────────────
    The wired "Teacher Profile final" screen reads through these. */
 
-export async function fetchExpertReviews(expertId) {
+export async function fetchExpertReviews(expertId, listingId = null) {
   if (USE_MOCK) {
     await wait(150);
     const { REVIEWS, reviewCount } = await import("../components/skill/data");
     const list = (REVIEWS[expertId] || []).map(r => ({ rating: r.r, reviewer: r.n, body: r.t }));
     return { count: reviewCount[expertId] || list.length, reviews: list };
   }
-  // GET /skill/teachers/<id>/reviews/  →  { count, reviews:[{id,rating,body,created_at,reviewer}] }
-  const { data } = await api.get(`/skill/teachers/${expertId}/reviews/`);
+  // GET /skill/teachers/<id>/reviews/[?listing=]
+  //   → { count, reviews:[…], distribution:{5..1}, average, min_reviews }
+  // The rows are passed through UNCHANGED. The previous version mapped them
+  // down to {rating, reviewer, body}, throwing away created_at (so a review
+  // read as current forever), is_edited (an edited review shown as the
+  // original) and the session topic — all three are fetched, so discarding
+  // them was pure loss.
+  const { data } = await api.get(`/skill/teachers/${expertId}/reviews/`, {
+    params: listingId ? { listing: listingId } : undefined,
+  });
   return {
     count: data.count,
-    reviews: (data.reviews || []).map(r => ({ rating: r.rating, reviewer: r.reviewer, body: r.body })),
+    reviews: data.reviews || [],
+    distribution: data.distribution || {},
+    // Withheld (null) by the server under min_reviews — one 5-star review is
+    // not a 5.0 rating. Don't invent an average when the server declined to.
+    average: data.average ?? null,
+    minReviews: data.min_reviews ?? 5,
   };
 }
 
@@ -228,7 +263,8 @@ export async function payForSession({ teacherId, draft, method, amount }) {
 }
 
 export default {
-  fetchTeachers, fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
+  fetchTeachers, fetchTeacherPage, fetchDirectoryStats,
+  fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
   registerStudent, registerTeacher,
   fetchInterviewSlots, scheduleInterview, fetchReviewQueue, submitEvaluation,
   requestSession, payForSession, enrollCourse,

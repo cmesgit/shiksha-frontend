@@ -27,15 +27,14 @@ import api from "../api/apiClient";
 import { APP_URL } from "../config/urls";
 import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
+import { RatingStars } from "../components/skill/RatingStars";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
 const initials = (n) => (n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-const starsEl = (r, size = 14) => (
-  <span style={{ letterSpacing: 2, fontSize: size }}>
-    {"★".repeat(Math.round(r || 0))}{"☆".repeat(5 - Math.round(r || 0))}
-  </span>
-);
+// Stars fill to the EXACT average — see components/skill/RatingStars.jsx.
+// The old `"★".repeat(Math.round(r))` here drew 4.6 and 4.9 identically.
+const starsEl = (r, size = 14) => <RatingStars value={r} size={size} />;
 const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "";
 
 /* ── Auth-gate modal ─────────────────────────────────────────────────── */
@@ -191,7 +190,11 @@ export default function ExpertProfilePage() {
 
   const handleBookSession = async (draft) => {
     try {
-      const { data } = await api.post("/skill/payments/create-order/", { teacherId: id, draft });
+      // `listing` is WHICH skill is being booked — a multi-skill expert prices
+      // each one separately, and the backend charges the listing's price.
+      const { data } = await api.post("/skill/payments/create-order/", {
+        teacherId: id, listing: draft.listing || null, draft,
+      });
       return { ok: true, status: data?.status || "requested" };
     } catch (e) {
       return { ok: false, error: e?.response?.data?.detail || e?.response?.data?.slot || "Could not book." };
@@ -332,7 +335,7 @@ export default function ExpertProfilePage() {
 
         {activeTab === "book" && (
           isAuthenticated
-            ? <BookForm expert={expert} onBook={handleBookSession} />
+            ? <BookForm expert={expert} onBook={handleBookSession} initialListing={sp.get("listing")} />
             : <div className="ep-book-card">
                 <h2>Sign in to book a session</h2>
                 <p style={{ color: "#6b7280" }}>Create a free account — it only takes a minute.</p>
@@ -385,7 +388,15 @@ function SlotGrid({ avail, selected, onPick }) {
   );
 }
 
-function BookForm({ expert, onBook }) {
+function BookForm({ expert, onBook, initialListing }) {
+  // Multi-skill: an expert can publish several separately-priced offerings.
+  // The directory's "Choose a skill" button arrives here with ?listing=<id>.
+  const listings = (expert.listings || []).filter(l => l.is_active && !l.is_suspended);
+  const [listingId, setListingId] = useState(
+    () => (listings.some(l => l.id === initialListing) ? initialListing : listings[0]?.id) || ""
+  );
+  const listing = listings.find(l => l.id === listingId) || null;
+
   const [note, setNote] = useState("");
   const [slot, setSlot] = useState(null);
   const [dur,  setDur]  = useState(60);
@@ -413,8 +424,9 @@ function BookForm({ expert, onBook }) {
     if (hasOpen && !slot) { setMsg("Please pick an available slot above."); return; }
     setBusy(true); setMsg("");
     const draft = {
-      topic:         note || `1-on-1 session with ${expert.name}`,
+      topic:         note || `${listing?.title || "1-on-1 session"} with ${expert.name}`,
       note,
+      listing:       listingId || null,
       slot,
       slotLabel:     slot ? SDAvail.label(slot) : null,
       duration_mins: dur,
@@ -444,7 +456,28 @@ function BookForm({ expert, onBook }) {
   return (
     <div className="ep-book-card">
       <h2>Book a session with {first}</h2>
-      <div className="ep-book-price">{expert.rate === 0 ? "Free for now" : `₹${expert.rate} per session`}</div>
+
+      {listings.length > 1 && (
+        <>
+          <label className="ep-book-label" htmlFor="ep-listing">Which skill?</label>
+          <select id="ep-listing" value={listingId} onChange={e => setListingId(e.target.value)}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #d7e3e5", fontSize: 14, marginBottom: 12 }}>
+            {listings.map(l => (
+              <option key={l.id} value={l.id}>
+                {l.title} — {l.price_rupees === 0 ? "Free" : `₹${l.price_rupees}`}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
+      {(() => {
+        // The listing's price is what the backend actually charges; the
+        // profile's legacy `rate` is only the fallback for an expert who has
+        // no listing yet.
+        const price = listing ? listing.price_rupees : expert.rate;
+        return <div className="ep-book-price">{price === 0 ? "Free for now" : `₹${price} per session`}</div>;
+      })()}
 
       <label className="ep-book-label">Pick a time · this week</label>
       {!availLoaded ? (
