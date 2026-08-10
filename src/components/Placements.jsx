@@ -4,10 +4,21 @@ import "../css/Placements.css";
 // import { Card, CardContent } from "../ui/card";
 // import { Button } from "../ui/button";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { BookOpen, Award, ChevronRight } from "lucide-react";
 
 // Advanced Placement Section Component (fixed syntax / added filtering)
-export default function placements() {
+//
+// NOTE: the programme list below is still hardcoded — there is no placements
+// API yet. Until there is, the page says so up front rather than presenting
+// nine tracks as if they were enrollable, and its buttons route into the real
+// course catalog instead of doing nothing at all.
+//
+// Renamed from `placements` (lowercase): a lowercase function is not a valid
+// React component name, which broke the react-hooks lint rules for this file
+// and made it show up as an anonymous node in DevTools — while it does in fact
+// call useState twice below.
+export default function Placements() {
   const categories = [
     "Engineering",
     "Medical",
@@ -19,6 +30,7 @@ export default function placements() {
     "Hospitality",
   ];
 
+  const navigate = useNavigate();
   const [search, setSearch] = React.useState("");
   const [filter, setFilter] = React.useState("");
 
@@ -103,6 +115,25 @@ export default function placements() {
         Advanced Placement Programs
       </motion.h2>
 
+      {/*
+        These nine programmes are a hardcoded preview, not live inventory —
+        none of them can be enrolled in yet. Saying so here is the difference
+        between "launching soon" and a page that looks broken when every card
+        leads nowhere.
+      */}
+      <p className="text-center text-sm text-gray-700 mb-10 max-w-2xl mx-auto">
+        <strong>Launching soon.</strong> These programmes are a preview of what&rsquo;s coming
+        and aren&rsquo;t open for enrolment yet. Browse our{" "}
+        <button
+          type="button"
+          className="underline font-semibold"
+          onClick={() => navigate("/courses")}
+        >
+          available courses
+        </button>{" "}
+        in the meantime.
+      </p>
+
       <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row gap-4 items-center">
         <input
           type="text"
@@ -150,7 +181,13 @@ export default function placements() {
 
                   <div className="flex justify-between items-center mt-4">
                     <span className="text-sm font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">{p.level}</span>
-                    <button className="explore">
+                    {/* Was a dead button (no onClick). Carries the programme
+                        name into the catalog's search so the click at least
+                        lands on something related. */}
+                    <button
+                      className="explore"
+                      onClick={() => navigate("/courses", { state: { searchQuery: p.title } })}
+                    >
                       Explore
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -164,7 +201,8 @@ export default function placements() {
 
       <div className="text-center mt-12">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-          <button className="button-green">
+          {/* Was a dead button (no onClick). */}
+          <button className="button-green" onClick={() => navigate("/courses")}>
             <BookOpen className="w-6 h-6" />
             View All Placement Tracks
           </button>

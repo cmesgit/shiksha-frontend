@@ -14,6 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import Profile from "../pages/Profile";
 import { ExploreProvider } from "../explore/ExploreStore";
+import ExploreToolbar from "../explore/ExploreToolbar";
 
 import "../css/App.css";
 
@@ -23,6 +24,7 @@ const FacultySignup    = lazy(() => import("./FacultySignup"));
 const Enroll           = lazy(() => import("./Enroll"));
 const Courses          = lazy(() => import("./Courses"));
 const Placements       = lazy(() => import("./Placements"));
+const NotFound         = lazy(() => import("./NotFound"));
 const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
@@ -30,10 +32,23 @@ const CounsellingLanding    = lazy(() => import("../counselling/LandingPage"));
 const CounsellingLibrary    = lazy(() => import("../counselling/LibraryPage"));
 const CounsellingGuide      = lazy(() => import("../counselling/GuidePage"));
 const CounsellingProfile    = lazy(() => import("../counselling/ProfileWizard"));
+const CounsellingSpark      = lazy(() => import("../counselling/SparkFinder"));
 const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
+// ── Instant Scholarship — pre-enrollment exam + discount flow ──
+const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
+const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
+const ScholarshipVerify       = lazy(() => import("../scholarship/Verify"));
+const ScholarshipDetails      = lazy(() => import("../scholarship/Details"));
+const ScholarshipEligibility  = lazy(() => import("../scholarship/Eligibility"));
+const ScholarshipInstructions = lazy(() => import("../scholarship/Instructions"));
+const ScholarshipExam         = lazy(() => import("../scholarship/Exam"));
+const ScholarshipEvaluating   = lazy(() => import("../scholarship/Evaluating"));
+const ScholarshipResult       = lazy(() => import("../scholarship/Result"));
+const ScholarshipCheckout     = lazy(() => import("../scholarship/Checkout"));
+const ScholarshipDone         = lazy(() => import("../scholarship/Confirmation"));
 // ── Explore (Scribd-style document hub) — new module under src/explore ──
 const Explore          = lazy(() => import("../explore/ExploreLanding"));
 const ExploreBrowse    = lazy(() => import("../explore/ExploreBrowse"));
@@ -43,16 +58,16 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreLibrary   = lazy(() => import("../explore/LibraryPage"));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
+const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 // Legacy research-hub landing kept for its own route.
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
-// Retired: the old skill mini-app at /skill-development now redirects to
-// /skill/browse. Kept here (commented) for reference / quick rollback.
-// const SkillDevelopment = lazy(() => import("./SkillDevelopment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
+const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
+const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
@@ -100,20 +115,22 @@ function ScrollToTop() {
 }
 
 function Page({ children }) {
+  const { pathname } = useLocation();
   return (
     <div className="page-content">
       <Navbar />
-      {children}
+      <div key={pathname} className="page-fade">{children}</div>
       <Footer />
     </div>
   );
 }
 
-// Explore pages share a client-side library store (saved / following / etc.).
+// Explore pages share a client-side library store (saved / following / etc.)
+// and a persistent Explore toolbar (My Library / Moderator / Upload access).
 function ExplorePage({ children }) {
   return (
     <ExploreProvider>
-      <Page>{children}</Page>
+      <Page><ExploreToolbar />{children}</Page>
     </ExploreProvider>
   );
 }
@@ -270,6 +287,7 @@ function App() {
         <Route path="/faq"             element={<Page><Faq /></Page>} />
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
         <Route path="/courses"         element={<Page><Courses /></Page>} />
+        <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
         <Route path="/placements"      element={<Page><Placements /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
@@ -280,6 +298,7 @@ function App() {
         <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
         <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
+        <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
         <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
@@ -287,6 +306,23 @@ function App() {
                element={<Page key={cKey}><CounsellingAssessment /></Page>} />
         <Route path="/counselling/assessment"
                element={<Navigate to="/counselling/counsellors" replace />} />
+
+        {/* Instant Scholarship — landing + course pick are public; identity
+            verification onward requires an account (that's the actual auth
+            gate — see Verify.jsx). Exam/Evaluating are intentionally full-
+            screen with no <Page> shell at all, per the design brief. */}
+        <Route path="/scholarship"                       element={<Page><ScholarshipLanding /></Page>} />
+        <Route path="/scholarship/course"                element={<ScholarshipCourse />} />
+        <Route path="/scholarship/verify"                element={<ProtectedRoute><ScholarshipVerify /></ProtectedRoute>} />
+        <Route path="/scholarship/details"               element={<ProtectedRoute><ScholarshipDetails /></ProtectedRoute>} />
+        <Route path="/scholarship/eligibility"            element={<ProtectedRoute><ScholarshipEligibility /></ProtectedRoute>} />
+        <Route path="/scholarship/instructions"           element={<ProtectedRoute><ScholarshipInstructions /></ProtectedRoute>} />
+        <Route path="/scholarship/exam/:sessionId"        element={<ProtectedRoute><ScholarshipExam /></ProtectedRoute>} />
+        <Route path="/scholarship/evaluating/:sessionId"  element={<ProtectedRoute><ScholarshipEvaluating /></ProtectedRoute>} />
+        <Route path="/scholarship/result/:sessionId"      element={<ProtectedRoute><ScholarshipResult /></ProtectedRoute>} />
+        <Route path="/scholarship/checkout/:sessionId"    element={<ProtectedRoute><ScholarshipCheckout /></ProtectedRoute>} />
+        <Route path="/scholarship/done"                   element={<ProtectedRoute><ScholarshipDone /></ProtectedRoute>} />
+
         <Route path="/explore"                 element={<ExplorePage><Explore /></ExplorePage>} />
         <Route path="/explore/browse"          element={<ExplorePage><ExploreBrowse /></ExplorePage>} />
         <Route path="/explore/doc/:id"         element={<ExplorePage><DocumentPage /></ExplorePage>} />
@@ -294,6 +330,7 @@ function App() {
         <Route path="/explore/collections"     element={<ExplorePage><CollectionsList /></ExplorePage>} />
         <Route path="/explore/collections/:id" element={<ExplorePage><CollectionPage /></ExplorePage>} />
         <Route path="/explore/library"         element={<ExplorePage><ExploreLibrary /></ExplorePage>} />
+        <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
@@ -314,6 +351,10 @@ function App() {
         <Route path="/skill-development" element={<Navigate to="/skill/browse" replace />} />
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
+        <Route path="/live"          element={<LiveLanding />} />
+        <Route path="/live/room/:id" element={
+          <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
+        } />
 
         {/*
           Faculty / Academy entry points.
@@ -374,6 +415,19 @@ function App() {
           <Route path="profile" element={<ForumProfilePage />} />
           <Route path="u/:username" element={<UserProfilePage />} />
         </Route>
+
+        {/*
+          Catch-all 404. MUST stay last — React Router v6 ranks static routes
+          above this one, so it only wins when nothing else matched.
+
+          Before this existed an unmatched path rendered an empty <div
+          className="app"> — a blank white page, no nav, no way back (React
+          Router just logged "No routes matched location"). That is why
+          /become-faculty and /expert-apply above were patched in one at a
+          time as broken links got reported. New dead links now land here
+          instead of nowhere.
+        */}
+        <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
       </Suspense>
     </div>

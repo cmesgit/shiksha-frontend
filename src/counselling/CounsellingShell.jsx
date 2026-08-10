@@ -8,6 +8,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./counselling.css";
+import useCounsellorsLive from "./useCounsellorsLive";
 
 export const STEPS = [
   ["profile", "1 · Profile", "/counselling/profile"],
@@ -16,8 +17,15 @@ export const STEPS = [
   ["book", "4 · Book", null],
 ];
 
+// With zero counsellors approved, steps 3-4 lead nowhere useful — the
+// rail truncates to Profile/Path until useCounsellorsLive reports a real
+// directory. Read here rather than threaded through every call site
+// (ProfileWizard, MatchesPage, CounsellorPage, ...) as a `step` prop
+// concern instead of a page concern.
 export default function CounsellingShell({ crumb = "", step = null, children }) {
-  const stepIndex = STEPS.findIndex(([k]) => k === step);
+  const { live: counsellorsLive } = useCounsellorsLive();
+  const steps = counsellorsLive ? STEPS : STEPS.slice(0, 2);
+  const stepIndex = steps.findIndex(([k]) => k === step);
   return (
     <div className="sc-page">
       <div className="sc-subbar">
@@ -26,9 +34,9 @@ export default function CounsellingShell({ crumb = "", step = null, children }) 
             <Link to="/counselling">Career Counselling</Link>
             {crumb && <span>{crumb}</span>}
           </div>
-          {step && (
+          {step && stepIndex !== -1 && (
             <div className="sc-steps">
-              {STEPS.map(([k, label, to], i) => {
+              {steps.map(([k, label, to], i) => {
                 const cls = `sc-step${k === step ? " on" : i < stepIndex ? " done" : ""}`;
                 return to && i < stepIndex ? (
                   <Link key={k} to={to} className={cls} style={{ textDecoration: "none" }}>{label}</Link>

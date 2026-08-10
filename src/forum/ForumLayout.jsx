@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useNotification } from "../contexts/NotificationContext";
 import { ForumProvider, useForum } from "./ForumContext";
 import HowItWorks from "./components/HowItWorks";
 import { getTopics } from "../api/forum";
@@ -15,10 +14,12 @@ import "./forum.css";
 
 function PageHeader() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
-  const { unreadCount } = useNotification() || {};
+  const { me } = useForum();
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
+  const isDash = pathname.startsWith("/forum/dashboard");
 
   const submit = (e) => {
     e.preventDefault();
@@ -33,21 +34,44 @@ function PageHeader() {
           <div style={{ font: "400 11px Poppins,sans-serif", color: "#8a9e82", marginBottom: 3 }}>
             <span style={{ cursor: "pointer", color: "#125027" }} onClick={() => navigate("/")}>ShikshaCom</span>
             <span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span>
-            <span style={{ color: "#4a5e3a" }}>Discussion Forum</span>
+            <span style={{ cursor: "pointer", color: isDash ? "#125027" : "#4a5e3a" }} onClick={() => isDash && navigate("/forum")}>Discussion Forum</span>
+            {isDash && <><span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span><span style={{ color: "#4a5e3a" }}>Dashboard</span></>}
           </div>
-          <h1 style={{ font: "900 20px/1 Montserrat,sans-serif", color: "#125027", margin: "0 0 3px" }}>Discussion Forum</h1>
-          <p style={{ font: "400 12px Poppins,sans-serif", color: "#8a9e82", margin: 0 }}>Ask questions · share expertise · discuss any topic under the sun</p>
+          <h1 style={{ font: "900 20px/1 Montserrat,sans-serif", color: "#125027", margin: "0 0 3px" }}>{isDash ? "My Dashboard" : "Discussion Forum"}</h1>
+          <p style={{ font: "400 12px Poppins,sans-serif", color: "#8a9e82", margin: 0 }}>{isDash ? "Your activity, notifications, and saved discussions" : "Ask questions · share expertise · discuss any topic under the sun"}</p>
         </div>
-        <form onSubmit={submit} className="fm2-hd-search">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 12, flexShrink: 0 }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search discussions, topics, people…" aria-label="Search the forum" />
-          <button type="submit">Search</button>
-        </form>
-        {isAuthenticated && (
-          <button className="fm2-hd-bell" onClick={() => navigate("/forum/notifications")} aria-label="Notifications">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#374e37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-            {unreadCount > 0 && <span className="fm2-hd-bell-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>}
-          </button>
+        {!isDash && (
+          <form onSubmit={submit} className="fm2-hd-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 12, flexShrink: 0 }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search discussions, topics, people…" aria-label="Search the forum" />
+            <button type="submit">Search</button>
+          </form>
+        )}
+        {/* No notification bell here — the shared site navbar already carries
+            the global notification bell; a second one would be redundant. */}
+        {(isDash || isAuthenticated) && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: isDash ? "auto" : 0 }}>
+            {/* Always-visible way back to the forum from the dashboard (the
+                sidebar Quick Links collapse on narrow screens). */}
+            {isDash && (
+              <button onClick={() => navigate("/forum")} className="fm2-btn-outline" style={{ padding: "8px 14px", borderRadius: 8 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+                Back to Forum
+              </button>
+            )}
+            {/* The avatar is the forum's discoverable entry point to the dashboard. */}
+            {isAuthenticated && (
+              <button
+                onClick={() => navigate("/forum/dashboard")}
+                aria-label="My dashboard"
+                title="My dashboard"
+                className="fm2-hd-dash"
+                style={{ background: isDash ? "#125027" : (me?.color || "#125027") }}
+              >
+                {me?.initials || "YO"}
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -65,8 +89,11 @@ const RULES = [
 function LeftSidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasPermission, hasRole } = useAuth();
   const { requireAuth } = useForum();
+  // Forum moderation entry lives here (in the forum), not in the top site
+  // navbar — same gating the navbar used.
+  const canModForum = isAuthenticated && (hasPermission?.("forum.moderate") || hasRole?.("ADMIN") || hasRole?.("MODERATOR"));
   const [params, setParams] = useSearchParams();
   const [topicOpen, setTopicOpen] = useState(false);
   const [topics, setTopics] = useState([]);
@@ -103,6 +130,14 @@ function LeftSidebar() {
               <button onClick={() => { if (!requireAuth()) navigate("/forum/saved"); }} className={`fm2-navitem${pathname.startsWith("/forum/saved") ? " active" : ""}`}>Saved</button>
               <button onClick={() => { if (!requireAuth()) navigate("/forum/answer-queue"); }} className={`fm2-navitem${pathname.startsWith("/forum/answer-queue") ? " active" : ""}`}>Answer Queue</button>
               <button onClick={() => navigate("/forum/dashboard")} className={`fm2-navitem${pathname.startsWith("/forum/dashboard") ? " active" : ""}`}>Dashboard</button>
+            </div>
+          )}
+          {canModForum && (
+            <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #e4edd8" }}>
+              <button onClick={() => navigate("/moderator")} className="fm2-navitem fm2-navitem-mod" title="Forum Moderation">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                Moderator Panel
+              </button>
             </div>
           )}
         </div>
@@ -145,6 +180,11 @@ function LeftSidebar() {
 }
 
 function Shell() {
+  const { pathname } = useLocation();
+  // The dashboard ships its own two-column layout (sidebar + content), so it
+  // renders full-width instead of inside the standard 3-column forum grid.
+  const isDash = pathname.startsWith("/forum/dashboard");
+
   return (
     <div style={{ minHeight: "100vh", background: "#edf2e8", fontFamily: "Poppins,sans-serif" }}>
       {/* Integrated site navigation (replaces the standalone fm2 top chrome) so
@@ -152,13 +192,17 @@ function Shell() {
       <Navbar />
       <PageHeader />
       <div className="fm2-wrap">
-        <div className="fm2-layout">
-          <LeftSidebar />
-          <main style={{ display: "flex", flexDirection: "column", gap: 13, minWidth: 0 }}>
-            <Outlet />
-          </main>
-          <HowItWorks />
-        </div>
+        {isDash ? (
+          <Outlet />
+        ) : (
+          <div className="fm2-layout">
+            <LeftSidebar />
+            <main style={{ display: "flex", flexDirection: "column", gap: 13, minWidth: 0 }}>
+              <Outlet />
+            </main>
+            <HowItWorks />
+          </div>
+        )}
       </div>
     </div>
   );

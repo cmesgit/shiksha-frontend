@@ -56,7 +56,25 @@ const ProfilePicker = () => {
 
   const approved = teacherInfo?.approved_tracks || [];
   const pending  = teacherInfo?.pending_tracks  || [];
-  const locked   = ALL_TRACKS.filter((t) => !approved.includes(t) && !pending.includes(t));
+
+  // Per-track status straight from the backend (serialize_teacher sends
+  // `tracks: {academy, skill}`), rather than inferring it from approved/pending.
+  // The old `locked` list was "everything neither approved nor pending", which
+  // swallowed REJECTED into the same bucket as never-applied — so a rejected
+  // applicant was cheerfully shown "+ Apply for Academy" with no hint they had
+  // been rejected, let alone why, even though academy_rejection_reason is
+  // already in this payload and was read by nothing in the app.
+  const tracks   = teacherInfo?.tracks || {};
+  const rejected = ALL_TRACKS.filter((t) => tracks[t] === "rejected");
+
+  // Mirrors TeacherProfile.can_apply_track (accounts/models.py) exactly. The
+  // rule is ASYMMETRIC: a Guest expert may add Academy, but a Faculty account
+  // may never add Skill Dev. Deriving "not approved and not pending" instead
+  // meant every faculty account was offered "+ Apply for Skill Dev" — a link
+  // the backend rejects unconditionally.
+  const held      = (t) => tracks[t] === "pending" || tracks[t] === "approved";
+  const canApply  = (t) => (t === "academy" ? !held("academy") : !held("academy") && !held("skill"));
+  const appliable = ALL_TRACKS.filter((t) => !held(t) && tracks[t] !== "rejected" && canApply(t));
 
   // Bounce out if there's no account session, or a context is already chosen.
   useEffect(() => {
@@ -125,7 +143,11 @@ const ProfilePicker = () => {
     if (approved.length === 0) {
       setError(pending.length
         ? "Your teacher application is still in review."
-        : "No approved teaching track yet.");
+        : rejected.length
+          ? (teacherInfo?.academy_rejection_reason
+              ? `Your application wasn't approved: ${teacherInfo.academy_rejection_reason}`
+              : "Your teaching application wasn't approved.")
+          : "No approved teaching track yet.");
       return;
     }
     if (!teachPwVisible) { setTeachPwVisible(true); setTeachPw(""); return; }
@@ -153,6 +175,7 @@ const ProfilePicker = () => {
     if (approved.length >= 2) return "Academy + Skill Dev";
     if (approved.length === 1) return TRACK_NAME[approved[0]];
     if (pending.length) return `${TRACK_NAME[pending[0]]} — in review`;
+    if (rejected.length) return `${TRACK_NAME[rejected[0]]} — not approved`;
     return "Teaching";
   };
 
@@ -306,8 +329,25 @@ const ProfilePicker = () => {
                 <p key={t} className="pp-track-note">{TRACK_NAME[t]} — in review</p>
               ))}
 
-              {/* Track never applied for → deep-link to add-a-track signup */}
-              {locked.map((t) => (
+              {/* Rejected → say so, and say why. The reason ships in
+                  teacherInfo.academy_rejection_reason and used to be shown
+                  nowhere, so a rejected applicant saw only "+ Apply" again. */}
+              {rejected.map((t) => (
+                <div key={t} className="pp-track-note pp-track-note--rejected">
+                  <strong>{TRACK_NAME[t]} — not approved</strong>
+                  {t === "academy" && teacherInfo?.academy_rejection_reason && (
+                    <span className="pp-track-reason">{teacherInfo.academy_rejection_reason}</span>
+                  )}
+                  {canApply(t) && (
+                    <a className="pp-track-apply" href={signupAddTrackUrl(t)}>
+                      Apply again with updated details
+                    </a>
+                  )}
+                </div>
+              ))}
+
+              {/* Track never applied for AND allowed → add-a-track signup */}
+              {appliable.map((t) => (
                 <a key={t} className="pp-track-apply" href={signupAddTrackUrl(t)}>
                   + Apply for {TRACK_NAME[t]}
                 </a>

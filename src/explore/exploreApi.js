@@ -33,10 +33,10 @@ import {
 
 // Explore runs on the local seed until the backend `documents` app is
 // deployed to the API this frontend points at. The reachable dev API
-// (api.dev.shikshacom.com) does not yet serve /explore/*, so flipping this to
-// false leaves every Explore page hanging on a failed request. Keep true until
-// the endpoints in the header comment are live, then flip to go live.
-const USE_MOCK = true;
+// (api.dev.shikshacom.com) now serves /explore/* (documents app deployed +
+// migrated on dev, 2026-07-20), so Explore reads live DB-backed data. The dev
+// library may be empty until documents are uploaded — pages degrade gracefully.
+const USE_MOCK = false;
 
 // Simulate network latency so loading states are exercised in dev.
 const wait = (ms = 220) => new Promise((r) => setTimeout(r, ms));

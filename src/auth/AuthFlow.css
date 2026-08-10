@@ -56,6 +56,16 @@
 
 .af-brand__body { /* middle block */ }
 
+/* Intro variant: the illustration takes the whole middle band, so the panel
+   stretches it rather than centring a text block. */
+.af-brand__body--intro {
+  flex: 1;
+  min-height: 0;
+  margin: 18px 0 6px;
+  display: flex;
+}
+.af--intro .af-brand { padding: 36px 28px; }
+
 .af-brand__icon {
   width: 56px; height: 56px; border-radius: 16px;
   background: rgba(255,255,255,.18);

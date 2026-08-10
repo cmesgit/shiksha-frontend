@@ -54,7 +54,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
   if (!course || !course.topics) return null;
 
   const courseName = selectedClass || course.title;
-  const coursePrice = course.price || '₹1,500';
+  const coursePrice = course.price;
   const boardName = board || 'CBSE';
   const isMbse = boardName.toLowerCase() === 'mbse';
 
@@ -66,7 +66,10 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
     return `${courseName} complete curriculum with subject-wise structured coverage, chapter breakdown, and strong board exam preparation support.`;
   }, [courseName, boardName, isMbse]);
 
-  const learnItems = useMemo(
+  // CMS-authored highlights/includes (CourseDetail.highlights/.includes, one
+  // item per line) win when present; otherwise fall back to the generated
+  // copy below so unedited courses still show something useful.
+  const generatedLearnItems = useMemo(
     () => [
       `Master complete ${courseName} curriculum across all subjects`,
       'Attend live interactive classes with expert educators',
@@ -82,7 +85,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
     [courseName, boardName, isMbse]
   );
 
-  const includeItems = [
+  const generatedIncludeItems = [
     `${course.topics.length} subject sections included in this course`,
     'Live interactive sessions + recorded access',
     'Lifetime access after course completion',
@@ -91,6 +94,15 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
     'Access on mobile and desktop',
     `${boardName} curriculum-aligned content`,
   ];
+
+  const linesOf = (text) => (text || '').split('\n').map((l) => l.trim()).filter(Boolean);
+
+  const learnItems = linesOf(course.highlights).length
+    ? linesOf(course.highlights)
+    : generatedLearnItems;
+  const includeItems = linesOf(course.includes).length
+    ? linesOf(course.includes)
+    : generatedIncludeItems;
 
   const handleBreadcrumbNav = (key) => {
     onBack?.(key);

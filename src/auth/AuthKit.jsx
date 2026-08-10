@@ -4,8 +4,11 @@
    the brand panel, status chips, option rows, fields and action bar.
    Login.jsx and Signup.jsx compose these so the chrome stays identical
    across both. */
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import shikshaLogo from "../assets/Shiksha.png";
+/* Lazy so Login/ForgotPassword don't ship the ~56 KB of intro artwork. */
+const IntroAnimation = lazy(() => import("./IntroAnimation.jsx"));
 import "./AuthFlow.css";
 
 /* ── Per-role accent palette (verbatim from the design) ── */
@@ -57,16 +60,22 @@ export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.
 /* ════════════════════════════════════════════
    Shell — split panel with role-driven accent
 ════════════════════════════════════════════ */
-export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", children }) {
+export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", intro = false, children }) {
   const pal = PALETTE[role] || PALETTE.neutral;
   return (
-    <div className="af" style={{ "--a": pal.a, "--soft": pal.soft }}>
+    <div className={`af${intro ? " af--intro" : ""}`} style={{ "--a": pal.a, "--soft": pal.soft }}>
       {/* LEFT — brand panel */}
       <div className="af-brand">
         <div className="af-brand__logo">
           <img className="af-brand__logo-mark" src={shikshaLogo} alt="" />
           ShikshaCom
         </div>
+        {intro ? (
+          /* Signup swaps the static pitch for the three-role intro. */
+          <div className="af-brand__body af-brand__body--intro">
+            <Suspense fallback={null}><IntroAnimation accent={pal.a} /></Suspense>
+          </div>
+        ) : (
         <div className="af-brand__body">
           <div className="af-brand__icon"><Icon name={brandIcon} size={26} color="#fff" /></div>
           <h2 className="af-brand__headline">
@@ -77,6 +86,7 @@ export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", ch
             across all your profiles and devices.
           </p>
         </div>
+        )}
         <div className="af-brand__flow">{flowLabel}</div>
       </div>
 

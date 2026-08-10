@@ -19,6 +19,10 @@ export async function getCounsellor(id) {
   return (await api.get(`/counseling/counselors/${id}/`)).data;
 }
 
+export async function getPublicStats() {
+  return (await api.get("/counseling/stats/")).data; // {counselor_count, avg_rating, total_sessions}
+}
+
 export async function getSlots(id, days = 14) {
   return (await api.get(`/counseling/counselors/${id}/slots/`, { params: { days } })).data;
   // {counselor_id, duration_minutes, slots: [iso...]}

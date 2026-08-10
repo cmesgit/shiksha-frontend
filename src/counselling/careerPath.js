@@ -8,7 +8,8 @@
 // Input:  intake response ({learner: {current_class, stream}, skills,
 //         work_environment, career_interests: [{name}], ...})
 // Output: { headline, paths: [{title, why[], nextSteps[], guides[]}],
-//           stage }  — guides are slugs into data/guides.js.
+//           stage }  — guides are slugs resolved against the guide CMS
+//           index (see api/guidesApi.js), formerly data/guides.js.
 
 const EARLY = ["8", "9", "10"];
 const SENIOR = ["11", "12"];

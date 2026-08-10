@@ -2,6 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import '../css/GeneralStudies.css';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// opentdb.com HTML-encodes punctuation in its responses (&quot;, &amp;, etc.).
+// Decode via a detached <textarea> — its content model is plain text, so the
+// browser never executes anything placed inside it (no script/event-handler
+// risk), unlike rendering the raw string with dangerouslySetInnerHTML.
+function decodeHtmlEntities(str) {
+  const el = document.createElement('textarea');
+  el.innerHTML = str;
+  return el.value;
+}
+
 const sampleCurrentAffairs = {
   '2024-10-01': [
     {
@@ -677,11 +687,16 @@ Give:
         throw new Error('Failed to fetch trivia questions');
       }
       const data = await response.json();
-      const questions = data.results.map(q => ({
-        question: q.question,
-        options: [...q.incorrect_answers, q.correct_answer].sort(() => Math.random() - 0.5),
-        correct: [...q.incorrect_answers, q.correct_answer].indexOf(q.correct_answer),
-      }));
+      const questions = data.results.map(q => {
+        const options = [...q.incorrect_answers, q.correct_answer]
+          .sort(() => Math.random() - 0.5)
+          .map(decodeHtmlEntities);
+        return {
+          question: decodeHtmlEntities(q.question),
+          options,
+          correct: options.indexOf(decodeHtmlEntities(q.correct_answer)),
+        };
+      });
       setTriviaQuestions(questions);
     } catch (err) {
       setTriviaError(err.message);
@@ -850,7 +865,7 @@ Give:
                       <h4>Trivia Quiz</h4>
                       {triviaQuestions.map((q, index) => (
                         <div key={index} className="quiz-question">
-                          <h5 dangerouslySetInnerHTML={{ __html: q.question }} />
+                          <h5>{q.question}</h5>
                           <div className="quiz-options">
                             {q.options.map((option, oIndex) => (
                               <button
@@ -863,8 +878,9 @@ Give:
                                   }`}
                                 onClick={() => setShowTriviaAnswers(prev => ({ ...prev, [index]: true }))}
                                 disabled={showTriviaAnswers[index]}
-                                dangerouslySetInnerHTML={{ __html: option }}
-                              />
+                              >
+                                {option}
+                              </button>
                             ))}
                           </div>
                         </div>

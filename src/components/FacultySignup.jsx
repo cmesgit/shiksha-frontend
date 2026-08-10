@@ -14,13 +14,20 @@
  *
  * ── Architecture (decided: Approach A + no migration for choices) ──────────────
  * The account is created with a single JSON call to /accounts/signup/. JSON can't
- * carry files and a just-signed-up user is NOT yet email-verified (no session),
- * so the document uploads in the design (qualification certificate, ID proof, and
- * the SIGNED agreement) are DEFERRED: they are collected from the dashboard via
- * the existing /form-fillup form after the user verifies their email and logs in.
- * Step 2/3 therefore collect text only; the agreement step is download + a required
- * acknowledgement, and the signed PDF is uploaded later into the new
- * TeacherProfile.signed_agreement field (see backend changes).
+ * carry files, so step 2's optional documents (qualification certificate + ID
+ * proof front/back) ride along base64-encoded and are decoded server-side by
+ * SignupSerializer._save_signup_document into the matching TeacherProfile
+ * FileFields. That decode did NOT exist for a while: this form sent the bytes
+ * and the serializer ignored the keys, so the uploads were silently dropped
+ * while admins were asked to approve applicants on the strength of them.
+ *
+ * STILL OPEN — the SIGNED agreement has no pre-approval upload path. Step 3 is
+ * download + acknowledge only. /form-fillup serves the LEARNER form to a pending
+ * applicant, because FormFillupView keys off get_active_roles() and a pending
+ * faculty's TEACHER role is is_active=False; the teacher-app editor that does
+ * handle signed_agreement sits behind teacher context, which returns 403
+ * not_approved until the track is live. So signed_agreement can currently only
+ * be supplied after approval.
  *
  * The teaching background rides the existing `faculty_profile` signup payload that
  * the backend SignupSerializer._provision_faculty() already understands (extended
@@ -32,6 +39,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
+import DOMPurify from "dompurify";
 import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
 
@@ -142,7 +150,7 @@ export default function FacultySignup({
   submitLabel = "Submit application",
 } = {}) {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup, checkEmail, isAuthenticated, user, teacherInfo } = useAuth();
 
   /* Account is step 1; embedded flows start on the teaching profile (step 2). */
   const FIRST_STEP = embedded ? 2 : 1;
@@ -152,6 +160,12 @@ export default function FacultySignup({
 
   const [step, setStep] = useState(FIRST_STEP);
   const [error, setError] = useState("");
+  // An optional in-product next step to render beside `error`. Duplicate-account
+  // errors are dead ends without one: the only "Log in" link on this page lives
+  // on step 1, so a rejection surfaced later left the applicant with nowhere to
+  // click. Shape: { label, to }.
+  const [errorAction, setErrorAction] = useState(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   /* account */
@@ -268,14 +282,66 @@ export default function FacultySignup({
     const c = document.querySelector(".fs-content");
     if (c) c.scrollTop = 0;
   };
-  const go = (s) => { setError(""); setStep(s); scrollTop(); };
+  const go = (s) => { setError(""); setErrorAction(null); setStep(s); scrollTop(); };
+
+  // Both helpers reset `errorAction` so a stale "Log in instead" link never
+  // outlives the error that justified it.
+  const fail = (msg, action = null) => { setError(msg); setErrorAction(action); };
 
   /* ── step 1 → 2 ── */
-  const next1 = () => {
-    if (!email.trim()) return setError("Enter your email address.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError("Enter a valid email address.");
-    if (password.length < 8) return setError("Password must be at least 8 characters.");
-    if (password !== confirm) return setError("Passwords do not match.");
+  // Async because it now asks the backend whether this email can even apply,
+  // BEFORE the applicant fills ~20 fields. Previously nothing checked: a
+  // duplicate was only rejected by /accounts/signup/ at the very end of step 3,
+  // and an email that already had learner profiles got told "Incorrect password
+  // for this account" — about a password they had just invented — because the
+  // backend authenticates existing accounts with it. Mirrors the branching
+  // Signup.jsx:186-232 already does.
+  const next1 = async () => {
+    setError(""); setErrorAction(null);
+    if (!email.trim()) return fail("Enter your email address.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return fail("Enter a valid email address.");
+    if (password.length < 8) return fail("Password must be at least 8 characters.");
+    if (password !== confirm) return fail("Passwords do not match.");
+
+    setCheckingEmail(true);
+    try {
+      const state = await checkEmail(email.trim());
+      if (state?.exists) {
+        if (state.has_teacher) {
+          // An UNVERIFIED duplicate was a hard dead end: the track guard
+          // refuses a second application ("Log in instead"), but LoginView
+          // refuses an unverified account ("Email not verified."), and the
+          // 24h purge window meant an applicant who lost the verification
+          // email had no way forward at all. checkEmail already tells us which
+          // case this is, so send them to the one action that works.
+          if (!state.is_verified) {
+            return fail(
+              "You already started an application with this email, but it isn't verified yet. Check your inbox for the verification link — we can send you a fresh one.",
+              { label: "Resend verification email", to: "/resend-verification" },
+            );
+          }
+          return fail(
+            state.teacher_type === "GUEST"
+              ? "This email is already registered as a Skill Dev expert. Add the Faculty track to that account instead of creating a new one."
+              : "This email already has a teacher account.",
+            state.teacher_type === "GUEST"
+              ? { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" }
+              : { label: "Log in instead", to: "/login" },
+          );
+        }
+        // Learner-only account. The add-track flow is the only one that works
+        // here — it proves ownership with their EXISTING account password.
+        return fail(
+          "This email already has an account. You can add a Faculty track to it — no need to create a second account.",
+          { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" },
+        );
+      }
+    } catch {
+      // Fail open, same as Signup.jsx:230 — a checkEmail outage must not block
+      // a legitimate new applicant. The backend still rejects duplicates.
+    } finally {
+      setCheckingEmail(false);
+    }
     go(2);
   };
 
@@ -346,10 +412,91 @@ export default function FacultySignup({
         go(4);
       }
     } catch (err) {
-      setError(readErr(err, "Signup failed. Please try again."));
+      const msg = readErr(err, "Signup failed. Please try again.");
+      // The step-1 checkEmail catches almost all of these now, but it fails
+      // open and the account can change underneath a slow application. When the
+      // backend's own guard fires at the finish line, give it somewhere to go
+      // rather than a bare string 20 fields deep.
+      const isDuplicate = /log in instead|already/i.test(msg);
+      const isWrongPassword = /incorrect password/i.test(msg);
+      setError(
+        isWrongPassword
+          ? "This email already belongs to an account, so the password above doesn't match it. Add a Faculty track to that account instead."
+          : msg,
+      );
+      setErrorAction(
+        isWrongPassword
+          ? { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" }
+          : isDuplicate
+            ? { label: "Log in instead", to: "/login" }
+            : null,
+      );
       setSubmitting(false);
     }
   };
+
+  /*
+    Signed-in visitors must not be walked through "create your faculty account".
+    This route is public and ungated (App.jsx), and the form never read auth
+    state, so an authenticated user got a blank email field — and if they typed
+    a DIFFERENT address, /accounts/signup/ (AllowAny, never inspects
+    request.user) happily created a second, disconnected account while their
+    browser session still belonged to the first.
+
+    Two cases, both resolved before any form work:
+      • already holds a teacher identity → nothing to apply for; show the real
+        per-track status instead of a form that the backend will reject on
+        step 3 after ~20 fields.
+      • learner-only account → adding a track is the correct flow, and the only
+        one that works, since the backend proves ownership with their existing
+        account password rather than a newly invented one.
+
+    `embedded` is exempt: Signup.jsx renders this inside its own add-track flow,
+    where being signed in is the expected state.
+  */
+  if (!embedded && isAuthenticated) {
+    const academy = teacherInfo?.tracks?.academy;
+    const heldTrack = academy && academy !== "locked" && academy !== "rejected";
+    return (
+      <div className="fs-root">
+        <nav className="fs-topbar">
+          <div className="fs-topbar-logo">
+            <svg viewBox="0 0 16 16"><path d="M8 1L1 5l7 4 7-4-7-4zM1 10l7 4 7-4M1 7.5l7 4 7-4" stroke="white" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </div>
+          <span className="fs-topbar-name">ShikshaCom</span>
+          <span className="fs-topbar-badge">Faculty</span>
+        </nav>
+        <div className="fs-page">
+          <div className="fs-card">
+            <h1 className="fs-h1">
+              {heldTrack ? "You already have a Faculty application" : "You're already signed in"}
+            </h1>
+            <p className="fs-sub">
+              {heldTrack ? (
+                academy === "approved"
+                  ? <>Your Faculty track on <strong>{user?.email}</strong> is approved — no need to apply again.</>
+                  : <>Your Faculty application on <strong>{user?.email}</strong> is in review. We&rsquo;ll email you when an admin has looked at it.</>
+              ) : (
+                <>You&rsquo;re signed in as <strong>{user?.email}</strong>. You don&rsquo;t need a second
+                  account to teach — add a Faculty track to this one and keep your existing profiles.</>
+              )}
+            </p>
+            <div className="fs-actions" style={{ justifyContent: "flex-start", gap: 10, flexWrap: "wrap" }}>
+              {!heldTrack && (
+                <button type="button" className="fs-btn fs-btn-primary"
+                  onClick={() => navigate("/signup?role=teacher&add_track=academy")}>
+                  Add Faculty to my account
+                </button>
+              )}
+              <button type="button" className="fs-btn" onClick={() => navigate("/pick-profile")}>
+                Go to my profiles
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fs-root">
@@ -432,11 +579,25 @@ export default function FacultySignup({
               </div>
             </div>
 
-            {error && <div className="fs-error">{error}</div>}
+            {error && (
+              <div className="fs-error">
+                {error}
+                {errorAction && (
+                  <>
+                    {" "}
+                    <Link to={errorAction.to} style={{ fontWeight: 700, textDecoration: "underline" }}>
+                      {errorAction.label}
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="fs-form-actions">
               <span />
-              <button className="fs-btn-primary" onClick={next1}>Continue <ArrowRight /></button>
+              <button className="fs-btn-primary" onClick={next1} disabled={checkingEmail}>
+                {checkingEmail ? "Checking…" : <>Continue <ArrowRight /></>}
+              </button>
             </div>
 
             <div className="fs-login-link">Already have an account? <Link to="/login">Log in</Link></div>
@@ -607,7 +768,19 @@ export default function FacultySignup({
               </div>
             </div>
 
-            {error && <div className="fs-error">{error}</div>}
+            {error && (
+              <div className="fs-error">
+                {error}
+                {errorAction && (
+                  <>
+                    {" "}
+                    <Link to={errorAction.to} style={{ fontWeight: 700, textDecoration: "underline" }}>
+                      {errorAction.label}
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="fs-form-actions">
               <button className="fs-btn-ghost" onClick={() => (embedded ? onBack?.() : go(1))}><ArrowLeft /> Back</button>
@@ -629,7 +802,7 @@ export default function FacultySignup({
                 <div style={{ fontWeight: 700, marginBottom: 8 }}>
                   {agreementText.title} <span style={{ fontSize: 12, color: "#9a8478" }}>· v{agreementText.version_number}</span>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderMarkdown(agreementText.body) }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderMarkdown(agreementText.body)) }} />
               </div>
             )}
 
@@ -658,7 +831,7 @@ export default function FacultySignup({
                 <div className="fs-agr-tips">
                   <div className="fs-agr-tip"><Check /> Good lighting, no shadows across signature</div>
                   <div className="fs-agr-tip"><Check /> Full page visible, not cropped</div>
-                  <div className="fs-agr-tip"><Check /> PDF, JPG or PNG — max 10 MB</div>
+                  <div className="fs-agr-tip"><Check /> PDF, JPG or PNG — max {MAX_DOC_MB} MB</div>
                 </div>
               </div>
             </div>
@@ -676,7 +849,19 @@ export default function FacultySignup({
               </div>
             </div>
 
-            {error && <div className="fs-error">{error}</div>}
+            {error && (
+              <div className="fs-error">
+                {error}
+                {errorAction && (
+                  <>
+                    {" "}
+                    <Link to={errorAction.to} style={{ fontWeight: 700, textDecoration: "underline" }}>
+                      {errorAction.label}
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="fs-form-actions">
               <button className="fs-btn-ghost" onClick={() => go(2)}><ArrowLeft /> Back</button>
@@ -739,7 +924,12 @@ export default function FacultySignup({
 
               <div className="fs-admin-notice">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-                <p><strong>Application under review.</strong> Once you verify your email, an admin will review your qualifications and documents. You cannot log in until your account is approved. This usually takes 1–3 business days.</p>
+                {/* Do NOT say "you cannot log in until approved" here — it was
+                    false. LoginView (accounts/auth_flow.py) gates only on
+                    is_verified, and a teacher identity in ANY state, review
+                    included, deliberately routes to the profile picker so the
+                    applicant can see their status and use the learner side. */}
+                <p><strong>Application under review.</strong> Once you verify your email you can log in straight away — your Faculty track will show as <em>in review</em> until an admin has checked your qualifications and documents, usually within 1–3 business days. You can use the learner side of your account in the meantime.</p>
               </div>
             </div>
           </div>

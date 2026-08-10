@@ -64,9 +64,17 @@ function readErr(err, fallback) {
 }
 
 export default function Signup() {
-  const { signup, checkEmail, user } = useAuth();
+  const { signup, checkEmail, user, isAuthenticated, loading: authLoading, bootstrap } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Where the visitor was headed before signing up (e.g. mid-course-browse) —
+  // read once, the same way Courses.jsx's login redirect does, and threaded
+  // through every exit path below so it isn't dropped at this step. Login
+  // itself (App.jsx's LoginRedirect) does the actual safe-path validation;
+  // this only needs to carry the raw value along.
+  const next = searchParams.get("next");
+  const loginPath = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const [step, setStep]             = useState(STEP_ROLE);
   const [error, setError]           = useState("");
@@ -115,6 +123,28 @@ export default function Signup() {
   useEffect(() => {
     const at = (searchParams.get("add_track") || "").toLowerCase();
     if (at !== "academy" && at !== "skill") return;
+    if (authLoading) return;   // don't decide before auth state resolves
+
+    // Adding a track requires an account to add it TO. This effect used to run
+    // regardless of auth, so an anonymous visitor — arriving from the public
+    // footer/navbar "Become a Faculty" link via /become-faculty, which sends
+    // ?add_track=academy — was dropped on a confirm screen reading "This adds a
+    // track to your existing account" and asked for an "Account password" they
+    // had never set. There was no create-account branch and no way out.
+    if (!isAuthenticated) {
+      if (at === "academy") {
+        // The purpose-built four-step flow that creates the account itself.
+        navigate("/faculty/signup", { replace: true });
+        return;
+      }
+      // Skill: the normal new-teacher signup already collects everything; just
+      // preselect the track so they don't have to re-pick it.
+      setRole("TEACHER");
+      setTeacherType("GUEST");
+      setStep(STEP_EMAIL);
+      return;
+    }
+
     setAddTrack(at);
     setRole("TEACHER");
     setTeacherType(at === "academy" ? "FACULTY" : "GUEST");
@@ -122,7 +152,7 @@ export default function Signup() {
     if (user?.email) setEmail(user.email);
     setStep(STEP_AT_CONFIRM);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, user]);
+  }, [searchParams, user, isAuthenticated, authLoading]);
 
   /* ── accent + label ── */
   const accent =
@@ -172,9 +202,9 @@ export default function Signup() {
         const msg = isUpgrade
           ? "Faculty application submitted! Your Guest expert profile is still live. Log in to check status."
           : "Identity added! Please log in.";
-        navigate("/login", { replace: true, state: { message: msg } });
+        navigate(loginPath, { replace: true, state: { message: msg } });
       } else {
-        navigate("/verify-email", { replace: true, state: { email } });
+        navigate("/verify-email", { replace: true, state: { email, next } });
       }
     } catch (err) {
       setError(readErr(err, "Signup failed. Please try again."));
@@ -352,13 +382,22 @@ export default function Signup() {
       faculty_profile: facultyProfile,
     });
     if (addTrack === "academy") {
-      navigate("/login", { replace: true, state: {
-        message: "Faculty application submitted! It's now with the admin team for review. Your current track stays live.",
-      } });
+      // An add-track applicant is ALREADY signed in, so navigating to /login
+      // rendered LoginRedirect (App.jsx) rather than Login — and LoginRedirect
+      // never reads location.state, so this message was silently dropped and
+      // they were bounced onward with no confirmation that anything happened.
+      //
+      // Re-bootstrap first: AuthContext only bootstraps on mount, and this is a
+      // client-side navigation, so teacherInfo would otherwise still say the
+      // Academy track is unclaimed and the picker would offer "+ Apply for
+      // Academy" again for the application just filed. The picker's
+      // "Academy — in review" line is then real, server-derived confirmation.
+      await bootstrap();
+      navigate("/pick-profile", { replace: true });
       return;
     }
     if (isExisting) {
-      navigate("/login", { replace: true, state: {
+      navigate(loginPath, { replace: true, state: {
         message: isUpgrade
           ? "Faculty application submitted! Your Guest expert profile is still live. Log in to check status."
           : "Teacher identity added! Please log in.",
@@ -370,9 +409,9 @@ export default function Signup() {
 
   const finishTeacher = () => {
     if (isExisting) {
-      navigate("/login", { replace: true, state: { message: "Teacher identity added! Please log in." } });
+      navigate(loginPath, { replace: true, state: { message: "Teacher identity added! Please log in." } });
     } else {
-      navigate("/verify-email", { replace: true, state: { email } });
+      navigate("/verify-email", { replace: true, state: { email, next } });
     }
   };
 
@@ -411,7 +450,7 @@ export default function Signup() {
     // Only the Skill (Guest expert) add-track reaches this screen now — Academy
     // collects its application via the embedded form and navigates from there,
     // so faculty no longer pass through /form-fillup.
-    navigate("/login", { replace: true, state: {
+    navigate(loginPath, { replace: true, state: {
       message: "Skill (Guest expert) track added. You can switch to it from your dashboard now.",
     } });
   };
@@ -443,7 +482,7 @@ export default function Signup() {
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
   return (
-    <AuthShell role={accent} flowLabel={flowLabel}>
+    <AuthShell role={accent} flowLabel={flowLabel} intro>
       <div className="af-toprow">
         {step !== STEP_ROLE
           ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>
@@ -464,7 +503,7 @@ export default function Signup() {
               onClick: () => { setRole("TEACHER"); setError(""); go(STEP_EMAIL); } },
           ]} />
           <div className="af-spacer" />
-          <FooterLink>Already have an account? <Link to="/login">Sign in</Link></FooterLink>
+          <FooterLink>Already have an account? <Link to={loginPath}>Sign in</Link></FooterLink>
           <FooterLink>Applying as academic faculty? <Link to="/faculty/signup">Faculty sign-up</Link></FooterLink>
         </>
       )}
@@ -479,6 +518,16 @@ export default function Signup() {
               onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
               required autoFocus autoComplete="email" />
             {error && <div className="af-error">{error}</div>}
+            {/* "Log in to manage them" is a dead end if that account was never
+                verified — login will just fail again with no way forward
+                (see EmailVerified.jsx's failure screen for the other half of
+                this). checkEmail doesn't expose verification status, so this
+                stays a low-key secondary option rather than assuming it. */}
+            {error && /already has/i.test(error) && (
+              <Link to="/resend-verification" className="af-note" style={{ display: "block", marginTop: 4 }}>
+                Can't log in? Resend the verification email
+              </Link>
+            )}
             <div className="af-spacer" />
             <div className="af-actions">
               <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
@@ -486,7 +535,7 @@ export default function Signup() {
               </button>
             </div>
           </form>
-          <FooterLink>Already have an account? <Link to="/login">Sign in</Link></FooterLink>
+          <FooterLink>Already have an account? <Link to={loginPath}>Sign in</Link></FooterLink>
         </>
       )}
 

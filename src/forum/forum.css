@@ -1,8 +1,7 @@
 /* ShikshaCom Forum — redesign styles.
  * Ported from the approved mockup (green/cream palette). Scoped under .fm-*.
  * Sits inside the site's <Page> (Navbar + Footer), so no top marquee / brand
- * header here. Montserrat is loaded locally (Poppins is already global). */
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap");
+ * header here. Montserrat and Poppins are both loaded globally (index.html). */
 
 .fm-root {
   --fm-green: #125027;
@@ -340,6 +339,8 @@ a:hover{color:#0f8f7e}
 .fm2-section-hd{font:700 10px Poppins,sans-serif;color:#7a9470;letter-spacing:1.5px;text-transform:uppercase;padding:0 2px;margin-bottom:8px}
 .fm2-navitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;border-radius:8px;padding:9px 10px;font:600 13px Poppins,sans-serif;color:#374e37;cursor:pointer;transition:background .14s,color .14s}
 .fm2-navitem:hover{background:#f0f7ec;color:#125027}
+.fm2-navitem-mod{color:#b45c00}
+.fm2-navitem-mod:hover{background:#fff3e0;color:#8a4600}
 .fm2-thread{background:#fff;border:1px solid #d8e6c8;border-radius:12px;box-shadow:0 1px 3px rgba(14,28,15,.04);cursor:pointer;transition:box-shadow .18s,border-color .18s,transform .18s;display:flex;overflow:hidden;animation:fm2fade .3s ease both}
 .fm2-thread:hover{box-shadow:0 4px 20px rgba(14,28,15,.1);border-color:#a8cca0;transform:translateY(-1px)}
 .fm2-stat-col{width:64px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0;gap:2px;border-right:1px solid #e4edd8;background:#fafcf8}
@@ -398,6 +399,8 @@ img,svg,image-slot{max-width:100%}
 .fm2-hd-search button:hover{background:#0d3b1c}
 .fm2-hd-bell{width:38px;height:38px;background:#f4f8f0;border:1.5px solid #d8e6c8;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
 .fm2-hd-bell-badge{position:absolute;top:3px;right:4px;min-width:14px;height:14px;padding:0 2px;border-radius:50px;background:#e07900;border:1.5px solid #fff;color:#fff;font:800 8px Poppins,sans-serif;display:flex;align-items:center;justify-content:center}
+.fm2-hd-dash{width:38px;height:38px;border-radius:50%;border:2px solid #fff;color:#fff;font:800 12px Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 1px 3px rgba(14,28,15,.18);transition:transform .15s,box-shadow .2s}
+.fm2-hd-dash:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(14,28,15,.28)}
 
 /* fm2 feed-card + hero helpers */
 .fm2-avatar-xs{width:22px;height:22px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font:800 8px Montserrat,sans-serif;flex-shrink:0;cursor:pointer}
@@ -412,26 +415,65 @@ img,svg,image-slot{max-width:100%}
 .fm2-hero-btn:hover{filter:brightness(.97)}
 .fm2-empty-card{background:#fff;border:1px solid #d8e6c8;border-radius:12px;padding:40px 24px;text-align:center;font:500 14px Poppins,sans-serif;color:#8a9e82}
 
-/* fm2 user dashboard */
+/* ─── User Dashboard — ported from Forum Dashboard.html ─────────────── */
+/* Bespoke two-column shell (own sidebar + content), rendered full-width. */
+.fm2-dash-layout{display:grid;grid-template-columns:216px 1fr;gap:20px;align-items:start}
+.fm2-dash-side{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px}
+.fm2-dash-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+/* sidebar profile card */
+.fm2-dprofile-av{width:56px;height:56px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font:800 18px Montserrat,sans-serif;margin:0 auto 12px}
+.fm2-dstat-row{display:flex;gap:8px}
+.fm2-dstat{background:#f4f8f0;border:1px solid #e0ecd0;border-radius:10px;padding:14px 16px;text-align:center;flex:1}
+.fm2-dstat-n{font:800 26px/1 Montserrat,sans-serif;color:#125027;display:block;margin-bottom:3px}
+.fm2-dstat-l{font:500 10px Poppins,sans-serif;color:#8a9e82;text-transform:uppercase;letter-spacing:.8px}
+/* sidebar sub-nav / quick links */
+.fm2-dnav{display:flex;align-items:center;width:100%;text-align:left;border:none;border-radius:8px;padding:9px 12px;cursor:pointer;font:600 13px Poppins,sans-serif;background:none;color:#374e37;transition:background .14s,color .14s}
+.fm2-dnav:hover{background:#f0f7ec;color:#125027}
+.fm2-dnav.active{background:#e4f3e8;color:#125027;font-weight:700}
+/* stat cards */
 .fm2-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.fm2-stat-card{padding:16px 18px;display:flex;flex-direction:column;gap:4px}
-.fm2-stat-card-num{font:900 26px Montserrat,sans-serif;line-height:1}
-.fm2-stat-card-lbl{font:500 11.5px Poppins,sans-serif;color:#8a9e82}
-.fm2-dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.fm2-activity-row,.fm2-notif-row{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid #eef4e8;padding:9px 2px;cursor:pointer}
-.fm2-activity-row:last-child,.fm2-notif-row:last-child{border-bottom:none}
-.fm2-activity-row:hover,.fm2-notif-row:hover{background:#f6faf2}
-.fm2-activity-text{flex:1;font:400 12.5px Poppins,sans-serif;color:#374e37;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fm2-activity-time{font:400 11px Poppins,sans-serif;color:#a8bca0;flex-shrink:0}
-.fm2-activity-dot{width:8px;height:8px;border-radius:50%;background:#125027;flex-shrink:0}
-.fm2-activity-dot.answer{background:#0f8f7e}
-.fm2-activity-dot.post{background:#e07900}
+.fm2-statcard{padding:16px 18px}
+.fm2-statcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.fm2-statcard-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.fm2-statcard-badge{font:700 10px Poppins,sans-serif;padding:3px 8px;border-radius:50px;white-space:nowrap}
+.fm2-statcard-n{font:800 26px/1 Montserrat,sans-serif;color:#18261a;margin-bottom:4px}
+.fm2-statcard-l{font:500 11.5px Poppins,sans-serif;color:#8a9e82}
+/* content card with a header row + See-all link */
+.fm2-dcard-hd{padding:14px 16px;border-bottom:1px solid #e4edd8;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fm2-dcard-title{font:800 13px Montserrat,sans-serif;color:#18261a}
+.fm2-dcard-link{background:none;border:none;font:700 11.5px Poppins,sans-serif;color:#125027;cursor:pointer}
+.fm2-dcard-foot{width:100%;background:#f4f8f0;border:none;border-top:1px solid #e4edd8;padding:10px;font:700 12px Poppins,sans-serif;color:#125027;cursor:pointer}
+.fm2-dcard-foot:hover{background:#eaf3e5}
+.fm2-dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* activity + notification rows (icon/avatar led) */
+.fm2-arow{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:none;border-bottom:1px solid #e4edd8;cursor:pointer;transition:background .14s;width:100%;text-align:left;background:none}
+.fm2-arow:last-child{border-bottom:none}
+.fm2-arow:hover{background:#f8fcf6}
+.fm2-arow-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fm2-arow-av{width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font:800 10px Montserrat,sans-serif;flex-shrink:0}
+.fm2-arow-main{flex:1;min-width:0}
+.fm2-arow-t{font:500 12.5px/1.4 Poppins,sans-serif;color:#2b3a2b;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fm2-arow-t.wrap{white-space:normal}
+.fm2-arow-sub{font:400 11px Poppins,sans-serif;color:#8a9e82}
+.fm2-arow-dot{width:7px;height:7px;border-radius:50%;background:#e07900;flex-shrink:0;margin-top:5px}
 .fm2-notif-dot{width:7px;height:7px;border-radius:50%;background:#e07900;flex-shrink:0}
-.fm2-chart{display:flex;align-items:flex-end;gap:10px;height:130px;padding-top:10px}
-.fm2-chart-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
-.fm2-chart-bar{width:100%;max-width:34px;min-height:4px;background:linear-gradient(180deg,#0f8f7e,#125027);border-radius:6px 6px 0 0;transition:height .3s}
-.fm2-chart-lbl{font:600 10px Poppins,sans-serif;color:#8a9e82;text-transform:uppercase}
-@media(max-width:880px){.fm2-stat-grid{grid-template-columns:repeat(2,1fr)}.fm2-dash-cols{grid-template-columns:1fr}}
+/* engagement bar chart */
+.fm2-chart{display:flex;align-items:flex-end;gap:8px;height:80px}
+.fm2-chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.fm2-chart-bar{width:100%;border-radius:4px 4px 0 0;background:#b8d8bc;min-height:4px;transition:height .4s}
+.fm2-chart-bar.peak{background:#125027}
+.fm2-chart-lbl{font:500 10px Poppins,sans-serif;color:#8a9e82}
+/* saved discussion rows */
+.fm2-srow{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #e4edd8;cursor:pointer;transition:background .14s}
+.fm2-srow:last-child{border-bottom:none}
+.fm2-srow:hover{background:#f8fcf6}
+.fm2-srow-ans{width:42px;flex-shrink:0;text-align:center}
+.fm2-srow-ansn{font:800 16px/1 Montserrat,sans-serif;color:#125027}
+.fm2-srow-ansl{font:400 9px Poppins,sans-serif;color:#8a9e82;text-transform:uppercase;letter-spacing:.5px}
+.fm2-srow-t{font:600 13px/1.4 Poppins,sans-serif;color:#18261a;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:980px){.fm2-stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.fm2-dash-layout{grid-template-columns:1fr}.fm2-dash-side{display:none}}
+@media(max-width:760px){.fm2-dash-cols{grid-template-columns:1fr}}
 
 /* fm2 right-rail widgets */
 

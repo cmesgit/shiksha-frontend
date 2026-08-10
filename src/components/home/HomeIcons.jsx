@@ -61,6 +61,13 @@ export const IcShield = (p) => (
   </S>
 );
 
+export const IcLock = (p) => (
+  <S {...p}>
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </S>
+);
+
 export const IcPhone = (p) => (
   <S {...p}>
     <rect x="5" y="2" width="14" height="20" rx="2" />
@@ -121,6 +128,22 @@ export const IcPlay = (p) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
     <path d="M8 5v14l11-7z" />
   </svg>
+);
+
+export const IcPlayCircle = (p) => (
+  <S sw={1.9} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M10 8.5 16 12l-6 3.5Z" />
+  </S>
+);
+
+export const IcCalendar = (p) => (
+  <S {...p}>
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M16 2v4" />
+    <path d="M8 2v4" />
+    <path d="M3 10h18" />
+  </S>
 );
 
 export const IcStar = ({ off = false, ...p }) => (
@@ -221,5 +244,37 @@ export const IcPlus = (p) => (
 export const IcExternal = (p) => (
   <S sw={2.2} {...p}>
     <path d="M7 17L17 7M9 7h8v8" />
+  </S>
+);
+
+export const IcLightbulb = (p) => (
+  <S {...p}>
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 0 0-12 0c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5" />
+  </S>
+);
+
+export const IcSparkles = (p) => (
+  <S {...p}>
+    <path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z" />
+    <path d="M20 3v4" />
+    <path d="M22 5h-4" />
+    <path d="M4 17v2" />
+    <path d="M5 18H3" />
+  </S>
+);
+
+export const IcTrendingUp = (p) => (
+  <S {...p}>
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+    <polyline points="16 7 22 7 22 13" />
+  </S>
+);
+
+export const IcMonitor = (p) => (
+  <S {...p}>
+    <rect x="2" y="3" width="20" height="14" rx="2" />
+    <path d="M8 21h8M12 17v4" />
   </S>
 );

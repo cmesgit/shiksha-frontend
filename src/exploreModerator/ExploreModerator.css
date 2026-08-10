@@ -4,7 +4,6 @@
    palette (green #125027 / dark-green #0d1e14 / orange #e07900 / red #c0392b,
    Montserrat headings + Poppins body). Prefix: .em2-* so it never touches the
    rest of the app. */
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap");
 
 .em2 {
   --green: #125027;

@@ -34,7 +34,7 @@ const CMP = [
   { key: "Curriculum", expert: "Your own course / 1-on-1", faculty: "Board-aligned syllabus" },
   { key: "Schedule",   expert: "You set your own slots",   faculty: "Academy assigns timetable" },
   { key: "Payment",    expert: "Per session / course",     faculty: "Monthly faculty salary" },
-  { key: "Screening",  expert: "Open — list immediately",  faculty: "Admin review · 3–5 days" },
+  { key: "Screening",  expert: "Open — list immediately",  faculty: "Admin review · 1–3 days" },
 ];
 
 const FEATURES = [
@@ -55,12 +55,12 @@ const FEATURES = [
      (no existing expert account, password already set a step earlier). */
 const STEPS_ADDTRACK = [
   { n: 1, h: "Apply for the Faculty track", p: "Confirm your account password to add a Faculty application. This sits alongside your Expert account — your expert listing stays live." },
-  { n: 2, h: "Admin review", p: <>The academy team reviews your application and verifies your qualifications within <strong>3–5 working days</strong>. You'll be notified by email.</> },
+  { n: 2, h: "Admin review", p: <>The academy team reviews your application and verifies your qualifications within <strong>1–3 working days</strong>. You'll be notified by email.</> },
   { n: 3, h: "Get approved & start teaching", p: "Once approved, you're assigned classes, your faculty dashboard is activated, and you can start teaching right away." },
 ];
 const STEPS_SIGNUP = [
   { n: 1, h: "Fill in your faculty application", p: "Tell us about your qualifications, teaching experience and the subject, classes and streams you want to teach, then download, sign and upload the faculty agreement." },
-  { n: 2, h: "Verify your email & admin review", p: <>Verify your email, then the academy team reviews your application and qualifications within <strong>1–3 working days</strong>. You can't log in until you're approved.</> },
+  { n: 2, h: "Verify your email & admin review", p: <>Verify your email, then the academy team reviews your application and qualifications within <strong>1–3 working days</strong>. You can log in as soon as your email is verified; the Faculty track shows as in review until approved.</> },
   { n: 3, h: "Get approved & start teaching", p: "Once approved, you're assigned classes, your faculty dashboard is activated, and you can start teaching right away." },
 ];
 
@@ -68,7 +68,7 @@ const FAQS = [
   { q: "Can I be both an Expert teacher and a Faculty teacher?", a: "Yes — the same account can hold both a Skill Dev expert profile and a Faculty role. You switch between them using the Academy / Skill Dev toggle in your dashboard." },
   { q: "What subjects can I teach?", a: "Mathematics, Science, English, Social Studies, and other CBSE/ICSE core subjects for Classes 8–12. The academy will match you to your area of expertise." },
   { q: "How is monthly pay calculated?", a: "Pay is based on the number of classes conducted in a month, agreed upon during onboarding. The academy handles all collections from students." },
-  { q: "What happens if my application is rejected?", a: "You'll be notified by email. You can re-apply after 30 days with updated credentials. Your Expert (Skill Dev) account is never affected." },
+  { q: "What happens if my application is rejected?", a: "You'll be notified by email. You can re-apply with updated credentials. Your Expert (Skill Dev) account is never affected." },
 ];
 
 /**

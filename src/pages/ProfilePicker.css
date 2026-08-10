@@ -178,6 +178,19 @@
   text-align: center;
   margin: 0.45rem 0 0;
 }
+/* Rejected track: same slot as the "in review" note, but reads as a decision
+   with a reason rather than a pending state. Stacked so the reason (which can
+   be a full sentence written by an admin) wraps readably. */
+.pp-track-note--rejected {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #ff8a7a;
+}
+.pp-track-note--rejected .pp-track-reason {
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.45;
+}
 .pp-track-apply {
   display: block;
   font-size: 0.72rem;

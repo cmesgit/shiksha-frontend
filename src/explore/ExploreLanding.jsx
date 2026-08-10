@@ -6,12 +6,14 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
 import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
 import "./Explore.css";
 
 export default function ExploreLanding() {
   const nav = useNavigate();
+  const { isAuthenticated } = useAuth();
   // Explore Moderation is reached from the shared site Navbar (a dedicated entry
   // next to Forum Moderation), so the hero no longer carries its own pill.
   const [data, setData] = useState(null);
@@ -44,7 +46,7 @@ export default function ExploreLanding() {
             teachers across India. Search a topic to begin.
           </p>
           <button className="exp-hero-upload" onClick={() => nav("/explore/upload")}>
-            Have notes or papers of your own? Sign in to upload <Icon.arrow />
+            Have notes or papers of your own? {isAuthenticated ? "Upload a document" : "Sign in to upload"} <Icon.arrow />
           </button>
 
           <div className="exp-searchbar">
@@ -100,15 +102,17 @@ export default function ExploreLanding() {
             </div>
           </section>
 
-          {/* featured */}
-          <section className="exp-section">
-            <div className="exp-wrap">
-              <SectionHead title="Documents recommended for you" onViewAll={() => nav("/explore/browse?sort=Trending")} />
-              <div className="exp-docgrid-3">
-                {data.featured.slice(0, 3).map((d) => <DocCard key={d.id} doc={d} />)}
+          {/* featured — hidden until the library has documents */}
+          {data.featured.length > 0 && (
+            <section className="exp-section">
+              <div className="exp-wrap">
+                <SectionHead title="Documents recommended for you" onViewAll={() => nav("/explore/browse?sort=Trending")} />
+                <div className="exp-docgrid-3">
+                  {data.featured.slice(0, 3).map((d) => <DocCard key={d.id} doc={d} />)}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* recent */}
           {data.recent.length > 0 && (

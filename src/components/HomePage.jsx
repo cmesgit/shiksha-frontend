@@ -1,21 +1,19 @@
 /**
  * HomePage.jsx — landing page shell.
  *
- * The previous section stack (Hero / About / Stats / AboutShiksha /
- * HowItWorks / LearningPathways / CoursePreview) has been replaced by
- * the redesigned page in ./home/HomeGreen.jsx. The old components are
- * left untouched in the repo for rollback and for the routes that
- * still use them (e.g. /about).
+ * Renders the redesigned homepage (./home/ShikshaHome.jsx — 10 real,
+ * CMS-wired section components) which replaced the previous single-file
+ * ./home/HomeGreen.jsx implementation.
  */
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import HomeGreen from "./home/HomeGreen";
+import ShikshaHome from "./home/ShikshaHome";
 
 const HomePage = () => {
   return (
     <div className="page-content">
       <Navbar />
-      <HomeGreen />
+      <ShikshaHome />
       <Footer />
     </div>
   );

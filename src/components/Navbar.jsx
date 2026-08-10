@@ -21,6 +21,7 @@ import { APP_URL, TEACHER_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
+import { getPublicNavMenu } from "../api/coursesApi";
 import "../css/theme.css";
 import "../css/SiteNav.css";
 import {
@@ -43,7 +44,6 @@ import {
   IcHelp,
   IcChat,
   IcEye,
-  IcShield,
 } from "./home/HomeIcons";
 
 /* ────────────────────────── MENU DATA ────────────────────────── */
@@ -51,13 +51,16 @@ import {
 const CBSE_STATE = { selectedBoardGroup: "central", selectedBoard: "cbse" };
 const MBSE_STATE = { selectedBoardGroup: "state", selectedBoard: "mbse" };
 
-const COURSES_MENU = [
+// Static first-paint fallback — also the shape the live nav-menu API merges
+// into (see mergeLiveNavMenu below). "Skill & Career" has no course-catalog
+// backing, so it never changes.
+const STATIC_COURSES_MENU = [
   {
     title: "School Education",
     icon: IcBook,
     tabs: [
       {
-        id: "cbse",
+        id: "central",
         label: "CBSE Board",
         heading: "Central Board (CBSE)",
         links: [
@@ -121,13 +124,49 @@ const COURSES_MENU = [
         heading: "Career Guidance",
         links: [
           { label: "Career Counselling", to: "/counselling" },
-          { label: "Admission in India", to: "/counselling" },
-          { label: "Admission Abroad", to: "/counselling" },
+          // Admission in India is a future directory of Indian
+          // colleges/universities with rankings — a different, bigger
+          // feature than the existing study-in-india guide (which stays
+          // reachable from the Career Counselling guide library instead).
+          { label: "Admission in India", soon: true },
+          // No source guide exists yet for study-abroad admissions —
+          // point this at a real page once one is written, not at a
+          // domestic guide that doesn't answer the question.
+          { label: "Admission Abroad", soon: true },
         ],
       },
     ],
   },
 ];
+
+// Merges the live /courses/public/nav-menu/ categories ("school",
+// "competitive") into the static menu shape. Only replaces the parts the API
+// actually covers: the school tabs wholesale, and just the "Exam tracks"
+// section's links (the static "Prepare" section — General Studies/Current
+// Affairs — isn't course-catalog data, so it's left untouched). Returns the
+// static menu unchanged if the API has nothing usable yet.
+function mergeLiveNavMenu(categories) {
+  if (!categories.length) return STATIC_COURSES_MENU;
+  const school = categories.find((c) => c.key === "school");
+  const competitive = categories.find((c) => c.key === "competitive");
+
+  return STATIC_COURSES_MENU.map((cat) => {
+    if (cat.title === "School Education" && school?.tabs?.length) {
+      return { ...cat, tabs: school.tabs };
+    }
+    if (cat.title === "Competitive Exams" && competitive?.sections?.[0]?.links?.length) {
+      return {
+        ...cat,
+        sections: cat.sections.map((sec) =>
+          sec.heading === "Exam tracks"
+            ? { ...sec, links: competitive.sections[0].links }
+            : sec
+        ),
+      };
+    }
+    return cat;
+  });
+}
 
 const RESOURCES_MENU = [
   { title: "Blogs", icon: IcFileText, to: "/blogs", desc: "Chapter-wise study articles." },
@@ -205,12 +244,12 @@ function IconCard({ item, onGo }) {
 
 /* ────────────────────────── MEGA PANELS ────────────────────────── */
 
-function CoursesMega({ onGo }) {
-  const [schoolTab, setSchoolTab] = useState("cbse");
+function CoursesMega({ onGo, menu }) {
+  const [schoolTab, setSchoolTab] = useState("central");
 
   return (
     <div className="skn-mega-grid skn-mega-courses">
-      {COURSES_MENU.map((cat) => {
+      {menu.map((cat) => {
         const Icon = cat.icon;
         return (
           <div className="skn-mcol" key={cat.title}>
@@ -313,16 +352,10 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 /* ────────────────────────── NAVBAR ────────────────────────── */
 
 const Navbar = () => {
-  const { isAuthenticated, user, loading, isTeacherContext, hasRole, hasPermission } = useAuth();
-  // Forum and Explore moderation are SEPARATE pages with SEPARATE RBAC
-  // permissions, so each gets its own entry. ADMIN/MODERATOR roles grant both
-  // (matching the backend); a permission-only moderator sees just their surface.
-  const canModForum = isAuthenticated && (
-    hasPermission("forum.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
-  );
-  const canModExplore = isAuthenticated && (
-    hasPermission("documents.moderate") || hasRole("ADMIN") || hasRole("MODERATOR")
-  );
+  const { isAuthenticated, user, loading, isTeacherContext } = useAuth();
+  // Forum & Explore moderation entries now live inside their own surfaces
+  // (forum left sidebar / Explore toolbar), each gated there with its own RBAC
+  // permission — no longer in the global top navbar.
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -335,10 +368,23 @@ const Navbar = () => {
   const [isMac, setIsMac] = useState(false);
   const [announcement, setAnnouncement] = useState(null);
   const [announceDismissed, setAnnounceDismissed] = useState(false);
+  const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
 
   const headerRef = useRef(null);
   const searchRef = useRef(null);
   const closeTimer = useRef(null);
+
+  /* Courses mega-menu — CMS/catalog-driven boards + exam tracks, merged over
+     the static fallback so the menu never renders empty while this loads. */
+  useEffect(() => {
+    let alive = true;
+    getPublicNavMenu().then((categories) => {
+      if (alive) setCoursesMenu(mergeLiveNavMenu(categories));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   /* sitewide announcement strip — CMS-driven, hidden entirely if the
      API is unreachable or nothing is currently live. Dismissal persists
@@ -472,7 +518,7 @@ const Navbar = () => {
 
   const megaFor = (id) =>
     id === "courses" ? (
-      <CoursesMega onGo={closeAll} />
+      <CoursesMega onGo={closeAll} menu={coursesMenu} />
     ) : id === "resources" ? (
       <CardsMega items={RESOURCES_MENU} onGo={closeAll} cols={3} />
     ) : (
@@ -541,7 +587,12 @@ const Navbar = () => {
                     setOpenMenu(item.id);
                   }}
                   onClick={() =>
-                    setOpenMenu((prev) => (prev === item.id ? null : item.id))
+                    // Hover already opens this on desktop (mouseenter fires
+                    // before click for any mouse user), so a plain toggle
+                    // here would immediately close what hover just opened.
+                    // Click only needs to *open* — closing is handled by
+                    // mouseleave/outside-click/Escape/route change.
+                    setOpenMenu(item.id)
                   }
                 >
                   {item.label}
@@ -549,6 +600,7 @@ const Navbar = () => {
                 </button>
               ))}
             </div>
+
           </nav>
 
           {/* Right actions */}
@@ -577,26 +629,9 @@ const Navbar = () => {
                   >
                     Dashboard <IcExternal />
                   </button>
-                  {canModForum && (
-                    <Link
-                      to="/moderator"
-                      className="skn-mod-link"
-                      title="Forum Moderation"
-                      aria-label="Forum Moderation"
-                    >
-                      <IcShield />
-                    </Link>
-                  )}
-                  {canModExplore && (
-                    <Link
-                      to="/explore/moderator"
-                      className="skn-mod-link"
-                      title="Explore Moderation"
-                      aria-label="Explore Moderation"
-                    >
-                      <IcLibrary />
-                    </Link>
-                  )}
+                  {/* Forum & Explore Moderation entries now live inside their
+                      own sections (forum sidebar / Explore toolbar), not in the
+                      global top navbar. */}
                   <NotificationBell />
                   <ProfileSwitcher
                     teacherSignupUrl="/signup?role=teacher"
@@ -694,7 +729,7 @@ const Navbar = () => {
             open={openAcc === "courses"}
             onToggle={() => setOpenAcc(openAcc === "courses" ? "" : "courses")}
           >
-            {COURSES_MENU.map((cat) => (
+            {coursesMenu.map((cat) => (
               <div className="skn-dgroup" key={cat.title}>
                 <h5>{cat.title}</h5>
                 {(cat.tabs
@@ -757,24 +792,26 @@ const Navbar = () => {
           {!loading &&
             (isAuthenticated && user ? (
               <>
-                {canModForum && (
-                  <Link
-                    to="/moderator"
-                    className="skn-btn skn-btn-ghost skn-wide"
-                    onClick={closeAll}
-                  >
-                    <IcShield /> Forum Moderation
-                  </Link>
-                )}
-                {canModExplore && (
-                  <Link
-                    to="/explore/moderator"
-                    className="skn-btn skn-btn-ghost skn-wide"
-                    onClick={closeAll}
-                  >
-                    <IcLibrary /> Explore Moderation
-                  </Link>
-                )}
+                {/* Forum & Explore Moderation moved into their own sections. */}
+                {/* Notifications + profile switcher: hidden from the top bar
+                    below 640px (SiteNav.css) since .skn-authed doesn't shrink
+                    to fit narrow phones — surfaced here instead so they stay
+                    reachable, not just Dashboard. */}
+                <div className="skn-drawer-account-row">
+                  <NotificationBell />
+                  <ProfileSwitcher
+                    teacherSignupUrl="/signup?role=teacher"
+                    learnUrl={APP_URL}
+                    teachUrl={TEACHER_URL}
+                    quickActions={[
+                      {
+                        label: "Dashboard",
+                        icon: <LayoutDashboard size={17} />,
+                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_URL : APP_URL; },
+                      },
+                    ]}
+                  />
+                </div>
                 <button
                   type="button"
                   className="skn-btn skn-btn-solid skn-wide"
