@@ -31,12 +31,11 @@ import { APP_URL } from "../config/urls";
 import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
 import { RatingStars, RatingSummary, MIN_REVIEWS } from "../components/skill/RatingStars";
+import ReviewList, { RatingBreakdown } from "../components/skill/ReviewList";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
 const initials = (n) => (n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-const formatDate = (d) => d ? new Date(d).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : "";
-
 const MODE_TEXT = { online: "Online only", home: "At the teacher's place", travel: "Travels to the learner" };
 
 /* ── Auth-gate modal ─────────────────────────────────────────────────── */
@@ -98,50 +97,6 @@ function MessageComposer({ teacherProfileId, expertName, onSent }) {
       <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={send} disabled={sending || !body.trim()}>
         {sending ? "Opening messages…" : "Continue in messages"}
       </button>
-    </div>
-  );
-}
-
-/* ── Review card ─────────────────────────────────────────────────────── */
-function ReviewCard({ r }) {
-  return (
-    <div className="ep-review">
-      <div className="ep-review__head">
-        <span className="ep-review__av">{(r.reviewer || "?")[0]}</span>
-        <div className="ep-review__who">
-          <div className="ep-review__name">{r.reviewer}</div>
-          <div className="ep-review__date">
-            {formatDate(r.created_at)}
-            {r.is_edited && <span className="ep-review__edited">· Edited</span>}
-          </div>
-        </div>
-        <div className="ep-review__stars"><RatingStars value={r.rating} size={14} /></div>
-      </div>
-      {r.topic && <span className="ep-review__topic">{r.topic}</span>}
-      {r.body && <p className="ep-review__body">"{r.body}"</p>}
-      <p className="ep-review__verified">✓ Verified — from a completed session</p>
-    </div>
-  );
-}
-
-/* ── Review distribution bar chart ───────────────────────────────────── */
-function ReviewDistribution({ distribution, count }) {
-  if (!count) return null;
-  const max = Math.max(1, ...Object.values(distribution || {}));
-  return (
-    <div className="ep-dist">
-      {[5, 4, 3, 2, 1].map(star => {
-        const n = distribution?.[String(star)] || 0;
-        return (
-          <div key={star} className="ep-dist__row">
-            <span className="ep-dist__star">{star}★</span>
-            <span className="ep-dist__track">
-              <span className="ep-dist__fill" style={{ width: `${(n / max) * 100}%` }} />
-            </span>
-            <span className="ep-dist__n">{n}</span>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -238,7 +193,6 @@ export default function ExpertProfilePage() {
   const [gate, setGate]       = useState(null);     // "message" | "book" | null
   const [msgSent, setMsgSent] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
-  const [reviewSort, setReviewSort] = useState("newest");
   const [showIntro, setShowIntro] = useState(false);
 
   // Availability is fetched once here (not inside BookForm) so the sidebar's
@@ -311,13 +265,10 @@ export default function ExpertProfilePage() {
     }
   };
 
-  const sortedReviews = useMemo(() => {
-    const list = [...reviews];
-    if (reviewSort === "highest") list.sort((a, b) => b.rating - a.rating);
-    else if (reviewSort === "lowest") list.sort((a, b) => a.rating - b.rating);
-    else list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    return list;
-  }, [reviews, reviewSort]);
+  const newestReviews = useMemo(
+    () => [...reviews].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
+    [reviews]
+  );
 
   if (loading) return <div className="ep-loading">Loading…</div>;
   if (err || !expert) return <div className="ep-loading">{err || "Expert not found."}</div>;
@@ -514,7 +465,7 @@ export default function ExpertProfilePage() {
                 </ul>
               </section>
             </div>
-            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={sortedReviews} onSeeAllReviews={() => setTab("reviews")} />
+            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={newestReviews} onSeeAllReviews={() => setTab("reviews")} />
           </div>
         )}
 
@@ -530,31 +481,14 @@ export default function ExpertProfilePage() {
         {activeTab === "reviews" && (
           <div className="ep-2col">
             <section className="ep-section">
-              <div className="ep-reviews__head">
-                <div className="ep-reviews__score">
-                  <div className="ep-reviews__big">{reviewsCount >= MIN_REVIEWS ? avgRating.toFixed(1) : "—"}</div>
-                  <RatingStars value={avgRating} size={16} />
-                  <span>{reviewsCount} {reviewsCount === 1 ? "review" : "reviews"}</span>
-                </div>
-                <ReviewDistribution distribution={distribution} count={reviewsCount} />
-              </div>
-              {reviewsCount > 0 && (
-                <div className="ep-sort-pills">
-                  {[
-                    { key: "newest",  label: "Newest" },
-                    { key: "highest", label: "Highest rated" },
-                    { key: "lowest",  label: "Lowest rated" },
-                  ].map(s => (
-                    <button key={s.key} className={`ep-pill${reviewSort === s.key ? " on" : ""}`}
-                      onClick={() => setReviewSort(s.key)}>{s.label}</button>
-                  ))}
-                </div>
-              )}
-              {reviewsCount === 0
-                ? <p className="ep-empty">No reviews yet — be the first!</p>
-                : <div className="ep-reviews">{sortedReviews.map(r => <ReviewCard key={r.id} r={r} />)}</div>}
+              <RatingBreakdown
+                average={reviewsCount >= MIN_REVIEWS ? avgRating : null}
+                count={reviewsCount}
+                distribution={distribution}
+              />
+              <ReviewList reviews={reviews} />
             </section>
-            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={sortedReviews} onSeeAllReviews={() => {}} />
+            <ProfileSidebar avail={avail} availLoaded={availLoaded} isAuthenticated={isAuthenticated} reviews={newestReviews} onSeeAllReviews={() => {}} />
           </div>
         )}
 

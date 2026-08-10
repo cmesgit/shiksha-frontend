@@ -63,9 +63,6 @@ const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const Payment          = lazy(() => import("./Payment"));
-// Retired: the old skill mini-app at /skill-development now redirects to
-// /skill/browse. Kept here (commented) for reference / quick rollback.
-// const SkillDevelopment = lazy(() => import("./SkillDevelopment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));

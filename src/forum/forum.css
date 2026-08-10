@@ -1,8 +1,7 @@
 /* ShikshaCom Forum — redesign styles.
  * Ported from the approved mockup (green/cream palette). Scoped under .fm-*.
  * Sits inside the site's <Page> (Navbar + Footer), so no top marquee / brand
- * header here. Montserrat is loaded locally (Poppins is already global). */
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap");
+ * header here. Montserrat and Poppins are both loaded globally (index.html). */
 
 .fm-root {
   --fm-green: #125027;
