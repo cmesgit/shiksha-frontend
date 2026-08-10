@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../css/GeneralStudies.css';
 import { useLanguage } from '../contexts/LanguageContext';
+import api from '../api/apiClient';
 
 // opentdb.com HTML-encodes punctuation in its responses (&quot;, &amp;, etc.).
 // Decode via a detached <textarea> — its content model is plain text, so the
@@ -353,7 +354,6 @@ const sampleDailyTopics = {
   ]
 };
 
-// OpenAI instance is created inside the callOpenAI function to avoid top-level execution issues
 const GeneralStudies = () => {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const { language } = useLanguage();
@@ -513,37 +513,25 @@ const GeneralStudies = () => {
     return allQuizQuestions.slice(startIndex, startIndex + 3);
   };
 
+  // The AI call itself lives server-side now (content/ai_views.py) — the key
+  // never reaches the browser. This just posts the prompt and gets text
+  // back; prompt-building and response-parsing below are unchanged.
   const callOpenAI = async (prompt) => {
-    // Check if API key is available
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      console.warn('OpenAI API key not found, falling back to mock responses');
-      return getMockResponse(prompt);
-    }
-
-    const openai = new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true // Note: For production, use a backend proxy
-    });
-
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1000,
-        temperature: 0.7,
-      });
-
-      return completion.choices[0].message.content.trim();
+      const { data } = await api.post('/content/ai/general-studies/', { prompt });
+      return data.text;
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('General Studies AI request failed:', error);
 
-      // If quota exceeded or other API errors, fall back to mock responses
-      if (error.message.includes('429') || error.message.includes('quota') || error.message.includes('billing')) {
-        console.warn('OpenAI quota exceeded, falling back to mock responses');
+      const status = error?.response?.status;
+      if (status === 429 || status === 503) {
+        console.warn('AI assistant unavailable, falling back to mock responses');
         return getMockResponse(prompt);
       }
 
-      throw new Error('Failed to get response from OpenAI: ' + error.message);
+      throw new Error(
+        error?.response?.data?.detail || 'Failed to get a response from the AI assistant.'
+      );
     }
   };
 

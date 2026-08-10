@@ -227,6 +227,12 @@ export default function ResearchHub() {
 
   return (
     <div className="research-page">
+      <div className="rh-preview-banner" role="status">
+        <strong>Preview</strong> — the papers, researchers and stats below are
+        sample content while this Research Hub is being built out. Nothing
+        here has been published yet.
+      </div>
+
       {notice && (
         <div className="research-toast" role="status">
           <CheckCircle size={18} />

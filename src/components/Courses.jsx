@@ -13,6 +13,7 @@ import TeachersStudents from './home/TeachersStudents';
 import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
+import { useToast } from '../contexts/ToastContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
@@ -43,6 +44,7 @@ const Courses = () => {
   const { slug: slugParam } = useParams();
   const { isAuthenticated, user } = useAuth();
   const { openWithMessage } = useProfileModal();
+  const { showToast } = useToast();
 
   // Deep-link intent reaches this page two ways: router `state` (homepage
   // cards, navbar links) or query params (?board=&group=&open=&q=). State is
@@ -328,11 +330,12 @@ const Courses = () => {
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
-      alert(
-        `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
+      showToast({
+        type: 'error',
+        message: `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
           currentBoard?.name || 'this board'
         }.`
-      );
+      });
       return;
     }
 

@@ -26,6 +26,7 @@
 import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 import api from "../api/apiClient";
 import { APP_URL } from "../config/urls";
 import { fetchAvailability } from "../api/skillApi";
@@ -182,6 +183,7 @@ export default function ExpertProfilePage() {
   const navigate = useNavigate();
   const [sp]     = useSearchParams();
   const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
 
   const [expert, setExpert]   = useState(null);
   const [courses, setCourses] = useState([]);
@@ -267,7 +269,7 @@ export default function ExpertProfilePage() {
       await api.post(`/skill/courses/${course.id}/enroll/`, {});
       window.location.href = APP_URL + "/";
     } catch (e) {
-      alert(e?.response?.data?.detail || "Could not enroll.");
+      showToast({ type: "error", message: e?.response?.data?.detail || "Could not enroll." });
     }
   };
 
