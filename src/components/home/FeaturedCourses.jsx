@@ -9,8 +9,9 @@ import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
    .em/.center/.btn/.rv "reveal" primitives come from ShikshaHome.css,
    imported once by the homepage composer. */
 const css = `.fc-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:40px}
-.fc-tab{font-family:var(--font);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;padding:9px 18px;border-radius:999px;border:none;background:var(--coral-soft);color:var(--coral);cursor:pointer;transition:background .2s,color .2s}
-.fc-tab[aria-selected="true"]{background:var(--coral);color:#fff}
+.fc-tab{font-family:var(--font);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;padding:9px 18px;border-radius:999px;border:none;background:var(--coral-soft);color:var(--coral);cursor:pointer;transition:background .2s,color .2s,box-shadow .2s,transform .2s}
+.fc-tab[aria-selected="true"]{background:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(15,157,107,.3)}
+.fc-tab:hover{transform:translateY(-1px)}
 .fc-tab:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
 .fc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .fc-card{background:#fff;border-radius:24px;overflow:hidden;border:1.5px solid var(--line);transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column}
@@ -19,7 +20,7 @@ const css = `.fc-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10p
 .fc-thumb-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.16);display:grid;place-items:center;backdrop-filter:blur(2px)}
 .fc-thumb-ic svg{width:30px;height:30px}
 .fc-ribbon{position:absolute;top:14px;left:14px;background:var(--gold);color:var(--ink);font-family:var(--font);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
-.fc-heart{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.2);display:grid;place-items:center;transition:background .2s;color:#fff}
+.fc-heart{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.2);display:grid;place-items:center;transition:background .2s,color .2s; color:#fff}
 .fc-heart svg{width:16px;height:16px}
 .fc-heart.on{background:#fff;color:var(--red)}
 .fc-heart.on svg{fill:currentColor}
@@ -42,15 +43,12 @@ const css = `.fc-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10p
 .fc-enroll{font-family:var(--font);font-weight:700;font-size:12.5px;padding:9px 16px;border-radius:999px;border:none;background:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:background .2s,transform .2s}
 .fc-enroll svg{width:13px;height:13px}
 .fc-enroll:hover{background:var(--coral-dark);transform:translateY(-1px)}
-.fc-explore{font-family:var(--font);font-weight:700;font-size:13px;padding:11px 26px;border-radius:999px;border:none;background:var(--coral);color:#fff;cursor:pointer;transition:background .2s,transform .2s}
-.fc-explore:hover{background:var(--coral-dark);transform:translateY(-2px)}
+.fc-explore{font-family:var(--font);font-weight:700;font-size:13px;padding:11px 26px;border-radius:999px;border:none;background:var(--coral);color:#fff;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-shadow:0 8px 18px rgba(15,157,107,.28)}
+.fc-explore:hover{background:var(--coral-dark);transform:translateY(-2px);box-shadow:0 12px 24px rgba(15,157,107,.36)}
 .fc-explore:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
-@media(max-width:980px){
-  .fc-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:620px){
-  .fc-grid{grid-template-columns:1fr}
-}`;
+@media(max-width:980px){.fc-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.fc-grid{grid-template-columns:1fr}}
+`
 
 /* tiny thumbnail glyphs used on course cards, ported verbatim from
    HomeGreen.jsx's ThumbIcon (same kinds: flask/calc/compass, default book). */
@@ -170,9 +168,10 @@ export default function FeaturedCourses() {
       return next;
     });
 
-  const visible = courses.map((c, i) => ({ ...c, idx: i })).filter(
-    (c) => filter === "all" || c.cats.includes(filter)
-  );
+  const visible = courses
+    .map((c, i) => ({ ...c, idx: i }))
+    .filter((c) => filter === "all" || c.cats.includes(filter))
+    .slice(0, 3);
 
   return (
     <>
