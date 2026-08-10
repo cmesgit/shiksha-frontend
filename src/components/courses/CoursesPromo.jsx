@@ -55,27 +55,7 @@ const ArrowIcon = () => (
 export default function CoursesPromo({ onBrowse }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: css }} />
-      <section className="cpr-sec">
-        <div className="wrap">
-          <div className="cpr-promo">
-            <span className="cpr-eyebrow">Not sure yet?</span>
-            <h2>Not sure where to start?</h2>
-            <p>
-              Talk to a counsellor about which class, board and pace fit you — or browse the
-              full catalog and take a free guest preview before you commit.
-            </p>
-            <div className="cpr-cta">
-              <Link className="cpr-btn cpr-btn--white" to="/counselling">
-                Talk to an Expert <ArrowIcon />
-              </Link>
-              <button type="button" className="cpr-btn cpr-btn--line" onClick={onBrowse}>
-                Browse Courses
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+    
     </>
   );
 }
