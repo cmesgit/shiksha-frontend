@@ -178,6 +178,13 @@ function thumbGradient(cls) {
 }
 
 function priceBlock(cls) {
+  if (cls.isFree) {
+    return (
+      <div className="uc-price">
+        <span className="uc-price__now">Free right now</span>
+      </div>
+    );
+  }
   const showMrp = cls.mrp && cls.mrp !== cls.fee;
   return (
     <div className="uc-price">
@@ -268,7 +275,8 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, enrollment
         </span>
         <h3 id="ucModalTitle">{cls.title}</h3>
         <p className="uc-modal__sub">
-          Live classes, tests and notes mapped to the syllabus. <b>₹{cls.fee}</b> a month.
+          Live classes, tests and notes mapped to the syllabus.{' '}
+          {cls.isFree ? <b>Free right now.</b> : <><b>₹{cls.fee}</b> a month.</>}
         </p>
         <div className="uc-modal__facts">
           <div className="uc-modal__fact"><span>Duration</span><b>{cls.duration}</b></div>

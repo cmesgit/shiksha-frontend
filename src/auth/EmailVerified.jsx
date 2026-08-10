@@ -14,7 +14,7 @@ const EmailVerified = () => {
         <p className="ev-desc">
           {success
             ? "Your email has been verified successfully. You can now sign in to your account."
-            : "The verification link is invalid or has expired. Please try signing up again or resend the verification email."}
+            : "The verification link is invalid or has expired. Request a fresh one below."}
         </p>
 
         {success ? (
@@ -22,8 +22,11 @@ const EmailVerified = () => {
             Sign In
           </Link>
         ) : (
-          <Link to="/signup" className="ev-btn ev-btn-secondary">
-            Sign Up Again
+          // Signing up again on this email hits "Log in to manage them" (an
+          // account already exists, just unverified) — a dead end with no way
+          // forward. Resending a fresh link is the actual recovery path.
+          <Link to="/resend-verification" className="ev-btn ev-btn-secondary">
+            Resend Verification Email
           </Link>
         )}
       </div>
