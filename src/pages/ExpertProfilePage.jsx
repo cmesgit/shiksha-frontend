@@ -249,7 +249,13 @@ export default function ExpertProfilePage() {
       const { data } = await api.post("/skill/payments/create-order/", {
         teacherId: id, listing: draft.listing || null, draft,
       });
-      return { ok: true, status: data?.status || "requested" };
+      return {
+        ok: true,
+        status: data?.status || "requested",
+        bookingId: data?.bookingId || null,
+        amountRupees: data?.amount_rupees ?? null,
+        payTo: data?.pay_to || null,
+      };
     } catch (e) {
       return { ok: false, error: e?.response?.data?.detail || e?.response?.data?.slot || "Could not book." };
     }
@@ -565,6 +571,7 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg]   = useState("");
   const [done, setDone] = useState(false);
+  const [confirmation, setConfirmation] = useState(null);
 
   const hasOpen = (avail.open || []).length > 0;
   const first   = (expert.name || "").split(" ")[0];
@@ -582,12 +589,19 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
       duration_mins: dur,
     };
     const r = await onBook(draft);
-    if (r.ok) setDone(true);
+    if (r.ok) { setConfirmation(r); setDone(true); }
     else setMsg(r.error || "Could not book.");
     setBusy(false);
   };
 
   if (done) {
+    // Settlement is direct learner→expert (the platform never collects this
+    // money — see CreateOrderView's docstring), so this is the only screen
+    // that ever shows the amount owed and how to pay it. Previously this
+    // discarded the create-order response entirely and just said "request
+    // sent" — the learner had no idea what they owed or how to pay it.
+    const amount = confirmation?.amountRupees;
+    const payTo = confirmation?.payTo;
     return (
       <div className="ep-book-card ep-book-card--done">
         <div className="ep-book-card__icon">🎉</div>
@@ -596,6 +610,24 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
           {first} will review your request and confirm the slot. Once it's accepted,
           you'll be able to join the session from your dashboard.
         </p>
+        {confirmation?.bookingId && (
+          <div className="ep-book-confirm__ref">Booking ref: <b>{confirmation.bookingId}</b></div>
+        )}
+        {amount > 0 && (
+          <div className="ep-book-confirm__pay">
+            <div className="ep-book-confirm__amount">You owe {first}: <b>₹{amount}</b></div>
+            {payTo ? (
+              <div className="ep-book-confirm__payto">
+                Pay directly to <b>{payTo.name}</b> via UPI: <b>{payTo.upi}</b>
+                {payTo.note && <div className="ep-book-confirm__note">{payTo.note}</div>}
+              </div>
+            ) : (
+              <div className="ep-book-confirm__payto">
+                {first} hasn't added payment details yet — coordinate payment with them over chat once they accept.
+              </div>
+            )}
+          </div>
+        )}
         <button className="ep-btn ep-btn--primary ep-btn--wide"
           onClick={() => { window.location.href = APP_URL + "/skill-dev/sessions"; }}>
           Go to my dashboard

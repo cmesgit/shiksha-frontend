@@ -62,6 +62,10 @@ const Courses = () => {
   const [selectedBoard, setSelectedBoard] = useState(deepLink.selectedBoard);
   const [selectedClass, setSelectedClass] = useState(null);
   const [activeCourse, setActiveCourse] = useState(null);
+  // Set alongside `activeCourse` on every path that opens the detail view
+  // (catalog click AND direct /courses/:slug visit) so Enroll/Subscribe
+  // never depends on `selectedClass`, which only the catalog-click path sets.
+  const [activeCourseId, setActiveCourseId] = useState(null);
   // Seeded from navigation state so the navbar / homepage hero search can
   // deep-link into this page with a pre-filled query.
   const [searchQuery, setSearchQuery] = useState(deepLink.searchQuery);
@@ -122,6 +126,7 @@ const Courses = () => {
       if (!detail) return;
       const liveBoard = detail.board ? boards.find((b) => b.name === detail.board.name) : null;
       if (liveBoard) setSelectedBoard(liveBoard.slug);
+      setActiveCourseId(detail.id);
       setActiveCourse({
         title: detail.title,
         desc: detail.description,
@@ -146,7 +151,10 @@ const Courses = () => {
   // from there just needs to return to the catalog.
   useEffect(() => {
     const handleBrowserBack = () => {
-      if (activeCourse) setActiveCourse(null);
+      if (activeCourse) {
+        setActiveCourse(null);
+        setActiveCourseId(null);
+      }
     };
     window.addEventListener('popstate', handleBrowserBack);
     return () => {
@@ -198,6 +206,7 @@ const Courses = () => {
       setSelectedBoard(null);
       setExpandedClassId(null);
       setActiveCourse(null);
+      setActiveCourseId(null);
     }
     // Keep the search box in sync when a new query arrives via navigation
     // state (e.g. searching from the navbar while already on this page).
@@ -261,6 +270,7 @@ const Courses = () => {
 
     if (!detail) return; // unpublished/not found — stay on the catalog
 
+    setActiveCourseId(courseId);
     setActiveCourse({
       title: detail.title,
       desc: detail.description,
@@ -345,7 +355,6 @@ const Courses = () => {
   }
 
   if (activeCourse) {
-    const activeCourseId = selectedClass?.courseIds?.[selectedBoard];
     return (
       <>
         <SubjectList
@@ -359,7 +368,16 @@ const Courses = () => {
               ? `${selectedClass.title} (${selectedClass.subtitle})`
               : selectedClass?.title
           }
-          onBack={() => setActiveCourse(null)}
+          onBack={() => {
+            // Clearing state alone isn't enough: on a direct /courses/:slug
+            // visit (or a courses/:slug entry reached via pushState from the
+            // catalog), the URL is still the slug route, so the slug-fetch
+            // effect above just refetches the same course and reopens this
+            // same view. Navigate off the slug route so it can't re-fire.
+            setActiveCourse(null);
+            setActiveCourseId(null);
+            navigate('/courses', { replace: true });
+          }}
           onEnroll={() => {
             if (!isAuthenticated) { navigate('/login'); return; }
             if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {

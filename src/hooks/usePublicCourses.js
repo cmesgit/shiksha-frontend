@@ -42,6 +42,7 @@ function shapeClass(c, boardSlug) {
     discountLabel: c.discount_label || "",
     badge: c.badge || "",
     isComingSoon: !!c.is_coming_soon,
+    isFree: !!c.is_free,
     subjectCount: c.subject_count ?? null,
     classLevel: c.class_level ?? null,
     access: "Full Course Access",
