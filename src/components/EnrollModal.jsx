@@ -9,6 +9,7 @@ import {
   getPaymentConfig,
   freeEnroll,
 } from "../api/enrollments";
+import { getMyEnrolledCourses } from "../api/coursesApi";
 import { useToast } from "../contexts/ToastContext";
 import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import { APP_URL } from "../config/urls";
@@ -21,7 +22,7 @@ const formatRupees = (paise) =>
     ? ""
     : `₹${(paise / 100).toLocaleString("en-IN")}`;
 
-const EnrollModal = ({ courseId, onClose }) => {
+const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   const { user } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
@@ -100,9 +101,21 @@ const EnrollModal = ({ courseId, onClose }) => {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    getMyEnrollmentRequests()
-      .then((data) => {
+    // Checked against BOTH sources: the manual-UPI review queue
+    // (EnrollmentRequest) and the learner's real active enrollments
+    // (/courses/my/). A free-enroll never creates an EnrollmentRequest — it
+    // writes an Enrollment/Subscription directly — so checking only the
+    // request queue means a learner who free-enrolled and closed this modal
+    // without clicking "Start Learning" sees the "Enroll free" screen again
+    // next time, and clicking it again silently re-extends their
+    // subscription's expiry with no indication anything already happened.
+    Promise.all([getMyEnrollmentRequests(), getMyEnrolledCourses()])
+      .then(([data, enrolled]) => {
         if (cancelled) return;
+        if (enrolled.some((c) => c?.id === courseId)) {
+          setExistingStatus("APPROVED");
+          return;
+        }
         const list = Array.isArray(data) ? data : data?.results || [];
         const match = list.find((r) => r?.course?.id === courseId);
         if (!match) return;
@@ -122,6 +135,7 @@ const EnrollModal = ({ courseId, onClose }) => {
     try {
       const data = await freeEnroll(courseId);
       setEnrolledSub(data?.subscription || null);
+      onEnrolled?.(courseId);
       showToast({
         message: `You're enrolled in ${course?.title}!`,
         duration: 3500,

@@ -110,7 +110,14 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
 
   return (
     <div className="course-detail-screen">
-      <section className="course-detail-hero">
+      <section
+        className={`course-detail-hero${course.thumbnail ? ' course-detail-hero--with-image' : ''}`}
+        style={
+          course.thumbnail
+            ? { backgroundImage: `linear-gradient(rgba(0,50,35,.82),rgba(0,50,35,.9)), url(${course.thumbnail})` }
+            : undefined
+        }
+      >
         <div className="course-detail-container">
           <Breadcrumb
             items={[

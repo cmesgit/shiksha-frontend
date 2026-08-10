@@ -20,7 +20,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { isBoardLocked, useCrossBoardMatches } from '../../hooks/usePublicCourses';
-import { submitBoardNotify } from '../../api/coursesApi';
+import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 import '../../css/UnifiedCatalog.css';
 
 const SearchIcon = () => (
@@ -120,13 +120,14 @@ function BoardChip({ board, boards, selectedBoard, onSelectBoard, onLockedClick 
       onClick={() => (locked ? onLockedClick(board) : onSelectBoard(board.slug))}
     >
       <span className="uc-fradio"><CheckIcon /></span>
+      {board.logo && <img src={board.logo} alt="" className="uc-fopt__logo" />}
       <b>{board.name}</b>
       {locked && <span className="uc-fsoon">Soon</span>}
     </button>
   );
 }
 
-function NotifyBanner({ board, onClose }) {
+function NotifyBanner({ name, onClose, onSubmit }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
@@ -134,7 +135,7 @@ function NotifyBanner({ board, onClose }) {
   const submit = async () => {
     if (!email.trim()) return;
     setStatus('sending');
-    const res = await submitBoardNotify(board.id, email.trim());
+    const res = await onSubmit(email.trim());
     if (res.ok) setStatus('sent');
     else { setStatus('error'); setError(res.error || 'Something went wrong.'); }
   };
@@ -142,7 +143,7 @@ function NotifyBanner({ board, onClose }) {
 
   return (
     <div className="uc-notify">
-      <span className="uc-notify__text">Notify me when <b>{board.name}</b> launches</span>
+      <span className="uc-notify__text">Notify me when <b>{name}</b> launches</span>
       <input
         type="email" className="uc-notify__input" placeholder="you@email.com" value={email}
         disabled={status === 'sending' || status === 'sent'}
@@ -188,7 +189,7 @@ function priceBlock(cls) {
   );
 }
 
-function CourseCard({ cls, board, onOpen, onEnroll, enrollmentStatus }) {
+function CourseCard({ cls, board, onOpen, onEnroll, onNotify, enrollmentStatus }) {
   const isEnrolled = enrollmentStatus === 'APPROVED';
   const isPending = enrollmentStatus === 'PENDING';
   let enrollLabel = 'Enroll now';
@@ -243,8 +244,12 @@ function CourseCard({ cls, board, onOpen, onEnroll, enrollmentStatus }) {
           <button
             type="button"
             className="uc-gridcard__enroll"
-            disabled={isPending || cls.isComingSoon}
-            onClick={(e) => { e.stopPropagation(); if (!isPending && !cls.isComingSoon) onEnroll(cls); }}
+            disabled={isPending}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (cls.isComingSoon) onNotify(cls);
+              else if (!isPending) onEnroll(cls);
+            }}
           >
             {cls.isComingSoon ? 'Notify me' : enrollLabel} <ArrowIcon />
           </button>
@@ -254,7 +259,7 @@ function CourseCard({ cls, board, onOpen, onEnroll, enrollmentStatus }) {
   );
 }
 
-function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, enrollmentStatus }) {
+function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, enrollmentStatus }) {
   const isPending = enrollmentStatus === 'PENDING';
   if (!cls) return null;
 
@@ -286,8 +291,12 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, enrollment
           <button
             type="button"
             className="uc-modal__go"
-            disabled={isPending || cls.isComingSoon}
-            onClick={() => { onClose(); onEnroll(cls); }}
+            disabled={isPending}
+            onClick={() => {
+              onClose();
+              if (cls.isComingSoon) onNotify(cls);
+              else onEnroll(cls);
+            }}
           >
             {cls.isComingSoon ? 'Notify me' : isPending ? 'Pending approval' : 'Enroll now'} <ArrowIcon />
           </button>
@@ -335,6 +344,7 @@ const UnifiedCatalog = ({
   onSyllabus,
 }) => {
   const [notifyBoard, setNotifyBoard] = useState(null);
+  const [notifyCourse, setNotifyCourse] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   // Which Central/State tab the board list shows, and the "find a board"
   // query that narrows it — the design reference's board-picker shape.
@@ -507,6 +517,7 @@ const UnifiedCatalog = ({
                 board={currentBoard}
                 onOpen={(c) => onToggleExpand(c.id, true)}
                 onEnroll={onEnroll}
+                onNotify={setNotifyCourse}
                 enrollmentStatus={enrollmentStatusByCourseId[cls.courseIds?.[selectedBoard]]}
               />
             ))}
@@ -565,7 +576,13 @@ const UnifiedCatalog = ({
           </FilterGroup>
         )}
 
-        {notifyBoard && <NotifyBanner board={notifyBoard} onClose={() => setNotifyBoard(null)} />}
+        {notifyBoard && (
+          <NotifyBanner
+            name={notifyBoard.name}
+            onClose={() => setNotifyBoard(null)}
+            onSubmit={(email) => submitBoardNotify(notifyBoard.id, email)}
+          />
+        )}
 
         {classTitles.length > 0 && (
           <FilterGroup title="Class" open={!collapsed.class} onToggle={() => toggleGroup('class')}>
@@ -603,8 +620,25 @@ const UnifiedCatalog = ({
           onClose={() => onToggleExpand(null, true)}
           onSyllabus={onSyllabus}
           onEnroll={onEnroll}
+          onNotify={setNotifyCourse}
           enrollmentStatus={enrollmentStatusByCourseId[quickViewClass.courseIds?.[selectedBoard]]}
         />
+      )}
+
+      {/* Fixed overlay, not inline like the board version above — this one is
+          triggered from anywhere in the grid/quick-view, which can be
+          scrolled far away from the aside where NotifyBanner normally lives. */}
+      {notifyCourse && (
+        <div className="uc-notify-modal">
+          <div className="uc-notify-modal__back" onClick={() => setNotifyCourse(null)} />
+          <div className="uc-notify-modal__box">
+            <NotifyBanner
+              name={notifyCourse.title}
+              onClose={() => setNotifyCourse(null)}
+              onSubmit={(email) => submitCourseNotify(notifyCourse.id, email)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

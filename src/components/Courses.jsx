@@ -16,7 +16,7 @@ import { useProfileModal } from '../contexts/ProfileModalContext';
 import { useToast } from '../contexts/ToastContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
-import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
+import { getPublicCourseDetail, getPublicCourseBySlug, getMyEnrolledCourses } from '../api/coursesApi';
 import { usePublicBoards, useBoardClasses } from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
@@ -133,6 +133,7 @@ const Courses = () => {
         title: detail.title,
         desc: detail.description,
         price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+        thumbnail: detail.thumbnail,
         highlights: detail.details?.highlights,
         includes: detail.details?.includes,
         topics: (detail.subjects || []).map((s) => ({
@@ -172,12 +173,21 @@ const Courses = () => {
 
     let cancelled = false;
 
-    getMyEnrollmentRequests()
-      .then((data) => {
+    const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+
+    // Two independent sources, merged: the manual-UPI review queue
+    // (EnrollmentRequest, via /enrollments/requests/mine/) and the learner's
+    // real active enrollments (/courses/my/). A free-enroll writes only the
+    // latter — FreeEnrollView creates an Enrollment/Subscription directly and
+    // never touches EnrollmentRequest — so relying on the request queue alone
+    // makes a free-enrolled course look un-enrolled forever unless the
+    // learner happens to click all the way through to "Start Learning"
+    // before closing the popup. Real enrollment always wins as APPROVED.
+    Promise.all([getMyEnrollmentRequests(), getMyEnrolledCourses()])
+      .then(([reqData, enrolled]) => {
         if (cancelled) return;
 
-        const list = Array.isArray(data) ? data : data?.results || [];
-        const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+        const list = Array.isArray(reqData) ? reqData : reqData?.results || [];
         const map = {};
 
         for (const req of list) {
@@ -190,6 +200,10 @@ const Courses = () => {
           }
         }
 
+        for (const course of enrolled) {
+          if (course?.id) map[course.id] = 'APPROVED';
+        }
+
         setEnrollmentStatusByCourseId(map);
       })
       .catch(() => {});
@@ -198,6 +212,15 @@ const Courses = () => {
       cancelled = true;
     };
   }, [isAuthenticated]);
+
+  // Called by EnrollModal the instant a free-enroll succeeds, so the catalog
+  // reflects it immediately even if the learner closes the popup (✕, Escape,
+  // backdrop click) instead of clicking through to "Start Learning" — without
+  // this, enrollmentStatusByCourseId is only refreshed on page load/auth
+  // change, so the "Enroll Now" button would still invite a re-enroll.
+  const handleEnrolled = (courseId) => {
+    setEnrollmentStatusByCourseId((prev) => ({ ...prev, [courseId]: 'APPROVED' }));
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -277,6 +300,7 @@ const Courses = () => {
       title: detail.title,
       desc: detail.description,
       price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+      thumbnail: detail.thumbnail,
       highlights: detail.details?.highlights,
       includes: detail.details?.includes,
       topics: (detail.subjects || []).map((s) => ({
@@ -394,6 +418,7 @@ const Courses = () => {
           <EnrollModal
             courseId={enrollModalCourseId}
             onClose={() => setEnrollModalCourseId(null)}
+            onEnrolled={handleEnrolled}
           />
         )}
       </>
@@ -444,6 +469,7 @@ const Courses = () => {
         <EnrollModal
           courseId={enrollModalCourseId}
           onClose={() => setEnrollModalCourseId(null)}
+          onEnrolled={handleEnrolled}
         />
       )}
     </section>
