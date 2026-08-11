@@ -133,3 +133,15 @@ export async function getHomeFloaters(section) {
   }
 }
 
+// Ordered, visible-only list of homepage sections — lets an admin reorder/
+// hide sections without a frontend deploy. See ShikshaHome.jsx for the
+// fallback used while this is loading or if it's ever empty/unreachable.
+export async function getHomeSectionOrder() {
+  try {
+    const { data } = await api.get("/content/home-section-order/");
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
