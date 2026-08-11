@@ -6,7 +6,6 @@ import EnrollModal from './EnrollModal';
 import UnifiedCatalog from './courses/UnifiedCatalog';
 import CoursesHero from './courses/CoursesHero';
 import CoursesStrip from './courses/CoursesStrip';
-import CoursesPrograms from './courses/CoursesPrograms';
 import CoursesPromo, { CoursesFinalCta } from './courses/CoursesPromo';
 import WhyChooseShiksha from './home/WhyChooseShiksha';
 import TeachersStudents from './home/TeachersStudents';
@@ -80,7 +79,6 @@ const Courses = () => {
   // into that class's expanded row — captured once on mount.
   const [pendingOpenCourseId] = useState(deepLink.openCourseId);
   const catalogRef = useRef(null);
-  const programsRef = useRef(null);
 
   // Real backend data: which boards currently have published courses (drives
   // "Coming Soon" locking) and the real course catalog for whichever board is
@@ -441,16 +439,9 @@ const Courses = () => {
     <section className="courses-page">
       <CoursesHero
         onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
-        onBrowseCategories={() => programsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        onBrowseCategories={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
       />
       <CoursesStrip />
-      <div ref={programsRef}>
-        <CoursesPrograms
-          boards={boards}
-          onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          onSkillBrowse={() => navigate('/skill/browse')}
-        />
-      </div>
       {/* Not .courses-container (legacy wrapper, own 28/18/14px responsive
           padding scheme) — .wrap is the real site-wide gutter (ShikshaHome.css)
           the hero/programs tiles above and the reused Faq/WhyChooseShiksha/
