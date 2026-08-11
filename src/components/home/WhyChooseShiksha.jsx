@@ -106,7 +106,7 @@ export default function WhyChooseShiksha() {
   const eyebrow = block?.eyebrow || "Why ShikshaCom";
   const heading = block?.heading || "Why choose ShikshaCom?";
   const ctaLabel = block?.cta_primary_label || "More details";
-  const ctaHref = block?.cta_primary_href || "#programs";
+  const ctaHref = block?.cta_primary_href || "/why-shiksha";
   const checks = items.length ? items : DEFAULT_ITEMS;
 
   useEffect(() => {

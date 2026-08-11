@@ -631,7 +631,7 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
           </div>
         )}
         <button className="ep-btn ep-btn--primary ep-btn--wide"
-          onClick={() => { window.location.href = APP_URL + "/skill-dev/sessions"; }}>
+          onClick={() => { window.location.href = APP_URL + "/skill-dev/sessions?track=skill"; }}>
           Go to my dashboard
         </button>
       </div>

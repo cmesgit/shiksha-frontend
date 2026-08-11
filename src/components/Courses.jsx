@@ -226,7 +226,21 @@ const Courses = () => {
     window.scrollTo(0, 0);
   }, [activeCourse]);
 
+  // Applies a given `location.state` payload at most once. Without this,
+  // including `selectedBoard` in the deps below (needed so a *new*
+  // navigation while already on this page can still switch boards) meant
+  // every manual board-chip click re-ran this effect, which re-derived
+  // `target` from the same still-unconsumed `location.state.selectedBoard`
+  // and immediately reverted the click back to the deep-linked board —
+  // the new board's list never got a chance to render until the user
+  // toggled back and forth (or refreshed, which drops the stale state).
+  const appliedLocationStateRef = useRef(null);
+
   useEffect(() => {
+    if (!boards) return; // wait for the board list before resolving slug/group
+    if (appliedLocationStateRef.current === location.state) return;
+    appliedLocationStateRef.current = location.state;
+
     if (location.state?.resetCourses) {
       setSelectedBoard(null);
       setExpandedClassId(null);
@@ -241,23 +255,21 @@ const Courses = () => {
     // A navbar/homepage course link clicked while already sitting on this
     // page (same route, fresh `state`) should still switch boards — the
     // initial-mount default-board effect above only ever fires once.
-    if (boards) {
-      const wantedSlug = location.state?.selectedBoard;
-      const wantedGroup = location.state?.selectedBoardGroup;
-      let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
-      if (!target && wantedGroup) {
-        target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
-      }
-      if (target && target.slug !== selectedBoard) {
-        setSelectedBoard(target.slug);
-        setExpandedClassId(null);
-        // Don't clobber an explicit searchQuery arriving in the same state
-        // payload (handled just above) — only clear it for a plain board switch.
-        if (location.state?.searchQuery == null) setSearchQuery('');
-        saveLastBoard(target.slug);
-      }
+    const wantedSlug = location.state?.selectedBoard;
+    const wantedGroup = location.state?.selectedBoardGroup;
+    let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
+    if (!target && wantedGroup) {
+      target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
     }
-  }, [location.state, boards, selectedBoard]);
+    if (target) {
+      setSelectedBoard(target.slug);
+      setExpandedClassId(null);
+      // Don't clobber an explicit searchQuery arriving in the same state
+      // payload (handled just above) — only clear it for a plain board switch.
+      if (location.state?.searchQuery == null) setSearchQuery('');
+      saveLastBoard(target.slug);
+    }
+  }, [location.state, boards]);
 
   useEffect(() => {
     setEnrollModalCourseId(null);
