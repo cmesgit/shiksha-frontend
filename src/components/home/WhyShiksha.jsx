@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's WhyShiksha.jsx —
    shared tokens (--peach, --coral, etc.) come from ShikshaHome.css,
@@ -142,7 +143,7 @@ export default function WhyShiksha() {
                       {ICONS[c.icon] || FALLBACK_ICON}
                     </span>
                     <h3>{c.title}</h3>
-                    <p>{c.body}</p>
+                    <p dangerouslySetInnerHTML={{ __html: sanitizeInline(c.body) }} />
                   </div>
                 ))}
               </div>

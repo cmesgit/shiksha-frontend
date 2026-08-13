@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import { useAuth } from "../../contexts/AuthContext";
 import CtaLink from "./CtaLink";
+import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's Cta.jsx — shared
    tokens (--coral, --coral-dark, etc.) and the .sec/.wrap/.eyebrow/.btn/.rv
@@ -80,7 +81,7 @@ export default function Cta() {
 
               <span className="eyebrow"><u>{eyebrow}</u></span>
               <h2>{heading}</h2>
-              <p>{body}</p>
+              <p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />
 
               <div className="cta-actions">
                 <CtaLink className="btn btn-white" to={ctaPrimaryHref}>

@@ -5,14 +5,87 @@
 // (class-9/economics/chapter-1), so every /blogs/<slug> link resolves via
 // the content API alone — no static-fragment/CDN fallback needed anymore.
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
+import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
 import "../css/BlogDetail.css";
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
 const htmlCache = new Map();
+
+// Chapter bodies render inside a sandboxed iframe rather than a plain div.
+// DOMPurify's default config keeps <style> tags, but only inside a
+// WHOLE_DOCUMENT parse — in a same-document fragment render they get
+// stripped unconditionally, which silently broke every legacy chapter's
+// hand-designed <style> block. An iframe document has no such restriction,
+// and (as a side benefit) also stops a chapter's own `* { margin: 0 }`-style
+// reset from leaking into and breaking the page chrome around it — the same
+// technique already used for the CMS author preview
+// (Admin-dashboard/src/pages/content/preview/BlogBodyPreview.jsx).
+// `sandbox="allow-same-origin"` blocks script execution (no allow-scripts)
+// while still letting this component read contentDocument to auto-size the
+// iframe to its content's real height.
+const BlogBody = ({ html }) => {
+  const iframeRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  const srcDoc = useMemo(() => {
+    // FORCE_BODY is required here: DOMPurify's fragment-mode parser silently
+    // drops a leading <style> tag (treats it as invalid at the document root
+    // and discards it) unless told to force-parse the input as body content.
+    // Without this, moving the render into an iframe alone does nothing —
+    // the tag never survives sanitize() to reach the iframe in the first
+    // place. Verified against DOMPurify 3.4.13: FORCE_BODY still strips
+    // <script> and on*= handlers exactly as before.
+    const clean = DOMPurify.sanitize(html || "", { FORCE_BODY: true });
+    return (
+      `<!doctype html><html><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+      `<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">` +
+      `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">` +
+      `<style>body{margin:0;padding:0;font-family:"Poppins",sans-serif;}${BLOG_BODY_CSS}</style>` +
+      `</head><body><div class="blog-body">${clean}</div></body></html>`
+    );
+  }, [html]);
+
+  useEffect(() => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc?.documentElement) return;
+
+    const measure = () => setHeight(doc.documentElement.scrollHeight);
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(doc.documentElement);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [srcDoc]);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      title="Chapter content"
+      srcDoc={srcDoc}
+      sandbox="allow-same-origin"
+      onLoad={() => {
+        const doc = iframeRef.current?.contentDocument;
+        if (doc?.documentElement) setHeight(doc.documentElement.scrollHeight);
+      }}
+      style={{
+        width: "100%",
+        border: "none",
+        display: "block",
+        height: height || 400,
+      }}
+      scrolling="no"
+    />
+  );
+};
 
 const ChapterLoading = () => (
   <div
@@ -184,13 +257,7 @@ const BlogDetail = () => {
 
       {status === "loading" && <ChapterLoading />}
 
-      {status === "ready" && html && (
-        // Originally "first-party build artifact, safe to inject" — no longer
-        // true since BlogPostAdminViewSet (content/admin_views.py) lets any
-        // IsContentEditor-role account write this content via the API, a
-        // lower-privilege role than full admin. Sanitize before rendering.
-        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
-      )}
+      {status === "ready" && html && <BlogBody html={html} />}
 
       {status === "notfound" && <h2>Blog not found</h2>}
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's TeachersStudents.jsx —
    shared tokens/classes (--coral, .sec, .peach, .eyebrow, .em, .btn, .rv, etc.)
@@ -103,7 +104,7 @@ export default function TeachersStudents() {
                     <span className="duo-pill">{meta.pill}</span>
                     <div className="duo-ill">{DUO_ILL[i]}</div>
                     <h3>{item.title}</h3>
-                    <p>{item.body}</p>
+                    <p dangerouslySetInnerHTML={{ __html: sanitizeInline(item.body) }} />
                     <CtaLink className={`btn ${meta.btnClass}`} to={item.cta_href || "#"}>
                       {item.cta_label}
                       {ARROW}
