@@ -127,6 +127,18 @@
   margin-bottom: 6px;
 }
 
+/* Compact spinner for the chip when it's standing in for a loading message
+   (e.g. "Checking your account…") instead of a static icon — the chip is a
+   fixed 64px square, so long status text wrapped one word per line here.
+   Same ring treatment as .af-overlay__spin, just sized to this chip. */
+.af-status__spin {
+  width: 28px; height: 28px;
+  border: 3px solid var(--soft);
+  border-top-color: var(--a);
+  border-radius: 50%;
+  animation: af-rot .8s linear infinite;
+}
+
 .af-heading {
   font-size: 30px;
   font-weight: 800;

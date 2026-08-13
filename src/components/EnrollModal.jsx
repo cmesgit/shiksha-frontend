@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
+import { Sparkles } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   getCoursePublic,
@@ -311,7 +312,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
     if (isFreeMode) {
       return (
         <div className="em-status">
-          <div className="em-status__icon em-status__icon--success">🎁</div>
+          <div className="em-status__icon em-status__icon--success"><Sparkles size={28} strokeWidth={2.25} /></div>
           <h3 className="em-status__heading">Get {course.title} for free</h3>
           {[course.board, course.stream].filter(Boolean).length > 0 && (
             <p className="em-status__msg" style={{ marginBottom: 4 }}>

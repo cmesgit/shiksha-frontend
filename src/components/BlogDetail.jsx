@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
+import "../css/BlogDetail.css";
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
 const htmlCache = new Map();

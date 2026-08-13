@@ -151,15 +151,22 @@ export function ForumProvider({ children }) {
 
   return (
     <ForumContext.Provider value={value}>
-      {children}
-      {reportTarget ? (
-        <ReportModal
-          target={reportTarget}
-          onClose={() => setReportTarget(null)}
-          onDone={(msg) => showToast(msg)}
-        />
-      ) : null}
-      {toast ? <div className="fm-toast" role="status">{toast}</div> : null}
+      {/* forum.css's color tokens (--fm-green, --fm-danger, --fm-ink, ...)
+          are all scoped to .fm-root — without this wrapper every var(--fm-*)
+          reference in forum.css is invalid, which silently falls back to
+          transparent/inherited and produced (among other things) white-on-
+          white toast text and an unreadable "Report" button. */}
+      <div className="fm-root">
+        {children}
+        {reportTarget ? (
+          <ReportModal
+            target={reportTarget}
+            onClose={() => setReportTarget(null)}
+            onDone={(msg) => showToast(msg)}
+          />
+        ) : null}
+        {toast ? <div className="fm-toast" role="status">{toast}</div> : null}
+      </div>
     </ForumContext.Provider>
   );
 }

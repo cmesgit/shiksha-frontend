@@ -12,8 +12,13 @@ const STREAM_LABELS = { SCIENCE: "Science", COMMERCE: "Commerce", ARTS: "Arts" }
 // "Class 11 (Science)" -> { title: "Class 11", subtitle: "Science" }
 function splitTitle(title, streamName) {
   const stripped = (title || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+  // Course records have inconsistently formatted "Class N" titles ("Class -11",
+  // "Class- 11", "Class 11", ...) — collapse them to one canonical spelling so
+  // callers that dedupe/group on `title` (e.g. the catalog's Class filter chips)
+  // don't split a single class into multiple entries.
+  const normalized = stripped.replace(/^class\s*-?\s*(\d+)\s*-?\s*$/i, "Class $1");
   const subtitle = streamName ? STREAM_LABELS[streamName] || streamName : undefined;
-  return { title: stripped || title, subtitle };
+  return { title: normalized || title, subtitle };
 }
 
 function formatFee(pricePaise) {
