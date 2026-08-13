@@ -13,6 +13,13 @@ export const BLOG_BODY_CSS = `
 .blog-body p { margin: 0 0 16px; }
 .blog-body ul, .blog-body ol { margin: 0 0 16px; padding-left: 1.4em; }
 .blog-body li { margin: 4px 0; }
+/* TipTap stores list items as <li><p>text</p></li>, so without this reset the
+   generic ".blog-body p { margin: 0 0 16px }" rule above adds a 16px gap
+   under every bullet and lists render loose. Applies to any post edited in
+   the CMS rich-text editor; hand-written legacy chapters use bare <li> and
+   are unaffected either way. */
+.blog-body li > p { margin: 0; }
+.blog-body li > p + p { margin-top: 8px; }
 .blog-body a { color: #0F9D6B; text-decoration: underline; }
 .blog-body strong { font-weight: 700; }
 .blog-body blockquote { border-left: 3px solid #d1d5db; margin: 20px 0; padding: 4px 0 4px 16px; color: #4b5563; font-style: italic; }
@@ -26,4 +33,17 @@ export const BLOG_BODY_CSS = `
 .blog-body table { border-collapse: collapse; width: 100%; margin: 16px 0; }
 .blog-body td, .blog-body th { border: 1px solid #d1d5db; padding: 8px 10px; }
 .blog-body th { background: #f8fafc; font-weight: 700; }
+/* Callout / info box + collapsible section blocks — mirrored byte-for-byte
+   from Admin-dashboard/src/pages/content/preview/blogBodyStyles.js (see that
+   file's header comment). Colors are the same info/warn/success palette as
+   this app's own .mod-btn.info/.warn/.success, not a new scheme. */
+.blog-body .callout { margin: 16px 0; padding: 12px 16px; border-radius: 6px; border: 1px solid; border-left-width: 4px; }
+.blog-body .callout > p:last-child { margin-bottom: 0; }
+.blog-body .callout-info    { background: #eff6ff; border-color: #bfdbfe; border-left-color: #1d4ed8; }
+.blog-body .callout-warning { background: #fff8e8; border-color: #ecd080; border-left-color: #7a4c00; }
+.blog-body .callout-success { background: #e4f3e8; border-color: #b8d8bc; border-left-color: #125027; }
+.blog-body details { margin: 20px 0; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px 16px; }
+.blog-body details summary { cursor: pointer; font-weight: 700; }
+.blog-body details[open] summary { margin-bottom: 10px; }
+.blog-body details p { margin: 0; }
 `;

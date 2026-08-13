@@ -27,6 +27,39 @@ const htmlCache = new Map();
 // `sandbox="allow-same-origin"` blocks script execution (no allow-scripts)
 // while still letting this component read contentDocument to auto-size the
 // iframe to its content's real height.
+// Nominal viewport height (px) that `vh` units in legacy chapter CSS are
+// rewritten against. 800 ≈ a normal desktop viewport, which is what these
+// chapters were hand-designed in.
+const NOMINAL_VIEWPORT_PX = 800;
+
+// Legacy chapters style themselves with viewport units (114 of the 115
+// imported posts contain at least one `vh` value — e.g. `.flm-hero
+// { min-height: 100vh }`). Inside an auto-height iframe that is a runaway
+// feedback loop, because `vh` resolves against the IFRAME's height, which we
+// set from the content's height:
+//
+//   measure content -> grow iframe -> 100vh grows -> content grows -> ...
+//
+// On class-9/science/chapter-9 that inflated a single hero to ~9,900px and
+// left the iframe ~5,700px shorter than its own content (so the tail was
+// unreachable behind `scrolling="no"`, and the oversized empty hero read as
+// a huge blank band). Rewriting `vh` to a fixed px equivalent breaks the
+// dependency entirely: content height becomes a pure function of the HTML,
+// so one measurement is stable and correct.
+//
+// Scoped deliberately to <style> blocks and inline style attributes of
+// chapter bodies — this is a compatibility shim for imported legacy markup,
+// not a general CSS transform. `vmin`/`vmax`/`svh`/`dvh`/`lvh` are covered
+// too since they have the same iframe-relative problem; `vw` is left alone
+// because iframe width is the real viewport width and does not feed back.
+const VIEWPORT_UNIT_RE = /(-?\d*\.?\d+)(svh|lvh|dvh|vh|vmin|vmax)\b/gi;
+const neutralizeViewportUnits = (markup) =>
+  markup.replace(/<style\b[^>]*>[\s\S]*?<\/style>|style="[^"]*"/gi, (block) =>
+    block.replace(VIEWPORT_UNIT_RE, (_m, num) =>
+      `${((parseFloat(num) / 100) * NOMINAL_VIEWPORT_PX).toFixed(2).replace(/\.?0+$/, "")}px`
+    )
+  );
+
 const BlogBody = ({ html }) => {
   const iframeRef = useRef(null);
   const [height, setHeight] = useState(0);
@@ -39,7 +72,9 @@ const BlogBody = ({ html }) => {
     // the tag never survives sanitize() to reach the iframe in the first
     // place. Verified against DOMPurify 3.4.13: FORCE_BODY still strips
     // <script> and on*= handlers exactly as before.
-    const clean = DOMPurify.sanitize(html || "", { FORCE_BODY: true });
+    const clean = neutralizeViewportUnits(
+      DOMPurify.sanitize(html || "", { FORCE_BODY: true })
+    );
     return (
       `<!doctype html><html><head><meta charset="utf-8">` +
       `<meta name="viewport" content="width=device-width, initial-scale=1">` +
@@ -57,12 +92,34 @@ const BlogBody = ({ html }) => {
     const measure = () => setHeight(doc.documentElement.scrollHeight);
     measure();
 
+    // Observe <body>, NOT <documentElement>: documentElement's own box is
+    // stretched to the iframe height we control, so it does not change when
+    // the content inside it reflows — the observer simply never fired again
+    // after the first measurement. <body> is content-sized, so it does.
+    // This is what left the applied height stale by thousands of pixels once
+    // the CDN webfonts (Poppins/Montserrat/Font Awesome) landed and re-flowed
+    // the text below them.
     const ro = new ResizeObserver(measure);
-    ro.observe(doc.documentElement);
+    if (doc.body) ro.observe(doc.body);
     window.addEventListener("resize", measure);
+
+    // Webfonts and any images finish after load and change text metrics /
+    // layout; both need an explicit re-measure since neither necessarily
+    // resizes <body> in an observable step on every engine.
+    doc.fonts?.ready?.then(measure).catch(() => {});
+    const imgs = [...doc.images].filter((img) => !img.complete);
+    imgs.forEach((img) => {
+      img.addEventListener("load", measure);
+      img.addEventListener("error", measure);
+    });
+
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
+      imgs.forEach((img) => {
+        img.removeEventListener("load", measure);
+        img.removeEventListener("error", measure);
+      });
     };
   }, [srcDoc]);
 
