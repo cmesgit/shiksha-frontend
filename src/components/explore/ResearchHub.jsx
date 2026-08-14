@@ -98,25 +98,18 @@ const matchesSearchQuery = (paper, query) => {
   return !terms.length || terms.some((term) => searchableText.includes(term));
 };
 
-const createPaperDownload = (paper) => {
-  const content = [
-    paper.title,
-    `Author: ${paper.author}`,
-    `Department: ${paper.department}`,
-    `Year: ${paper.year}`,
-    "",
-    paper.abstract,
-    "",
-    `Keywords: ${paper.tags.join(", ")}`
-  ].join("\n");
-
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${paper.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.txt`;
-  link.click();
-  URL.revokeObjectURL(url);
+// NOTE: `searchablePapers` (featuredPapers + latestResearch) is 100% hardcoded
+// sample content from ./data — there is no backend `documents.Document` row
+// and no uploaded PDF behind any of these cards. Earlier this button
+// fabricated a `.txt` blob of the paper's metadata and downloaded it under a
+// PDF-looking filename, so "Read" (which opens the preview modal reached via
+// its "Download Preview" button) and the card's "Download PDF" button both
+// produced the exact same synthetic file — nothing real ever downloaded. Once
+// this Research Hub is wired to real backend documents (matching the
+// `documents` app's Document.file / file_url, see explore/DocumentPage.jsx),
+// this should call that endpoint instead of showing a notice.
+const notifyNoRealFile = (paper, showNotice) => {
+  showNotice(`"${paper.title}" is preview content — no real PDF has been uploaded yet.`);
 };
 
 export default function ResearchHub() {
@@ -333,7 +326,7 @@ export default function ResearchHub() {
       <FeaturedPapers
         papers={filteredPapers}
         savedPapers={savedPapers}
-        onDownload={createPaperDownload}
+        onDownload={(paper) => notifyNoRealFile(paper, showNotice)}
         onRead={setSelectedPaper}
         onSave={handlePaperSave}
         onViewAll={() => {
@@ -417,7 +410,7 @@ export default function ResearchHub() {
                 <span key={tag}>{tag}</span>
               ))}
             </div>
-            <button className="rh-btn rh-btn-primary" onClick={() => createPaperDownload(selectedPaper)}>
+            <button className="rh-btn rh-btn-primary" onClick={() => notifyNoRealFile(selectedPaper, showNotice)}>
               <Image size={18} />
               Download Preview
             </button>

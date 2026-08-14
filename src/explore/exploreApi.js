@@ -249,6 +249,11 @@ export async function likeDocument(id, liked) {
   const { data } = await api.post(`/explore/documents/${id}/like/`, { liked });
   return data;
 }
+export async function recordDownload(id) {
+  if (USE_MOCK) { await wait(60); return { downloads: 0 }; }
+  const { data } = await api.post(`/explore/documents/${id}/download/`);
+  return data;
+}
 export async function reportDocument(id, payload) {
   if (USE_MOCK) { await wait(120); return { ok: true }; }
   const { data } = await api.post(`/explore/documents/${id}/report/`, payload);

@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDocument, reportDocument } from "./exploreApi";
+import { getDocument, reportDocument, recordDownload } from "./exploreApi";
 import { useExplore } from "./ExploreStore";
 import { DocCard, Icon, Loading, fileGlyph } from "./components/ui";
 import "./Explore.css";
@@ -52,6 +52,36 @@ export default function DocumentPage() {
     catch { flash("Copy this link: " + url); }
   };
 
+  // These used to just show a fake "Opening reader…" / "Download started"
+  // toast and do nothing else — no real file was ever opened or downloaded.
+  // The backend already serializes the real uploaded file as `file_url`
+  // (documents/serializers.py DocumentCardSerializer.get_file_url), so open
+  // it for real; only fall back to a toast when a document genuinely has no
+  // uploaded file yet.
+  const readNow = () => {
+    if (!doc.file_url) {
+      flash("No file has been uploaded for this document yet");
+      return;
+    }
+    window.open(doc.file_url, "_blank", "noopener,noreferrer");
+  };
+
+  const downloadNow = () => {
+    if (!doc.file_url) {
+      flash("No file has been uploaded for this document yet");
+      return;
+    }
+    recordDownload(doc.id).catch(() => {});
+    const link = document.createElement("a");
+    link.href = doc.file_url;
+    link.download = doc.title || "document";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   const submitReport = async () => {
     await reportDocument(doc.id, report);
     setReport(null);
@@ -75,9 +105,9 @@ export default function DocumentPage() {
 
             <div className="exp-actions">
               <button className="exp-btn exp-btn-primary" style={{ width: "100%", justifyContent: "center" }}
-                onClick={() => flash("Opening reader…")}>Read now</button>
+                onClick={readNow}>Read now</button>
               <button className="exp-btn exp-btn-ghost" style={{ width: "100%", justifyContent: "center" }}
-                onClick={() => flash("Download started")}>Download</button>
+                onClick={downloadNow}>Download</button>
               <div className="row">
                 <button className={`exp-iconbtn${saved ? " on" : ""}`} onClick={() => store.toggleSave(doc.id)}>
                   {saved ? "★ Saved" : "☆ Save"}

@@ -35,8 +35,21 @@ export const getPaymentConfig = () =>
 /**
  * One-tap enrollment while the platform is free. The backend only honours this
  * when the active provider auto-activates (i.e. free mode), so flipping to a
- * paid mode closes this door automatically.
- * Returns: { detail, course_id, subscription: { id, status, expires_at } }
+ * paid mode closes this door automatically. `batchId` is optional — omit for
+ * courses with no batches configured.
+ * Returns: { detail, course_id, batch: {id, name} | null, subscription: { id, status, expires_at } }
  */
-export const freeEnroll = (courseId) =>
-  api.post("/enrollments/free-enroll/", { course: courseId }).then((r) => r.data);
+export const freeEnroll = (courseId, batchId) =>
+  api.post("/enrollments/free-enroll/", {
+    course: courseId,
+    ...(batchId ? { batch: batchId } : {}),
+  }).then((r) => r.data);
+
+/**
+ * Student picks their own batch after the fact — e.g. enrolled before the
+ * course had batches, or skipped the picker at enroll time. Only works while
+ * the enrollment's batch is still unset; once assigned, changing it is an
+ * admin action.
+ */
+export const selectEnrollmentBatch = (courseId, batchId) =>
+  api.post("/enrollments/select-batch/", { course: courseId, batch: batchId }).then((r) => r.data);

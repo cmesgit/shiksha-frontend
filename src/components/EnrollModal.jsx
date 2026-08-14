@@ -55,6 +55,11 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   const [enrollError, setEnrollError] = useState("");
   const [enrolledSub, setEnrolledSub] = useState(null);
 
+  // Batch choice (Morning/Afternoon/Evening/Night etc) — only shown when the
+  // course actually has batches configured. `course.batches` comes straight
+  // from getCoursePublic(), see the effect below.
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
   const initialPath = useRef(location.pathname);
 
   useEffect(() => {
@@ -130,11 +135,40 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   const isFreeMode = !!(payCfg && (payCfg.is_free || payCfg.auto_activate));
   const isRazorpay = payCfg?.provider === "razorpay";
 
+  const hasBatches = Array.isArray(course?.batches) && course.batches.length > 0;
+  const batchRequired = hasBatches && !selectedBatch;
+
+  const batchPicker = hasBatches && (
+    <div className="em-batch-picker">
+      <p className="em-batch-picker__label">Choose your batch</p>
+      <div className="em-batch-options">
+        {course.batches.map((b) => (
+          <button
+            type="button"
+            key={b.id}
+            className={`em-batch-option${selectedBatch === b.id ? " is-selected" : ""}`}
+            disabled={b.is_full}
+            onClick={() => setSelectedBatch(b.id)}
+          >
+            <span className="em-batch-option__name">{b.name}</span>
+            {b.is_full ? (
+              <span className="em-batch-option__seats em-batch-option__seats--full">Full</span>
+            ) : b.capacity ? (
+              <span className="em-batch-option__seats">
+                {Math.max(b.capacity - b.seats_taken, 0)} seats left
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const handleFreeEnroll = async () => {
     setEnrollError("");
     setEnrolling(true);
     try {
-      const data = await freeEnroll(courseId);
+      const data = await freeEnroll(courseId, selectedBatch);
       setEnrolledSub(data?.subscription || null);
       onEnrolled?.(courseId);
       showToast({
@@ -165,6 +199,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
     receipt &&
     agreePayment &&
     agreeTerms &&
+    !batchRequired &&
     !submitting;
 
   const handleSubmit = async (e) => {
@@ -174,6 +209,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
 
     const fd = new FormData();
     fd.append("course", courseId);
+    if (selectedBatch) fd.append("batch", selectedBatch);
     fd.append("payment_method", paymentMethod);
     fd.append("utr_number", utr.trim());
     fd.append("payment_date", paymentDate);
@@ -331,14 +367,17 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
               </>
             ) : null}
           </p>
+          {batchPicker}
           <button
             type="button"
             className="em-btn em-btn--primary em-btn--submit"
             onClick={handleFreeEnroll}
-            disabled={enrolling}
+            disabled={enrolling || batchRequired}
           >
             {enrolling ? (
               <><span className="em-btn-spinner" /> Enrolling…</>
+            ) : batchRequired ? (
+              "Choose a batch to continue"
             ) : (
               "Enroll free"
             )}
@@ -384,6 +423,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
             )}
             <p className="em-card__price">{formatRupees(course.price)}</p>
             <span className="em-card__duration-badge">12-month subscription</span>
+            {batchPicker}
           </div>
 
           {/* QR */}
@@ -517,6 +557,8 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
             <button type="submit" className="em-btn em-btn--primary em-btn--submit" disabled={!canSubmit}>
               {submitting ? (
                 <><span className="em-btn-spinner" /> Submitting…</>
+              ) : batchRequired ? (
+                "Choose a batch above"
               ) : (
                 "Submit for Approval"
               )}
