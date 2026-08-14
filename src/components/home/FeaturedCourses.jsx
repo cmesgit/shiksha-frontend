@@ -389,352 +389,208 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}
     .chip-marquee{overflow:visible;-webkit-mask-image:none;mask-image:none}.chip-track{flex-wrap:wrap;width:100%}.chip-group{flex-wrap:wrap}.chip-group:nth-child(2){display:none}}`;
 
-const html = `<section class="sec" id="courses">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <span class="eyebrow"><u>Featured Courses</u></span>
-        <h2>Explore our <span class="em">popular courses</span></h2>
-        <p>Some of our most popular academic and competitive programs, built to help learners succeed with structured guidance.</p>
-      </div>
-      <div class="fc-tabs rv" role="tablist" aria-label="Filter courses">
-        <button class="fc-tab" role="tab" aria-selected="true" data-filter="all">All</button>
-        <button class="fc-tab" role="tab" aria-selected="false" data-filter="boards">Boards</button>
-        <button class="fc-tab" role="tab" aria-selected="false" data-filter="class8-12">Class 8&ndash;12</button>
-        <button class="fc-tab" role="tab" aria-selected="false" data-filter="competitive">Competitive</button>
-      </div>
-      <div class="fc-grid" id="courseGrid">
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(15,157,107,0.72),rgba(11,91,62,0.88)),url('https://images.unsplash.com/photo-1560785496-3c9d27877182?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Foundation</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(97)</span></div>
-            <h3>Class 8 Foundation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(20,184,160,0.72),rgba(11,91,62,0.88)),url('https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Foundation</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(85)</span></div>
-            <h3>Class 9 Foundation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(255,178,29,0.72),rgba(242,140,15,0.88)),url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <span class="fc-ribbon">Bestseller</span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Foundation</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(214)</span></div>
-            <h3>Class 10 Foundation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12 all">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(255,122,69,0.72),rgba(225,77,42,0.88)),url('https://images.unsplash.com/photo-1694230155228-cdde50083573?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3h5M10 3v5.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3"/><path d="M7.5 15h9"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Science</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(186)</span></div>
-            <h3>Class 11 &middot; Science</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(124,92,252,0.72),rgba(75,52,199,0.88)),url('https://images.unsplash.com/photo-1513258496099-48168024aec0?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8h7M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Commerce</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(78)</span></div>
-            <h3>Class 11 &middot; Commerce</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(236,78,134,0.72),rgba(193,58,104,0.88)),url('https://images.unsplash.com/photo-1585661417298-8236a5f449aa?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Arts</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(62)</span></div>
-            <h3>Class 11 &middot; Arts</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(15,157,107,0.72),rgba(20,184,160,0.88)),url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3h5M10 3v5.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3"/><path d="M7.5 15h9"/></svg></span>
-            <span class="fc-ribbon">New</span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Science</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(203)</span></div>
-            <h3>Class 12 &middot; Science</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(255,178,29,0.72),rgba(224,139,18,0.88)),url('https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8h7M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Commerce</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(91)</span></div>
-            <h3>Class 12 &middot; Commerce</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="class8-12">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(59,130,246,0.72),rgba(29,78,216,0.88)),url('https://images.unsplash.com/photo-1514369118554-e20d93546b30?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Arts</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(58)</span></div>
-            <h3>Class 12 &middot; Arts</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>1 Year &middot; Online &middot; Full access</div>
-            <div class="fc-foot">
-              <span class="fc-price">&#8377;1,500<small> /month</small></span>
-              <button type="button" class="fc-enroll">Enroll now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="boards all">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(15,157,107,0.72),rgba(11,91,62,0.88)),url('https://images.unsplash.com/photo-1741699428220-65f37f3fbbcb?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h14"/></svg></span>
-            <span class="fc-ribbon">Popular</span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">National Board</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(312)</span></div>
-            <h3>CBSE (Central Board)</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Expert Faculty <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Classes 8&ndash;12</div>
-            <div class="fc-foot">
-              <button type="button" class="fc-explore">Explore Programs</button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="boards">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(20,184,160,0.72),rgba(11,91,62,0.88)),url('https://images.unsplash.com/photo-1598981457915-aea220950616?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m14.8 9.2-1.6 4.8-4.8 1.6 1.6-4.8z"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Regional</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(89)</span></div>
-            <h3>Regional Boards</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Expert Faculty <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>MBSE &amp; more</div>
-            <div class="fc-foot">
-              <button type="button" class="fc-explore">Explore Programs</button>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive all">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(236,78,134,0.72),rgba(193,58,104,0.88)),url('https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6h5"/></svg></span>
-            <span class="fc-ribbon">Popular</span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Medical</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(41)</span></div>
-            <h3>NEET Preparation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#0B5B3E">D</span>Dr. D. Ralte</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(255,178,29,0.72),rgba(242,140,15,0.88)),url('https://images.unsplash.com/photo-1554475900-0a0350e3fc7b?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10M9 21V10M15 21V10M19 21V10"/><path d="M3 10l9-6 9 6"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Civil Services</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(75)</span></div>
-            <h3>UPSC &amp; Civil Services</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#FFB21D">K</span>K. Zoramthanga</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(124,92,252,0.72),rgba(75,52,199,0.88)),url('https://images.unsplash.com/photo-1614283226124-5a2f0f23752b?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Engineering</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(63)</span></div>
-            <h3>IIT-JEE Preparation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#E14D2A">A</span>A. Sharma</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(20,184,160,0.72),rgba(11,91,62,0.88)),url('https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l7-3 7 3v14"/><path d="M9 21v-5h4v5"/><path d="M8 10h.01M8 14h.01M13 10h.01M13 14h.01"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">SSC &middot; Banking</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(54)</span></div>
-            <h3>Government Exams</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#12b3a6">T</span>T. Lalhmingthanga</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(59,130,246,0.72),rgba(29,78,216,0.88)),url('https://images.unsplash.com/photo-1590821091890-bdcc3c1e2b37?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3 9-7 10-4-1-7-5-7-10V6z"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">NDA &middot; CDS</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(38)</span></div>
-            <h3>Defence Exams</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#3b82f6">R</span>Maj. R. Singh (Retd.)</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(15,157,107,0.72),rgba(20,184,160,0.88)),url('https://images.unsplash.com/photo-1532187643603-ba119ca4109e?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8h7M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Accountancy</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(47)</span></div>
-            <h3>CA Program</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#0F9D6B">V</span>CA V. Malsawma</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-        <article class="fc-card rv" data-cat="competitive">
-          <div class="fc-thumb" style="background:linear-gradient(135deg,rgba(255,122,69,0.72),rgba(225,77,42,0.88)),url('https://images.unsplash.com/photo-1741699428220-65f37f3fbbcb?w=800&h=400&fit=crop&auto=format&q=75') center/cover">
-            <span class="fc-thumb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="5.5"/><path d="m9 14.5-2 6 5-2.7 5 2.7-2-6"/></svg></span>
-            <button class="fc-heart" aria-label="Save course" onclick="this.classList.toggle('on')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z"/></svg></button>
-            <span class="fc-lvl">Olympiads</span>
-          </div>
-          <div class="fc-body">
-            <div class="fc-rate"><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#FFB21D"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><svg viewBox="0 0 24 24" fill="#E3E8E4"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z"/></svg><span>(29)</span></div>
-            <h3>Olympiad &amp; Foundation</h3>
-            <div class="fc-fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10 5-3v10l-5-3"/></svg>Live + Recorded <i>&middot;</i> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launching soon</div>
-            <div class="fc-foot">
-              <span class="fc-tutor"><span class="fc-av" style="background:#FF7A45">R</span>R. Vanlalhriati</span>
-              <span class="fc-price soon">Coming Soon</span>
-            </div>
-          </div>
-        </article>
-      </div>
-      <div class="center rv"><a class="btn btn-ghost" href="#">All courses <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+// ── Icons (paths copied 1:1 from the original static markup) ──────────────
+const StarSVG = ({ filled }) => (
+  <svg viewBox="0 0 24 24" fill={filled ? "#FFB21D" : "#E3E8E4"}>
+    <path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z" />
+  </svg>
+);
+const ClockSVG = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+const ArrowSVG = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+const HeartSVG = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z" />
+  </svg>
+);
+
+const CAT_ICON_PATHS = {
+  book: <><path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z" /><path d="M4 19a2 2 0 0 0 2 2h14" /></>,
+  flask: <><path d="M9.5 3h5M10 3v5.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3" /><path d="M7.5 15h9" /></>,
+  calc: <><rect x="5" y="3.5" width="14" height="17" rx="2.5" /><path d="M8.5 8h7M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01" /></>,
+  compass: <><circle cx="12" cy="12" r="9" /><path d="m14.8 9.2-1.6 4.8-4.8 1.6 1.6-4.8z" /></>,
+  pulse: <path d="M3 12h4l2.5-6 4 12 2.5-6h5" />,
+  target: <><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.5" /><circle cx="12" cy="12" r="1" /></>,
+  bank: <><path d="M4 21V7l7-3 7 3v14" /><path d="M9 21v-5h4v5" /><path d="M8 10h.01M8 14h.01M13 10h.01M13 14h.01" /></>,
+  shield: <path d="M12 3l7 3v5c0 5-3 9-7 10-4-1-7-5-7-10V6z" />,
+  medal: <><circle cx="12" cy="10" r="5.5" /><path d="m9 14.5-2 6 5-2.7 5 2.7-2-6" /></>,
+  institution: <><path d="M3 21h18" /><path d="M5 21V10M9 21V10M15 21V10M19 21V10" /><path d="M3 10l9-6 9 6" /></>,
+};
+
+function CatIcon({ icon }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      {CAT_ICON_PATHS[icon] || CAT_ICON_PATHS.book}
+    </svg>
+  );
+}
+
+function StarRow({ stars, count }) {
+  return (
+    <div className="fc-rate">
+      {[0, 1, 2, 3, 4].map((i) => <StarSVG key={i} filled={i < stars} />)}
+      <span>({count})</span>
     </div>
-  </section>`;
+  );
+}
+
+function CourseCard({ course: c, saved, onToggleSave, onAction }) {
+  return (
+    <article className="fc-card rv" data-cat={c.cats.join(" ")}>
+      <div
+        className="fc-thumb"
+        style={{ background: `linear-gradient(135deg,${c.grad}),url('${c.img}') center/cover` }}
+      >
+        <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>
+        {c.ribbon && !c.soon && <span className="fc-ribbon">{c.ribbon}</span>}
+        <button
+          type="button"
+          className={`fc-heart${saved ? " on" : ""}`}
+          aria-label="Save course"
+          aria-pressed={saved}
+          onClick={onToggleSave}
+        >
+          <HeartSVG />
+        </button>
+        <span className="fc-lvl">{c.lvl}</span>
+      </div>
+      <div className="fc-body">
+        <StarRow stars={c.stars} count={c.count} />
+        <h3>{c.title}</h3>
+        <div className="fc-fact"><ClockSVG />{c.fact}</div>
+        <div className="fc-foot">
+          {c.soon ? (
+            <>
+              <span className="fc-tutor">
+                <span className="fc-av" style={{ background: c.avColor }}>{c.tutor?.[0]}</span>
+                {c.tutor}
+              </span>
+              <span className="fc-price soon">Coming Soon</span>
+            </>
+          ) : c.explore ? (
+            <button type="button" className="fc-explore" onClick={() => onAction(c)}>
+              Explore Programs
+            </button>
+          ) : (
+            <>
+              <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
+              <button type="button" className="fc-enroll" onClick={() => onAction(c)}>
+                Enroll now <ArrowSVG />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function FeaturedCourses() {
   const rootRef = useRef(null);
+  const navigate = useNavigate();
+  const [courses, setCourses] = useState(FEATURED_COURSES);
+  const [activeTab, setActiveTab] = useState("all");
+  const [saved, setSaved] = useState(() => new Set());
+
+  // Paint immediately with the curated fallback (homeData.js), then swap in
+  // real CMS showcase rows if the backend has any active ones — see
+  // homeData.js's own header comment for why the fallback stays.
+  useEffect(() => {
+    let cancelled = false;
+    getPublicFeatured().then((cards) => {
+      if (cancelled || !cards.length) return;
+      setCourses(cards.map(toFeaturedCard));
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const visible = courses.filter((c) => c.cats.includes(activeTab));
+
+  const goToCourse = (c) => {
+    if (c.courseId) navigate(`/courses/${c.courseId}`);
+    else if (c.to) navigate(c.to, c.state ? { state: c.state } : undefined);
+    else navigate("/courses");
+  };
+
+  const toggleSave = (title) => {
+    setSaved((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title); else next.add(title);
+      return next;
+    });
+  };
+
+  // Reveal-on-scroll, scoped to this section and re-attached whenever the
+  // card list changes (real CMS rows swap in, or a tab filter re-renders).
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    const cleanups = [];
-    const on = (el, type, fn, opts) => {
-      if (!el) return;
-      el.addEventListener(type, fn, opts);
-      cleanups.push(() => el.removeEventListener(type, fn, opts));
-    };
-
-    // reveal-on-scroll (scoped to this section)
-    const io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    root.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
-    cleanups.push(() => io.disconnect());
-
-    // course filter (scoped to this section)
-    var tabs = root.querySelectorAll(".fc-tab"), cards = root.querySelectorAll("#courseGrid .fc-card");
-    function applyFilter(f){cards.forEach(function(c){c.style.display=((' '+c.dataset.cat+' ').indexOf(' '+f+' ')>-1)?'':'none';});}
-    tabs.forEach(function(t){ on(t,'click',function(){
-      tabs.forEach(function(x){x.setAttribute('aria-selected','false');});
-      t.setAttribute('aria-selected','true');
-      applyFilter(t.dataset.filter);
-    }); });
-    var initialTab=root.querySelector('.fc-tab[aria-selected="true"]');
-    if(initialTab) applyFilter(initialTab.dataset.filter);
-
-    return () => cleanups.forEach((fn) => fn());
-  }, []);
+    if (!root) return undefined;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    root.querySelectorAll(".rv").forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [courses, activeTab]);
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div ref={rootRef} dangerouslySetInnerHTML={{ __html: html }} />
+      <section className="sec" id="courses" ref={rootRef}>
+        <div className="wrap">
+          <div className="sec-head rv">
+            <span className="eyebrow"><u>Featured Courses</u></span>
+            <h2>Explore our <span className="em">popular courses</span></h2>
+            <p>Some of our most popular academic and competitive programs, built to help learners succeed with structured guidance.</p>
+          </div>
+
+          <div className="fc-tabs rv" role="tablist" aria-label="Filter courses">
+            {COURSE_TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className="fc-tab"
+                role="tab"
+                aria-selected={activeTab === t.id}
+                data-filter={t.id}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="fc-grid" id="courseGrid">
+            {visible.map((c) => (
+              <CourseCard
+                key={c.title}
+                course={c}
+                saved={saved.has(c.title)}
+                onToggleSave={() => toggleSave(c.title)}
+                onAction={goToCourse}
+              />
+            ))}
+          </div>
+
+          <div className="center rv">
+            <Link className="btn btn-ghost" to="/courses">
+              All courses <ArrowSVG />
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

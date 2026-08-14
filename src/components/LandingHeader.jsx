@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import '../css/LandingHeader.css';
 
 const searchableRoutes = {
@@ -51,6 +52,7 @@ const searchableRoutes = {
 const LandingHeader = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -74,7 +76,7 @@ const LandingHeader = () => {
       return;
     }
 
-    alert('No matching page found.');
+    showToast({ type: 'error', message: 'No matching page found.' });
   };
 
   return (

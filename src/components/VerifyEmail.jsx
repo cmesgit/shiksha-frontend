@@ -1,6 +1,7 @@
 // src/pages/VerifyEmail.jsx
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { API_URL } from "../config/urls";
 
 export default function VerifyEmail() {
   const [params] = useSearchParams();
@@ -18,8 +19,7 @@ export default function VerifyEmail() {
       setError(true);
     }, 8000);
 
-    window.location.href =
-      `${import.meta.env.VITE_API_BASE || "https://api.shikshacom.com"}/auth/verify-email/?token=${token}`;
+    window.location.href = `${API_URL}/accounts/verify-email/?token=${token}`;
 
     return () => clearTimeout(timeout);
   }, [token]);

@@ -127,7 +127,11 @@ export default function Login() {
         <>
           <h1 className="af-heading">Welcome back</h1>
           <p className="af-sub">Log in with your email to continue.</p>
-          {statusMsg && !error && <div className="af-status">{statusMsg}</div>}
+          {statusMsg && !error && (
+            submitting
+              ? <div className="af-status"><span className="af-status__spin" /></div>
+              : <div className="af-status">{statusMsg}</div>
+          )}
           <form onSubmit={submitEmail} style={{ display: "contents" }}>
             <Field id="lf-email" label="Email" type="email" value={email}
               onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
@@ -161,7 +165,11 @@ export default function Login() {
                 Email not verified? Resend verification link
               </Link>
             )}
-            {statusMsg && !error && <div className="af-status">{statusMsg}</div>}
+            {statusMsg && !error && (
+              submitting
+                ? <div className="af-status"><span className="af-status__spin" /></div>
+                : <div className="af-status">{statusMsg}</div>
+            )}
             <div className="af-spacer" />
             <div className="af-actions">
               <button type="submit" className="af-btn af-btn--block" disabled={submitting}>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
+import { Sparkles } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   getCoursePublic,
@@ -9,6 +10,7 @@ import {
   getPaymentConfig,
   freeEnroll,
 } from "../api/enrollments";
+import { getMyEnrolledCourses } from "../api/coursesApi";
 import { useToast } from "../contexts/ToastContext";
 import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import { APP_URL } from "../config/urls";
@@ -21,7 +23,7 @@ const formatRupees = (paise) =>
     ? ""
     : `₹${(paise / 100).toLocaleString("en-IN")}`;
 
-const EnrollModal = ({ courseId, onClose }) => {
+const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   const { user } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
@@ -52,6 +54,11 @@ const EnrollModal = ({ courseId, onClose }) => {
   const [enrolling, setEnrolling] = useState(false);
   const [enrollError, setEnrollError] = useState("");
   const [enrolledSub, setEnrolledSub] = useState(null);
+
+  // Batch choice (Morning/Afternoon/Evening/Night etc) — only shown when the
+  // course actually has batches configured. `course.batches` comes straight
+  // from getCoursePublic(), see the effect below.
+  const [selectedBatch, setSelectedBatch] = useState(null);
 
   const initialPath = useRef(location.pathname);
 
@@ -100,9 +107,21 @@ const EnrollModal = ({ courseId, onClose }) => {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    getMyEnrollmentRequests()
-      .then((data) => {
+    // Checked against BOTH sources: the manual-UPI review queue
+    // (EnrollmentRequest) and the learner's real active enrollments
+    // (/courses/my/). A free-enroll never creates an EnrollmentRequest — it
+    // writes an Enrollment/Subscription directly — so checking only the
+    // request queue means a learner who free-enrolled and closed this modal
+    // without clicking "Start Learning" sees the "Enroll free" screen again
+    // next time, and clicking it again silently re-extends their
+    // subscription's expiry with no indication anything already happened.
+    Promise.all([getMyEnrollmentRequests(), getMyEnrolledCourses()])
+      .then(([data, enrolled]) => {
         if (cancelled) return;
+        if (enrolled.some((c) => c?.id === courseId)) {
+          setExistingStatus("APPROVED");
+          return;
+        }
         const list = Array.isArray(data) ? data : data?.results || [];
         const match = list.find((r) => r?.course?.id === courseId);
         if (!match) return;
@@ -116,12 +135,42 @@ const EnrollModal = ({ courseId, onClose }) => {
   const isFreeMode = !!(payCfg && (payCfg.is_free || payCfg.auto_activate));
   const isRazorpay = payCfg?.provider === "razorpay";
 
+  const hasBatches = Array.isArray(course?.batches) && course.batches.length > 0;
+  const batchRequired = hasBatches && !selectedBatch;
+
+  const batchPicker = hasBatches && (
+    <div className="em-batch-picker">
+      <p className="em-batch-picker__label">Choose your batch</p>
+      <div className="em-batch-options">
+        {course.batches.map((b) => (
+          <button
+            type="button"
+            key={b.id}
+            className={`em-batch-option${selectedBatch === b.id ? " is-selected" : ""}`}
+            disabled={b.is_full}
+            onClick={() => setSelectedBatch(b.id)}
+          >
+            <span className="em-batch-option__name">{b.name}</span>
+            {b.is_full ? (
+              <span className="em-batch-option__seats em-batch-option__seats--full">Full</span>
+            ) : b.capacity ? (
+              <span className="em-batch-option__seats">
+                {Math.max(b.capacity - b.seats_taken, 0)} seats left
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const handleFreeEnroll = async () => {
     setEnrollError("");
     setEnrolling(true);
     try {
-      const data = await freeEnroll(courseId);
+      const data = await freeEnroll(courseId, selectedBatch);
       setEnrolledSub(data?.subscription || null);
+      onEnrolled?.(courseId);
       showToast({
         message: `You're enrolled in ${course?.title}!`,
         duration: 3500,
@@ -150,6 +199,7 @@ const EnrollModal = ({ courseId, onClose }) => {
     receipt &&
     agreePayment &&
     agreeTerms &&
+    !batchRequired &&
     !submitting;
 
   const handleSubmit = async (e) => {
@@ -159,6 +209,7 @@ const EnrollModal = ({ courseId, onClose }) => {
 
     const fd = new FormData();
     fd.append("course", courseId);
+    if (selectedBatch) fd.append("batch", selectedBatch);
     fd.append("payment_method", paymentMethod);
     fd.append("utr_number", utr.trim());
     fd.append("payment_date", paymentDate);
@@ -297,7 +348,7 @@ const EnrollModal = ({ courseId, onClose }) => {
     if (isFreeMode) {
       return (
         <div className="em-status">
-          <div className="em-status__icon em-status__icon--success">🎁</div>
+          <div className="em-status__icon em-status__icon--success"><Sparkles size={28} strokeWidth={2.25} /></div>
           <h3 className="em-status__heading">Get {course.title} for free</h3>
           {[course.board, course.stream].filter(Boolean).length > 0 && (
             <p className="em-status__msg" style={{ marginBottom: 4 }}>
@@ -316,14 +367,17 @@ const EnrollModal = ({ courseId, onClose }) => {
               </>
             ) : null}
           </p>
+          {batchPicker}
           <button
             type="button"
             className="em-btn em-btn--primary em-btn--submit"
             onClick={handleFreeEnroll}
-            disabled={enrolling}
+            disabled={enrolling || batchRequired}
           >
             {enrolling ? (
               <><span className="em-btn-spinner" /> Enrolling…</>
+            ) : batchRequired ? (
+              "Choose a batch to continue"
             ) : (
               "Enroll free"
             )}
@@ -369,6 +423,7 @@ const EnrollModal = ({ courseId, onClose }) => {
             )}
             <p className="em-card__price">{formatRupees(course.price)}</p>
             <span className="em-card__duration-badge">12-month subscription</span>
+            {batchPicker}
           </div>
 
           {/* QR */}
@@ -502,6 +557,8 @@ const EnrollModal = ({ courseId, onClose }) => {
             <button type="submit" className="em-btn em-btn--primary em-btn--submit" disabled={!canSubmit}>
               {submitting ? (
                 <><span className="em-btn-spinner" /> Submitting…</>
+              ) : batchRequired ? (
+                "Choose a batch above"
               ) : (
                 "Submit for Approval"
               )}

@@ -58,13 +58,17 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
   const boardName = board || 'CBSE';
   const isMbse = boardName.toLowerCase() === 'mbse';
 
+  // CMS-authored description (Course.description) wins when present, same
+  // fallback pattern as highlights/includes below.
   const summaryText = useMemo(() => {
+    if (course.desc?.trim()) return course.desc.trim();
+
     if (isMbse) {
       return `${courseName} complete curriculum for ${boardName} with subject-wise structured coverage, chapter breakdown, and board-aligned academic preparation.`;
     }
 
     return `${courseName} complete curriculum with subject-wise structured coverage, chapter breakdown, and strong board exam preparation support.`;
-  }, [courseName, boardName, isMbse]);
+  }, [course.desc, courseName, boardName, isMbse]);
 
   // CMS-authored highlights/includes (CourseDetail.highlights/.includes, one
   // item per line) win when present; otherwise fall back to the generated
@@ -110,7 +114,14 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
 
   return (
     <div className="course-detail-screen">
-      <section className="course-detail-hero">
+      <section
+        className={`course-detail-hero${course.thumbnail ? ' course-detail-hero--with-image' : ''}`}
+        style={
+          course.thumbnail
+            ? { backgroundImage: `linear-gradient(rgba(0,50,35,.82),rgba(0,50,35,.9)), url(${course.thumbnail})` }
+            : undefined
+        }
+      >
         <div className="course-detail-container">
           <Breadcrumb
             items={[

@@ -22,6 +22,23 @@
   font-family: "Poppins", system-ui, sans-serif;
 }
 
+.rh-preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 12px 18px;
+  background: var(--rh-amber);
+  border: 1px solid rgba(255, 143, 1, 0.28);
+  border-radius: 12px;
+  color: var(--rh-ink);
+  font-size: 14px;
+}
+
+.rh-preview-banner strong {
+  color: var(--rh-orange);
+}
+
 .research-page button,
 .research-page input,
 .research-page select,

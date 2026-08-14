@@ -869,3 +869,55 @@
     grid-column: unset;
   }
 }
+
+/* ---- Batch picker (EnrollModal) ---- */
+.em-batch-picker {
+  margin-top: 16px;
+}
+.em-batch-picker__label {
+  margin: 0 0 8px;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #003223;
+}
+.em-batch-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.em-batch-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid #dcdcdc;
+  border-radius: 999px;
+  background: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #003223;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.em-batch-option:hover:not(:disabled) {
+  border-color: #3fad4e;
+}
+.em-batch-option.is-selected {
+  border-color: #003223;
+  background: rgba(63, 173, 78, 0.1);
+}
+.em-batch-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.em-batch-option__seats {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+.em-batch-option__seats--full {
+  color: #b91c1c;
+}

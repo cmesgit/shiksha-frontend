@@ -80,7 +80,7 @@ const DEFAULT_GRADIENT = "g-green";
 const DEFAULT_ITEMS = [
   { icon: "board", title: "School Education", subtitle: "Classes 8–12 · CBSE, NCERT & MBSE", pills: ["Mathematics", "Science", "English", "Social Studies"], stat_text: "Board-aligned live & recorded classes", cta_label: "Explore School Courses", cta_href: "/courses", tint: "green" },
   { icon: "research", title: "Competitive Exams", subtitle: "JEE · NEET · UPSC · Banking", pills: ["IIT-JEE", "NEET", "UPSC", "SSC"], stat_text: "Expert mentors & proven strategies", cta_label: "Start Exam Prep", cta_href: "/courses", tint: "blue" },
-  { icon: "skills", title: "Skill & Career", subtitle: "Olympiads · CA · Coding & more", pills: ["Olympiads", "CA Foundation", "Coding", "Career"], stat_text: "Beyond academics — build real skills", cta_label: "View Programs", cta_href: "/courses", tint: "gold" },
+  { icon: "skills", title: "Skill & Career", subtitle: "Olympiads · CA · Coding & more", pills: ["Olympiads", "CA Foundation", "Coding", "Career"], stat_text: "Beyond academics — build real skills", cta_label: "View Programs", cta_href: "/skill/browse", tint: "gold" },
 ];
 
 export default function BrowseCategories() {

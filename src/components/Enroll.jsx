@@ -60,6 +60,9 @@ const Enroll = () => {
   const [enrollError, setEnrollError] = useState("");
   const [enrolledSub, setEnrolledSub] = useState(null);
 
+  // Batch choice — only shown when the course has batches configured.
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
   useEffect(() => {
     setLoadingCourse(true);
     getCoursePublic(courseId)
@@ -105,12 +108,14 @@ const Enroll = () => {
 
   const isFreeMode = !!(payCfg && (payCfg.is_free || payCfg.auto_activate));
   const isRazorpay = payCfg?.provider === "razorpay";
+  const hasBatches = Array.isArray(course?.batches) && course.batches.length > 0;
+  const batchRequired = hasBatches && !selectedBatch;
 
   const handleFreeEnroll = async () => {
     setEnrollError("");
     setEnrolling(true);
     try {
-      const data = await freeEnroll(courseId);
+      const data = await freeEnroll(courseId, selectedBatch);
       setEnrolledSub(data?.subscription || null);
       showToast({
         message: `You're enrolled in ${course?.title}!`,
@@ -140,6 +145,7 @@ const Enroll = () => {
     receipt &&
     agreePayment &&
     agreeTerms &&
+    !batchRequired &&
     !submitting;
 
   const handleSubmit = async (e) => {
@@ -149,6 +155,7 @@ const Enroll = () => {
 
     const fd = new FormData();
     fd.append("course", courseId);
+    if (selectedBatch) fd.append("batch", selectedBatch);
     fd.append("payment_method", paymentMethod);
     fd.append("utr_number", utr.trim());
     fd.append("payment_date", paymentDate);
@@ -171,6 +178,32 @@ const Enroll = () => {
       setSubmitting(false);
     }
   };
+
+  const batchPicker = hasBatches && (
+    <div className="em-batch-picker">
+      <p className="em-batch-picker__label">Choose your batch</p>
+      <div className="em-batch-options">
+        {course.batches.map((b) => (
+          <button
+            type="button"
+            key={b.id}
+            className={`em-batch-option${selectedBatch === b.id ? " is-selected" : ""}`}
+            disabled={b.is_full}
+            onClick={() => setSelectedBatch(b.id)}
+          >
+            <span className="em-batch-option__name">{b.name}</span>
+            {b.is_full ? (
+              <span className="em-batch-option__seats em-batch-option__seats--full">Full</span>
+            ) : b.capacity ? (
+              <span className="em-batch-option__seats">
+                {Math.max(b.capacity - b.seats_taken, 0)} seats left
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   if (loadingCourse || payCfg === null) {
     return <div className="enroll-page"><div className="enroll-loading">Loading course...</div></div>;
@@ -355,13 +388,14 @@ const Enroll = () => {
               </>
             ) : null}
           </p>
+          {batchPicker}
           <button
             type="button"
             className="enroll-submit"
             onClick={handleFreeEnroll}
-            disabled={enrolling}
+            disabled={enrolling || batchRequired}
           >
-            {enrolling ? "Enrolling..." : "Enroll free"}
+            {enrolling ? "Enrolling..." : batchRequired ? "Choose a batch to continue" : "Enroll free"}
           </button>
           {enrollError && (
             <p className="enroll-error" style={{ marginTop: 12 }}>{enrollError}</p>
@@ -407,6 +441,7 @@ const Enroll = () => {
               {[course.board, course.stream].filter(Boolean).join(" · ")}
             </div>
             <div className="enroll-price">{formatRupees(course.price)}</div>
+            {batchPicker}
           </div>
 
           <div className="enroll-card" style={{ marginTop: 16 }}>
@@ -518,7 +553,7 @@ const Enroll = () => {
             {submitError && <div className="enroll-error">{submitError}</div>}
 
             <button type="submit" className="enroll-submit" disabled={!canSubmit}>
-              {submitting ? "Submitting..." : "Submit for Approval"}
+              {submitting ? "Submitting..." : batchRequired ? "Choose a batch above" : "Submit for Approval"}
             </button>
           </form>
         </div>

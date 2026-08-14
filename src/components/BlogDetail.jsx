@@ -5,13 +5,144 @@
 // (class-9/economics/chapter-1), so every /blogs/<slug> link resolves via
 // the content API alone — no static-fragment/CDN fallback needed anymore.
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
+import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
+import "../css/BlogDetail.css";
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
 const htmlCache = new Map();
+
+// Chapter bodies render inside a sandboxed iframe rather than a plain div.
+// DOMPurify's default config keeps <style> tags, but only inside a
+// WHOLE_DOCUMENT parse — in a same-document fragment render they get
+// stripped unconditionally, which silently broke every legacy chapter's
+// hand-designed <style> block. An iframe document has no such restriction,
+// and (as a side benefit) also stops a chapter's own `* { margin: 0 }`-style
+// reset from leaking into and breaking the page chrome around it — the same
+// technique already used for the CMS author preview
+// (Admin-dashboard/src/pages/content/preview/BlogBodyPreview.jsx).
+// `sandbox="allow-same-origin"` blocks script execution (no allow-scripts)
+// while still letting this component read contentDocument to auto-size the
+// iframe to its content's real height.
+// Nominal viewport height (px) that `vh` units in legacy chapter CSS are
+// rewritten against. 800 ≈ a normal desktop viewport, which is what these
+// chapters were hand-designed in.
+const NOMINAL_VIEWPORT_PX = 800;
+
+// Legacy chapters style themselves with viewport units (114 of the 115
+// imported posts contain at least one `vh` value — e.g. `.flm-hero
+// { min-height: 100vh }`). Inside an auto-height iframe that is a runaway
+// feedback loop, because `vh` resolves against the IFRAME's height, which we
+// set from the content's height:
+//
+//   measure content -> grow iframe -> 100vh grows -> content grows -> ...
+//
+// On class-9/science/chapter-9 that inflated a single hero to ~9,900px and
+// left the iframe ~5,700px shorter than its own content (so the tail was
+// unreachable behind `scrolling="no"`, and the oversized empty hero read as
+// a huge blank band). Rewriting `vh` to a fixed px equivalent breaks the
+// dependency entirely: content height becomes a pure function of the HTML,
+// so one measurement is stable and correct.
+//
+// Scoped deliberately to <style> blocks and inline style attributes of
+// chapter bodies — this is a compatibility shim for imported legacy markup,
+// not a general CSS transform. `vmin`/`vmax`/`svh`/`dvh`/`lvh` are covered
+// too since they have the same iframe-relative problem; `vw` is left alone
+// because iframe width is the real viewport width and does not feed back.
+const VIEWPORT_UNIT_RE = /(-?\d*\.?\d+)(svh|lvh|dvh|vh|vmin|vmax)\b/gi;
+const neutralizeViewportUnits = (markup) =>
+  markup.replace(/<style\b[^>]*>[\s\S]*?<\/style>|style="[^"]*"/gi, (block) =>
+    block.replace(VIEWPORT_UNIT_RE, (_m, num) =>
+      `${((parseFloat(num) / 100) * NOMINAL_VIEWPORT_PX).toFixed(2).replace(/\.?0+$/, "")}px`
+    )
+  );
+
+const BlogBody = ({ html }) => {
+  const iframeRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  const srcDoc = useMemo(() => {
+    // FORCE_BODY is required here: DOMPurify's fragment-mode parser silently
+    // drops a leading <style> tag (treats it as invalid at the document root
+    // and discards it) unless told to force-parse the input as body content.
+    // Without this, moving the render into an iframe alone does nothing —
+    // the tag never survives sanitize() to reach the iframe in the first
+    // place. Verified against DOMPurify 3.4.13: FORCE_BODY still strips
+    // <script> and on*= handlers exactly as before.
+    const clean = neutralizeViewportUnits(
+      DOMPurify.sanitize(html || "", { FORCE_BODY: true })
+    );
+    return (
+      `<!doctype html><html><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+      `<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">` +
+      `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">` +
+      `<style>body{margin:0;padding:0;font-family:"Poppins",sans-serif;}${BLOG_BODY_CSS}</style>` +
+      `</head><body><div class="blog-body">${clean}</div></body></html>`
+    );
+  }, [html]);
+
+  useEffect(() => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc?.documentElement) return;
+
+    const measure = () => setHeight(doc.documentElement.scrollHeight);
+    measure();
+
+    // Observe <body>, NOT <documentElement>: documentElement's own box is
+    // stretched to the iframe height we control, so it does not change when
+    // the content inside it reflows — the observer simply never fired again
+    // after the first measurement. <body> is content-sized, so it does.
+    // This is what left the applied height stale by thousands of pixels once
+    // the CDN webfonts (Poppins/Montserrat/Font Awesome) landed and re-flowed
+    // the text below them.
+    const ro = new ResizeObserver(measure);
+    if (doc.body) ro.observe(doc.body);
+    window.addEventListener("resize", measure);
+
+    // Webfonts and any images finish after load and change text metrics /
+    // layout; both need an explicit re-measure since neither necessarily
+    // resizes <body> in an observable step on every engine.
+    doc.fonts?.ready?.then(measure).catch(() => {});
+    const imgs = [...doc.images].filter((img) => !img.complete);
+    imgs.forEach((img) => {
+      img.addEventListener("load", measure);
+      img.addEventListener("error", measure);
+    });
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+      imgs.forEach((img) => {
+        img.removeEventListener("load", measure);
+        img.removeEventListener("error", measure);
+      });
+    };
+  }, [srcDoc]);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      title="Chapter content"
+      srcDoc={srcDoc}
+      sandbox="allow-same-origin"
+      onLoad={() => {
+        const doc = iframeRef.current?.contentDocument;
+        if (doc?.documentElement) setHeight(doc.documentElement.scrollHeight);
+      }}
+      style={{
+        width: "100%",
+        border: "none",
+        display: "block",
+        height: height || 400,
+      }}
+      scrolling="no"
+    />
+  );
+};
 
 const ChapterLoading = () => (
   <div
@@ -40,18 +171,27 @@ const ChapterLoading = () => (
   </div>
 );
 
-const BlogDetail = () => {
+// `translations`/`is_fallback_locale` aren't cached alongside the body HTML
+// (only `html`/`title` are, in `htmlCache`) — they're small and re-fetched
+// on every navigation anyway since they live in plain component state, not
+// the session-lifetime cache; no correctness issue, just not worth the
+// extra cache-shape complexity for two small fields.
+const LOCALE_LABELS = { en: "English", hi: "हिंदी" };
+
+const BlogDetail = ({ locale = "en" }) => {
   const { "*": slug } = useParams();
   const navigate = useNavigate();
   const [showTopButton, setShowTopButton] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState(null);
   const [html, setHtml] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | notfound | error
+  const [translations, setTranslations] = useState([]);
+  const [isFallbackLocale, setIsFallbackLocale] = useState(false);
   const abortRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+  }, [slug, locale]);
 
   useEffect(() => {
     const handleScroll = () => setShowTopButton(window.scrollY > 300);
@@ -62,8 +202,16 @@ const BlogDetail = () => {
   useEffect(() => {
     if (!slug) { setStatus("notfound"); return; }
 
-    if (htmlCache.has(slug)) {
-      setHtml(htmlCache.get(slug));
+    // Cache key includes locale — the same slug legitimately resolves to
+    // different content per locale (or falls back to English for one and
+    // not the other), so a plain per-slug cache would leak one locale's
+    // rendered HTML into the other's URL after navigating between them.
+    const cacheKey = `${locale}:${slug}`;
+    if (htmlCache.has(cacheKey)) {
+      const cached = htmlCache.get(cacheKey);
+      setHtml(cached.html);
+      setTranslations(cached.translations);
+      setIsFallbackLocale(cached.isFallbackLocale);
       setStatus("ready");
       return;
     }
@@ -74,9 +222,11 @@ const BlogDetail = () => {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const show = (text, title) => {
-      htmlCache.set(slug, text);
+    const show = (text, title, translationList, fallback) => {
+      htmlCache.set(cacheKey, { html: text, translations: translationList, isFallbackLocale: fallback });
       setHtml(text);
+      setTranslations(translationList);
+      setIsFallbackLocale(fallback);
       setStatus("ready");
       const heading =
         title ||
@@ -89,10 +239,15 @@ const BlogDetail = () => {
       if (heading) document.title = `${heading} · Shiksha`;
     };
 
-    getBlogPost(slug).then((result) => {
+    getBlogPost(slug, locale).then((result) => {
       if (ctrl.signal.aborted) return;
       if (result.status === "ok") {
-        show(result.post.body_html, result.post.seo_title || result.post.title);
+        show(
+          result.post.body_html,
+          result.post.seo_title || result.post.title,
+          result.post.translations || [],
+          !!result.post.is_fallback_locale
+        );
       } else if (result.status === "notfound") {
         setStatus("notfound");
       } else {
@@ -101,7 +256,12 @@ const BlogDetail = () => {
     });
 
     return () => ctrl.abort();
-  }, [slug]);
+  }, [slug, locale]);
+
+  // Only shown when a translation actually exists in another locale —
+  // hides itself entirely for a post that's English-only (nothing to
+  // switch to), same idea for a Hindi-only post with no English row.
+  const otherLocales = translations.filter((t) => t.locale !== locale);
 
   return (
     <div style={{ position: "relative" }}>
@@ -148,6 +308,33 @@ const BlogDetail = () => {
           Back
         </button>
 
+        {otherLocales.length > 0 && (
+          <div style={{ display: "flex", gap: "6px" }}>
+            {otherLocales.map((t) => (
+              <button
+                key={t.locale}
+                onClick={() => navigate(t.path)}
+                style={{
+                  padding: "10px 16px",
+                  background: "rgba(0, 50, 35, 0.82)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                  color: "#fff",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  borderRadius: "50px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  letterSpacing: "0.4px",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.22)",
+                }}
+              >
+                {LOCALE_LABELS[t.locale] || t.locale}
+              </button>
+            ))}
+          </div>
+        )}
+
         {showTopButton && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -183,13 +370,25 @@ const BlogDetail = () => {
 
       {status === "loading" && <ChapterLoading />}
 
-      {status === "ready" && html && (
-        // Originally "first-party build artifact, safe to inject" — no longer
-        // true since BlogPostAdminViewSet (content/admin_views.py) lets any
-        // IsContentEditor-role account write this content via the API, a
-        // lower-privilege role than full admin. Sanitize before rendering.
-        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
+      {status === "ready" && isFallbackLocale && (
+        <div
+          style={{
+            maxWidth: 880,
+            margin: "0 auto",
+            padding: "12px 20px",
+            background: "#fff8e8",
+            border: "1px solid #ecd080",
+            borderRadius: "8px",
+            color: "#7a4c00",
+            fontSize: "14px",
+            fontWeight: 600,
+          }}
+        >
+          This chapter isn't translated into {LOCALE_LABELS[locale] || locale} yet — showing the English version.
+        </div>
       )}
+
+      {status === "ready" && html && <BlogBody html={html} />}
 
       {status === "notfound" && <h2>Blog not found</h2>}
 

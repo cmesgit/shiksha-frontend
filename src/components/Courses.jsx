@@ -6,16 +6,16 @@ import EnrollModal from './EnrollModal';
 import UnifiedCatalog from './courses/UnifiedCatalog';
 import CoursesHero from './courses/CoursesHero';
 import CoursesStrip from './courses/CoursesStrip';
-import CoursesPrograms from './courses/CoursesPrograms';
 import CoursesPromo, { CoursesFinalCta } from './courses/CoursesPromo';
 import WhyChooseShiksha from './home/WhyChooseShiksha';
 import TeachersStudents from './home/TeachersStudents';
 import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
+import { useToast } from '../contexts/ToastContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
-import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
+import { getPublicCourseDetail, getPublicCourseBySlug, getMyEnrolledCourses } from '../api/coursesApi';
 import { usePublicBoards, useBoardClasses } from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
@@ -43,6 +43,7 @@ const Courses = () => {
   const { slug: slugParam } = useParams();
   const { isAuthenticated, user } = useAuth();
   const { openWithMessage } = useProfileModal();
+  const { showToast } = useToast();
 
   // Deep-link intent reaches this page two ways: router `state` (homepage
   // cards, navbar links) or query params (?board=&group=&open=&q=). State is
@@ -78,7 +79,6 @@ const Courses = () => {
   // into that class's expanded row — captured once on mount.
   const [pendingOpenCourseId] = useState(deepLink.openCourseId);
   const catalogRef = useRef(null);
-  const programsRef = useRef(null);
 
   // Real backend data: which boards currently have published courses (drives
   // "Coming Soon" locking) and the real course catalog for whichever board is
@@ -131,6 +131,7 @@ const Courses = () => {
         title: detail.title,
         desc: detail.description,
         price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+        thumbnail: detail.thumbnail,
         highlights: detail.details?.highlights,
         includes: detail.details?.includes,
         topics: (detail.subjects || []).map((s) => ({
@@ -170,12 +171,21 @@ const Courses = () => {
 
     let cancelled = false;
 
-    getMyEnrollmentRequests()
-      .then((data) => {
+    const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+
+    // Two independent sources, merged: the manual-UPI review queue
+    // (EnrollmentRequest, via /enrollments/requests/mine/) and the learner's
+    // real active enrollments (/courses/my/). A free-enroll writes only the
+    // latter — FreeEnrollView creates an Enrollment/Subscription directly and
+    // never touches EnrollmentRequest — so relying on the request queue alone
+    // makes a free-enrolled course look un-enrolled forever unless the
+    // learner happens to click all the way through to "Start Learning"
+    // before closing the popup. Real enrollment always wins as APPROVED.
+    Promise.all([getMyEnrollmentRequests(), getMyEnrolledCourses()])
+      .then(([reqData, enrolled]) => {
         if (cancelled) return;
 
-        const list = Array.isArray(data) ? data : data?.results || [];
-        const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
+        const list = Array.isArray(reqData) ? reqData : reqData?.results || [];
         const map = {};
 
         for (const req of list) {
@@ -188,6 +198,10 @@ const Courses = () => {
           }
         }
 
+        for (const course of enrolled) {
+          if (course?.id) map[course.id] = 'APPROVED';
+        }
+
         setEnrollmentStatusByCourseId(map);
       })
       .catch(() => {});
@@ -197,11 +211,34 @@ const Courses = () => {
     };
   }, [isAuthenticated]);
 
+  // Called by EnrollModal the instant a free-enroll succeeds, so the catalog
+  // reflects it immediately even if the learner closes the popup (✕, Escape,
+  // backdrop click) instead of clicking through to "Start Learning" — without
+  // this, enrollmentStatusByCourseId is only refreshed on page load/auth
+  // change, so the "Enroll Now" button would still invite a re-enroll.
+  const handleEnrolled = (courseId) => {
+    setEnrollmentStatusByCourseId((prev) => ({ ...prev, [courseId]: 'APPROVED' }));
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [activeCourse]);
 
+  // Applies a given `location.state` payload at most once. Without this,
+  // including `selectedBoard` in the deps below (needed so a *new*
+  // navigation while already on this page can still switch boards) meant
+  // every manual board-chip click re-ran this effect, which re-derived
+  // `target` from the same still-unconsumed `location.state.selectedBoard`
+  // and immediately reverted the click back to the deep-linked board —
+  // the new board's list never got a chance to render until the user
+  // toggled back and forth (or refreshed, which drops the stale state).
+  const appliedLocationStateRef = useRef(null);
+
   useEffect(() => {
+    if (!boards) return; // wait for the board list before resolving slug/group
+    if (appliedLocationStateRef.current === location.state) return;
+    appliedLocationStateRef.current = location.state;
+
     if (location.state?.resetCourses) {
       setSelectedBoard(null);
       setExpandedClassId(null);
@@ -216,23 +253,21 @@ const Courses = () => {
     // A navbar/homepage course link clicked while already sitting on this
     // page (same route, fresh `state`) should still switch boards — the
     // initial-mount default-board effect above only ever fires once.
-    if (boards) {
-      const wantedSlug = location.state?.selectedBoard;
-      const wantedGroup = location.state?.selectedBoardGroup;
-      let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
-      if (!target && wantedGroup) {
-        target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
-      }
-      if (target && target.slug !== selectedBoard) {
-        setSelectedBoard(target.slug);
-        setExpandedClassId(null);
-        // Don't clobber an explicit searchQuery arriving in the same state
-        // payload (handled just above) — only clear it for a plain board switch.
-        if (location.state?.searchQuery == null) setSearchQuery('');
-        saveLastBoard(target.slug);
-      }
+    const wantedSlug = location.state?.selectedBoard;
+    const wantedGroup = location.state?.selectedBoardGroup;
+    let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
+    if (!target && wantedGroup) {
+      target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
     }
-  }, [location.state, boards, selectedBoard]);
+    if (target) {
+      setSelectedBoard(target.slug);
+      setExpandedClassId(null);
+      // Don't clobber an explicit searchQuery arriving in the same state
+      // payload (handled just above) — only clear it for a plain board switch.
+      if (location.state?.searchQuery == null) setSearchQuery('');
+      saveLastBoard(target.slug);
+    }
+  }, [location.state, boards]);
 
   useEffect(() => {
     setEnrollModalCourseId(null);
@@ -275,6 +310,7 @@ const Courses = () => {
       title: detail.title,
       desc: detail.description,
       price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
+      thumbnail: detail.thumbnail,
       highlights: detail.details?.highlights,
       includes: detail.details?.includes,
       topics: (detail.subjects || []).map((s) => ({
@@ -328,11 +364,12 @@ const Courses = () => {
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
-      alert(
-        `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
+      showToast({
+        type: 'error',
+        message: `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ''} is not yet available for ${
           currentBoard?.name || 'this board'
         }.`
-      );
+      });
       return;
     }
 
@@ -391,6 +428,7 @@ const Courses = () => {
           <EnrollModal
             courseId={enrollModalCourseId}
             onClose={() => setEnrollModalCourseId(null)}
+            onEnrolled={handleEnrolled}
           />
         )}
       </>
@@ -401,16 +439,9 @@ const Courses = () => {
     <section className="courses-page">
       <CoursesHero
         onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
-        onBrowseCategories={() => programsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        onBrowseCategories={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
       />
       <CoursesStrip />
-      <div ref={programsRef}>
-        <CoursesPrograms
-          boards={boards}
-          onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })}
-          onSkillBrowse={() => navigate('/skill/browse')}
-        />
-      </div>
       {/* Not .courses-container (legacy wrapper, own 28/18/14px responsive
           padding scheme) — .wrap is the real site-wide gutter (ShikshaHome.css)
           the hero/programs tiles above and the reused Faq/WhyChooseShiksha/
@@ -441,6 +472,7 @@ const Courses = () => {
         <EnrollModal
           courseId={enrollModalCourseId}
           onClose={() => setEnrollModalCourseId(null)}
+          onEnrolled={handleEnrolled}
         />
       )}
     </section>

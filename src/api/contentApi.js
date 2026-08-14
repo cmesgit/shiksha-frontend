@@ -47,16 +47,23 @@ export async function getAllBlogCards({ maxPages = 20 } = {}) {
 }
 
 /**
- * Fetch a single post by path-style slug.
- * → { status: "ok", post }    published post found
+ * Fetch a single post by path-style slug, optionally in a specific locale
+ * (default "en", matching the backend's own default). A `?locale=hi`
+ * request for a slug with no Hindi translation yet still resolves "ok" —
+ * the backend serves the English row instead of 404ing, flagged via
+ * `post.is_fallback_locale` so the caller can show a "not translated yet"
+ * banner rather than losing the reader to a dead end.
+ * → { status: "ok", post }    published post found (post.locale tells you
+ *                             which locale actually rendered; check
+ *                             post.is_fallback_locale for the fallback case)
  * → { status: "notfound" }    real 404 → caller falls back to static file
  * → { status: "error" }       network/5xx → caller may retry or fall back
  */
-export async function getBlogPost(slug) {
+export async function getBlogPost(slug, locale) {
   try {
-    const { data } = await api.get(
-      `/content/blogs/${encodeURI(slug)}/`
-    );
+    const { data } = await api.get(`/content/blogs/${encodeURI(slug)}/`, {
+      params: locale ? { locale } : undefined,
+    });
     return { status: "ok", post: data };
   } catch (err) {
     if (err?.response?.status === 404) return { status: "notfound" };
@@ -127,6 +134,18 @@ export async function getHomeFloaters(section) {
     const { data } = await api.get("/content/home-floaters/", {
       params: { section },
     });
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+// Ordered, visible-only list of homepage sections — lets an admin reorder/
+// hide sections without a frontend deploy. See ShikshaHome.jsx for the
+// fallback used while this is loading or if it's ever empty/unreachable.
+export async function getHomeSectionOrder() {
+  try {
+    const { data } = await api.get("/content/home-section-order/");
     return data || [];
   } catch {
     return [];

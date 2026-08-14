@@ -322,7 +322,7 @@ export default function SkillBrowsePage() {
               <h3>{teachBanner?.heading || "Are you an expert at something?"}</h3>
               <p>{teachBanner?.body || "Share your craft with students across Mizoram. Create a teaching account — it takes less than 5 minutes."}</p>
             </div>
-            <button type="button" onClick={() => navigate(teachBanner?.cta_url || "/signup?role=teacher&skill=true")}>
+            <button type="button" onClick={() => navigate(teachBanner?.cta_url || "/signup?role=teacher&add_track=skill")}>
               {teachBanner?.cta_label || "I want to teach my craft →"}
             </button>
           </section>

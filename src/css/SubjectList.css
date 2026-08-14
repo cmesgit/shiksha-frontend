@@ -64,6 +64,16 @@
   color: #ffffff;
 }
 
+/* Real course thumbnail (Course.thumbnail, CMS-uploaded) — overrides the
+   grid-pattern placeholder above with the actual cover image, dimmed by an
+   inline gradient scrim (set alongside this class) so the hero text stays
+   readable regardless of the image's own contrast. */
+.course-detail-hero--with-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .course-breadcrumb {
   display: flex;
   align-items: center;

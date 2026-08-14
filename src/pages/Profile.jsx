@@ -409,6 +409,9 @@ export default function Profile() {
           <div className="interests__grid">
             <div>
               <h4 className="interests__colTitle">Subjects</h4>
+              {!isEditing && displaySubjects.length === 0 && (
+                <p className="profileSection__placeholder">No subjects added yet.</p>
+              )}
               {displaySubjects.map((s, i) => (
                 <div key={i} className="interests__item interests__item--narrow">
                   <span>• {s}</span>
@@ -436,6 +439,9 @@ export default function Profile() {
 
             <div>
               <h4 className="interests__colTitle">Hobbies</h4>
+              {!isEditing && displayHobbies.length === 0 && (
+                <p className="profileSection__placeholder">No hobbies added yet.</p>
+              )}
               {displayHobbies.map((h, i) => (
                 <div key={i} className="interests__item interests__item--narrow">
                   <span>• {h}</span>
@@ -492,19 +498,6 @@ export default function Profile() {
           </>
         )}
 
-        {/* ── Private Session Activity (view mode only) ── */}
-        {!isEditing && (
-          <>
-            <hr className="profileDivider" />
-            <div className="profileSection">
-              <h3 className="profileSection__title">Private Session Activity</h3>
-              <ul className="activity__list">
-                <li><strong>24/25</strong> Private Sessions Attended</li>
-                <li><strong>95%</strong> Attendance Rate</li>
-              </ul>
-            </div>
-          </>
-        )}
 
         <hr className="profileDivider" />
       </div>

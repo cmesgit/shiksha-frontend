@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's WhyChooseShiksha.jsx —
    shared tokens (--coral, --violet, --green, etc.) come from ShikshaHome.css,
@@ -106,7 +107,7 @@ export default function WhyChooseShiksha() {
   const eyebrow = block?.eyebrow || "Why ShikshaCom";
   const heading = block?.heading || "Why choose ShikshaCom?";
   const ctaLabel = block?.cta_primary_label || "More details";
-  const ctaHref = block?.cta_primary_href || "#programs";
+  const ctaHref = block?.cta_primary_href || "/why-shiksha";
   const checks = items.length ? items : DEFAULT_ITEMS;
 
   useEffect(() => {
@@ -178,7 +179,7 @@ export default function WhyChooseShiksha() {
                       </span>
                       <div>
                         <b>{c.title}</b>
-                        <p>{c.body}</p>
+                        <p dangerouslySetInnerHTML={{ __html: sanitizeInline(c.body) }} />
                       </div>
                     </div>
                   ))}

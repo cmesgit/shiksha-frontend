@@ -47,6 +47,23 @@ export async function getPublicCourseBySlug(slug) {
 }
 
 /**
+ * The learner's real, currently-active enrollments — /courses/my/. This is
+ * the only source that reflects a free-enroll (FreeEnrollView writes an
+ * Enrollment row directly, never an EnrollmentRequest), so anything that
+ * needs to know "is this course actually unlocked for me" must check this,
+ * not just enrollments.js's getMyEnrollmentRequests (that endpoint only
+ * tracks the manual-UPI review queue).
+ */
+export async function getMyEnrolledCourses() {
+  try {
+    const { data } = await api.get("/courses/my/");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * "Notify me when {board} launches" lead capture on a locked board chip.
  * Unlike the read-only getters above, the caller needs to know whether the
  * submit actually failed (rate-limited, bad email, etc.), so this resolves
@@ -56,6 +73,21 @@ export async function submitBoardNotify(boardId, email) {
   if (!boardId || !email) return { ok: false, error: "Missing board or email." };
   try {
     await api.post(`/courses/public/boards/${boardId}/notify/`, { email });
+    return { ok: true };
+  } catch (e) {
+    const detail = e?.response?.data?.detail;
+    return { ok: false, error: detail || "Something went wrong. Please try again." };
+  }
+}
+
+/**
+ * "Notify me when {course} launches" lead capture on a coming-soon course
+ * card/quick-view — same shape and failure handling as submitBoardNotify.
+ */
+export async function submitCourseNotify(courseId, email) {
+  if (!courseId || !email) return { ok: false, error: "Missing course or email." };
+  try {
+    await api.post(`/courses/public/${courseId}/notify/`, { email });
     return { ok: true };
   } catch (e) {
     const detail = e?.response?.data?.detail;
