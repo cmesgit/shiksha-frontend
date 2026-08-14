@@ -141,9 +141,18 @@ export default function ExploreBrowse() {
               </div>
             ) : (
               <div className="exp-empty">
-                <h3>No documents match those filters</h3>
-                <p>Try removing a filter or searching a broader term.</p>
-                <button className="exp-btn exp-btn-primary" style={{ marginTop: 16 }} onClick={clearAll}>Clear filters</button>
+                {activeChips.length > 0 ? (
+                  <>
+                    <h3>No documents match those filters</h3>
+                    <p>Try removing a filter or searching a broader term.</p>
+                    <button className="exp-btn exp-btn-primary" style={{ marginTop: 16 }} onClick={clearAll}>Clear filters</button>
+                  </>
+                ) : (
+                  <>
+                    <h3>No documents yet</h3>
+                    <p>Check back soon — the library is still being stocked.</p>
+                  </>
+                )}
               </div>
             )}
         </main>

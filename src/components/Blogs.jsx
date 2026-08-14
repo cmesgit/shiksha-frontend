@@ -73,7 +73,9 @@ const Blogs = () => {
           ))}
         </div>
       ) : (
-        <p className="blogs-empty">No blogs found for &ldquo;{searchQuery.trim()}&rdquo;</p>
+        <p className="blogs-empty">
+          {searchQuery.trim() ? <>No blogs found for &ldquo;{searchQuery.trim()}&rdquo;</> : "No blog posts yet — check back soon."}
+        </p>
       )}
     </div>
   );

@@ -17,7 +17,7 @@ import { HashLink } from "react-router-hash-link";
 import { LayoutDashboard } from "lucide-react";
 
 import { useAuth } from "../contexts/AuthContext";
-import { APP_URL, TEACHER_URL } from "../config/urls";
+import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
@@ -510,7 +510,7 @@ const Navbar = () => {
     const isTeacher = normalized.includes("teacher") || single === "teacher";
 
     if (isTeacher) {
-      window.location.href = isTeacherContext ? TEACHER_URL : "/pick-profile";
+      window.location.href = isTeacherContext ? TEACHER_DASHBOARD_URL : "/pick-profile";
     } else {
       window.location.href = APP_URL;
     }
@@ -641,7 +641,7 @@ const Navbar = () => {
                       {
                         label: "Dashboard",
                         icon: <LayoutDashboard size={17} />,
-                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_URL : APP_URL; },
+                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL; },
                       },
                     ]}
                   />
@@ -807,7 +807,7 @@ const Navbar = () => {
                       {
                         label: "Dashboard",
                         icon: <LayoutDashboard size={17} />,
-                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_URL : APP_URL; },
+                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL; },
                       },
                     ]}
                   />

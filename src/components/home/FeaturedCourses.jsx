@@ -450,7 +450,7 @@ function CourseCard({ course: c, saved, onToggleSave, onAction }) {
         style={{ background: `linear-gradient(135deg,${c.grad}),url('${c.img}') center/cover` }}
       >
         <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>
-        {c.ribbon && <span className="fc-ribbon">{c.ribbon}</span>}
+        {c.ribbon && !c.soon && <span className="fc-ribbon">{c.ribbon}</span>}
         <button
           type="button"
           className={`fc-heart${saved ? " on" : ""}`}

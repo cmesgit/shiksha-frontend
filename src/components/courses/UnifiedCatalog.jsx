@@ -227,7 +227,7 @@ function CourseCard({ cls, board, onOpen, onEnroll, onNotify, enrollmentStatus }
         <div className="uc-gridcard__fact">
           <ClockIcon />
           {cls.duration} · {cls.mode}
-          {cls.subjectCount != null && ` · ${cls.subjectCount} subject${cls.subjectCount === 1 ? '' : 's'}`}
+          {cls.subjectCount > 0 && ` · ${cls.subjectCount} subject${cls.subjectCount === 1 ? '' : 's'}`}
         </div>
         {cls.seatsLeft != null && (
           <div className={`uc-gridcard__seats${seatsLow ? ' uc-gridcard__seats--low' : ''}`}>
@@ -280,7 +280,7 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, 
           <div className="uc-modal__fact"><span>Mode</span><b>{cls.mode}</b></div>
           <div className="uc-modal__fact"><span>Access</span><b>{cls.access}</b></div>
         </div>
-        {cls.subjectCount != null && (
+        {cls.subjectCount > 0 && (
           <p className="uc-modal__note">{cls.subjectCount} subject{cls.subjectCount === 1 ? '' : 's'} covered — full chapter-wise breakdown on the syllabus page.</p>
         )}
         <div className="uc-modal__actions">
