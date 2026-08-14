@@ -136,7 +136,7 @@ function ParticipantTile({ trackRef, variant, isLocal, isHost, micOn, speaking, 
 
 export default function GroupSessionClassroomUI({
   role, session, chatConfig, onLeave,
-  groupSession = false, groupSessionRemainingMs = null,
+  groupSessionRemainingMs = null,
   isHost = false, onEndSession = null,
 }) {
   const isPresenter = role === "PRESENTER" || role === "teacher";

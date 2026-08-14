@@ -85,7 +85,7 @@ const DEFAULT_ITEMS = [
 
 export default function BrowseCategories() {
   const rootRef = useRef(null);
-  const { block, items, floaters } = useHomeContent("browse_categories");
+  const { block, items } = useHomeContent("browse_categories");
 
   const eyebrow = block?.eyebrow || "Browse Categories";
   const heading = block?.heading || "Explore our learning categories";
