@@ -86,7 +86,6 @@ export default function Signup() {
 
   /* credentials */
   const [email, setEmail]       = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm]   = useState("");
   const [showPw, setShowPw]     = useState(false);
@@ -95,7 +94,7 @@ export default function Signup() {
   /* add-to-existing */
   const [isExisting, setIsExisting]             = useState(false);
   const [existingKind, setExistingKind]         = useState("");   // "has_teacher" | "has_student"
-  const [existingTeacherType, setExistingTeacherType] = useState("");
+  const [, setExistingTeacherType] = useState("");
   const [existingPassword, setExistingPassword] = useState("");
   const [showExistingPw, setShowExistingPw]     = useState(false);
   const [isUpgrade, setIsUpgrade]               = useState(false); // GUEST adding FACULTY

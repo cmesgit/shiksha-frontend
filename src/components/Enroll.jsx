@@ -29,7 +29,6 @@ const Enroll = () => {
     isAuthenticated,
     isLearnerContext,
     isTeacherContext,
-    needsProfileSelection,
     profiles,
     switchProfile,
   } = useAuth();

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   HOME_URL, LOGIN_URL, APP_DASHBOARD_URL,
@@ -38,7 +37,6 @@ const ProfilePicker = () => {
     profiles, teacherInfo, context, isAuthenticated, loading,
     selectProfile, enterTeacherMode, setProfilePin,
   } = useAuth();
-  const navigate = useNavigate();
 
   const [pinFor, setPinFor]   = useState(null); // profile id awaiting a PIN
   const [pin, setPin]         = useState("");
