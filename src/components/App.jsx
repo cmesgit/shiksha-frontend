@@ -291,7 +291,14 @@ function App() {
         <Route path="/placements"      element={<Page><Placements /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
-        <Route path="/blogs/*"         element={<Page><BlogDetail /></Page>} />
+        {/* More specific than the wildcard below — React Router ranks static
+            segments above wildcards regardless of declaration order, so this
+            always wins for any path starting with /blogs/hi/, but declaring
+            it first keeps the intent readable. Hindi is the only translated
+            locale today (see BlogDetail.jsx); English stays unprefixed so
+            every existing /blogs/<slug> link keeps working unchanged. */}
+        <Route path="/blogs/hi/*"      element={<Page><BlogDetail locale="hi" /></Page>} />
+        <Route path="/blogs/*"         element={<Page><BlogDetail locale="en" /></Page>} />
         <Route path="/faculty/signup"  element={<FacultySignup />} />
         
         <Route path="/counselling"                    element={<Page><CounsellingLanding /></Page>} />

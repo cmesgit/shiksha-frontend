@@ -171,18 +171,27 @@ const ChapterLoading = () => (
   </div>
 );
 
-const BlogDetail = () => {
+// `translations`/`is_fallback_locale` aren't cached alongside the body HTML
+// (only `html`/`title` are, in `htmlCache`) — they're small and re-fetched
+// on every navigation anyway since they live in plain component state, not
+// the session-lifetime cache; no correctness issue, just not worth the
+// extra cache-shape complexity for two small fields.
+const LOCALE_LABELS = { en: "English", hi: "हिंदी" };
+
+const BlogDetail = ({ locale = "en" }) => {
   const { "*": slug } = useParams();
   const navigate = useNavigate();
   const [showTopButton, setShowTopButton] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState(null);
   const [html, setHtml] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | notfound | error
+  const [translations, setTranslations] = useState([]);
+  const [isFallbackLocale, setIsFallbackLocale] = useState(false);
   const abortRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [slug]);
+  }, [slug, locale]);
 
   useEffect(() => {
     const handleScroll = () => setShowTopButton(window.scrollY > 300);
@@ -193,8 +202,16 @@ const BlogDetail = () => {
   useEffect(() => {
     if (!slug) { setStatus("notfound"); return; }
 
-    if (htmlCache.has(slug)) {
-      setHtml(htmlCache.get(slug));
+    // Cache key includes locale — the same slug legitimately resolves to
+    // different content per locale (or falls back to English for one and
+    // not the other), so a plain per-slug cache would leak one locale's
+    // rendered HTML into the other's URL after navigating between them.
+    const cacheKey = `${locale}:${slug}`;
+    if (htmlCache.has(cacheKey)) {
+      const cached = htmlCache.get(cacheKey);
+      setHtml(cached.html);
+      setTranslations(cached.translations);
+      setIsFallbackLocale(cached.isFallbackLocale);
       setStatus("ready");
       return;
     }
@@ -205,9 +222,11 @@ const BlogDetail = () => {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const show = (text, title) => {
-      htmlCache.set(slug, text);
+    const show = (text, title, translationList, fallback) => {
+      htmlCache.set(cacheKey, { html: text, translations: translationList, isFallbackLocale: fallback });
       setHtml(text);
+      setTranslations(translationList);
+      setIsFallbackLocale(fallback);
       setStatus("ready");
       const heading =
         title ||
@@ -220,10 +239,15 @@ const BlogDetail = () => {
       if (heading) document.title = `${heading} · Shiksha`;
     };
 
-    getBlogPost(slug).then((result) => {
+    getBlogPost(slug, locale).then((result) => {
       if (ctrl.signal.aborted) return;
       if (result.status === "ok") {
-        show(result.post.body_html, result.post.seo_title || result.post.title);
+        show(
+          result.post.body_html,
+          result.post.seo_title || result.post.title,
+          result.post.translations || [],
+          !!result.post.is_fallback_locale
+        );
       } else if (result.status === "notfound") {
         setStatus("notfound");
       } else {
@@ -232,7 +256,12 @@ const BlogDetail = () => {
     });
 
     return () => ctrl.abort();
-  }, [slug]);
+  }, [slug, locale]);
+
+  // Only shown when a translation actually exists in another locale —
+  // hides itself entirely for a post that's English-only (nothing to
+  // switch to), same idea for a Hindi-only post with no English row.
+  const otherLocales = translations.filter((t) => t.locale !== locale);
 
   return (
     <div style={{ position: "relative" }}>
@@ -279,6 +308,33 @@ const BlogDetail = () => {
           Back
         </button>
 
+        {otherLocales.length > 0 && (
+          <div style={{ display: "flex", gap: "6px" }}>
+            {otherLocales.map((t) => (
+              <button
+                key={t.locale}
+                onClick={() => navigate(t.path)}
+                style={{
+                  padding: "10px 16px",
+                  background: "rgba(0, 50, 35, 0.82)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                  color: "#fff",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  borderRadius: "50px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  letterSpacing: "0.4px",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.22)",
+                }}
+              >
+                {LOCALE_LABELS[t.locale] || t.locale}
+              </button>
+            ))}
+          </div>
+        )}
+
         {showTopButton && (
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -313,6 +369,24 @@ const BlogDetail = () => {
       </div>
 
       {status === "loading" && <ChapterLoading />}
+
+      {status === "ready" && isFallbackLocale && (
+        <div
+          style={{
+            maxWidth: 880,
+            margin: "0 auto",
+            padding: "12px 20px",
+            background: "#fff8e8",
+            border: "1px solid #ecd080",
+            borderRadius: "8px",
+            color: "#7a4c00",
+            fontSize: "14px",
+            fontWeight: 600,
+          }}
+        >
+          This chapter isn't translated into {LOCALE_LABELS[locale] || locale} yet — showing the English version.
+        </div>
+      )}
 
       {status === "ready" && html && <BlogBody html={html} />}
 
