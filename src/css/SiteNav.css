@@ -198,6 +198,12 @@
   display: flex;
   justify-content: center;
   min-width: 0;
+  /* .skn-pill's content (Courses/Resources/About) has a natural width that
+     doesn't shrink. When a long account name in .skn-actions squeezes this
+     container below that width, `justify-content: center` would otherwise
+     let the pill bleed out symmetrically — overlapping the brand logo/
+     subtitle to its left instead of just clipping on its own. */
+  overflow: hidden;
 }
 .skn-pill {
   display: flex;
