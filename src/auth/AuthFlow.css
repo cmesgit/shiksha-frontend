@@ -16,7 +16,18 @@
   --a: #0E8F7E;
   --soft: #E6F4F1;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-  min-height: 100vh;
+  /* Was `min-height: 100vh`, which only sets a floor: on a viewport short
+     enough that the right-hand panel's real content (all the guest-expert
+     profile fields, for example) is taller than the viewport, `.af` simply
+     grew past 100vh to fit it instead of staying capped — so `.af-panel`'s
+     own box grew right along with it (align-items: stretch), its
+     `overflow-y: auto` never found anything to overflow (scrollHeight ended
+     up equal to clientHeight), and the submit button was left stranded
+     below the fold with no scroll container able to reach it. Capping `.af`
+     to the actual viewport height forces `.af-panel` to that same fixed
+     height, so when its content is taller, the auto overflow is real and
+     scrolls the panel (not the whole page) to reveal the rest. */
+  height: 100vh;
   display: flex;
   align-items: stretch;
   background: #fff;

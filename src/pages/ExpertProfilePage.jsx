@@ -134,7 +134,7 @@ function AvailHeatmap({ avail }) {
             {SDAvail.DAYS.map((d, di) => {
               const k = `${di}-${si}`;
               const booked = (avail.booked || []).includes(k);
-              const open   = (avail.open || []).includes(k);
+              const open   = (avail.open || []).includes(k) && !SDAvail.isPast(k);
               return <span key={k} className={`ep-heatmap__cell${booked ? " booked" : open ? " open" : ""}`} />;
             })}
           </Fragment>
@@ -182,7 +182,7 @@ export default function ExpertProfilePage() {
   const { id }   = useParams();
   const navigate = useNavigate();
   const [sp]     = useSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, activeProfile } = useAuth();
   const { showToast } = useToast();
 
   const [expert, setExpert]   = useState(null);
@@ -250,6 +250,7 @@ export default function ExpertProfilePage() {
     try {
       const { data } = await api.post("/skill/payments/create-order/", {
         teacherId: id, listing: draft.listing || null, draft,
+        ...(activeProfile?.id ? { active_profile_id: activeProfile.id } : {}),
       });
       return {
         ok: true,
@@ -537,14 +538,17 @@ function SlotGrid({ avail, selected, onPick }) {
             {SDAvail.DAYS.map((d, di) => {
               const k = di + "-" + si;
               const booked = (avail.booked || []).includes(k);
-              const open   = (avail.open || []).includes(k);
+              const past   = SDAvail.isPast(k);
+              // A past slot can never be booked for the labelled date (the
+              // backend would roll it to next week), so it is not "open".
+              const open   = (avail.open || []).includes(k) && !past;
               const isSel  = selected === k;
               const clickable = open && !booked;
               const cls = booked ? "booked" : open ? (isSel ? "selected" : "open") : "closed";
               return (
                 <button key={k} type="button" disabled={!clickable}
                   onClick={() => clickable && onPick(k)}
-                  title={booked ? "Already booked" : open ? SDAvail.label(k) : "Closed"}
+                  title={past ? "This time has passed" : booked ? "Already booked" : open ? SDAvail.label(k) : "Closed"}
                   className={`ep-slot ep-slot--${cls}`} />
               );
             })}

@@ -164,6 +164,7 @@ export default function SkillBrowsePage() {
   const heroLabel   = hero?.subheading || "Skill Development";
   const heroTitle   = hero?.heading    || "Find a teacher for any skill";
   const heroSub     = hero?.body       || "Verified experts from across Mizoram — online, at their place, or travelling to you. Browsing is free and needs no account.";
+  const heroStatLabel = hero?.stat_label || "listed across Mizoram";
   const teachBanner = marketing.teach_banner;
   const activeCount = activeFilterCount(filters);
 
@@ -214,7 +215,7 @@ export default function SkillBrowsePage() {
                 <li>
                   <i style={{ background: "#1dcaab" }} />
                   <b>{stats.experts} {stats.experts === 1 ? "expert" : "experts"}</b>
-                  <span>listed across Mizoram</span>
+                  <span>{heroStatLabel}</span>
                 </li>
                 <li>
                   <i style={{ background: "#fbbf24" }} />

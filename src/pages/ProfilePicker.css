@@ -92,6 +92,17 @@
 
 .pp-lock { position: absolute; top: 10px; right: 12px; font-size: 0.85rem; }
 
+/* One-line explanation above the account-password prompt, so entering Teaching
+   mode doesn't surface a bare, unexplained password field. */
+.pp-teach-hint {
+  width: 168px;
+  margin: 0 auto 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--sk-body, #5e7469);
+  text-align: center;
+}
+
 .pp-pin-row { display: flex; gap: 6px; width: 132px; }
 
 .pp-pin {

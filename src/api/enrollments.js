@@ -39,10 +39,15 @@ export const getPaymentConfig = () =>
  * courses with no batches configured.
  * Returns: { detail, course_id, batch: {id, name} | null, subscription: { id, status, expires_at } }
  */
-export const freeEnroll = (courseId, batchId) =>
+// `activeProfileId` is optional (from useAuth()'s `activeProfile?.id`) — when
+// passed, the backend cross-checks it against its own active-profile claim
+// and rejects with a clear "profile changed" error if a different tab
+// switched profiles in between, instead of silently enrolling the wrong one.
+export const freeEnroll = (courseId, batchId, activeProfileId) =>
   api.post("/enrollments/free-enroll/", {
     course: courseId,
     ...(batchId ? { batch: batchId } : {}),
+    ...(activeProfileId ? { active_profile_id: activeProfileId } : {}),
   }).then((r) => r.data);
 
 /**
@@ -51,5 +56,9 @@ export const freeEnroll = (courseId, batchId) =>
  * the enrollment's batch is still unset; once assigned, changing it is an
  * admin action.
  */
-export const selectEnrollmentBatch = (courseId, batchId) =>
-  api.post("/enrollments/select-batch/", { course: courseId, batch: batchId }).then((r) => r.data);
+export const selectEnrollmentBatch = (courseId, batchId, activeProfileId) =>
+  api.post("/enrollments/select-batch/", {
+    course: courseId,
+    batch: batchId,
+    ...(activeProfileId ? { active_profile_id: activeProfileId } : {}),
+  }).then((r) => r.data);

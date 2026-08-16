@@ -255,10 +255,16 @@ export async function requestSession(payload) {
   return data;
 }
 
-export async function payForSession({ teacherId, draft, method, amount }) {
+export async function payForSession({ teacherId, draft, method, amount, activeProfileId }) {
   if (USE_MOCK) { await wait(900); return { ok: true, bookingId: "SHK-" + Math.floor(100000 + Math.random() * 900000) }; }
   // Wire your Razorpay order-create here, then verify the signature server-side.
-  const { data } = await api.post("/skill/payments/create-order/", { teacherId, draft, method, amount });
+  // activeProfileId (optional, from useAuth()'s activeProfile?.id) lets the
+  // backend detect a different tab having switched profiles mid-flow — see
+  // accounts.auth_flow.profile_mismatch_response.
+  const { data } = await api.post("/skill/payments/create-order/", {
+    teacherId, draft, method, amount,
+    ...(activeProfileId ? { active_profile_id: activeProfileId } : {}),
+  });
   return data;
 }
 

@@ -24,7 +24,7 @@ const formatRupees = (paise) =>
     : `₹${(paise / 100).toLocaleString("en-IN")}`;
 
 const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
-  const { user } = useAuth();
+  const { user, activeProfile } = useAuth();
   const { showToast } = useToast();
   const location = useLocation();
 
@@ -168,7 +168,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
     setEnrollError("");
     setEnrolling(true);
     try {
-      const data = await freeEnroll(courseId, selectedBatch);
+      const data = await freeEnroll(courseId, selectedBatch, activeProfile?.id);
       setEnrolledSub(data?.subscription || null);
       onEnrolled?.(courseId);
       showToast({
@@ -215,6 +215,7 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
     fd.append("payment_date", paymentDate);
     fd.append("amount_paid", String(Math.round(parseFloat(amount) * 100)));
     fd.append("receipt", receipt);
+    if (activeProfile?.id) fd.append("active_profile_id", activeProfile.id);
 
     try {
       await submitEnrollmentRequest(fd);
