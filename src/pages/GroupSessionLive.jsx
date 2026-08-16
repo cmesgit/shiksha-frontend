@@ -359,6 +359,20 @@ export default function GroupSessionLive() {
     );
   }
 
+  // Live-session-rules enrichment (design_handoff_live_sessions phase 4) —
+  // join_group_session (sessions_app/group_session_views.py) returns these
+  // additively alongside the pre-existing livekit_url/token/remaining_ms.
+  // GroupSessionClassroomUI owns the room UI (stage, control bar, right
+  // sidebar) and is where RemainingTimePill/FilesPanel/HostControlsPanel
+  // actually mount — this file only unpacks the payload and hands it down,
+  // it doesn't render LiveKitRoom's children directly.
+  const {
+    features: liveFeatures = {},
+    limits: liveLimits = {},
+    entitlement: liveEntitlement = null,
+    cap_ends_at: liveCapEndsAtFromJoin = null,
+  } = livekitData || {};
+
   return (
     <div style={fullscreenWrap}>
       <LiveKitRoom
@@ -377,6 +391,10 @@ export default function GroupSessionLive() {
               ? "PRESENTER"
               : "STUDENT"
           }
+          liveFeatures={liveFeatures}
+          liveLimits={liveLimits}
+          liveEntitlement={liveEntitlement}
+          liveCapEndsAt={liveCapEndsAtFromJoin}
           session={{
             ...sessionDetail,
             id: resolvedId || id,

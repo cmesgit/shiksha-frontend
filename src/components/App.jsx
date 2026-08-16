@@ -67,6 +67,8 @@ const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
+const LivePreJoin      = lazy(() => import("../pages/LivePreJoin"));
+const LiveSummary      = lazy(() => import("../pages/LiveSummary"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
@@ -359,8 +361,25 @@ function App() {
         <Route path="/skill/browse"  element={<SkillBrowsePage />} />
         <Route path="/experts/:id"   element={<ExpertProfilePage />} />
         <Route path="/live"          element={<LiveLanding />} />
+        {/* Pre-join lobby (screen 03, design_handoff_live_sessions) — device
+            check + entitlement/limits preflight + "Ask to join". Declared
+            BEFORE the bare /live/room/:id route below so the router doesn't
+            need any special-casing (React Router already ranks the more
+            specific static "/lobby" segment above the param-only route
+            regardless of order, but declaring it first keeps the intent
+            readable, same precedent as the /blogs/hi/* comment above). */}
+        <Route path="/live/room/:id/lobby" element={
+          <ProtectedRoute><LivePreJoin /></ProtectedRoute>
+        } />
         <Route path="/live/room/:id" element={
           <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
+        } />
+        {/* Post-session summary (screen 09) — Phase 5. Reached via the room's
+            own T-0 cap-based timeout redirect (?reason=timeout) or a plain
+            Leave/End. Renders its own Navbar/Footer, same convention as
+            LivePreJoin above (no <Page> wrapper). */}
+        <Route path="/live/session/:id/summary" element={
+          <ProtectedRoute><LiveSummary /></ProtectedRoute>
         } />
 
         {/*

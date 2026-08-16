@@ -1,0 +1,190 @@
+/* LiveSummary.css — screen 09 (design_handoff_live_sessions,
+   design-reference/Live Sessions.dc.html, data-screen-label="09").
+   Reuses the site's --sk-* chrome tokens (this page renders <Navbar>/
+   <Footer>, which import theme.css, exactly like LivePreJoin.css does) plus
+   styles/liveSessions.css's .gs-file* classes for the file rows. */
+
+.ls-page { min-height: 100vh; background: var(--sk-paper); font-family: var(--sk-font); }
+
+.ls-loading, .ls-error {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--sk-body);
+  font: 500 14px var(--sk-font);
+  text-align: center;
+  padding: 24px;
+}
+.ls-error h2 { color: var(--sk-ink); font: 700 22px var(--sk-font); margin: 0; }
+
+.ls-wrap { max-width: 1180px; margin: 0 auto; padding: 40px 24px 64px; }
+
+.ls-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.ls-eyebrow {
+  font: 700 12.5px var(--sk-font);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sk-green);
+}
+
+.ls-head h2 { margin: 9px 0 0; font: 700 28px var(--sk-font); letter-spacing: -0.01em; color: var(--sk-ink); }
+
+.ls-sub { margin-top: 8px; font: 400 14px var(--sk-font); color: var(--sk-body); }
+
+.ls-back-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font: 700 13.5px var(--sk-font);
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--sk-green);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--sk-sh-sm);
+}
+
+.ls-stats {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 760px) { .ls-stats { grid-template-columns: repeat(2, 1fr); } }
+
+.ls-stat {
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 14px;
+  padding: 18px;
+}
+.ls-stat-value { font: 800 26px var(--sk-font); color: var(--sk-ink); }
+.ls-stat-label { margin-top: 4px; font: 500 12px var(--sk-font); color: var(--sk-body); }
+
+.ls-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) { .ls-grid { grid-template-columns: 1fr; } }
+
+.ls-card {
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.ls-card-head { display: flex; align-items: center; justify-content: space-between; }
+.ls-card-title { font: 700 15px var(--sk-font); color: var(--sk-ink); }
+
+.ls-expiry-note {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 11.5px var(--sk-font);
+  color: #92610a;
+  background: #fff8ec;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 9px;
+  padding: 9px 12px;
+}
+
+.ls-files { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.ls-empty { font: 500 13px var(--sk-font); color: var(--sk-body); }
+
+.ls-notes { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--sk-line); }
+.ls-notes-body {
+  margin-top: 8px;
+  font: 400 13px var(--sk-font);
+  color: var(--sk-body);
+  line-height: 1.65;
+  background: var(--sk-paper);
+  border: 1px solid var(--sk-line);
+  border-radius: 11px;
+  padding: 14px;
+  white-space: pre-wrap;
+}
+.ls-notes-body--empty { font-style: italic; }
+.ls-notes-actions { margin-top: 10px; display: flex; gap: 14px; }
+
+.ls-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: 700 12.5px var(--sk-font);
+  color: var(--sk-green);
+  cursor: pointer;
+}
+
+.ls-side { display: flex; flex-direction: column; gap: 16px; }
+
+.ls-stars { margin-top: 12px; display: flex; gap: 6px; }
+.ls-star-btn { border: none; background: none; padding: 0; cursor: pointer; line-height: 0; }
+
+.ls-review-input {
+  margin-top: 14px;
+  width: 100%;
+  border: 1.5px solid var(--sk-line);
+  border-radius: 11px;
+  padding: 12px 14px;
+  font: 400 13px var(--sk-font);
+  color: var(--sk-ink);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.ls-review-error { margin: 8px 0 0; font: 600 12px var(--sk-font); color: var(--sk-red); }
+.ls-review-thanks { margin: 10px 0 0; font: 600 12px var(--sk-font); color: var(--sk-green); text-align: center; }
+
+.ls-btn {
+  border: none;
+  border-radius: 11px;
+  padding: 13px;
+  font: 700 13.5px var(--sk-font);
+  cursor: pointer;
+}
+.ls-btn--primary { color: #fff; background: var(--sk-green-dark); }
+.ls-btn--primary:disabled { opacity: 0.65; cursor: not-allowed; }
+.ls-btn--block { margin-top: 12px; width: 100%; }
+
+.ls-next {
+  background: var(--sk-green-deep);
+  border-radius: 16px;
+  padding: 24px;
+  color: #fff;
+}
+.ls-next-eyebrow {
+  font: 700 12px var(--sk-font);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+.ls-next-title { margin-top: 10px; font: 700 19px var(--sk-font); line-height: 1.3; }
+.ls-next p { margin-top: 8px; font: 400 13px var(--sk-font); color: rgba(255, 255, 255, 0.75); line-height: 1.6; }
+.ls-next-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+.ls-next-btn {
+  font: 700 13px var(--sk-font);
+  border-radius: 999px;
+  padding: 11px 20px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.ls-next-btn--solid { color: var(--sk-green-deep); background: #fff; }
+.ls-next-btn--outline { color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.4); }

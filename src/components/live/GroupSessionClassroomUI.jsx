@@ -15,16 +15,24 @@
 
 import { useTracks, VideoTrack, useRoomContext } from "@livekit/components-react";
 import { Track } from "livekit-client";
+import { useNavigate } from "react-router-dom";
 import GroupSessionChatPanel from "./GroupSessionChatPanel";
 import NotesPanel from "./NotesPanel";
 import GroupSessionControlBar from "./GroupSessionControlBar";
+import FilesPanel from "./FilesPanel";
+import HostControlsPanel from "./HostControlsPanel";
+import RemainingTimePill from "./RemainingTimePill";
+import EndingSoonModal from "./EndingSoonModal";
+import FirstVisitTour from "./FirstVisitTour";
 import React, { useState, useRef, useEffect } from "react";
 import "../../styles/groupSessionLive.css";
+import "../../styles/liveSessions.css";
 import api from "../../api/apiClient";
 import groupSessionService from "../../api/groupSessionService";
 import { useAuth } from "../../contexts/AuthContext";
 import soundManager from "../../utils/soundManager";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import { useRemainingTime } from "../../hooks/useRemainingTime";
 
 function formatDate(d) {
   if (!d) return "—";
@@ -138,6 +146,17 @@ export default function GroupSessionClassroomUI({
   role, session, chatConfig, onLeave,
   groupSessionRemainingMs = null,
   isHost = false, onEndSession = null,
+  // Live-session-rules enrichment (design_handoff_live_sessions phase 4) —
+  // additive fields off the /join/ response, unpacked by GroupSessionLive.jsx.
+  // `groupSessionRemainingMs` above is the PRE-EXISTING guest-trial clock
+  // (GUEST_TRIAL_MINUTES, anchored per-user at first join) — left completely
+  // alone; it still drives GroupSessionLive's own paywall gating. The new
+  // countdown below is the ROOM's cap_ends_at, shown as the single visible
+  // remaining-time pill per design screen 05 (one pill, not two).
+  liveFeatures = {},
+  liveLimits = {},
+  liveEntitlement = null,
+  liveCapEndsAt = null,
 }) {
   const isPresenter = role === "PRESENTER" || role === "teacher";
 
@@ -152,11 +171,67 @@ export default function GroupSessionClassroomUI({
   const [, setTick] = useState(0);
   const bump = () => setTick((t) => t + 1);
 
+  // Live-session-rules state — the room's real cap (not the legacy guest
+  // clock above), the host's extension count, the host-controls modal, and
+  // the chat WebSocket instance itself (shared downward to FilesPanel so it
+  // can listen for session_file_added/removed without opening a second
+  // connection — see FilesPanel's own module note).
+  const [capEndsAt, setCapEndsAt] = useState(liveCapEndsAt);
+  const [extensionsUsed, setExtensionsUsed] = useState(0);
+  const [extensionsAllowed, setExtensionsAllowed] = useState(liveLimits?.extensions_allowed ?? 0);
+  const [hostControlsOpen, setHostControlsOpen] = useState(false);
+  const [chatSocket, setChatSocket] = useState(null);
+
+  useEffect(() => {
+    setCapEndsAt(liveCapEndsAt);
+  }, [liveCapEndsAt]);
+
+  useEffect(() => {
+    setExtensionsAllowed(liveLimits?.extensions_allowed ?? 0);
+  }, [liveLimits?.extensions_allowed]);
+
+  const remainingMs = useRemainingTime(capEndsAt, liveEntitlement);
+
+  // Ending-soon upsell (screens 08/13) + the single T-0 disconnect path for
+  // the ROOM's cap-based countdown — 01-FLOW.md section C. This is
+  // deliberately separate from, and does NOT touch, the pre-existing
+  // GUEST_TRIAL_MINUTES clock's own T-0 handling in GroupSessionLive.jsx
+  // (the `groupSessionRemainingMs` prop above/paywall screen there) — that
+  // is a different variable driving a different, already-shipped path
+  // (render-swap to an inline "your free minutes are up" screen, which
+  // unmounts <LiveKitRoom> and so already disconnects on its own). Mixing
+  // the two into one handler would risk exactly the double-disconnect the
+  // Phase 5 brief calls out; keeping them fully separate keeps each to
+  // exactly one path.
+  const endingSoon = remainingMs != null && remainingMs <= 5 * 60_000;
+  const lastMinute = remainingMs != null && remainingMs <= 60_000;
+  const navigate = useNavigate();
+  const roomTimeoutFiredRef = useRef(false);
+
   const containerRef = useRef(null);
   const room = useRoomContext();
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const myUserId = user?.id ? String(user.id) : null;
   const hostId = session?.hostId ? String(session.hostId) : null;
+  const iAmTeacher = hasRole ? hasRole("TEACHER") : false;
+
+  // The ONE place that ends the room for this (new) cap-based countdown:
+  // guarded by a ref so React 18 StrictMode's double-invoke in dev, or a
+  // stray extra render at exactly ms===0, can never fire this twice. Only
+  // engages once the room actually has its own cap_ends_at (capEndsAt) —
+  // i.e. the new live-rules system is active for this room — so it never
+  // interferes with a room that hasn't gone live yet.
+  useEffect(() => {
+    if (!capEndsAt || remainingMs == null || remainingMs > 0) return;
+    if (roomTimeoutFiredRef.current) return;
+    roomTimeoutFiredRef.current = true;
+    try {
+      room?.disconnect();
+    } catch {
+      /* already disconnected/disconnecting — navigate regardless */
+    }
+    navigate(`/live/session/${session?.id}/summary?reason=timeout`);
+  }, [capEndsAt, remainingMs, room, navigate, session?.id]);
 
   // Poll pending join requests while the host has the requests tab open —
   // admit/deny is low-frequency, so a short poll is simpler and lower-risk
@@ -341,13 +416,40 @@ export default function GroupSessionClassroomUI({
             });
           } catch {}
         };
-        ws.onclose = () => { if (!unmounted) reconnectTimer = setTimeout(connect, 3000); };
+        // Additive listener, separate from the chat-only `onmessage` above —
+        // handles the design_handoff_live_sessions broadcast types
+        // (session_extended today; session_file_added/removed are consumed
+        // directly by FilesPanel via the shared `chatSocket` state below).
+        // See consumers.py::GroupSessionChatConsumer.session_extended for
+        // the exact payload shape.
+        ws.addEventListener("message", (ev) => {
+          try {
+            const msg = JSON.parse(ev.data);
+            if (msg.type === "session_extended") {
+              setCapEndsAt(msg.cap_ends_at);
+              setExtensionsUsed(msg.extensions_used);
+              setExtensionsAllowed(msg.extensions_allowed);
+            }
+          } catch {
+            /* malformed frame — ignore, next tick corrects state */
+          }
+        });
+        ws.onclose = () => {
+          setChatSocket(null);
+          if (!unmounted) reconnectTimer = setTimeout(connect, 3000);
+        };
         ws.onerror = () => ws.close();
+        ws.onopen = () => setChatSocket(ws);
       } catch {}
     };
 
     connect();
-    return () => { unmounted = true; clearTimeout(reconnectTimer); ws?.close(); };
+    return () => {
+      unmounted = true;
+      clearTimeout(reconnectTimer);
+      setChatSocket(null);
+      ws?.close();
+    };
   }, [session?.id, myUserId, chatConfig?.wsPath]);
 
   const sendMessage = async (text) => {
@@ -476,7 +578,12 @@ export default function GroupSessionClassroomUI({
       )}
 
       <div className="gs-main" style={{ position: "relative" }}>
-        {groupSessionRemainingMs != null && (
+        {/* Screen 05's single remaining-time pill, stage top-right. Falls
+            back to the legacy guest-trial notice (top-center, unchanged)
+            only in the narrow window before the room's own cap_ends_at
+            exists yet (room hasn't started) — see the state comment above. */}
+        <RemainingTimePill ms={remainingMs} recording={!!liveFeatures.recording} />
+        {remainingMs == null && groupSessionRemainingMs != null && (
           <div style={{
             position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
             zIndex: 5, background: "rgba(245,158,11,.15)", color: "#b45309",
@@ -512,6 +619,7 @@ export default function GroupSessionClassroomUI({
           onTogglePanel={togglePanel} session={session} isHost={isHost}
           onHostEndSession={onEndSession}
           admitMode={admitMode} onSetAdmitMode={setAdmitModeShared}
+          onOpenHostControls={isHost ? () => setHostControlsOpen(true) : null}
         />
       </div>
 
@@ -522,6 +630,16 @@ export default function GroupSessionClassroomUI({
           )}
 
           {activePanel === "notes" && <NotesPanel sessionId={session?.id} sessionType="group" />}
+
+          {activePanel === "files" && (
+            <FilesPanel
+              sessionId={session?.id}
+              isHost={isHost}
+              currentUserId={myUserId}
+              limits={liveLimits}
+              socket={chatSocket}
+            />
+          )}
 
           {activePanel === "people" && (
             <div className="gs-ppl-panel">
@@ -549,6 +667,44 @@ export default function GroupSessionClassroomUI({
                           <div className="gs-ppl-role">{p.role}</div>
                         </div>
                         <div className="gs-ppl-actions">
+                          {!p.isMe && (() => {
+                            // Entry point for teacher→student remote control
+                            // (design screen 06, 01-FLOW.md section E). Only
+                            // the affordance + its gating ship in this phase —
+                            // NOT the request itself.
+                            //
+                            // TODO(Phase 6 — remote control): wire onClick to
+                            // liveSessionService.requestControl(session.id, targetUserId)
+                            // once RemoteControlLayer exists. Deliberately left
+                            // unwired here: request_remote_control
+                            // (remote_control_views.py) will always 409
+                            // "not_sharing" today regardless of this button,
+                            // because nothing yet flips
+                            // GroupSessionParticipant.is_sharing_screen to True
+                            // (no LiveKit screen-share-published webhook wired
+                            // for group sessions) — see that view's own module
+                            // docstring and 02-BACKEND.md's "Open question".
+                            const enabled = iAmTeacher && !!liveFeatures.remote_access;
+                            const title = !iAmTeacher
+                              ? "Only teachers may request a student's screen"
+                              : !liveFeatures.remote_access
+                                ? "Remote access is disabled by the admin"
+                                : `Ask ${p.name} for screen control`;
+                            return (
+                              <button
+                                type="button"
+                                className={"gs-ppl-ask" + (enabled ? "" : " gs-ppl-ask--disabled")}
+                                disabled={!enabled}
+                                title={title}
+                                onClick={() => {}}
+                              >
+                                {!enabled && (
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                )}
+                                Ask
+                              </button>
+                            );
+                          })()}
                           <div className={`gs-ppl-mic ${p.micOn ? "gs-ppl-mic--on" : "gs-ppl-mic--off"}`}>
                             {p.micOn ? (
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
@@ -615,6 +771,48 @@ export default function GroupSessionClassroomUI({
             </div>
           )}
         </div>
+      )}
+
+      {isHost && (
+        <HostControlsPanel
+          open={hostControlsOpen}
+          onClose={() => setHostControlsOpen(false)}
+          sessionId={session?.id}
+          session={session}
+          limits={liveLimits}
+          features={liveFeatures}
+          capEndsAt={capEndsAt}
+          extensionsUsed={extensionsUsed}
+          extensionsAllowed={extensionsAllowed}
+          onExtended={(data) => {
+            setCapEndsAt(data?.cap_ends_at ?? capEndsAt);
+            if (typeof data?.extensions_used === "number") setExtensionsUsed(data.extensions_used);
+            if (typeof data?.extensions_allowed === "number") setExtensionsAllowed(data.extensions_allowed);
+          }}
+          admitMode={admitMode}
+          onSetAdmitMode={setAdmitModeShared}
+          onEndSession={() => {
+            setHostControlsOpen(false);
+            onEndSession?.();
+          }}
+        />
+      )}
+
+      {endingSoon && (
+        <EndingSoonModal
+          variant={session?.courseId ? "course" : "general"}
+          session={session}
+          remainingMs={remainingMs}
+          limits={liveLimits}
+          urgent={lastMinute}
+        />
+      )}
+
+      {/* Screen 10 — first-visit tour. Uncontrolled: gated on the admin
+          show_tour flag (this check) AND, inside the component itself, on
+          localStorage["live.tour.v1"] (01-FLOW.md section C). */}
+      {liveFeatures.show_tour && (
+        <FirstVisitTour storageKey="live.tour.v1" retentionDays={liveLimits?.file_retention_days} />
       )}
     </div>
   );

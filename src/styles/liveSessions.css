@@ -1,0 +1,1103 @@
+/* ============================================================
+   liveSessions.css
+   design_handoff_live_sessions — phase 4 (room extras: remaining-time pill,
+   files panel, host controls). Continues groupSessionLive.css's `gs-*`
+   class prefix and reuses its --gs-* design tokens (--gs-primary, --gs-host,
+   --gs-panel, --gs-danger, --gs-warning) — no new hex values are introduced
+   here that don't already exist in that file.
+   ============================================================ */
+
+/* ---------- Remaining-time pill (screen 05, stage top-right) ---------- */
+.gs-stage-pills {
+  position: absolute;
+  top: 14px;
+  right: 22px;
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.gs-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 12.5px "Poppins", sans-serif;
+  color: #fff;
+  background: rgba(2, 6, 23, 0.6);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gs-pill--muted {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.gs-pill--warning {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fde68a;
+}
+
+.gs-pill--danger {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fecaca;
+}
+
+.gs-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: gsPillDotPulse 1.8s infinite;
+  flex: none;
+}
+
+.gs-pill-dot--warning {
+  background: var(--gs-warning);
+}
+
+.gs-pill-dot--danger {
+  background: var(--gs-danger);
+}
+
+@keyframes gsPillDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* ---------- Shared 300px right-sidebar panel shell (Files) ---------- */
+.gs-panel {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--gs-panel);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.gs-panel__head {
+  flex: 0 0 48px;
+  height: 48px;
+  background: var(--gs-host);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font: 800 15px "Poppins", sans-serif;
+}
+
+.gs-panel__head small {
+  font: 600 10.5px "Poppins", sans-serif;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.gs-panel__body {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.gs-panel__body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.gs-panel__body::-webkit-scrollbar-thumb {
+  background: rgba(65, 91, 126, 0.35);
+  border-radius: 99px;
+}
+
+.gs-panel__note {
+  margin-top: auto;
+  padding: 11px 12px;
+  border-radius: 8px;
+  background: rgba(65, 91, 126, 0.1);
+  font: 500 11px "Poppins", sans-serif;
+  color: var(--gs-host);
+  line-height: 1.55;
+}
+
+/* ---------- Files panel ---------- */
+.gs-dropzone {
+  border: 2px dashed rgba(65, 91, 126, 0.35);
+  border-radius: 10px;
+  padding: 20px 14px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  color: var(--gs-host);
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.gs-dropzone svg {
+  margin: 0 auto 8px;
+  display: block;
+}
+
+.gs-dropzone strong {
+  display: block;
+  font: 800 12.5px "Poppins", sans-serif;
+  color: var(--gs-host);
+}
+
+.gs-dropzone small {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px "Poppins", sans-serif;
+  color: var(--gs-muted);
+}
+
+.gs-dropzone.is-dragging {
+  background: rgba(0, 109, 120, 0.08);
+  border-color: var(--gs-primary);
+}
+
+.gs-files__error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  font: 600 11.5px "Poppins", sans-serif;
+}
+
+.gs-files__empty {
+  margin-top: 0;
+  background: transparent;
+  padding: 8px 0;
+}
+
+.gs-file {
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.gs-file__kind {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--gs-panel);
+  color: var(--gs-host);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 10px "Poppins", sans-serif;
+  flex: none;
+}
+
+.gs-file__kind--pdf { background: #fee2e2; color: #b91c1c; }
+.gs-file__kind--png,
+.gs-file__kind--jpg,
+.gs-file__kind--jpeg { background: #e0f2fe; color: #0369a1; }
+
+.gs-file__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gs-file__meta strong {
+  font: 700 12px "Poppins", sans-serif;
+  color: var(--gs-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gs-file__meta small {
+  margin-top: 3px;
+  font: 500 10.5px "Poppins", sans-serif;
+  color: var(--gs-muted);
+}
+
+.gs-file__bar {
+  display: block;
+  margin-top: 6px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gs-panel);
+  overflow: hidden;
+}
+
+.gs-file__bar span {
+  display: block;
+  height: 100%;
+  background: var(--gs-primary);
+  transition: width 0.2s ease;
+}
+
+.gs-file__actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.gs-file__btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: var(--gs-panel);
+  color: var(--gs-host);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.gs-file__btn--danger {
+  background: #fef2f2;
+  color: var(--gs-danger);
+}
+
+.gs-file--uploading {
+  opacity: 0.85;
+}
+
+/* ---------- Ask chip (People panel, screen 06 entry point) ---------- */
+.gs-ppl-ask {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 10px;
+  margin-right: 6px;
+  font: 700 11px "Poppins", sans-serif;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.24);
+  cursor: pointer;
+}
+
+.gs-ppl-ask--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.gs-ppl-ask:disabled {
+  pointer-events: none;
+}
+
+/* ---------- Host controls modal (screen 07) ---------- */
+.gs-hc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gs-hc-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.gs-hc-modal {
+  position: relative;
+  width: min(920px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--gs-bg);
+  border: 1px solid #e3eae5;
+  border-radius: 18px;
+  box-shadow: 0 30px 70px rgba(11, 46, 32, 0.18);
+  padding: 24px;
+}
+
+.gs-hc-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.gs-hc-modal__head h2 {
+  margin: 0;
+  font: 800 18px "Poppins", sans-serif;
+  color: var(--gs-text);
+}
+
+.gs-hc-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--gs-text);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.gs-hc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .gs-hc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gs-hc-card {
+  background: var(--gs-panel);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.gs-hc-card__head {
+  height: 48px;
+  background: var(--gs-host);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font: 800 14px "Poppins", sans-serif;
+}
+
+.gs-hc-card__body {
+  padding: 20px;
+}
+
+.gs-hc-time-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.gs-hc-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex: none;
+}
+
+.gs-hc-ring__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.gs-hc-ring__value {
+  font: 800 20px "Poppins", sans-serif;
+  color: var(--gs-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-hc-ring__unit {
+  font: 600 10.5px "Poppins", sans-serif;
+  color: var(--gs-muted);
+}
+
+.gs-hc-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.gs-hc-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font: 500 12.5px "Poppins", sans-serif;
+  color: var(--gs-muted);
+}
+
+.gs-hc-stat strong {
+  font-weight: 700;
+  color: var(--gs-text);
+}
+
+.gs-hc-extend-btn {
+  margin-top: 18px;
+  width: 100%;
+  border: none;
+  border-radius: 9px;
+  padding: 13px;
+  font: 800 13px "Poppins", sans-serif;
+  color: #fff;
+  background: var(--gs-primary);
+  cursor: pointer;
+}
+
+.gs-hc-extend-btn:disabled {
+  background: #b9c6ca;
+  cursor: not-allowed;
+}
+
+.gs-hc-error {
+  margin: 8px 0 0;
+  font: 600 11.5px "Poppins", sans-serif;
+  color: var(--gs-danger);
+}
+
+.gs-hc-note {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 9px;
+  background: rgba(65, 91, 126, 0.1);
+  color: var(--gs-host);
+}
+
+.gs-hc-note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.gs-hc-note p {
+  margin: 0;
+  font: 500 11.5px "Poppins", sans-serif;
+  line-height: 1.55;
+}
+
+.gs-hc-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gs-hc-rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 9px;
+  padding: 13px 14px;
+}
+
+.gs-hc-rule--off {
+  background: #f1f5f7;
+  opacity: 0.72;
+}
+
+.gs-hc-rule__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.gs-hc-rule__text strong {
+  font: 700 13px "Poppins", sans-serif;
+  color: var(--gs-text);
+}
+
+.gs-hc-rule__text small {
+  margin-top: 2px;
+  font: 500 11px "Poppins", sans-serif;
+  color: var(--gs-muted);
+}
+
+.gs-hc-toggle {
+  width: 38px;
+  height: 21px;
+  border-radius: 999px;
+  background: #cbd5dd;
+  border: none;
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.gs-hc-toggle.is-on {
+  background: var(--gs-primary);
+}
+
+.gs-hc-toggle__knob {
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.15s ease;
+}
+
+.gs-hc-toggle.is-on .gs-hc-toggle__knob {
+  left: 19.5px;
+}
+
+.gs-hc-toggle--readonly {
+  cursor: default;
+}
+
+.gs-hc-rules__footer {
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.gs-hc-end-btn {
+  border: none;
+  border-radius: 9px;
+  padding: 13px 22px;
+  font: 800 13px "Poppins", sans-serif;
+  color: var(--gs-danger);
+  background: #fef2f2;
+  cursor: pointer;
+}
+
+/* ---------- Ending-soon upsell modal (screens 08 course / 13 general) ----------
+   Colours here are hardcoded literal hex from design-reference/Live
+   Sessions.dc.html rather than --sk-* tokens: this modal mounts inside the
+   room (GroupSessionClassroomUI), which never imports theme.css (that's the
+   marketing-site chrome's token set), matching this same file's existing
+   precedent of hardcoding "Poppins" et al rather than adding a new stylesheet
+   dependency into the dark room chrome. */
+.gs-eos-overlay {
+  /* fixed, not absolute — this mounts as a sibling of .gs-main/.gs-right-
+     sidebar inside .gs-room, which has no positioned ancestor of its own
+     (matches .gs-hc-overlay's same fixed/inset:0 pattern in this file). */
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gs-eos-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.gs-eos-card {
+  position: relative;
+  width: min(860px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+}
+
+.gs-eos-card--urgent {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.45), 0 30px 70px rgba(0, 0, 0, 0.45);
+}
+
+.gs-eos-head {
+  padding: 26px 30px 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #edf3ee;
+}
+
+.gs-eos-ring {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: none;
+}
+
+.gs-eos-ring__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.gs-eos-ring__value {
+  font: 800 19px "Poppins", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-eos-ring__unit {
+  font: 600 9.5px "Poppins", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gs-eos-headline {
+  flex: 1;
+  min-width: 0;
+}
+
+.gs-eos-eyebrow {
+  font: 700 12px "Poppins", sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.gs-eos-headline h3 {
+  margin: 8px 0 0;
+  font: 700 24px "Poppins", sans-serif;
+  letter-spacing: -0.01em;
+  color: #0b2e20;
+}
+
+.gs-eos-headline p {
+  margin-top: 8px;
+  font: 400 13.5px "Poppins", sans-serif;
+  color: #5e7469;
+  line-height: 1.6;
+  max-width: 540px;
+}
+
+.gs-eos-cards {
+  padding: 22px 30px 26px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .gs-eos-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gs-eos-card-left,
+.gs-eos-card-right {
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.gs-eos-card-left {
+  border: 2px solid #0f9d6b;
+  background: #f6faf7;
+  position: relative;
+}
+
+.gs-eos-card-right {
+  border: 1px solid #edf3ee;
+  background: #fff;
+}
+
+.gs-eos-badge {
+  position: absolute;
+  top: -11px;
+  left: 20px;
+  font: 700 10px "Poppins", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #0f9d6b;
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+
+.gs-eos-card-title {
+  font: 700 17px "Poppins", sans-serif;
+  color: #0b2e20;
+}
+
+.gs-eos-card-sub {
+  margin-top: 5px;
+  font: 500 12px "Poppins", sans-serif;
+  color: #5e7469;
+}
+
+.gs-eos-card-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gs-eos-bullet {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font: 400 12px "Poppins", sans-serif;
+  color: #2b4237;
+  line-height: 1.5;
+}
+
+.gs-eos-card-cta {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gs-eos-price {
+  font: 800 13px "Poppins", sans-serif;
+  color: #0b5b3e;
+}
+
+.gs-eos-price--muted {
+  color: #0b2e20;
+}
+
+.gs-eos-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font: 700 12.5px "Poppins", sans-serif;
+  padding: 11px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
+
+.gs-eos-btn--primary {
+  color: #fff;
+  background: #0f9d6b;
+  box-shadow: 0 10px 22px rgba(15, 157, 107, 0.3);
+}
+
+.gs-eos-btn--outline {
+  color: #0f9d6b;
+  background: #fff;
+  border: 2px solid #0f9d6b;
+  padding: 9px 18px;
+}
+
+.gs-eos-footer {
+  padding: 15px 30px;
+  background: #f6faf7;
+  border-top: 1px solid #edf3ee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  font: 500 11.5px "Poppins", sans-serif;
+  color: #5e7469;
+}
+
+.gs-eos-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gs-eos-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: 600 12px "Poppins", sans-serif;
+  color: #5e7469;
+  cursor: pointer;
+}
+
+.gs-eos-link--accent {
+  color: #0b5b3e;
+  text-decoration: none;
+}
+
+/* ---------- First-visit tour overlay (screen 10) ----------
+   Mounts both in-room (GroupSessionClassroomUI, gated on liveFeatures.
+   show_tour + localStorage) and standalone (LiveLanding's "Watch the
+   40-second tour" button, no gate). The dark video-room backdrop is
+   deliberate in both places, matching design-reference/Live Sessions.dc.html
+   data-screen-label="10" exactly. Colours that already have a --sk-* or --gs-*
+   token use it (--sk-green, --sk-green-dark, --sk-body, --gs-primary,
+   --gs-host); the handful that don't (the dark chrome background, the teal
+   eyebrow accent, the muted grey captions) are hardcoded literal hex,
+   matching this same file's existing precedent for .gs-eos-* above. */
+.gs-tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.gs-tour-scrim {
+  position: absolute;
+  inset: 0;
+  background: #0b1220;
+}
+
+.gs-tour-card {
+  position: relative;
+  width: min(1180px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  background: rgba(2, 6, 23, 0.82);
+  border-radius: 18px;
+  box-shadow: 0 30px 70px rgba(11, 46, 32, 0.35);
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gs-tour-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.gs-tour-eyebrow {
+  font: 700 12px "Poppins", sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0ea5a5;
+}
+
+.gs-tour-title {
+  margin: 9px 0 0;
+  font: 700 24px "Poppins", sans-serif;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.gs-tour-skip {
+  flex: none;
+  font: 600 13px "Poppins", sans-serif;
+  color: #93a3b8;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.gs-tour-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .gs-tour-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .gs-tour-grid {
+    grid-template-columns: 1fr;
+  }
+  .gs-tour-card {
+    padding: 26px 20px;
+  }
+}
+
+.gs-tour-step {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.4);
+}
+
+.gs-tour-media {
+  height: 108px;
+  border-radius: 12px;
+  background: #f1f5f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.gs-tour-mic-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #2d3340;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.gs-tour-mic-pulse {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--gs-primary);
+  animation: gsTourPulse 2s infinite;
+}
+
+.gs-tour-screen {
+  width: 70px;
+  height: 48px;
+  border-radius: 8px;
+  border: 2px solid var(--gs-host);
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.gs-tour-screen-sweep {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(0, 109, 120, 0.35), transparent);
+  animation: gsTourSweep 2.4s linear infinite;
+}
+
+.gs-tour-screen-label {
+  position: absolute;
+  bottom: 12px;
+  font: 700 10.5px "Poppins", sans-serif;
+  color: var(--gs-host);
+}
+
+.gs-tour-upload {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  border: 2px dashed var(--gs-host);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gs-tour-bob {
+  animation: gsTourBob 2.6s ease-in-out infinite;
+}
+
+.gs-tour-ring-label {
+  position: absolute;
+  font: 800 12px "Poppins", sans-serif;
+  color: var(--gs-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-tour-ring-dash {
+  animation: gsTourRingDash 3s linear infinite;
+}
+
+@keyframes gsTourPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.6; }
+}
+
+@keyframes gsTourSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(230%); }
+}
+
+@keyframes gsTourBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes gsTourRingDash {
+  to { stroke-dashoffset: -140; }
+}
+
+.gs-tour-step-eyebrow {
+  margin-top: 16px;
+  font: 800 11px "Poppins", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sk-green);
+}
+
+.gs-tour-step-title {
+  margin-top: 6px;
+  font: 700 16px "Poppins", sans-serif;
+  color: var(--sk-ink);
+  line-height: 1.3;
+}
+
+.gs-tour-step-copy {
+  margin-top: 8px;
+  font: 400 12.5px "Poppins", sans-serif;
+  color: var(--sk-body);
+  line-height: 1.6;
+}
+
+.gs-tour-footer {
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.gs-tour-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gs-tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.gs-tour-dot--active {
+  width: 28px;
+  height: 7px;
+  background: #0ea5a5;
+}
+
+.gs-tour-hint {
+  margin-left: 12px;
+  font: 500 12px "Poppins", sans-serif;
+  color: #93a3b8;
+}
+
+.gs-tour-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.gs-tour-btn {
+  font: 700 13px "Poppins", sans-serif;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.gs-tour-btn--ghost {
+  color: #e8eaf2;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 22px;
+}
+
+.gs-tour-btn--primary {
+  color: #fff;
+  background: var(--gs-primary);
+  padding: 12px 26px;
+}

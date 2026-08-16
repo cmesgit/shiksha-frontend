@@ -164,6 +164,28 @@ const groupSessionService = {
     return res.data;
   },
 
+  // ─────────────────────────────────────────────
+  // Live-session lobby (design_handoff_live_sessions) — everything the
+  // pre-join lobby needs in one call. Raw response, not run through
+  // transformGroupSession: `session` here is the DRF GroupSessionDetailSerializer
+  // shape (snake_case: course_title, subject_name, admit_mode, ...), same
+  // as every other raw field on this service's responses.
+  // See sessions_app/group_session_views.py::group_session_preflight.
+  async preflight(sessionId) {
+    const res = await api.get(`/sessions/group-sessions/${sessionId}/preflight/`);
+    return res.data; // { session, host, entitlement, limits, admit_mode, can_host, is_enrolled, cap_ends_at }
+  },
+
+  // Host-only: adds time, bounded by the admin's live_max_session_minutes
+  // ceiling and live_host_extensions_allowed count.
+  async extend(sessionId, minutes) {
+    const res = await api.post(
+      `/sessions/group-sessions/${sessionId}/extend/`,
+      { minutes }
+    );
+    return res.data; // { cap_ends_at, extensions_used, extensions_allowed }
+  },
+
   async setAdmitMode(sessionId, mode) {
     const res = await api.post(
       `/sessions/group-sessions/${sessionId}/admit-mode/`,
@@ -338,6 +360,8 @@ export const {
   createInstant,
   joinByCode,
   endSession,
+  preflight,
+  extend,
   setAdmitMode,
   hideFromHistory,
   clearHistory,
