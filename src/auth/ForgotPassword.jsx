@@ -152,7 +152,7 @@ export default function ForgotPassword() {
     <AuthShell role="neutral" flowLabel="Reset password" brandIcon="lock" stepKey={step} dir={dir}>
       <div className="af-toprow">
         {step !== STEP_EMAIL
-          ? <button className="af-iconbtn" onClick={back} aria-label="Back" type="button">‹</button>
+          ? <button className="af-iconbtn" onClick={back} aria-label="Back" type="button">‹ Back</button>
           : <span />}
       </div>
 

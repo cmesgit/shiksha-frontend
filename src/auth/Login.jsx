@@ -120,7 +120,7 @@ export default function Login() {
 
       <div className="af-toprow">
         {step !== STEP_EMAIL
-          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>
+          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹ Back</button>
           : <span />}
       </div>
 

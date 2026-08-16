@@ -520,7 +520,7 @@ export default function Signup() {
     <AuthShell role={accent} flowLabel={flowLabel} intro stepKey={step} dir={dir}>
       <div className="af-toprow">
         {step !== STEP_ROLE
-          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>
+          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹ Back</button>
           : <span />}
       </div>
 

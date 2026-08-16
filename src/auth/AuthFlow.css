@@ -211,11 +211,17 @@
   justify-content: space-between;
   margin-bottom: 4px;
 }
+/* Back control. The handoff itself renders this as a plain "‹ Back" text
+   link, not a bare icon (reference/SignUp3 Login.dc.html) — an icon-only
+   circle kept reading as decoration rather than a control no matter how much
+   contrast it got, so it carries the word now, same as the reference. */
 .af-iconbtn {
-  width: 40px; height: 40px; border-radius: 12px;
-  border: 1.5px solid #E2E2DE; background: #F7F7F5; color: #23242b;
-  font-size: 22px; font-weight: 700; line-height: 1; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
+  height: 36px;
+  padding: 0 14px 0 10px;
+  border-radius: 10px;
+  border: 1.5px solid #E2E2DE; background: #F7F7F5; color: #3c3d44;
+  font-size: 13.5px; font-weight: 700; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
   transition: background .15s, border-color .15s, color .15s, transform .12s;
 }
 .af-iconbtn:hover {
@@ -225,8 +231,6 @@
   transform: translateX(-1px);
 }
 .af-iconbtn:active { transform: translateX(-2px); }
-.af-iconbtn--ghost { background: transparent; color: #b6b6bd; font-size: 16px; }
-.af-iconbtn--ghost:hover { background: #F2F2F0; }
 
 /* ── Fields ── */
 .af-field { margin-top: 20px; max-width: 460px; }
