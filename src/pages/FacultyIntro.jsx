@@ -14,6 +14,7 @@
  * it renders WITHOUT the marketing <Page> chrome (it has its own nav).
  */
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { TEACHER_SKILL_URL } from "../config/urls";
 
 const Cap = ({ size = 12 }) => (
@@ -74,10 +75,16 @@ const FAQS = [
 /**
  * FacultyIntro
  *
- * Two ways in:
- *  • Standalone (default) at /become-faculty — a signed-in Guest expert adds the
- *    Faculty track. "Apply" routes into the add-a-track signup; "Back" returns
- *    to the dashboard. (Unchanged.)
+ * Three ways in:
+ *  • Standalone + signed in (default) at /become-faculty — a signed-in Guest
+ *    expert adds the Faculty track. "Apply" routes into the add-a-track
+ *    signup; "Back" returns to the dashboard.
+ *  • Standalone + signed out — the same /become-faculty URL reached by an
+ *    anonymous visitor via the public navbar/footer "Become a Faculty" link.
+ *    There is no expert account or dashboard to reference yet, so this uses
+ *    the same from-scratch copy as the embedded case and sends "Apply"
+ *    straight to /faculty/signup (the account-creating flow) instead of the
+ *    add-a-track URL.
  *  • Embedded (`embedded` + `onApply`/`onBack`) — rendered by the main sign-up
  *    flow when a brand-new teacher picks "Faculty". "Apply" advances to the
  *    faculty application form (FacultySignup); "Back" returns to the teacher-type
@@ -85,6 +92,8 @@ const FAQS = [
  */
 export default function FacultyIntro({ embedded = false, onApply, onBack } = {}) {
   const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const isNewVisitor = !embedded && !authLoading && !isAuthenticated;
 
   const goBack = () => {
     if (embedded && onBack) { onBack(); return; }
@@ -93,11 +102,11 @@ export default function FacultyIntro({ embedded = false, onApply, onBack } = {})
   };
   const apply = () => {
     if (embedded && onApply) { onApply(); return; }
-    navigate("/signup?role=teacher&add_track=academy");
+    navigate(isNewVisitor ? "/faculty/signup" : "/signup?role=teacher&add_track=academy");
   };
 
-  const STEPS = embedded ? STEPS_SIGNUP : STEPS_ADDTRACK;
-  const backLabel = embedded ? "Back" : "Back to dashboard";
+  const STEPS = (embedded || isNewVisitor) ? STEPS_SIGNUP : STEPS_ADDTRACK;
+  const backLabel = embedded ? "Back" : isNewVisitor ? "Back to home" : "Back to dashboard";
 
   return (
     <div className="fi-root">
@@ -203,13 +212,13 @@ export default function FacultyIntro({ embedded = false, onApply, onBack } = {})
         <section className="fi-cta-band">
           <h3>Ready to join the academy?</h3>
           <p>
-            {embedded
+            {embedded || isNewVisitor
               ? "Continue your faculty application — share your qualifications, the subjects and classes you want to teach, and sign the faculty agreement. It then goes to our team for review."
               : "Add the Faculty track and start teaching school students on a structured, curriculum-aligned platform. Your Expert account stays exactly as it is."}
           </p>
           <div className="fi-cta-btns">
             <button type="button" className="fi-btn-primary" onClick={apply}>
-              {embedded ? "Continue to application" : "Apply as Faculty Teacher"}
+              {embedded || isNewVisitor ? "Continue to application" : "Apply as Faculty Teacher"}
             </button>
             <button type="button" className="fi-btn-ghost" onClick={goBack}>{backLabel}</button>
           </div>

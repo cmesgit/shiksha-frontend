@@ -139,6 +139,12 @@ const STEPS = [
  *   showVerifyOnSuccess  advance to the Verify screen after a successful submit
  *                        (true for brand-new accounts; false when the caller
  *                        navigates away afterwards, e.g. add-a-track)
+ *   requireTerms         show the Terms of Use acceptance checkbox and block
+ *                        submit until it's checked (true for brand-new
+ *                        accounts, which is also the standalone default —
+ *                        that path always creates one; false for an
+ *                        add-a-track upgrade of an existing account, which
+ *                        already accepted terms when it was first created)
  *   submitLabel          label for the submit button
  */
 export default function FacultySignup({
@@ -147,6 +153,7 @@ export default function FacultySignup({
   onSubmitProfile,
   onBack,
   showVerifyOnSuccess = true,
+  requireTerms = true,
   submitLabel = "Submit application",
 } = {}) {
   const navigate = useNavigate();
@@ -256,6 +263,7 @@ export default function FacultySignup({
   const [downloaded, setDownloaded] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [agreementText, setAgreementText] = useState(null);   // current published version
+  const [termsAccepted, setTermsAccepted] = useState(false);  // site Terms of Use (new accounts only)
 
   // Pull the live, admin-published Faculty Agreement so the applicant reads the
   // exact current text (kept in sync with the admin editor). Falls back to the
@@ -364,6 +372,10 @@ export default function FacultySignup({
       setError("Please confirm you'll download, sign, and upload the agreement after verifying your email.");
       return;
     }
+    if (requireTerms && !termsAccepted) {
+      setError("Please accept the Terms of Use to continue.");
+      return;
+    }
     setError("");
     setSubmitting(true);
 
@@ -394,8 +406,9 @@ export default function FacultySignup({
     try {
       if (embedded) {
         // The parent flow (Signup) owns the email/password and the account
-        // creation; we just hand over the assembled application.
-        await onSubmitProfile?.(faculty_profile);
+        // creation; we just hand over the assembled application (+ whether
+        // terms were accepted here, when this step is the one asking for it).
+        await onSubmitProfile?.(faculty_profile, termsAccepted);
         setSubmitting(false);
         // Brand-new accounts see the Verify screen here; callers that navigate
         // away afterwards (e.g. add-a-track) pass showVerifyOnSuccess={false}.
@@ -407,6 +420,7 @@ export default function FacultySignup({
           role: "TEACHER",
           teacher_type: "FACULTY",
           faculty_profile,
+          terms_accepted: termsAccepted,
         });
         setSubmitting(false);
         go(4);
@@ -848,6 +862,14 @@ export default function FacultySignup({
                 </label>
               </div>
             </div>
+
+            {requireTerms && (
+              <label className="fs-checkbox-row">
+                <input type="checkbox" checked={termsAccepted}
+                  onChange={(e) => { setError(""); setTermsAccepted(e.target.checked); }} />
+                I agree to the <Link to="/terms" target="_blank">Terms of Use</Link>.
+              </label>
+            )}
 
             {error && (
               <div className="fs-error">

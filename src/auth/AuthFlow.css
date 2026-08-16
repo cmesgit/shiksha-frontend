@@ -343,6 +343,21 @@
 }
 .af-add-row:hover { background: color-mix(in srgb, var(--a) 6%, transparent); }
 
+/* ── Terms-of-Use checkbox ── */
+.af-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #4b4d57;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.af-checkbox input { margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--a); cursor: pointer; }
+.af-checkbox a { color: var(--a); font-weight: 600; text-decoration: none; }
+.af-checkbox a:hover { text-decoration: underline; }
+
 /* ── Spacer pushes the action bar down ── */
 .af-spacer { flex: 1; }
 

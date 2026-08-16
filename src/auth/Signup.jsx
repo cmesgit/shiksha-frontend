@@ -102,6 +102,11 @@ export default function Signup() {
   /* student profile (minimal — just one name) */
   const [profileName, setProfileName] = useState("");
 
+  /* Terms of Use acceptance — required for brand-new accounts only. An
+     existing account adding a second identity (isExisting) already accepted
+     terms when it was first created. */
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   /* guest expert profile (spec-required details, collected at signup).
      Profile photo is finished from the dashboard — it needs a file upload the
      JSON signup call doesn't carry — and the dashboard gate requires it there. */
@@ -153,6 +158,22 @@ export default function Signup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, user, isAuthenticated, authLoading]);
 
+  /* ── ?role=teacher[&skill=true] init from URL ──
+     Several public CTAs (navbar "Teach", the homepage "Become a Tutor" card)
+     link straight to a teacher signup, skipping the role tiles. `role` was
+     never read here, so those links silently landed on STEP_ROLE like any
+     other visit. add_track (above) already owns the URL for its own values
+     and takes priority. */
+  useEffect(() => {
+    const at = (searchParams.get("add_track") || "").toLowerCase();
+    if (at === "academy" || at === "skill") return;
+    if ((searchParams.get("role") || "").toLowerCase() !== "teacher") return;
+
+    setRole("TEACHER");
+    if ((searchParams.get("skill") || "").toLowerCase() === "true") setTeacherType("GUEST");
+    setStep(STEP_EMAIL);
+  }, [searchParams]);
+
   /* ── accent + label ── */
   const accent =
     step === STEP_ROLE || step === STEP_EMAIL || step === STEP_CREDS ? "neutral" :
@@ -192,6 +213,7 @@ export default function Signup() {
       email,
       password: isExisting ? existingPassword : password,
       role,
+      terms_accepted: termsAccepted,
       ...extra,
     };
     setSubmitting(true);
@@ -275,6 +297,7 @@ export default function Signup() {
     if (password.length < 8)  { setError("Password must be at least 8 characters."); return; }
     if (password !== confirm) { setError("Passwords do not match."); return; }
     if (role === "STUDENT") go(STEP_PROFILE);
+    else if (teacherType) go(teacherType === "GUEST" ? STEP_GUEST_PROFILE : STEP_FACULTY_INTRO);
     else go(STEP_TTYPE);
   };
 
@@ -288,6 +311,7 @@ export default function Signup() {
     // faculty path. submitFacultyApplication() reuses the password just entered.
     if (isUpgrade) { go(STEP_FACULTY_INTRO); return; }
     if (role === "STUDENT") go(STEP_PROFILE);
+    else if (teacherType) go(teacherType === "GUEST" ? STEP_GUEST_PROFILE : STEP_FACULTY_INTRO);
     else go(STEP_TTYPE);
   };
 
@@ -297,6 +321,7 @@ export default function Signup() {
     setError("");
     const name = profileName.trim();
     if (!name) { setError("Enter a profile name."); return; }
+    if (!isExisting && !termsAccepted) { setError("Please accept the Terms of Use to continue."); return; }
     doSignup({ profiles: [{ display_name: name, relationship: "SELF" }] });
   };
 
@@ -325,6 +350,7 @@ export default function Signup() {
         role: "TEACHER",
         teacher_type: "GUEST",
         expert_profile: expertProfile,
+        terms_accepted: termsAccepted,
       });
       setSubmitting(false);
       go(STEP_DONE_GST);
@@ -346,6 +372,10 @@ export default function Signup() {
     // that surfaces a visible message rather than silent native validation.
     if (gpOffline && !gp.class_location.trim()) {
       setError("Add your class location — it's required for at-home / travel teaching.");
+      return;
+    }
+    if (!isExisting && !termsAccepted) {
+      setError("Please accept the Terms of Use to continue.");
       return;
     }
     const expertProfile = {
@@ -371,13 +401,14 @@ export default function Signup() {
      account creation. Rejects propagate so the form can surface the error.
        · brand-new account     → resolve; the form shows its Verify screen
        · existing account / add-track → we navigate away (form shows nothing more) */
-  const submitFacultyApplication = async (facultyProfile) => {
+  const submitFacultyApplication = async (facultyProfile, termsAccepted) => {
     await signup({
       email: (user?.email || email).trim(),
       password: isExisting ? existingPassword : password,
       role: "TEACHER",
       teacher_type: "FACULTY",
       faculty_profile: facultyProfile,
+      terms_accepted: termsAccepted,
     });
     if (addTrack === "academy") {
       // An add-track applicant is ALREADY signed in, so navigating to /login
@@ -471,6 +502,7 @@ export default function Signup() {
         embedded
         presetEmail={user?.email || email}
         showVerifyOnSuccess={!isExisting}
+        requireTerms={!isExisting}
         submitLabel="Submit application"
         onBack={back}
         onSubmitProfile={submitFacultyApplication}
@@ -604,6 +636,13 @@ export default function Signup() {
             <Field id="su-pname" label="Profile name" value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
               placeholder="e.g. Your name" required autoFocus />
+            {!isExisting && (
+              <label className="af-checkbox">
+                <input type="checkbox" checked={termsAccepted}
+                  onChange={(e) => { setError(""); setTermsAccepted(e.target.checked); }} />
+                I agree to the <Link to="/terms" target="_blank">Terms of Use</Link>.
+              </label>
+            )}
             {error && <div className="af-error">{error}</div>}
             <div className="af-spacer" />
             <div className="af-actions">
@@ -719,6 +758,13 @@ export default function Signup() {
               </>
             )}
 
+            {!isExisting && (
+              <label className="af-checkbox">
+                <input type="checkbox" checked={termsAccepted}
+                  onChange={(e) => { setError(""); setTermsAccepted(e.target.checked); }} />
+                I agree to the <Link to="/terms" target="_blank">Terms of Use</Link>.
+              </label>
+            )}
             {error && <div className="af-error">{error}</div>}
             <div className="af-spacer" />
             <div className="af-actions">
