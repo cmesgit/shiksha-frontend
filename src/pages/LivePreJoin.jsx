@@ -27,6 +27,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import groupSessionService, { extractApiError } from "../api/groupSessionService";
+import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { IcCheck, IcClock, IcUsers } from "../components/home/HomeIcons";
@@ -39,6 +40,7 @@ function initials(name) {
 export default function LivePreJoin() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [preflight, setPreflight] = useState(null);
   const [loadError, setLoadError] = useState("");
@@ -229,7 +231,12 @@ export default function LivePreJoin() {
   }
 
   const { session, host, entitlement, limits, admit_mode, is_enrolled } = preflight;
-  const isLocked = admit_mode === "lobby";
+  // entitlement.reason can't be used to detect the host: live_rules.entitlement()
+  // checks live_launch_free_mode FIRST, so reason comes back "launch_free" for
+  // everyone (host included) whenever that admin toggle is on, same pattern as
+  // GroupSessionLive.jsx's own hostId check.
+  const isHost = !!(user?.id && host?.id && String(user.id) === String(host.id));
+  const isLocked = admit_mode === "lobby" && !isHost;
   const title = session.topic || session.course_title || session.subject_name || "Live session";
   const retentionDays = limits?.file_retention_days ?? 2;
   const capMinutes = limits?.cap_minutes ?? 90;
@@ -361,11 +368,14 @@ export default function LivePreJoin() {
                     {is_enrolled ? "Enrolled in this course" : "No time cap for you"}
                   </div>
                   <p>
-                    {entitlement.reason === "host" && "You're hosting — hosts are never time-capped."}
-                    {entitlement.reason === "teacher" && "Teachers are never time-capped."}
-                    {entitlement.reason === "enrolled" && "No time cap for you in this course's sessions."}
-                    {entitlement.reason === "subscribed" && "Your all-access subscription covers this room."}
-                    {entitlement.reason === "launch_free" && "Free-launch mode is on — nobody is time-capped right now."}
+                    {/* isHost takes priority over entitlement.reason: launch-free mode
+                        makes reason "launch_free" for the host too (see isHost's own
+                        comment above), which would otherwise hide this correct copy. */}
+                    {isHost ? "You're hosting — hosts are never time-capped." : null}
+                    {!isHost && entitlement.reason === "teacher" && "Teachers are never time-capped."}
+                    {!isHost && entitlement.reason === "enrolled" && "No time cap for you in this course's sessions."}
+                    {!isHost && entitlement.reason === "subscribed" && "Your all-access subscription covers this room."}
+                    {!isHost && entitlement.reason === "launch_free" && "Free-launch mode is on — nobody is time-capped right now."}
                   </p>
                 </div>
               ) : (
@@ -429,7 +439,7 @@ export default function LivePreJoin() {
             ) : (
               <>
                 <button className="lobby-btn lobby-btn-primary lobby-btn-block" onClick={askToJoin} disabled={asking}>
-                  {asking ? "Asking…" : "Ask to join"}
+                  {asking ? (isHost ? "Starting…" : "Asking…") : isHost ? "Join your session" : "Ask to join"}
                 </button>
                 {joinError && <p className="lobby-error">{joinError}</p>}
                 {isLocked && (
