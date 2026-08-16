@@ -1,0 +1,19 @@
+.pp-illo {
+  width: 100%;
+  max-width: 240px;
+  height: 92px;
+  margin: 0 auto 4px;
+}
+.pp-illo svg { width: 100%; height: 100%; display: block; }
+
+@keyframes pp-illo-float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes pp-illo-float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes pp-illo-settle     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+.pp-illo__float      { animation: pp-illo-float 7s ease-in-out infinite; }
+.pp-illo__float-slow { animation: pp-illo-float-slow 8.5s ease-in-out infinite; }
+.pp-illo__settle      { animation: pp-illo-settle 5.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-illo *, .pp-illo { animation: none !important; }
+}

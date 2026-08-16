@@ -5,6 +5,7 @@ import {
   TEACHER_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL,
   signupAddTrackUrl,
 } from "../config/urls";
+import ProfilePickerIllustration from "./ProfilePickerIllustration.jsx";
 import "./ProfilePicker.css";
 
 /* ════════════════════════════════════════════════════════════════
@@ -199,6 +200,7 @@ const ProfilePicker = () => {
         </div>
       )}
       <div className="pp-inner">
+        <ProfilePickerIllustration />
         <h1 className="pp-title pp-fade-in">Who&apos;s learning?</h1>
 
         {error && <p className="pp-error pp-fade-in">{error}</p>}
