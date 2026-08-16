@@ -258,14 +258,14 @@ function App() {
         */}
         <Route path="/login" element={
           !isAuthenticated
-            ? <Page><Login /></Page>
+            ? <Login />
             : <LoginRedirect />
         } />
 
         <Route path="/signup" element={
           (isAuthenticated && !isAddTrackSignup)
             ? <Navigate to="/" replace />
-            : <Page><Signup /></Page>
+            : <Signup />
         } />
 
         <Route path="/verify-email"   element={<VerifyEmail />} />
@@ -273,7 +273,7 @@ function App() {
         <Route path="/resend-verification" element={<ResendVerification />} />
 
         <Route path="/forgot-password" element={
-          isAuthenticated ? <Navigate to="/" replace /> : <Page><ForgotPassword /></Page>
+          isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />
         } />
 
         {/* Public content pages */}

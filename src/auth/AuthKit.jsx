@@ -60,16 +60,16 @@ export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.
 /* ════════════════════════════════════════════
    Shell — split panel with role-driven accent
 ════════════════════════════════════════════ */
-export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", intro = false, children }) {
+export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", intro = false, stepKey, dir = 1, children }) {
   const pal = PALETTE[role] || PALETTE.neutral;
   return (
     <div className={`af${intro ? " af--intro" : ""}`} style={{ "--a": pal.a, "--soft": pal.soft }}>
       {/* LEFT — brand panel */}
       <div className="af-brand">
-        <div className="af-brand__logo">
+        <Link to="/" className="af-brand__logo">
           <img className="af-brand__logo-mark" src={shikshaLogo} alt="" />
           ShikshaCom
-        </div>
+        </Link>
         {intro ? (
           /* Signup swaps the static pitch for the three-role intro. */
           <div className="af-brand__body af-brand__body--intro">
@@ -92,7 +92,16 @@ export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", in
 
       {/* RIGHT — content panel */}
       <div className="af-panel">
-        <div className="af-panel__inner">{children}</div>
+        {/* Keying on stepKey remounts this on every step change, which is what
+            re-triggers the af-step-fwd/back entrance animation below — the
+            div otherwise persists across renders and a CSS animation only
+            ever plays once, on the very first mount. */}
+        <div
+          className={`af-panel__inner${stepKey != null ? (dir < 0 ? " af-step-back" : " af-step-fwd") : ""}`}
+          key={stepKey}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -131,20 +140,6 @@ export function PasswordField({ label, show, onToggle, ...props }) {
         </button>
       </div>
     </div>
-  );
-}
-
-/* ── Option row (the tappable › cards on decision screens) ── */
-export function Option({ label, sub, dot, active, onClick }) {
-  return (
-    <button type="button" className={`af-option ${active ? "af-option--active" : ""}`} onClick={onClick}>
-      <span className="af-option__dot" style={{ background: dot }} />
-      <span className="af-option__body">
-        <span className="af-option__label">{label}</span>
-        {sub && <span className="af-option__sub">{sub}</span>}
-      </span>
-      <span className="af-option__chev">›</span>
-    </button>
   );
 }
 

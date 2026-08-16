@@ -32,6 +32,7 @@ export default function ForgotPassword() {
   const { showToast } = useToast();
 
   const [step, setStep] = useState(STEP_EMAIL);
+  const [dir, setDir]   = useState(1);   // 1 = advancing, -1 = Back
 
   const [email, setEmail] = useState("");
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
@@ -74,6 +75,7 @@ export default function ForgotPassword() {
       await api.post("/accounts/password-reset/request/", { email: email.trim().toLowerCase() });
       setInfo("If an account exists for that email, we've sent a 6-digit code. It expires in 15 minutes.");
       setDigits(["", "", "", "", "", ""]);
+      setDir(1);
       setStep(STEP_CODE);
     } catch (err) {
       setError(errMsg(err, "Could not send the code. Please try again."));
@@ -92,6 +94,7 @@ export default function ForgotPassword() {
         code,
       });
       setTicket(data.ticket);
+      setDir(1);
       setStep(STEP_PASSWORD);
     } catch (err) {
       setError(errMsg(err, "Invalid or expired code."));
@@ -140,12 +143,13 @@ export default function ForgotPassword() {
 
   const back = () => {
     setError(""); setInfo("");
+    setDir(-1);
     if (step === STEP_CODE) setStep(STEP_EMAIL);
     else if (step === STEP_PASSWORD) setStep(STEP_CODE);
   };
 
   return (
-    <AuthShell role="neutral" flowLabel="Reset password" brandIcon="lock">
+    <AuthShell role="neutral" flowLabel="Reset password" brandIcon="lock" stepKey={step} dir={dir}>
       <div className="af-toprow">
         {step !== STEP_EMAIL
           ? <button className="af-iconbtn" onClick={back} aria-label="Back" type="button">‹</button>

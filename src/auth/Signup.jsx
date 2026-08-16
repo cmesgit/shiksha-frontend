@@ -77,6 +77,7 @@ export default function Signup() {
   const loginPath = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const [step, setStep]             = useState(STEP_ROLE);
+  const [dir, setDir]               = useState(1);   // 1 = advancing, -1 = Back (drives the step transition's slide direction)
   const [error, setError]           = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -186,24 +187,28 @@ export default function Signup() {
       ? `Sign up · ${teacherType === "GUEST" ? "Guest expert" : "Faculty"}`
       : "Sign up · Student";
 
-  const go = (s) => { setError(""); setStep(s); };
+  // goTo is direction-agnostic (used by both go() and back()); go() is the
+  // forward-facing helper every other call site already uses.
+  const goTo = (s) => { setError(""); setStep(s); };
+  const go = (s) => { setDir(1); goTo(s); };
 
   /* ── back navigation ── */
   const back = () => {
+    setDir(-1);
     setError("");
-    if (step === STEP_EMAIL)    go(STEP_ROLE);
-    if (step === STEP_CREDS)    go(STEP_EMAIL);
-    if (step === STEP_CONFIRM)  { setIsExisting(false); setIsUpgrade(false); setExistingPassword(""); go(STEP_EMAIL); }
-    if (step === STEP_PROFILE)  go(isExisting ? STEP_CONFIRM : STEP_CREDS);
-    if (step === STEP_TTYPE)    go(isExisting ? STEP_CONFIRM : STEP_CREDS);
-    if (step === STEP_GUEST_PROFILE) go(STEP_TTYPE);
+    if (step === STEP_EMAIL)    goTo(STEP_ROLE);
+    if (step === STEP_CREDS)    goTo(STEP_EMAIL);
+    if (step === STEP_CONFIRM)  { setIsExisting(false); setIsUpgrade(false); setExistingPassword(""); goTo(STEP_EMAIL); }
+    if (step === STEP_PROFILE)  goTo(isExisting ? STEP_CONFIRM : STEP_CREDS);
+    if (step === STEP_TTYPE)    goTo(isExisting ? STEP_CONFIRM : STEP_CREDS);
+    if (step === STEP_GUEST_PROFILE) goTo(STEP_TTYPE);
     // Faculty intro can be reached from the teacher-type choice (new teacher) or
     // straight from the ownership-confirm step (guest→faculty upgrade).
-    if (step === STEP_FACULTY_INTRO) go(isUpgrade ? STEP_CONFIRM : STEP_TTYPE);
+    if (step === STEP_FACULTY_INTRO) goTo(isUpgrade ? STEP_CONFIRM : STEP_TTYPE);
     // The faculty form + intro render full-bleed and carry their own Back
     // buttons (wired to onBack below); these entries keep the AuthShell back
     // arrow coherent for any edge case where it is shown.
-    if (step === STEP_FACULTY_PROFILE) go(addTrack === "academy" ? STEP_AT_CONFIRM : STEP_FACULTY_INTRO);
+    if (step === STEP_FACULTY_PROFILE) goTo(addTrack === "academy" ? STEP_AT_CONFIRM : STEP_FACULTY_INTRO);
     if (step === STEP_AT_CONFIRM) { navigate(-1); return; }
   };
 
@@ -512,7 +517,7 @@ export default function Signup() {
 
   /* ════════ RENDER ════════════════════════════════════════════════════════ */
   return (
-    <AuthShell role={accent} flowLabel={flowLabel} intro>
+    <AuthShell role={accent} flowLabel={flowLabel} intro stepKey={step} dir={dir}>
       <div className="af-toprow">
         {step !== STEP_ROLE
           ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹</button>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../api/apiClient";
-import "./VerifyEmail.css";
+import { AuthShell, StatusChip, FooterLink } from "./AuthKit";
 
 const VerifyEmail = () => {
   const location = useLocation();
@@ -46,74 +46,33 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="ve-container">
-      {/* Decorative glows — mirrors Login page */}
-      <div className="ve-glow ve-glow--tl" />
-      <div className="ve-glow ve-glow--br" />
-      <div className="ve-glow ve-glow--tr" />
-      <div className="ve-glow ve-glow--center" />
+    <AuthShell role="neutral" flowLabel="Verify email" brandIcon="mail">
+      <StatusChip icon="mail" role="neutral" />
+      <h1 className="af-heading">Check your inbox</h1>
+      <p className="af-sub">
+        We've sent a verification link to{" "}
+        {email ? <strong>{email}</strong> : "your email address"}. Click the
+        link in the email to activate your account.
+      </p>
+      <p className="af-sub" style={{ fontSize: 13, marginTop: 8 }}>
+        Didn't receive it? Check your spam folder or resend below. If you've
+        registered more than one account with this email, each one gets its
+        own link.
+      </p>
 
-      <div className="ve-card">
-        {/* Envelope icon */}
-        <div className="ve-icon-wrap">
-          <svg
-            className="ve-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="2" y="4" width="20" height="16" rx="2.5" />
-            <path d="m2 7 10 6.5L22 7" />
-          </svg>
-        </div>
+      {message && <div className="af-banner-success" style={{ textAlign: "left" }}>
+        <div style={{ fontSize: 13.5, color: "#1e7a32", lineHeight: 1.5 }}>{message}</div>
+      </div>}
+      {error && <div className="af-error">{error}</div>}
 
-        <h2 className="ve-title">Check your inbox</h2>
-
-        <p className="ve-desc">
-          We&apos;ve sent a verification link to{" "}
-          {email ? (
-            <strong className="ve-email">{email}</strong>
-          ) : (
-            "your email address"
-          )}
-          . Click the link in the email to activate your account.
-        </p>
-
-        <p className="ve-note">
-          Didn&apos;t receive it? Check your spam folder or resend below.
-          If you&apos;ve registered more than one account with this email,
-          each one gets its own link.
-        </p>
-
-        <button
-          className="ve-btn"
-          onClick={handleResend}
-          disabled={resending}
-        >
-          {resending ? (
-            <><span className="ve-btn__spinner" /> Sending…</>
-          ) : (
-            "Resend Verification Email"
-          )}
+      <div className="af-spacer" />
+      <div className="af-actions">
+        <button type="button" className="af-btn af-btn--block" onClick={handleResend} disabled={resending}>
+          {resending ? <><span className="af-spin" />Sending…</> : "Resend verification email"}
         </button>
-
-        {message && (
-          <div className="ve-alert ve-alert--success">{message}</div>
-        )}
-        {error && (
-          <div className="ve-alert ve-alert--error">{error}</div>
-        )}
-
-        <p className="ve-footer">
-          Already verified?{" "}
-          <Link to="/login" className="ve-link">Sign in →</Link>
-        </p>
       </div>
-    </div>
+      <FooterLink>Already verified? <Link to="/login">Sign in</Link></FooterLink>
+    </AuthShell>
   );
 };
 

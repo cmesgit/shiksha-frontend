@@ -42,6 +42,7 @@ export default function Login() {
   const location = useLocation();
 
   const [step, setStep]             = useState(STEP_EMAIL);
+  const [dir, setDir]               = useState(1);   // 1 = advancing, -1 = Back
   const [email, setEmail]           = useState("");
   const [password, setPassword]     = useState("");
   const [showPw, setShowPw]         = useState(false);
@@ -68,6 +69,7 @@ export default function Login() {
     // now happens after login (the /me/ response carries the profile list).
     setGreetName("");
     setSubmitting(false);
+    setDir(1);
     setStep(STEP_PW);
   };
 
@@ -102,6 +104,7 @@ export default function Login() {
 
   const back = () => {
     setError(""); setStatusMsg("");
+    setDir(-1);
     setStep(STEP_EMAIL);
   };
 
@@ -111,7 +114,7 @@ export default function Login() {
   const signupHref = `/signup${location.search}`;
 
   return (
-    <AuthShell role="student" flowLabel="Log in">
+    <AuthShell role="student" flowLabel="Log in" stepKey={step} dir={dir}>
 
 
 
