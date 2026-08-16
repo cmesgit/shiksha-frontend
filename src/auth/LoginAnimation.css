@@ -1,0 +1,29 @@
+/* LoginAnimation.css — motion + sizing for the Login brand-panel illustration. */
+
+.af-login-anim {
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  position: relative;
+  overflow: hidden;
+}
+.af-login-anim svg { width: 100%; height: 100%; display: block; }
+
+@keyframes la-float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes la-float-slow { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-13px); } }
+@keyframes la-breathe    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes la-dash       { to { stroke-dashoffset: -44; } }
+@keyframes la-halo       { 0%,100% { opacity: .5; transform: scale(1); } 50% { opacity: .8; transform: scale(1.05); } }
+@keyframes la-blip       { 0%,100% { opacity: .45; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
+
+.la-float      { animation: la-float 8s ease-in-out infinite; }
+.la-float-slow { animation: la-float-slow 9s ease-in-out infinite; }
+.la-breathe    { animation: la-breathe 5.6s ease-in-out infinite; }
+.la-dash       { animation: la-dash 3.2s linear infinite; }
+.la-halo       { animation: la-halo 10s ease-in-out infinite; }
+.la-blip       { animation: la-blip 3.4s ease-in-out infinite; }
+.la-dotpill    { transition: x .7s cubic-bezier(.4,0,.2,1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .af-login-anim *, .af-login-anim { animation: none !important; transition: none !important; }
+}

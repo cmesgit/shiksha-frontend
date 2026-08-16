@@ -114,7 +114,7 @@ export default function Login() {
   const signupHref = `/signup${location.search}`;
 
   return (
-    <AuthShell role="student" flowLabel="Log in" stepKey={step} dir={dir}>
+    <AuthShell role="student" flowLabel="Log in" loginIntro stepKey={step} dir={dir}>
 
 
 

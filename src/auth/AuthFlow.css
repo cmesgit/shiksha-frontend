@@ -67,13 +67,24 @@
 
 .af-brand__body { /* middle block */ }
 
-/* Intro variant: the illustration takes the whole middle band, so the panel
-   stretches it rather than centring a text block. */
+/* Intro variant (Signup's three-role illustration, Login's "welcome back"
+   one): the illustration takes the whole middle band, with a heading
+   layered on top — matching the reference, where both the sign-up and
+   log-in screens overlay a tagline on their respective animations rather
+   than showing the illustration on its own. */
 .af-brand__body--intro {
   flex: 1;
   min-height: 0;
   margin: 18px 0 6px;
   display: flex;
+  position: relative;
+}
+.af-brand__tagline {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 2;
+  max-width: 300px;
+  pointer-events: none;
 }
 .af--intro .af-brand { padding: 36px 28px; }
 
@@ -379,9 +390,20 @@
     align-items: center;
     justify-content: space-between;
     min-height: auto;
+    position: relative;
   }
-  .af-brand__body,
+  .af-brand__body:not(.af-brand__body--intro),
   .af-brand__flow { display: none; }
+  .af-brand__logo { position: relative; z-index: 2; }
+
+  /* Illustrated screens (Signup, Login) still show the animation full-bleed
+     on mobile per the handoff ("animation fills it edge to edge") — was
+     previously killed entirely by the blanket .af-brand__body{display:none}
+     above. Only the heading/tagline hides, matching the reference's
+     mobile behaviour, leaving the 190px band to the artwork. */
+  .af--intro .af-brand { min-height: 190px; }
+  .af-brand__body--intro { position: absolute; inset: 0; margin: 0; }
+  .af-brand__tagline { display: none; }
 
   .af-panel {
     flex: 1;

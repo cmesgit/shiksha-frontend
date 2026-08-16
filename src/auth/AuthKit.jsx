@@ -7,8 +7,9 @@
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import shikshaLogo from "../assets/Shiksha.png";
-/* Lazy so Login/ForgotPassword don't ship the ~56 KB of intro artwork. */
+/* Lazy so screens that don't need them don't ship this artwork. */
 const IntroAnimation = lazy(() => import("./IntroAnimation.jsx"));
+const LoginAnimation = lazy(() => import("./LoginAnimation.jsx"));
 import "./AuthFlow.css";
 
 /* ── Per-role accent palette (verbatim from the design) ── */
@@ -60,20 +61,38 @@ export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.
 /* ════════════════════════════════════════════
    Shell — split panel with role-driven accent
 ════════════════════════════════════════════ */
-export function AuthShell({ role = "neutral", flowLabel, brandIcon = "spark", intro = false, stepKey, dir = 1, children }) {
+export function AuthShell({
+  role = "neutral", flowLabel, brandIcon = "spark",
+  intro = false, loginIntro = false, stepKey, dir = 1, children,
+}) {
   const pal = PALETTE[role] || PALETTE.neutral;
+  const illustrated = intro || loginIntro;
   return (
-    <div className={`af${intro ? " af--intro" : ""}`} style={{ "--a": pal.a, "--soft": pal.soft }}>
+    <div className={`af${illustrated ? " af--intro" : ""}`} style={{ "--a": pal.a, "--soft": pal.soft }}>
       {/* LEFT — brand panel */}
       <div className="af-brand">
         <Link to="/" className="af-brand__logo">
           <img className="af-brand__logo-mark" src={shikshaLogo} alt="" />
           ShikshaCom
         </Link>
-        {intro ? (
-          /* Signup swaps the static pitch for the three-role intro. */
+        {illustrated ? (
+          /* Signup gets the three-role intro; Login gets its own "welcome
+             back" illustration (the handoff's separate LoginAnimation3) —
+             both layer a heading over the artwork, same as the reference. */
           <div className="af-brand__body af-brand__body--intro">
-            <Suspense fallback={null}><IntroAnimation accent={pal.a} /></Suspense>
+            <Suspense fallback={null}>
+              {intro ? <IntroAnimation accent={pal.a} /> : <LoginAnimation />}
+            </Suspense>
+            <div className="af-brand__tagline">
+              <h2 className="af-brand__headline">
+                {intro ? "Where learning and teaching meet." : "Good to see you again."}
+              </h2>
+              <p className="af-brand__desc">
+                {intro
+                  ? "Sign up to learn from expert tutors, or to teach what you love."
+                  : "Sign in to your ShikshaCom account — learner, tutor or faculty."}
+              </p>
+            </div>
           </div>
         ) : (
         <div className="af-brand__body">
