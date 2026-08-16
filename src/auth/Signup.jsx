@@ -338,13 +338,12 @@ export default function Signup() {
   const submitGuestProfile = (e) => {
     e.preventDefault();
     setError("");
-    if (!gp.full_name.trim())          { setError("Enter your full name."); return; }
-    if (!gp.date_of_birth)             { setError("Enter your date of birth."); return; }
-    if (!gp.phone.trim())              { setError("Enter your phone number."); return; }
-    if (!gp.subject_description.trim()){ setError("Tell learners what you teach."); return; }
-    if (!gp.languages.trim())          { setError("Add at least one language."); return; }
-    if (!gp.bio.trim())                { setError("Add a short about-you description."); return; }
-    if (!(Number(gp.hourly_rate) > 0)) { setError("Set your hourly fee."); return; }
+    // Every expert-profile field is optional at signup: the backend accepts a
+    // partial profile (accounts/signup_serializer.py — expert_profile is
+    // required=False) and the dashboard prompts for anything omitted, exactly as
+    // the screen's own copy promises. So we don't block on empty fields here.
+    // The one nudge we keep is a class location for in-person teaching, and even
+    // that surfaces a visible message rather than silent native validation.
     if (gpOffline && !gp.class_location.trim()) {
       setError("Add your class location — it's required for at-home / travel teaching.");
       return;
@@ -649,19 +648,20 @@ export default function Signup() {
         <>
           <h1 className="af-heading">Your expert profile</h1>
           <p className="af-sub">
-            This is what learners see — it gets you listed. You can edit any of it later,
-            and add a profile photo, from your dashboard.
+            This is what learners see — it gets you listed. Every field is optional:
+            fill in what you can now, and complete or edit the rest (and add a profile
+            photo) anytime from your dashboard.
           </p>
           <form onSubmit={submitGuestProfile} style={{ display: "contents" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <Field id="gp-name" label="Full name" value={gp.full_name}
-                onChange={setGpField("full_name")} placeholder="Your name" required autoFocus />
+                onChange={setGpField("full_name")} placeholder="Your name" autoFocus />
               <Field id="gp-phone" label="Phone number" value={gp.phone}
-                onChange={setGpField("phone")} placeholder="10-digit mobile" required />
+                onChange={setGpField("phone")} placeholder="10-digit mobile" />
               <Field id="gp-dob" label="Date of birth" type="date" value={gp.date_of_birth}
-                onChange={setGpField("date_of_birth")} required />
+                onChange={setGpField("date_of_birth")} />
               <Field id="gp-fee" label="Hourly fee (₹)" type="number" min="0" value={gp.hourly_rate}
-                onChange={setGpField("hourly_rate")} placeholder="e.g. 500" required />
+                onChange={setGpField("hourly_rate")} placeholder="e.g. 500" />
             </div>
 
             <div className="af-field">
@@ -669,17 +669,17 @@ export default function Signup() {
               <textarea id="gp-subject" value={gp.subject_description}
                 onChange={setGpField("subject_description")} rows={2}
                 placeholder="e.g. Hindustani vocal for beginners to intermediate"
-                style={{ resize: "vertical", font: "inherit" }} required />
+                style={{ resize: "vertical", font: "inherit" }} />
             </div>
 
             <Field id="gp-langs" label="Languages (comma-separated)" value={gp.languages}
-              onChange={setGpField("languages")} placeholder="English, Hindi, Manipuri" required />
+              onChange={setGpField("languages")} placeholder="English, Hindi, Manipuri" />
 
             <div className="af-field">
               <label htmlFor="gp-bio">About you</label>
               <textarea id="gp-bio" value={gp.bio} onChange={setGpField("bio")} rows={2}
                 placeholder="A short intro learners will read on your profile"
-                style={{ resize: "vertical", font: "inherit" }} required />
+                style={{ resize: "vertical", font: "inherit" }} />
             </div>
 
             <div className="af-field">
@@ -709,7 +709,7 @@ export default function Signup() {
               <>
                 <Field id="gp-loc" label="Class location (exact area / landmark)"
                   value={gp.class_location} onChange={setGpField("class_location")}
-                  placeholder="Where the class is held" required />
+                  placeholder="Where the class is held" />
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <Field id="gp-city" label="City" value={gp.city} onChange={setGpField("city")} />
                   <Field id="gp-pin" label="Pincode" value={gp.pincode} onChange={setGpField("pincode")} />

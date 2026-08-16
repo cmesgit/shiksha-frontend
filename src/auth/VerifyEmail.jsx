@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../api/apiClient";
 import "./VerifyEmail.css";
 
 const VerifyEmail = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const email = location.state?.email || "";
 
   const [resending, setResending] = useState(false);
@@ -13,7 +14,13 @@ const VerifyEmail = () => {
 
   const handleResend = async () => {
     if (!email) {
-      setError("No email address found. Please sign up again.");
+      // The email only ever lives in React Router state, which a page
+      // refresh (or arriving here directly, e.g. a stale bookmark) loses —
+      // don't dead-end into "sign up again" (which hits "an account already
+      // exists" for this exact case); /resend-verification asks for the
+      // email directly and doesn't depend on this page's state at all.
+      setError("");
+      navigate("/resend-verification");
       return;
     }
 

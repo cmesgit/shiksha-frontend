@@ -288,7 +288,11 @@ const ProfilePicker = () => {
 
               {/* Step 1: account password */}
               {teachPwVisible && !chooseTrack && (
-                <div className="pp-pin-row pp-reveal">
+                <div className="pp-reveal">
+                  <p className="pp-teach-hint">
+                    Confirm your account password to enter Teaching mode.
+                  </p>
+                  <div className="pp-pin-row">
                   <input
                     className="pp-pin"
                     type="password"
@@ -306,6 +310,7 @@ const ProfilePicker = () => {
                   >
                     {approved.length >= 2 ? "Next" : "Go"}
                   </button>
+                  </div>
                 </div>
               )}
 

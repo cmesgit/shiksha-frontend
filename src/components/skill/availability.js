@@ -32,6 +32,25 @@ const DAYS = (() => {
 })();
 const SLOTS = ["9 AM", "11 AM", "2 PM", "4 PM", "6 PM", "8 PM"];
 
+// Must line up with _SLOT_HOURS in the backend: [9,11,14,16,18,20].
+const SLOT_HOURS = [9, 11, 14, 16, 18, 20];
+
+// Mon=0..Sat=5 index of "today" in this Mon–Sat grid (Sun -> 6, off-grid).
+function todayIdx() { return (new Date().getDay() + 6) % 7; }
+
+// True when a slot key belongs to a day/hour of the CURRENT week that has
+// already elapsed. The grid shows this week's real dates, but the backend
+// silently rolls a past slot forward to next week's occurrence — so a past
+// slot must be shown as unavailable rather than a clickable "open" that lies
+// about which date it books.
+function isPast(k) {
+  const [di, si] = String(k).split("-").map(Number);
+  const t = todayIdx();
+  if (di < t) return true;                              // earlier weekday
+  if (di === t) return new Date().getHours() >= SLOT_HOURS[si]; // today, past hour
+  return false;
+}
+
 // Deterministic default open pattern so each teacher looks different.
 function defaultOpen(tid) {
   const out = [];
@@ -97,7 +116,7 @@ function label(k) {
   return DAYS[di] + " · " + SLOTS[si];
 }
 
-export const SDAvail = { DAYS, SLOTS, get, status, toggleOpen, book, label, KEY };
+export const SDAvail = { DAYS, SLOTS, SLOT_HOURS, get, status, toggleOpen, book, label, isPast, KEY };
 
 // Also attach to window so any legacy code that reads window.SDAvail still works.
 if (typeof window !== "undefined") window.SDAvail = SDAvail;
