@@ -23,6 +23,11 @@ export default function CategoryPage() {
   const c = data.category;
   const on = isFollowingCategory(c.id);
 
+  const onFollow = async () => {
+    const res = await toggleFollowCategory(c.id);
+    if (res) setData((d) => ({ ...d, category: { ...d.category, follower_count: res.follower_count } }));
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
       <div className="fm2-card" style={{ padding: "18px 20px" }}>
@@ -34,7 +39,7 @@ export default function CategoryPage() {
               <div className="fm2-tile-meta">{fmtNum(c.question_count)} questions · {fmtNum(c.follower_count)} followers</div>
             </div>
           </div>
-          <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "8px 18px" }} onClick={() => toggleFollowCategory(c.id)}>{on ? "✓ Following" : "Follow"}</button>
+          <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "8px 18px" }} onClick={onFollow}>{on ? "✓ Following" : "Follow"}</button>
         </div>
         {c.desc ? <p className="fm2-sub" style={{ marginTop: 12, marginBottom: 0 }}>{c.desc}</p> : null}
       </div>

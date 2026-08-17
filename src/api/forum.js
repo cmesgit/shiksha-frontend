@@ -30,7 +30,7 @@ export async function getCategory(categoryId, params = {}) {
 
 export async function followCategory(categoryId) {
   const res = await api.post(`/forum/categories/${encodeURIComponent(categoryId)}/follow/`);
-  return res.data; // { following }
+  return res.data; // { following, follower_count }
 }
 
 // =====================================================

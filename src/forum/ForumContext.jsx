@@ -122,17 +122,18 @@ export function ForumProvider({ children }) {
   }, [requireAuth, showToast]);
 
   const toggleFollowCategory = useCallback(async (id) => {
-    if (requireAuth()) return;
+    if (requireAuth()) return null;
     const key = String(id);
     try {
-      const { following } = await apiFollowCategory(id);
+      const res = await apiFollowCategory(id);
       setFollowCategories((prev) => {
         const next = new Set(prev);
-        if (following) next.add(key); else next.delete(key);
+        if (res.following) next.add(key); else next.delete(key);
         return next;
       });
-      showToast(following ? "Following category" : "Unfollowed category");
-    } catch { showToast("Something went wrong"); }
+      showToast(res.following ? "Following category" : "Unfollowed category");
+      return res;
+    } catch { showToast("Something went wrong"); return null; }
   }, [requireAuth, showToast]);
 
   const openReport = useCallback((type, id) => {

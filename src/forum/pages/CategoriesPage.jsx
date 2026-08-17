@@ -9,7 +9,6 @@ export default function CategoriesPage() {
   const { isFollowingCategory, toggleFollowCategory } = useForum();
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [, force] = useState(0);
 
   useEffect(() => {
     getCategories().then((d) => setCats(d.results || [])).catch(() => setCats([])).finally(() => setLoading(false));
@@ -31,7 +30,10 @@ export default function CategoriesPage() {
                 <div className="fm2-tile-desc">{c.desc}</div>
                 <div className="fm2-tile-foot">
                   <span className="fm2-tile-meta">{fmtNum(c.question_count)} questions · {fmtNum(c.follower_count)} followers</span>
-                  <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 16px" }} onClick={async () => { await toggleFollowCategory(c.id); force((n) => n + 1); }}>{on ? "✓ Following" : "Follow"}</button>
+                  <button className={on ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 16px" }} onClick={async () => {
+                    const res = await toggleFollowCategory(c.id);
+                    if (res) setCats((prev) => prev.map((x) => x.id === c.id ? { ...x, follower_count: res.follower_count } : x));
+                  }}>{on ? "✓ Following" : "Follow"}</button>
                 </div>
               </div>
             );
