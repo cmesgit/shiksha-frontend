@@ -10,6 +10,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
 import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
+import { BLOG_BLOCKS_CSS } from "../blogBlocks/blocksCss";
+import { renderDocument, themeStyleText, neutralizeViewportUnits } from "../blogBlocks/render";
 import "../css/BlogDetail.css";
 
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
@@ -27,42 +29,22 @@ const htmlCache = new Map();
 // `sandbox="allow-same-origin"` blocks script execution (no allow-scripts)
 // while still letting this component read contentDocument to auto-size the
 // iframe to its content's real height.
-// Nominal viewport height (px) that `vh` units in legacy chapter CSS are
-// rewritten against. 800 ≈ a normal desktop viewport, which is what these
-// chapters were hand-designed in.
-const NOMINAL_VIEWPORT_PX = 800;
+//
+// `neutralizeViewportUnits` now lives in ../blogBlocks/render.js so both this
+// component and the admin preview share one implementation.
 
-// Legacy chapters style themselves with viewport units (114 of the 115
-// imported posts contain at least one `vh` value — e.g. `.flm-hero
-// { min-height: 100vh }`). Inside an auto-height iframe that is a runaway
-// feedback loop, because `vh` resolves against the IFRAME's height, which we
-// set from the content's height:
-//
-//   measure content -> grow iframe -> 100vh grows -> content grows -> ...
-//
-// On class-9/science/chapter-9 that inflated a single hero to ~9,900px and
-// left the iframe ~5,700px shorter than its own content (so the tail was
-// unreachable behind `scrolling="no"`, and the oversized empty hero read as
-// a huge blank band). Rewriting `vh` to a fixed px equivalent breaks the
-// dependency entirely: content height becomes a pure function of the HTML,
-// so one measurement is stable and correct.
-//
-// Scoped deliberately to <style> blocks and inline style attributes of
-// chapter bodies — this is a compatibility shim for imported legacy markup,
-// not a general CSS transform. `vmin`/`vmax`/`svh`/`dvh`/`lvh` are covered
-// too since they have the same iframe-relative problem; `vw` is left alone
-// because iframe width is the real viewport width and does not feed back.
-const VIEWPORT_UNIT_RE = /(-?\d*\.?\d+)(svh|lvh|dvh|vh|vmin|vmax)\b/gi;
-const neutralizeViewportUnits = (markup) =>
-  markup.replace(/<style\b[^>]*>[\s\S]*?<\/style>|style="[^"]*"/gi, (block) =>
-    block.replace(VIEWPORT_UNIT_RE, (_m, num) =>
-      `${((parseFloat(num) / 100) * NOMINAL_VIEWPORT_PX).toFixed(2).replace(/\.?0+$/, "")}px`
-    )
-  );
-
-const BlogBody = ({ html }) => {
+// body_blocks is authoritative when present — rendered fresh from the block
+// tree every time via the SAME shared renderer the editor previews with (see
+// shared/src/blogBlocks/render.js's header for why body_html is only a
+// derived fallback, never the source of truth, for a block-authored post).
+// It still goes through the identical DOMPurify + neutralizeViewportUnits
+// pipeline as legacy html below — re-sanitizing freshly rendered output on
+// every read is a STRONGER guarantee than the legacy path's one-time
+// server-side clean_html(), not a weaker one.
+const BlogBody = ({ html, blocks, theme }) => {
   const iframeRef = useRef(null);
   const [height, setHeight] = useState(0);
+  const hasBlocks = Array.isArray(blocks) && blocks.length > 0;
 
   const srcDoc = useMemo(() => {
     // FORCE_BODY is required here: DOMPurify's fragment-mode parser silently
@@ -72,9 +54,24 @@ const BlogBody = ({ html }) => {
     // the tag never survives sanitize() to reach the iframe in the first
     // place. Verified against DOMPurify 3.4.13: FORCE_BODY still strips
     // <script> and on*= handlers exactly as before.
+    const raw = hasBlocks ? renderDocument(blocks) : (html || "");
     const clean = neutralizeViewportUnits(
-      DOMPurify.sanitize(html || "", { FORCE_BODY: true })
+      DOMPurify.sanitize(raw, { FORCE_BODY: true })
     );
+
+    if (hasBlocks) {
+      // renderDocument() already wraps its output in <div class="cd-root">,
+      // so `clean` is the full body content as-is — no extra wrapper div.
+      // Font Awesome isn't loaded here: no block emits icon-font markup.
+      return (
+        `<!doctype html><html><head><meta charset="utf-8">` +
+        `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+        `<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">` +
+        `<style>body{margin:0;padding:0;}\n${themeStyleText(theme)}\n${BLOG_BLOCKS_CSS}</style>` +
+        `</head><body>${clean}</body></html>`
+      );
+    }
+
     return (
       `<!doctype html><html><head><meta charset="utf-8">` +
       `<meta name="viewport" content="width=device-width, initial-scale=1">` +
@@ -83,7 +80,7 @@ const BlogBody = ({ html }) => {
       `<style>body{margin:0;padding:0;font-family:"Poppins",sans-serif;}${BLOG_BODY_CSS}</style>` +
       `</head><body><div class="blog-body">${clean}</div></body></html>`
     );
-  }, [html]);
+  }, [html, blocks, theme, hasBlocks]);
 
   useEffect(() => {
     const doc = iframeRef.current?.contentDocument;
@@ -184,6 +181,8 @@ const BlogDetail = ({ locale = "en" }) => {
   const [showTopButton, setShowTopButton] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState(null);
   const [html, setHtml] = useState(null);
+  const [blocks, setBlocks] = useState(null);
+  const [theme, setTheme] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | notfound | error
   const [translations, setTranslations] = useState([]);
   const [isFallbackLocale, setIsFallbackLocale] = useState(false);
@@ -210,6 +209,8 @@ const BlogDetail = ({ locale = "en" }) => {
     if (htmlCache.has(cacheKey)) {
       const cached = htmlCache.get(cacheKey);
       setHtml(cached.html);
+      setBlocks(cached.blocks);
+      setTheme(cached.theme);
       setTranslations(cached.translations);
       setIsFallbackLocale(cached.isFallbackLocale);
       setStatus("ready");
@@ -218,13 +219,20 @@ const BlogDetail = ({ locale = "en" }) => {
 
     setStatus("loading");
     setHtml(null);
+    setBlocks(null);
+    setTheme(null);
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const show = (text, title, translationList, fallback) => {
-      htmlCache.set(cacheKey, { html: text, translations: translationList, isFallbackLocale: fallback });
+    const show = (text, postBlocks, postTheme, title, translationList, fallback) => {
+      htmlCache.set(cacheKey, {
+        html: text, blocks: postBlocks, theme: postTheme,
+        translations: translationList, isFallbackLocale: fallback,
+      });
       setHtml(text);
+      setBlocks(postBlocks);
+      setTheme(postTheme);
       setTranslations(translationList);
       setIsFallbackLocale(fallback);
       setStatus("ready");
@@ -244,6 +252,8 @@ const BlogDetail = ({ locale = "en" }) => {
       if (result.status === "ok") {
         show(
           result.post.body_html,
+          result.post.body_blocks,
+          result.post.body_theme,
           result.post.seo_title || result.post.title,
           result.post.translations || [],
           !!result.post.is_fallback_locale
@@ -388,7 +398,9 @@ const BlogDetail = ({ locale = "en" }) => {
         </div>
       )}
 
-      {status === "ready" && html && <BlogBody html={html} />}
+      {status === "ready" && (html || (blocks && blocks.length > 0)) && (
+        <BlogBody html={html} blocks={blocks} theme={theme} />
+      )}
 
       {status === "notfound" && <h2>Blog not found</h2>}
 
