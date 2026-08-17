@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   getForumMe, toggleSave as apiToggleSave, followThread as apiFollowThread,
   followSpace as apiFollowSpace, followCategory as apiFollowCategory,
+  followUser as apiFollowUser,
 } from "../api/forum";
 import ReportModal from "./components/ReportModal";
 
@@ -18,7 +19,7 @@ export function useForum() {
   return useContext(ForumContext) || {};
 }
 
-const EMPTY = { saved: [], following: { spaces: [], questions: [], categories: [] } };
+const EMPTY = { saved: [], following: { spaces: [], questions: [], categories: [], users: [] } };
 
 export function ForumProvider({ children }) {
   const { isAuthenticated } = useAuth();
@@ -29,6 +30,7 @@ export function ForumProvider({ children }) {
   const [followSpaces, setFollowSpaces] = useState(new Set());
   const [followQuestions, setFollowQuestions] = useState(new Set());
   const [followCategories, setFollowCategories] = useState(new Set());
+  const [followUsers, setFollowUsers] = useState(new Set());
   const [toast, setToast] = useState("");
   const [reportTarget, setReportTarget] = useState(null);
   const toastTimer = useRef(null);
@@ -44,16 +46,24 @@ export function ForumProvider({ children }) {
       setMe(null);
       setSaved(new Set()); setFollowSpaces(new Set());
       setFollowQuestions(new Set()); setFollowCategories(new Set());
+      setFollowUsers(new Set());
       return;
     }
     try {
       const data = await getForumMe();
       setMe(data);
       const f = data.following || EMPTY.following;
+      // Defensive: the backend is migrating following.categories/questions from
+      // bare ids/slugs to full objects ({id, slug, name/title}). Key the follow
+      // sets off the id/slug either way so card follow-state doesn't regress to
+      // "[object Object]" once the richer shape lands.
+      const idOf = (x) => String(x && typeof x === "object" ? (x.id ?? x.slug ?? "") : x);
+      const slugOf = (x) => String(x && typeof x === "object" ? (x.slug ?? x.id ?? "") : x);
       setSaved(new Set((data.saved || []).map(String)));
-      setFollowSpaces(new Set((f.spaces || []).map(String)));
-      setFollowQuestions(new Set((f.questions || []).map(String)));
-      setFollowCategories(new Set((f.categories || []).map(String)));
+      setFollowSpaces(new Set((f.spaces || []).map(slugOf)));
+      setFollowQuestions(new Set((f.questions || []).map(idOf)));
+      setFollowCategories(new Set((f.categories || []).map(idOf)));
+      setFollowUsers(new Set((f.users || []).map((u) => String(u.username))));
     } catch {
       /* guest or transient error — leave defaults */
     }
@@ -78,6 +88,7 @@ export function ForumProvider({ children }) {
   const isFollowingQuestion = useCallback((id) => followQuestions.has(String(id)), [followQuestions]);
   const isFollowingSpace = useCallback((slug) => followSpaces.has(String(slug)), [followSpaces]);
   const isFollowingCategory = useCallback((id) => followCategories.has(String(id)), [followCategories]);
+  const isFollowingUser = useCallback((username) => followUsers.has(String(username)), [followUsers]);
 
   const toggleSave = useCallback(async (id) => {
     if (requireAuth()) return;
@@ -117,6 +128,7 @@ export function ForumProvider({ children }) {
         if (res.following) next.add(key); else next.delete(key);
         return next;
       });
+      showToast(res.following ? "Following space" : "Unfollowed space");
       return res;
     } catch { showToast("Something went wrong"); return null; }
   }, [requireAuth, showToast]);
@@ -136,6 +148,21 @@ export function ForumProvider({ children }) {
     } catch { showToast("Something went wrong"); return null; }
   }, [requireAuth, showToast]);
 
+  const toggleFollowUser = useCallback(async (username) => {
+    if (requireAuth()) return null;
+    const key = String(username);
+    try {
+      const res = await apiFollowUser(username);
+      setFollowUsers((prev) => {
+        const next = new Set(prev);
+        if (res.following) next.add(key); else next.delete(key);
+        return next;
+      });
+      showToast(res.following ? "Following user" : "Unfollowed user");
+      return res;
+    } catch { showToast("Something went wrong"); return null; }
+  }, [requireAuth, showToast]);
+
   const openReport = useCallback((type, id) => {
     if (requireAuth()) return;
     setReportTarget({ type, id });
@@ -147,6 +174,7 @@ export function ForumProvider({ children }) {
     isFollowingQuestion, toggleFollowQuestion,
     isFollowingSpace, toggleFollowSpace,
     isFollowingCategory, toggleFollowCategory,
+    isFollowingUser, toggleFollowUser,
     openReport,
   };
 

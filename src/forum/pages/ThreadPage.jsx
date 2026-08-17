@@ -14,7 +14,7 @@ export default function ThreadPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { openReport, showToast, requireAuth } = useForum();
+  const { openReport, showToast, requireAuth, isFollowingQuestion, toggleFollowQuestion } = useForum();
 
   const [q, setQ] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,6 +38,7 @@ export default function ThreadPage() {
 
   const asker = normAuthor(q.author, q.author_username);
   const isOwner = user?.username && user.username === q.author_username;
+  const following = isFollowingQuestion(q.id);
   const answers = [...(q.answers || [])];
   if (sort === "recent") answers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -101,6 +102,7 @@ export default function ThreadPage() {
             <div style={{ font: "400 11.5px Poppins,sans-serif", color: "#8a9e82" }}>{q.kind === "post" ? "posted" : "asked"} {timeAgo(q.created_at)}{q.space ? ` · in ${q.space.name}` : ""}</div>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button onClick={() => toggleFollowQuestion(q.id)} className={following ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 14px" }}>{following ? "✓ Following" : "Follow"}</button>
             <button onClick={() => openReport("question", q.id)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "1.5px solid #f0c8c0", borderRadius: 8, padding: "7px 14px", font: "700 13px Poppins,sans-serif", color: "#b03020", cursor: "pointer" }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
               Report

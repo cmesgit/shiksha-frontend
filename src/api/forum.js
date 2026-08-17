@@ -183,6 +183,11 @@ export async function getForumProfile(username) {
   return res.data;
 }
 
+export async function followUser(username) {
+  const res = await api.post(`/forum/users/${encodeURIComponent(username)}/follow/`);
+  return res.data; // { following, follower_count }
+}
+
 export async function getUserReplies(username, params = {}) {
   const res = await api.get(`/forum/users/${encodeURIComponent(username)}/replies/`, { params });
   return res.data;

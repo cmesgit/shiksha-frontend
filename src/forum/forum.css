@@ -354,6 +354,14 @@ a:hover{color:#0f8f7e}
 .fm2-btn-green:hover{background:#0d3b1c}
 .fm2-btn-outline{background:#fff;color:#125027;border:1.5px solid #c4dab4;border-radius:8px;padding:8px 16px;font:700 13px Poppins,sans-serif;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
 .fm2-btn-outline:hover{background:#ebf5e8;border-color:#125027}
+/* Follow-status pill: shows a passive "✓ Following" state, swaps to a red
+   "Unfollow" only on hover/focus so an accidental click can't silently
+   unfollow (the destructive action is labelled before it commits). */
+.fm2-follow-pill{background:#125027;color:#fff;border:none;border-radius:8px;padding:6px 14px;min-width:104px;text-align:center;font:700 12px Poppins,sans-serif;cursor:pointer;transition:background .18s}
+.fm2-follow-pill .u{display:none}
+.fm2-follow-pill:hover,.fm2-follow-pill:focus-visible{background:#c0392b;outline:none}
+.fm2-follow-pill:hover .f,.fm2-follow-pill:focus-visible .f{display:none}
+.fm2-follow-pill:hover .u,.fm2-follow-pill:focus-visible .u{display:inline}
 .fm2-btn-ghost{background:none;border:none;color:#5a6e55;font:600 13px Poppins,sans-serif;cursor:pointer;padding:7px 10px;border-radius:8px;transition:background .14s;display:inline-flex;align-items:center;gap:6px}
 .fm2-btn-ghost:hover{background:#f0f7ec;color:#125027}
 .fm2-tabs{background:#fff;border:1px solid #d8e6c8;border-radius:12px;display:flex;padding:4px;gap:6px;box-shadow:0 1px 3px rgba(14,28,15,.04)}

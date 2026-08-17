@@ -128,6 +128,7 @@ function LeftSidebar() {
           {isAuthenticated && (
             <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #e4edd8", display: "flex", flexDirection: "column", gap: 1 }}>
               <button onClick={() => { if (!requireAuth()) navigate("/forum/saved"); }} className={`fm2-navitem${pathname.startsWith("/forum/saved") ? " active" : ""}`}>Saved</button>
+              <button onClick={() => { if (!requireAuth()) navigate("/forum/profile?tab=following"); }} className={`fm2-navitem${pathname.startsWith("/forum/profile") && params.get("tab") === "following" ? " active" : ""}`}>Following</button>
               <button onClick={() => { if (!requireAuth()) navigate("/forum/answer-queue"); }} className={`fm2-navitem${pathname.startsWith("/forum/answer-queue") ? " active" : ""}`}>Answer Queue</button>
               <button onClick={() => navigate("/forum/dashboard")} className={`fm2-navitem${pathname.startsWith("/forum/dashboard") ? " active" : ""}`}>Dashboard</button>
             </div>

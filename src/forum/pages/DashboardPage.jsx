@@ -97,9 +97,13 @@ export default function DashboardPage() {
   // Honest trend pills — show a weekly delta only when the backend supplies it.
   const weekBadge = (n) => (n > 0 ? `+${n} this week` : "All time");
 
+  // ProfilePage has no single "all activity" feed — its tabs are
+  // Questions/Posts/Answers/Saved/Following. So route the activity entry points
+  // to the broadest content tab (Posts) and label them to match where they
+  // land, rather than sending "My Activity" to the default Questions tab.
   const subNav = [
     { label: "Overview", active: true },
-    { label: "My Activity", to: "/forum/profile" },
+    { label: "My Posts", to: "/forum/profile?tab=posts" },
     { label: "Notifications", to: "/forum/notifications" },
     { label: "Saved", to: "/forum/saved" },
   ];
@@ -158,7 +162,7 @@ export default function DashboardPage() {
           <div className="fm2-card" style={{ overflow: "hidden" }}>
             <div className="fm2-dcard-hd">
               <span className="fm2-dcard-title">Recent Activity</span>
-              <button className="fm2-dcard-link" onClick={() => navigate("/forum/profile")}>See all →</button>
+              <button className="fm2-dcard-link" onClick={() => navigate("/forum/profile?tab=posts")}>See all →</button>
             </div>
             {activity.length === 0 ? (
               <div style={{ font: "400 12.5px Poppins,sans-serif", color: "#8a9e82", padding: "16px" }}>No recent activity yet.</div>

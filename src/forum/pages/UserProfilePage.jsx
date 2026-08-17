@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getForumProfile, getThreads, getUserReplies } from "../../api/forum";
+import { useForum } from "../ForumContext";
 import QuestionCard from "../components/QuestionCard";
 import { fmtNum, timeAgo } from "../utils";
 
@@ -11,6 +12,7 @@ export default function UserProfilePage() {
   const { username } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isFollowingUser, toggleFollowUser } = useForum();
   const [profile, setProfile] = useState(null);
   const [tab, setTab] = useState("answers");
   const [items, setItems] = useState([]);
@@ -30,16 +32,26 @@ export default function UserProfilePage() {
 
   if (!profile) return <div className="fm2-empty-card">Loading…</div>;
   const name = profile.display_name || username;
+  const following = isFollowingUser(username);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
       <div className="fm2-profile-banner">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div className="fm2-avatar-sm" style={{ width: 64, height: 64, background: "rgba(255,255,255,.18)", fontSize: 20 }}>{profile.initials}</div>
-          <div>
-            <h1 className="fm2-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
-            <div className="fm2-sub" style={{ margin: 0 }}>{profile.headline}{profile.location ? ` · ${profile.location}` : ""}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="fm2-avatar-sm" style={{ width: 64, height: 64, background: "rgba(255,255,255,.18)", fontSize: 20 }}>{profile.initials}</div>
+            <div>
+              <h1 className="fm2-h1" style={{ fontSize: 20, margin: 0 }}>{name}</h1>
+              <div className="fm2-sub" style={{ margin: 0 }}>{profile.headline}{profile.location ? ` · ${profile.location}` : ""}</div>
+            </div>
           </div>
+          <button
+            className="fm2-btn-outline"
+            style={{ padding: "8px 16px", background: following ? "rgba(255,255,255,.26)" : "rgba(255,255,255,.14)", color: "#fff", borderColor: "rgba(255,255,255,.3)" }}
+            onClick={() => toggleFollowUser(username)}
+          >
+            {following ? "✓ Following" : "Follow"}
+          </button>
         </div>
         {profile.bio ? <p className="fm2-sub" style={{ marginTop: 12, marginBottom: 0 }}>{profile.bio}</p> : null}
         <div className="fm2-stats">
