@@ -36,10 +36,20 @@
  * the same way — there's no multi-step state to preserve since all four
  * cards are always visible together.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../../styles/liveSessions.css";
+import { useAuth } from "../../contexts/AuthContext";
+import { computeIdentityKey, readMirror, emptyTourState, patchTourFireAndForget } from "../../tour/tourApi";
 
 const STEP_COUNT = 4;
+// TOUR_SYSTEM_SPEC.md §3.3 registers this as `live.first-visit`, `renderer:
+// "grid"` — this file's own rendering (all 4 steps together, never a
+// paginated wizard) is deliberately untouched per §1.1; only persistence
+// moves off the old device-local `storageKey` and onto the shared engine's
+// backend, via `tourApi.js`'s standalone functions directly (no
+// `TourProvider`/`useTour()` — that requires a mounted provider, which
+// `shiksha-frontend` doesn't have yet; that's phase 7, not this migration).
+const TOUR_KEY = "live.first-visit";
 
 /* Reused verbatim from GroupSessionControlBar.jsx / GroupSessionClassroomUI's
    own MicIcon — same 3-element path set, matching the reference's step-1
@@ -148,13 +158,36 @@ export default function FirstVisitTour({
   onClose,
 }) {
   const isControlled = typeof open === "boolean";
-  // Lazy initializer, not an effect: this is a one-time read of the gate at
-  // mount, not a subscription to an external event, so there is nothing to
-  // synchronize later — computing it during the initial render (React's own
-  // recommended pattern for "read once at mount") avoids the extra
-  // effect-triggered render an effect body would otherwise cause.
+  const auth = useAuth();
+  // `computeIdentityKey` needs `userId` (top-level `user.id`, not just
+  // spreading `auth` — see tourApi.js's own comment on why teacherInfo has
+  // no id of its own) for the teacher-context branch to resolve at all.
+  const identityKey = computeIdentityKey({ ...auth, userId: auth.user?.id });
+
+  // Lazy initializer, not an effect: a one-time read at mount, nothing to
+  // subscribe to. `readMirror` is a synchronous localStorage read (no
+  // network wait), so this stays exactly as fast as the old `storageKey`-
+  // only check it replaces. No ref touched here — react-hooks/refs flags
+  // reading `.current` from inside any lazy initializer, since that still
+  // counts as "during render."
+  const [initialEngineState] = useState(() => readMirror(identityKey) || emptyTourState());
+  // Mutated only inside the effect and `dismiss` below (never read or
+  // written during render) so `dismiss` can PATCH a merge against whatever
+  // the engine most recently knew, not a stale render-time snapshot.
+  const engineState = useRef(initialEngineState);
+
+  // Lazy initializer, not an effect — see above.
   const [autoVisible, setAutoVisible] = useState(() => {
     if (isControlled) return false;
+    // The new engine already has an opinion (this identity has a record,
+    // completed on this device or another) — trust it and stop consulting
+    // the old key entirely, per §7.5.
+    if (initialEngineState.tours[TOUR_KEY]) return false;
+    // No engine record yet. Fall back to the pre-migration flag so a user
+    // who already dismissed this under the old scheme doesn't see it
+    // again the first time this component runs post-migration — the effect
+    // below turns this one-time read into a real engine record so every
+    // later check (including the line above) goes through the new key only.
     try {
       return !window.localStorage.getItem(storageKey);
     } catch {
@@ -164,14 +197,30 @@ export default function FirstVisitTour({
     }
   });
 
+  // One-time migration write (§7.5): old flag set, no engine record yet →
+  // seed the server as completed so this identity's first-visit status
+  // lives in exactly one place from here on.
+  useEffect(() => {
+    if (!identityKey || !auth.api) return;
+    if (engineState.current.tours[TOUR_KEY]) return; // already migrated
+    let hadOldFlag = false;
+    try { hadOldFlag = !!window.localStorage.getItem(storageKey); } catch { /* fail open, see above */ }
+    if (!hadOldFlag) return;
+    engineState.current = patchTourFireAndForget(auth.api, identityKey, engineState.current, {
+      tour_key: TOUR_KEY, status: "completed", version: 1, step: STEP_COUNT,
+    });
+  }, [identityKey, auth.api, storageKey]);
+
   const visible = isControlled ? open : autoVisible;
   if (!visible) return null;
 
   const dismiss = () => {
-    try {
-      window.localStorage.setItem(storageKey, "1");
-    } catch {
-      /* best-effort — the flag simply won't stick in this browser */
+    // Every dismiss affordance means the same thing here (see file header)
+    // — always "completed", there's no partial-progress state to record.
+    if (identityKey && auth.api) {
+      engineState.current = patchTourFireAndForget(auth.api, identityKey, engineState.current, {
+        tour_key: TOUR_KEY, status: "completed", version: 1, step: STEP_COUNT,
+      });
     }
     if (isControlled) onClose?.();
     else setAutoVisible(false);
@@ -209,8 +258,20 @@ export default function FirstVisitTour({
             {Array.from({ length: STEP_COUNT }).map((_, i) => (
               <span key={i} className={"gs-tour-dot" + (i === 0 ? " gs-tour-dot--active" : "")} />
             ))}
+            {/* TOUR_SYSTEM_SPEC.md §6.1 wants this pointing at the real Help
+                panel. Phase 7 mounted TourProvider (+ the global `?` key
+                listener) app-wide, so this claim is now genuinely true —
+                unlike the old "Info → How to use" text it replaced, which
+                pointed nowhere. One caveat, not papered over: this specific
+                tour doesn't have a row inside the Help panel itself (its
+                own key, "live.first-visit", isn't in tourRegistry.js) —
+                TourOverlay has no renderer dispatch, so a registry entry
+                would launch the generic spotlight UI instead of this
+                grid-modal component. `?` still reopens the panel to browse
+                every OTHER tour; this one's own re-entry stays where it
+                already was (LiveLanding's "Watch the 40-second tour"). */}
             <span className="gs-tour-hint">
-              Shown once, on your first session. Reopen it from Info → How to use.
+              Shown once, on your first session — press ? anytime for help.
             </span>
           </div>
           <div className="gs-tour-actions">

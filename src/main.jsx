@@ -10,6 +10,7 @@ import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 import AuthLoader from "./components/AuthLoader.jsx";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import TourMount from "./tour/TourMount.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -18,9 +19,11 @@ createRoot(document.getElementById("root")).render(
         <ToastProvider>
           <NotificationProvider>
             <LanguageProvider>
-              <AuthLoader>
-                <App />
-              </AuthLoader>
+              <TourMount>
+                <AuthLoader>
+                  <App />
+                </AuthLoader>
+              </TourMount>
             </LanguageProvider>
           </NotificationProvider>
         </ToastProvider>

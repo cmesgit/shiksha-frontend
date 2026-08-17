@@ -95,7 +95,8 @@ export default function AskPage() {
           <>
             <label className="fm2-label">{mode === "post" ? "What do you want to share?" : "Your question"}</label>
             <input className="fm2-input" value={title} onChange={(e) => setTitle(e.target.value)}
-              placeholder={mode === "post" ? "Share an update, resource or experience…" : 'Start with "What", "How", "Why"…'} />
+              placeholder={mode === "post" ? "Share an update, resource or experience…" : 'Start with "What", "How", "Why"…'}
+              data-tour="ask.title" />
 
             <label className="fm2-label">Details {mode === "question" ? "(optional)" : ""}</label>
             <textarea className="fm2-textarea" rows={5} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Add context, what you've tried, and what you're looking for." />
@@ -112,7 +113,7 @@ export default function AskPage() {
             )}
 
             <label className="fm2-label">Tags</label>
-            <input className="fm2-input" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={tagKey} placeholder="Type a tag and press Enter" />
+            <input className="fm2-input" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={tagKey} placeholder="Type a tag and press Enter" data-tour="ask.tags" />
             {tags.length ? (
               <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {tags.map((t) => (
@@ -130,7 +131,7 @@ export default function AskPage() {
             {spaces.length ? (
               <>
                 <label className="fm2-label">Post to a Space (optional)</label>
-                <select className="fm2-input" value={spaceSlug} onChange={(e) => setSpaceSlug(e.target.value)}>
+                <select className="fm2-input" value={spaceSlug} onChange={(e) => setSpaceSlug(e.target.value)} data-tour="ask.space">
                   <option value="">No Space</option>
                   {spaces.map((s) => <option key={s.slug} value={s.slug}>{s.name}</option>)}
                 </select>

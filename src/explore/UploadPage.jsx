@@ -95,6 +95,7 @@ export default function UploadPage() {
 
             <div
               className={`exp-drop${drag ? " drag" : ""}${file ? " has" : ""}`}
+              data-tour="explore-upload.dropzone"
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
               onDragLeave={() => setDrag(false)}
@@ -116,7 +117,7 @@ export default function UploadPage() {
 
         {step === 2 && (
           <>
-            <div className="exp-field">
+            <div className="exp-field" data-tour="explore-upload.title">
               <label>Title</label>
               <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Thermodynamics — Solved Problems" />
             </div>
@@ -158,7 +159,7 @@ export default function UploadPage() {
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 20 }}>
               <button className="exp-btn exp-btn-ghost" onClick={() => setStep(1)}><Icon.back /> Back</button>
-              <button className="exp-btn exp-btn-primary" disabled={!form.title || busy} onClick={publish}>
+              <button className="exp-btn exp-btn-primary" disabled={!form.title || busy} onClick={publish} data-tour="explore-upload.publish">
                 {busy ? "Publishing…" : "Publish document"}
               </button>
             </div>

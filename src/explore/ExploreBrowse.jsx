@@ -87,7 +87,7 @@ export default function ExploreBrowse() {
     <div className="exp">
       <div className="exp-wrap exp-browse">
         {/* sidebar */}
-        <aside className="exp-filters exp-scroll">
+        <aside className="exp-filters exp-scroll" data-tour="explore-browse.filters">
           <div className="exp-fgroup" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <strong style={{ font: "800 15px Montserrat, sans-serif", color: "var(--forest)" }}>Filters</strong>
             {activeChips.length > 0 && <button className="exp-clear" onClick={clearAll}>Clear all</button>}

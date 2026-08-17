@@ -123,7 +123,7 @@ function LeftSidebar() {
         <div className="fm2-section-hd">Navigation</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {navItems.map((n) => (
-            <button key={n.to} onClick={() => navigate(n.to)} className={`fm2-navitem${n.active ? " active" : ""}`}>{n.label}</button>
+            <button key={n.to} onClick={() => navigate(n.to)} className={`fm2-navitem${n.active ? " active" : ""}`} data-tour={`forum-nav.${n.to.replace(/^\/forum\/?/, "") || "home"}`}>{n.label}</button>
           ))}
           {isAuthenticated && (
             <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #e4edd8", display: "flex", flexDirection: "column", gap: 1 }}>

@@ -31,4 +31,38 @@
   --sk-sh-sm: 0 6px 22px rgba(11, 46, 32, 0.06);
   --sk-sh: 0 18px 46px rgba(11, 91, 62, 0.12);
   --sk-sh-lg: 0 30px 70px rgba(11, 46, 32, 0.14);
+
+  /* ── Tour token layer (TOUR_SYSTEM_SPEC.md §9.1 — required, C6) ────────
+     tours.css (shared/src/tour/) reads ONLY these --tour-* names, never
+     --sk-* or --fm-* directly — declared on :root (not scoped) so a
+     body-portalled overlay resolves correctly even inside the forum's
+     .fm-root-scoped variables (C8). */
+  --tour-surface: #fff;
+  --tour-ink:     var(--sk-ink);
+  --tour-ink-2:   var(--sk-ink-2);
+  --tour-muted:   var(--sk-body);
+  --tour-faint:   var(--sk-body);
+  --tour-border:  var(--sk-line);
+  --tour-accent:  var(--sk-green);
+  --tour-radius:  12px;
+  --tour-shadow:  var(--sk-sh);
+  --tour-focus:   0 0 0 3px rgba(15, 157, 107, .35);
+  --z-tour:       10500;
+}
+
+/* Forum override (C8) — TourOverlay always portals to document.body
+   (never inside .fm-root's subtree), so a `.fm-root`-scoped rule here
+   would never actually apply to it: CSS custom properties only inherit
+   down the real DOM tree, and the portal root is a body sibling of
+   `.fm-root`, not a descendant. TourProvider's `track` prop is the
+   generic mechanism already used for this (mirrored as `data-track` on
+   the portal root by TourOverlay itself, same as student/teacher's
+   academy/skill accents) — frontend's TourMount passes `track="forum"`
+   on /forum/* routes. Literal hex, not `var(--fm-green)`, for the same
+   inheritance reason — `--fm-*` is only ever declared inside `.fm-root`
+   (forum.css), so referencing it here would resolve to nothing. Keep
+   these in sync with forum.css's `--fm-green` / `--fm-line`. */
+[data-track="forum"] {
+  --tour-accent: #125027;
+  --tour-border: #e4edd8;
 }
