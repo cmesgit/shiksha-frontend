@@ -4,8 +4,10 @@
 // and collection cards, a couple of inline SVG icons, and format helpers.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExplore } from "../ExploreStore";
+import { toggleLike as toggleLikeApi } from "../exploreApi";
 
 // ── icons (kept inline so there's no icon-lib dependency) ─────────────────────
 export const Icon = {
@@ -23,6 +25,59 @@ export function tint(hex, alpha) {
   const h = (hex || "#125027").replace("#", "");
   const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// ── like button (server-backed likes_count / is_liked, replaces the old
+//    static "rating" display everywhere a document is shown) ───────────────────
+export function LikeButton({ doc, className = "" }) {
+  const [liked, setLiked] = useState(!!doc.is_liked);
+  const [count, setCount] = useState(doc.likes_count ?? 0);
+  const [busy, setBusy] = useState(false);
+
+  // Re-sync when a different document is passed in (e.g. list re-render).
+  useEffect(() => {
+    setLiked(!!doc.is_liked);
+    setCount(doc.likes_count ?? 0);
+  }, [doc.id, doc.is_liked, doc.likes_count]);
+
+  const onClick = async (e) => {
+    e.stopPropagation();
+    if (busy) return;
+    setBusy(true);
+    const prevLiked = liked;
+    const prevCount = count;
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setCount((c) => Math.max(0, c + (nextLiked ? 1 : -1)));
+    try {
+      const data = await toggleLikeApi(doc.id);
+      if (data) {
+        const isLiked = typeof data.is_liked === "boolean" ? data.is_liked
+          : typeof data.liked === "boolean" ? data.liked : undefined;
+        const likesCount = typeof data.likes_count === "number" ? data.likes_count
+          : typeof data.likes === "number" ? data.likes : undefined;
+        if (isLiked !== undefined) setLiked(isLiked);
+        if (likesCount !== undefined) setCount(likesCount);
+      }
+    } catch {
+      setLiked(prevLiked);
+      setCount(prevCount);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className={`exp-like-btn${liked ? " on" : ""}${className ? ` ${className}` : ""}`}
+      onClick={onClick}
+      disabled={busy}
+      title={liked ? "Unlike" : "Like"}
+    >
+      <span aria-hidden="true">{liked ? "♥" : "♡"}</span> {count}
+    </button>
+  );
 }
 
 // ── document card ─────────────────────────────────────────────────────────────
@@ -51,7 +106,7 @@ export function DocCard({ doc }) {
           {(doc.tags || []).slice(0, 2).map((t) => <span key={t} className="exp-tag">{t}</span>)}
         </div>
         <div className="exp-doc-stats">
-          <span className="star">★ {doc.rating}</span>
+          <LikeButton doc={doc} className="mini" />
           <span>{doc.views} views</span>
           <span>{doc.downloads} ↓</span>
         </div>

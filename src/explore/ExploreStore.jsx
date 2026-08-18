@@ -9,14 +9,20 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { saveDocument, followAuthor, likeDocument } from "./exploreApi";
 
-const KEY = "shiksha.explore.library.v1";
+// Namespaced per authenticated user (falls back to a shared anonymous key
+// when logged out) so switching accounts on the same browser doesn't leak
+// another user's saved/viewed/liked state. Mirrors the `storageKey(profileId)`
+// pattern used by src/pages/Profile.jsx.
+const BASE_KEY = "shiksha.explore.library.v1";
+const storageKey = (userId) => (userId ? `${BASE_KEY}.${userId}` : `${BASE_KEY}.anon`);
 const EMPTY = { saved: [], following: [], likes: [], viewed: [], myDocs: [] };
 
-function load() {
+function load(key) {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key);
     return raw ? { ...EMPTY, ...JSON.parse(raw) } : { ...EMPTY };
   } catch {
     return { ...EMPTY };
@@ -26,11 +32,24 @@ function load() {
 const ExploreCtx = createContext(null);
 
 export function ExploreProvider({ children }) {
-  const [lib, setLib] = useState(load);
+  const { user } = useAuth();
+  const key = storageKey(user?.id);
+  const [lib, setLib] = useState(() => load(key));
+  const [prevKey, setPrevKey] = useState(key);
+
+  // Re-load from the correct namespaced key whenever the signed-in user
+  // changes (login, logout, account switch) instead of carrying over the
+  // previous user's in-memory state. Done during render (React's documented
+  // "adjusting state when a prop changes" pattern) rather than in an effect,
+  // so it doesn't trigger an extra commit/render pass.
+  if (prevKey !== key) {
+    setPrevKey(key);
+    setLib(load(key));
+  }
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(lib)); } catch { /* quota */ }
-  }, [lib]);
+    try { localStorage.setItem(key, JSON.stringify(lib)); } catch { /* quota */ }
+  }, [key, lib]);
 
   const toggleSave = useCallback((id) => {
     setLib((s) => {

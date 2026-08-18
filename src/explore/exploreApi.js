@@ -194,6 +194,20 @@ export async function getAuthor(id) {
   return data;
 }
 
+// ── current user's Explore context ───────────────────────────────────────────
+// Real per-user hydration (DocumentsMeView, backend): { saved, liked,
+// following: { authors, collections, categories }, ... }. Used as the source
+// of truth for "who am I following" instead of the client-only library store,
+// which can drift (e.g. a follow made on another device/browser).
+export async function getMe() {
+  if (USE_MOCK) {
+    await wait(100);
+    return { saved: [], liked: [], following: { authors: [], collections: [], categories: [] } };
+  }
+  const { data } = await api.get("/explore/me/");
+  return data;
+}
+
 // ── collections ────────────────────────────────────────────────────────────────
 export async function listCollections() {
   if (USE_MOCK) {
@@ -223,8 +237,47 @@ export async function getCollection(id) {
   return data;
 }
 
+// Create a collection owned by the requesting user. payload: { title,
+// description, color, visibility }. Collections are identified by slug
+// (the `id` field on the returned/serialized collection is already the slug).
+export async function createCollection(payload) {
+  if (USE_MOCK) {
+    await wait(150);
+    return { id: "c" + Date.now(), count: 0, curator: null, ...payload };
+  }
+  const { data } = await api.post("/explore/collections/", payload);
+  return data;
+}
+
+// Partial update of a collection the requesting user owns.
+export async function updateCollection(slug, payload) {
+  if (USE_MOCK) { await wait(120); return { id: slug, ...payload }; }
+  const { data } = await api.patch(`/explore/collections/${slug}/`, payload);
+  return data;
+}
+
+export async function deleteCollection(slug) {
+  if (USE_MOCK) { await wait(100); return { ok: true }; }
+  await api.delete(`/explore/collections/${slug}/`);
+  return { ok: true };
+}
+
+// Add/remove a document from a collection the requesting user owns.
+export async function addDocumentToCollection(slug, documentId) {
+  if (USE_MOCK) { await wait(100); return { ok: true }; }
+  const { data } = await api.post(`/explore/collections/${slug}/documents/`, { document_id: documentId });
+  return data;
+}
+
+export async function removeDocumentFromCollection(slug, documentId) {
+  if (USE_MOCK) { await wait(100); return { ok: true }; }
+  await api.delete(`/explore/collections/${slug}/documents/${documentId}/`);
+  return { ok: true };
+}
+
 // ── document lookups used by the local library store ──────────────────────────
 export async function getDocumentsByIds(ids = []) {
+  if (!ids.length) return [];
   if (USE_MOCK) {
     await wait(120);
     return ids.map((id) => hydrateDoc(DOCUMENTS.find((d) => d.id === id))).filter(Boolean);
@@ -252,6 +305,24 @@ export async function likeDocument(id, liked) {
 export async function recordDownload(id) {
   if (USE_MOCK) { await wait(60); return { downloads: 0 }; }
   const { data } = await api.post(`/explore/documents/${id}/download/`);
+  return data;
+}
+// Records a real view against the document (RecordViewView, backend). Distinct
+// from the client-only store.recordView(), which just tracks "recently viewed"
+// for the local library UI.
+export async function recordView(id) {
+  if (USE_MOCK) { await wait(60); return { views: 0 }; }
+  const { data } = await api.post(`/explore/documents/${id}/view/`);
+  return data;
+}
+// Toggles like/unlike for the requesting user (ToggleLikeView, backend) and
+// returns the updated { is_liked, likes_count } (field names may also arrive
+// as { liked, likes } depending on serializer version — callers should read
+// defensively). Distinct from likeDocument() above, which is the older
+// desired-state write used by the client-side library store.
+export async function toggleLike(id) {
+  if (USE_MOCK) { await wait(80); return { is_liked: true, likes_count: 0 }; }
+  const { data } = await api.post(`/explore/documents/${id}/like/`);
   return data;
 }
 export async function reportDocument(id, payload) {

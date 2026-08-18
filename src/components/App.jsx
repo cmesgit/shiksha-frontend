@@ -56,7 +56,6 @@ const DocumentPage     = lazy(() => import("../explore/DocumentPage"));
 const AuthorPage       = lazy(() => import("../explore/AuthorPage"));
 const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionsList })));
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
-const ExploreLibrary   = lazy(() => import("../explore/LibraryPage"));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 // Legacy research-hub landing kept for its own route.
@@ -338,7 +337,8 @@ function App() {
         <Route path="/explore/author/:id"      element={<ExplorePage><AuthorPage /></ExplorePage>} />
         <Route path="/explore/collections"     element={<ExplorePage><CollectionsList /></ExplorePage>} />
         <Route path="/explore/collections/:id" element={<ExplorePage><CollectionPage /></ExplorePage>} />
-        <Route path="/explore/library"         element={<ExplorePage><ExploreLibrary /></ExplorePage>} />
+        {/* Orphaned page (no in-app link); DashboardPage.jsx is its superset. Redirect protects any bookmarked links. */}
+        <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />

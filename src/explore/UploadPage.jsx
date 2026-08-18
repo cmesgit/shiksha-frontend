@@ -66,7 +66,7 @@ export default function UploadPage() {
     store.addMyDoc(created.id);
     setBusy(false);
     setToast("Published to your library");
-    setTimeout(() => nav("/explore/library"), 900);
+    setTimeout(() => nav("/explore/dashboard"), 900);
   };
 
   return (

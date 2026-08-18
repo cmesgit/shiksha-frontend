@@ -7,9 +7,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDocument, reportDocument, recordDownload } from "./exploreApi";
+import { getDocument, reportDocument, recordDownload, recordView } from "./exploreApi";
 import { useExplore } from "./ExploreStore";
-import { DocCard, Icon, Loading, fileGlyph } from "./components/ui";
+import { DocCard, Icon, Loading, fileGlyph, LikeButton } from "./components/ui";
 import "./Explore.css";
 
 export default function DocumentPage() {
@@ -23,7 +23,15 @@ export default function DocumentPage() {
   useEffect(() => {
     let alive = true;
     setData(null);
-    getDocument(id).then((d) => { if (alive) { setData(d); if (d) store.recordView(id); } });
+    getDocument(id).then((d) => {
+      if (alive) {
+        setData(d);
+        if (d) {
+          store.recordView(id); // local "recently viewed" list for the library UI
+          recordView(id).catch(() => {}); // real server-side view count
+        }
+      }
+    });
     window.scrollTo(0, 0);
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +156,7 @@ export default function DocumentPage() {
             )}
 
             <div className="exp-inforow">
-              <div><b>{doc.rating}</b>Rating ★</div>
+              <div className="exp-inforow-like"><LikeButton doc={doc} /></div>
               <div><b>{doc.views}</b>Views</div>
               <div><b>{doc.downloads}</b>Downloads</div>
               <div><b>{doc.subject}</b>Subject</div>

@@ -366,6 +366,18 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState("");
   const [isMac, setIsMac] = useState(false);
+  // The forum (/forum/*) renders its own primary "Search discussions,
+  // topics, people…" input directly under this navbar (see
+  // ForumLayout.jsx's PageHeader), so having this global course-search box
+  // fully expanded right above it reads as two competing search boxes and
+  // learners have typed forum questions into the wrong one. On forum routes
+  // it collapses to an icon-only button that expands on click/focus,
+  // keeping the global search reachable without visually doubling up.
+  const isForumRoute = location.pathname.startsWith("/forum");
+  const [forumSearchOpen, setForumSearchOpen] = useState(false);
+  useEffect(() => {
+    if (!isForumRoute) setForumSearchOpen(false);
+  }, [isForumRoute]);
   const [announcement, setAnnouncement] = useState(null);
   const [announceDismissed, setAnnounceDismissed] = useState(false);
   const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
@@ -605,19 +617,34 @@ const Navbar = () => {
 
           {/* Right actions */}
           <div className="skn-actions">
-            <div className="skn-search">
-              <IcSearch />
-              <input
-                ref={searchRef}
-                type="text"
-                placeholder="Search courses…"
+            {isForumRoute && !forumSearchOpen ? (
+              <button
+                type="button"
+                className="skn-search skn-search-collapsed"
                 aria-label="Search courses"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && goSearch()}
-              />
-              <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>
-            </div>
+                onClick={() => setForumSearchOpen(true)}
+              >
+                <IcSearch />
+              </button>
+            ) : (
+              <div className={`skn-search${isForumRoute ? " skn-search-expanded" : ""}`}>
+                <IcSearch />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  placeholder="Search courses…"
+                  aria-label="Search courses"
+                  value={query}
+                  autoFocus={isForumRoute}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && goSearch()}
+                  onBlur={() => {
+                    if (isForumRoute && !query.trim()) setForumSearchOpen(false);
+                  }}
+                />
+                {!isForumRoute && <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>}
+              </div>
+            )}
 
             {!loading &&
               (isAuthenticated && user ? (

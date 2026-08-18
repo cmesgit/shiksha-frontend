@@ -315,6 +315,22 @@
   width: 100%;
 }
 
+/* On forum routes the navbar's course-search collapses to an icon-only
+   button (the forum page has its own primary search directly below), and
+   expands back to the normal input on click/focus. See Navbar.jsx. */
+.skn-search.skn-search-collapsed {
+  width: auto;
+  padding: 9px;
+  cursor: pointer;
+  font: inherit;
+}
+.skn-search.skn-search-expanded {
+  width: 220px;
+}
+.skn-search.skn-search-expanded:focus-within {
+  width: 260px;
+}
+
 /* buttons */
 .skn-btn {
   display: inline-flex;

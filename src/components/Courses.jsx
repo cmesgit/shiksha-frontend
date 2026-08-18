@@ -7,8 +7,6 @@ import UnifiedCatalog from './courses/UnifiedCatalog';
 import CoursesHero from './courses/CoursesHero';
 import CoursesStrip from './courses/CoursesStrip';
 import CoursesPromo, { CoursesFinalCta } from './courses/CoursesPromo';
-import WhyChooseShiksha from './home/WhyChooseShiksha';
-import TeachersStudents from './home/TeachersStudents';
 import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
@@ -444,9 +442,9 @@ const Courses = () => {
       <CoursesStrip />
       {/* Not .courses-container (legacy wrapper, own 28/18/14px responsive
           padding scheme) — .wrap is the real site-wide gutter (ShikshaHome.css)
-          the hero/programs tiles above and the reused Faq/WhyChooseShiksha/
-          TeachersStudents sections below all share, so the catalog's edges
-          line up with them at every viewport width instead of drifting. */}
+          the hero/programs tiles above and the reused Faq section below
+          all share, so the catalog's edges line up with them at every
+          viewport width instead of drifting. */}
       <div className="wrap" ref={catalogRef}>
         <UnifiedCatalog
           boards={boards}
@@ -464,8 +462,6 @@ const Courses = () => {
         />
       </div>
       <CoursesPromo onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
-      <WhyChooseShiksha />
-      <TeachersStudents />
       <Faq />
       <CoursesFinalCta onBrowse={() => catalogRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       {enrollModalCourseId && (
