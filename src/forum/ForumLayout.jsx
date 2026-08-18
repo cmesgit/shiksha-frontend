@@ -5,6 +5,7 @@ import { ForumProvider, useForum } from "./ForumContext";
 import HowItWorks from "./components/HowItWorks";
 import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
+import TourHeaderButton from "../tour/TourHeaderButton";
 import "./forum.css";
 
 /* Pixel-perfect chrome ported from ShikshaCom Forum.html (fm2-* system):
@@ -73,6 +74,7 @@ function PageHeader() {
             )}
           </div>
         )}
+        <TourHeaderButton pathname={pathname} />
       </div>
     </div>
   );

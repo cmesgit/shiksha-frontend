@@ -198,7 +198,7 @@ export default function ExploreDashboardPage() {
         </div>
 
         {/* tabs */}
-        <div className="exp-dtabs">
+        <div className="exp-dtabs" data-tour="explore-dashboard.tabs">
           {TABS.map((t) => (
             <button key={t} className={`exp-dtab${tab === t ? " active" : ""}`} onClick={() => setTab(t)}>{t}</button>
           ))}

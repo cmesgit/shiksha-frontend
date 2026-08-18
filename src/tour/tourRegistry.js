@@ -38,9 +38,15 @@
  * site default. Explore and marketing pages need no override — they
  * already read the base `--sk-*`-derived `--tour-*` values at :root.
  *
+ * `explore.beacon.library` (T3) — spec's own route, `/explore/library`, is a
+ * `<Navigate>` redirect to `/explore/dashboard` (removed as a real page in
+ * an earlier unrelated cleanup — "remove orphaned route"), so the entry
+ * targets the resolved route instead of the spec's literal one. Anchored on
+ * the dashboard's own tab strip (Overview/Reading History/My Uploads/Saved),
+ * the closest equivalent to "here's your library" now that there's no
+ * dedicated library page to point at.
+ *
  * NOT built in this pass:
- *   - `explore.beacon.library` (T3) — same reason as every other app's T3
- *     entries: `shared/src/tour/` has no `Beacon.jsx` yet.
  *   - `live.first-visit` — spec's own table lists this as reusing the
  *     existing `FirstVisitTour.jsx` (migrated to the shared persistence in
  *     an earlier phase). Deliberately NOT added as a registry entry here:
@@ -185,6 +191,23 @@ export const tourRegistry = [
         placement: "top",
         title: "Goes live immediately",
         body: "Published documents are visible to everyone right away.",
+      },
+    ],
+  },
+
+  // ── T3 — Beacon hints ────────────────────────────────────────────────
+  {
+    key: "explore.beacon.library",
+    label: "My Library Dashboard",
+    version: 1,
+    tier: "T3",
+    trigger: { match: "/explore/dashboard" },
+    steps: [
+      {
+        target: '[data-tour="explore-dashboard.tabs"]',
+        placement: "bottom",
+        title: "Everything you've read or shared",
+        body: "Switch tabs to see your reading history, your own uploads, and anything you've saved.",
       },
     ],
   },

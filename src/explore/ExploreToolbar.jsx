@@ -8,6 +8,7 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import TourHeaderButton from "../tour/TourHeaderButton";
 import "./Explore.css";
 
 const LINKS = [
@@ -44,6 +45,7 @@ export default function ExploreToolbar() {
             </button>
           )}
           <button className="exp-tbbtn primary" onClick={() => nav("/explore/upload")}>+ Upload document</button>
+          <TourHeaderButton pathname={pathname} />
         </div>
       </div>
     </div>
