@@ -22,6 +22,8 @@ import {
   toTeacherAppPath,
   trackForLink,
   resolveNotificationTarget,
+  toTeacherEquivalent,
+  fallbackPathFor,
 } from "./notificationRouting.js";
 
 const URLS = {
@@ -142,4 +144,94 @@ test("isTeacherRoute only claims the two teacher-side prefixes", () => {
   assert.equal(isTeacherRoute("/counselor/x"), true);
   assert.equal(isTeacherRoute("/counseling/x"), false);
   assert.equal(isTeacherRoute("/counselling/x"), false);
+});
+
+// ── Signed-in-as-FACULTY routing ──────────────────────────────────────
+//
+// Reported: clicking a notification on the public homepage as a faculty
+// member went nowhere. Two independent causes, both covered below.
+
+const AS_TEACHER = { ...URLS, isTeacher: true };
+
+test("faculty: student-shaped paths go to the TEACHER app, not the learner app", () => {
+  const cases = [
+    ["/subjects/7/assignments",    "https://teacher.example.com/teacher/classes/7/assignments"],
+    ["/subjects/7/assignments/42", "https://teacher.example.com/teacher/classes/7/assignments/42"],
+    ["/subjects/quiz/7",           "https://teacher.example.com/teacher/classes/7/quizzes"],
+    ["/study-material/list/7",     "https://teacher.example.com/teacher/classes/7/study-materials"],
+    ["/live/abc-123",              "https://teacher.example.com/teacher/live-sessions/abc-123/detail"],
+    ["/private-sessions",          "https://teacher.example.com/teacher/private-sessions"],
+    ["/group-sessions",            "https://teacher.example.com/teacher/group-sessions"],
+    ["/chat/55",                   "https://teacher.example.com/teacher/chat"],
+  ];
+  for (const [link, expected] of cases) {
+    const t = resolveNotificationTarget(link, AS_TEACHER);
+    assert.equal(t?.kind, "external", link);
+    assert.equal(t.url, expected, link);
+  }
+});
+
+test("a learner is unaffected — same paths still go to the learner app", () => {
+  const t = resolveNotificationTarget("/subjects/7/assignments", URLS);
+  assert.equal(t.kind, "external");
+  assert.ok(t.url.startsWith("https://app.example.com/subjects/7/assignments"), t.url);
+});
+
+test("local marketing routes stay local for faculty too", () => {
+  assert.deepEqual(
+    resolveNotificationTarget("/forum/thread/3", AS_TEACHER),
+    { kind: "local", path: "/forum/thread/3" },
+  );
+});
+
+test("toTeacherEquivalent returns null for paths with no faculty screen", () => {
+  for (const p of ["/my-courses/8", "/browse-courses", "/explore"]) {
+    assert.equal(toTeacherEquivalent(p), null, p);
+  }
+});
+
+// ── The fallback: /activity/feed/ rows carry NO link_url ───────────────
+//
+// This was the main dead-click cause: resolveNotificationTarget(undefined)
+// is null, and the click handler simply returned.
+
+test("fallback routes a feed row that has no link_url", () => {
+  assert.equal(
+    fallbackPathFor({ type: "ASSIGNMENT", subject_id: "7" }),
+    "/subjects/7/assignments",
+  );
+  assert.equal(
+    fallbackPathFor({ type: "MATERIAL", subject_id: "7" }),
+    "/study-material/list/7",
+  );
+  assert.equal(
+    fallbackPathFor({ type: "QUIZ", subject_id: "7" }),
+    "/subjects/quiz/7",
+  );
+});
+
+test("fallback sends a faculty member to faculty screens", () => {
+  assert.equal(
+    fallbackPathFor({ type: "ASSIGNMENT" }, { isTeacher: true }),
+    "/teacher/assignments",
+  );
+  assert.equal(
+    fallbackPathFor({ is_skill_session: true }, { isTeacher: true }),
+    "/teacher/expert/bookings",
+  );
+});
+
+test("fallback + resolve together make a link_url-less faculty row clickable", () => {
+  const notif = { type: "SUBMISSION", subject_id: "7" };
+  const target =
+    resolveNotificationTarget(notif.link_url, AS_TEACHER) ||
+    resolveNotificationTarget(fallbackPathFor(notif, AS_TEACHER), AS_TEACHER);
+  assert.equal(target.url, "https://teacher.example.com/teacher/classes/7/assignments");
+});
+
+test("fallback invents nothing when the row identifies no destination", () => {
+  assert.equal(fallbackPathFor({ type: "SOMETHING_NEW" }), null);
+  assert.equal(fallbackPathFor(null), null);
+  // …and a null path must not resolve to a URL.
+  assert.equal(resolveNotificationTarget(null, URLS), null);
 });

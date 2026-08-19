@@ -351,6 +351,24 @@ function DrawerAccordion({ title, children, open, onToggle }) {
 
 /* ────────────────────────── NAVBAR ────────────────────────── */
 
+/* Dismissal identity for one announcement. Includes updated_at so that
+   editing a live announcement re-shows it to visitors who dismissed the
+   previous wording — the row's id alone never changes, so an id-only key
+   made every edit invisible to exactly the people who had seen it before. */
+const announceKey = (a) => `${a.id}:${a.updated_at || ""}`;
+
+const readDismissedAnnouncements = () => {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem("sk-announce-dismissed") || "[]");
+    // A legacy value here is a bare id string, not an array. Treating that
+    // as "nothing dismissed" is the safe direction: at worst one strip
+    // reappears once, versus an announcement staying permanently hidden.
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+};
+
 const Navbar = () => {
   const { isAuthenticated, user, loading, isTeacherContext } = useAuth();
   // Forum & Explore moderation entries now live inside their own surfaces
@@ -378,8 +396,8 @@ const Navbar = () => {
   useEffect(() => {
     if (!isForumRoute) setForumSearchOpen(false);
   }, [isForumRoute]);
-  const [announcement, setAnnouncement] = useState(null);
-  const [announceDismissed, setAnnounceDismissed] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState(readDismissedAnnouncements);
   const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
 
   const headerRef = useRef(null);
@@ -399,37 +417,44 @@ const Navbar = () => {
   }, []);
 
   /* sitewide announcement strip — CMS-driven, hidden entirely if the
-     API is unreachable or nothing is currently live. Dismissal persists
-     in localStorage per announcement id, so closing one doesn't hide a
-     later, different announcement. */
+     API is unreachable or nothing is currently live.
+
+     Shows the highest-priority announcement the visitor has NOT dismissed,
+     not simply rows[0]. Two bugs came out of the old `const top = rows[0]`:
+     an admin's second and third live announcements were silently
+     undisplayable, and dismissing the top one hid the strip outright
+     instead of revealing the next.
+
+     The dismissal key is `<id>:<updated_at>`, not the bare id. Editing a
+     live announcement reuses its id, so an id-only key kept the *new*
+     wording hidden for everyone who had dismissed the old one. */
   useEffect(() => {
     let alive = true;
     getAnnouncements().then((rows) => {
-      if (!alive || !rows.length) return;
-      const top = rows[0];
-      setAnnouncement(top);
-      try {
-        const dismissedId = window.localStorage.getItem("sk-announce-dismissed");
-        setAnnounceDismissed(String(top.id) === dismissedId);
-      } catch {
-        /* localStorage unavailable (private mode etc.) — just show it */
-      }
+      if (alive && rows.length) setAnnouncements(rows);
     });
     return () => {
       alive = false;
     };
   }, []);
 
+  const announcement =
+    announcements.find((r) => !dismissedAnnouncements.includes(announceKey(r))) || null;
+
   const dismissAnnouncement = () => {
-    setAnnounceDismissed(true);
+    if (!announcement) return;
+    // Recomputing `announcement` from the updated list is what reveals the
+    // next live announcement instead of hiding the strip entirely.
+    const next = [...new Set([...dismissedAnnouncements, announceKey(announcement)])].slice(-40);
+    setDismissedAnnouncements(next);
     try {
-      window.localStorage.setItem("sk-announce-dismissed", String(announcement?.id));
+      window.localStorage.setItem("sk-announce-dismissed", JSON.stringify(next));
     } catch {
       /* ignore — worst case it reappears next visit */
     }
   };
 
-  const announcementVisible = !!announcement && !announceDismissed;
+  const announcementVisible = !!announcement;
 
   /* platform hint for the ⌘K / Ctrl K badge */
   useEffect(() => {

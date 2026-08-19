@@ -127,3 +127,108 @@
     padding: 15px;
   }
 }
+/* ── CMS current affairs (list + detail) ───────────────────────────────
+   Added when this page was rewired from the third-party news proxy to the
+   CMS. The .news-* rules above belong to that old feed and are now unused;
+   left in place only because .loading/.error/.read-more-link are shared. */
+
+.ca-filters { margin: 0 0 22px; }
+.ca-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.ca-chip {
+  border: 1px solid #e2e6ee; background: #fff; color: #4b5563;
+  border-radius: 999px; padding: 6px 14px; font-size: .85rem;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+}
+.ca-chip:hover { border-color: #c7ccd8; }
+.ca-chip--active { background: #1976d2; border-color: #1976d2; color: #fff; }
+
+.ca-filterRow {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center; margin-top: 14px;
+}
+.ca-search, .ca-month {
+  border: 1px solid #e2e6ee; border-radius: 9px; padding: 9px 12px;
+  font-size: .9rem; color: #1f2937; background: #fff;
+}
+.ca-search { min-width: 260px; flex: 1 1 260px; max-width: 420px; }
+.ca-search:focus, .ca-month:focus { outline: 2px solid #1976d2; outline-offset: -1px; }
+.ca-clear {
+  border: none; background: transparent; color: #1976d2;
+  cursor: pointer; font-size: .85rem; padding: 6px;
+}
+.ca-clear:hover { text-decoration: underline; }
+
+.ca-count { text-align: center; color: #6b7280; font-size: .85rem; margin: 0 0 14px; }
+
+.ca-list { display: flex; flex-direction: column; gap: 14px; }
+.ca-card {
+  background: #fff; border: 1px solid #e8ebf1; border-radius: 12px;
+  padding: 18px 20px; transition: box-shadow .2s, border-color .2s;
+}
+.ca-card:hover { border-color: #d3d9e4; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+
+.ca-cardMeta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ca-cat {
+  background: #eef4ff; color: #1d4ed8; border-radius: 6px;
+  padding: 3px 9px; font-size: .72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.ca-date { color: #9ca3af; font-size: .8rem; }
+
+.ca-cardTitle { margin: 0 0 8px; font-size: 1.15rem; line-height: 1.35; }
+.ca-cardTitle a { color: #1f2937; text-decoration: none; }
+.ca-cardTitle a:hover { color: #1976d2; }
+
+.ca-summary { margin: 0 0 12px; color: #4b5563; font-size: .92rem; line-height: 1.6; }
+
+.ca-cardFoot {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 10px; font-size: .8rem; color: #6b7280;
+}
+.ca-cardFoot .read-more-link { margin-left: auto; }
+
+.ca-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ca-tag {
+  background: #f3f4f6; color: #4b5563; border-radius: 5px;
+  padding: 2px 8px; font-size: .75rem;
+}
+.ca-tags--article { margin: 22px 0 0; }
+
+.ca-more { display: flex; justify-content: center; margin: 26px 0 10px; }
+.ca-moreBtn {
+  border: 1px solid #e2e6ee; background: #fff; color: #1976d2;
+  border-radius: 9px; padding: 10px 22px; font-size: .9rem; cursor: pointer;
+}
+.ca-moreBtn:hover:not(:disabled) { background: #f7f9fc; }
+.ca-moreBtn:disabled { opacity: .6; cursor: default; }
+
+.empty-state { text-align: center; padding: 50px 20px; color: #6b7280; }
+
+/* Detail */
+.ca-article { max-width: 760px; margin: 0 auto; }
+.ca-back {
+  display: inline-block; margin-bottom: 18px;
+  color: #1976d2; text-decoration: none; font-size: .88rem;
+}
+.ca-back:hover { text-decoration: underline; }
+.ca-articleTitle { font-size: 2rem; line-height: 1.25; color: #1f2937; margin: 6px 0 12px; }
+.ca-articleSummary { font-size: 1.05rem; color: #4b5563; line-height: 1.65; margin: 0 0 20px; }
+.ca-body { color: #374151; font-size: 1rem; line-height: 1.75; }
+.ca-body h2 { font-size: 1.3rem; margin: 26px 0 10px; color: #1f2937; }
+.ca-body h3 { font-size: 1.12rem; margin: 22px 0 8px; color: #1f2937; }
+.ca-body p { margin: 0 0 14px; }
+.ca-body ul, .ca-body ol { margin: 0 0 14px; padding-left: 22px; }
+.ca-body li { margin: 5px 0; }
+.ca-body a { color: #1976d2; }
+.ca-body img { max-width: 100%; height: auto; border-radius: 8px; }
+.ca-body blockquote {
+  margin: 0 0 14px; padding: 8px 16px;
+  border-left: 3px solid #e2e6ee; color: #6b7280;
+}
+.ca-articleSource { margin: 20px 0 0; color: #6b7280; font-size: .85rem; }
+.ca-articleSource a { color: #1976d2; }
+
+@media (max-width: 640px) {
+  .ca-search { min-width: 0; }
+  .ca-articleTitle { font-size: 1.5rem; }
+}

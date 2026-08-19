@@ -30,6 +30,39 @@ export const LOCAL_PREFIXES = [
 
 export const TEACHER_PREFIXES = ["/teacher", "/counselor"];
 
+// Student-app link_url → the FACULTY screen showing the same object.
+//
+// The backend writes student-app paths for nearly every academy verb
+// (/subjects/:id/assignments, /study-material/list/:id, /live/:id …) because
+// the student app is root-mounted. Routing those to appUrl is right for a
+// learner and wrong for a teacher: the student dashboard bounces anyone
+// without a learner profile, so a faculty member clicking from this navbar
+// ended up nowhere. Kept deliberately in step with STUDENT_TO_TEACHER in
+// shiksha-teacher-dashboard/src/shared/useNotificationNavigator.js — if you
+// change one, change both.
+const STUDENT_TO_TEACHER = [
+  // "quiz" sits where a subject id would, so it must be tested first.
+  [/^\/subjects\/quiz\/([^/?]+)/, (m) => `/teacher/classes/${m[1]}/quizzes`],
+  [/^\/subjects\/([^/?]+)\/assignments\/([^/?]+)/, (m) => `/teacher/classes/${m[1]}/assignments/${m[2]}`],
+  [/^\/subjects\/([^/?]+)\/assignments/, (m) => `/teacher/classes/${m[1]}/assignments`],
+  [/^\/study-material\/list\/([^/?]+)/, (m) => `/teacher/classes/${m[1]}/study-materials`],
+  [/^\/subjects\/([^/?]+)(?=$|[/?])/, (m) => `/teacher/classes/${m[1]}`],
+  [/^\/live\/([^/?]+)/, (m) => `/teacher/live-sessions/${m[1]}/detail`],
+  [/^\/sessions\/group\/([^/?]+)/, () => "/teacher/group-sessions"],
+  [/^\/group-sessions(?=$|[/?])/, () => "/teacher/group-sessions"],
+  [/^\/private-sessions(?=$|[/?])/, () => "/teacher/private-sessions"],
+  [/^\/live-sessions(?=$|[/?])/, () => "/teacher/live-sessions"],
+  [/^\/chat(?=$|[/?])/, () => "/teacher/chat"],
+];
+
+export function toTeacherEquivalent(path) {
+  for (const [re, build] of STUDENT_TO_TEACHER) {
+    const m = path.match(re);
+    if (m) return build(m);
+  }
+  return null;
+}
+
 const SKILL_PREFIXES = ["/skill-dev", "/skill-messages", "/skill-session"];
 const ACADEMY_PREFIXES = [
   "/subjects", "/live", "/live-sessions", "/private-sessions",
@@ -80,7 +113,7 @@ export function trackForLink(path) {
  *          {{kind:"local", path}}        navigate() within this SPA
  *          {{kind:"external", url}}      cross-app hop (window.location)
  */
-export function resolveNotificationTarget(link, { appUrl, teacherUrl }) {
+export function resolveNotificationTarget(link, { appUrl, teacherUrl, isTeacher = false }) {
   if (typeof link !== "string" || !link.startsWith("/")) return null;
   // Reject protocol-relative paths ("//host/x"). Concatenated onto a base
   // they happen to stay on-origin (the "//" becomes a doubled path
@@ -91,6 +124,21 @@ export function resolveNotificationTarget(link, { appUrl, teacherUrl }) {
   if (link.startsWith("//")) return null;
 
   if (isLocalRoute(link)) return { kind: "local", path: link };
+
+  // Who is signed in decides which dashboard a student-shaped path means.
+  // Checked before the /teacher|/counselor test so a faculty member gets the
+  // faculty screen for the same object rather than being sent to the learner
+  // app, which bounces anyone without a learner profile.
+  if (isTeacher) {
+    const asTeacher = toTeacherEquivalent(link);
+    if (asTeacher) {
+      try {
+        return { kind: "external", url: new URL(teacherUrl + asTeacher).toString() };
+      } catch {
+        return null;
+      }
+    }
+  }
 
   const teacher = isTeacherRoute(link);
   const base = teacher ? teacherUrl : appUrl;
@@ -104,5 +152,62 @@ export function resolveNotificationTarget(link, { appUrl, teacherUrl }) {
     return { kind: "external", url: url.toString() };
   } catch {
     return null;
+  }
+}
+
+/**
+ * Where to go when a notification has NO usable link_url.
+ *
+ * This is not an edge case — it is the common case. Both bells here and in
+ * the dashboards are fed by `/activity/feed/`, and `ActivitySerializer`
+ * emits no `link_url` field at all; only live WebSocket frames carry one.
+ * So for every notification loaded on page load, `resolveNotificationTarget`
+ * returned null and the public navbar's click handler simply `return`ed —
+ * a permanently dead click. Both dashboard bells already fall back to
+ * type + subject_id; this site never got that fallback.
+ *
+ * Mirrors the per-type routing in shiksha-student-dashboard's and
+ * shiksha-teacher-dashboard's NotificationBell.jsx.
+ *
+ * @returns a link_url-shaped path (feed it back through
+ *          resolveNotificationTarget), or null if the row genuinely
+ *          identifies no destination — better a no-op than a wrong page.
+ */
+export function fallbackPathFor(notif, { isTeacher = false } = {}) {
+  if (!notif) return null;
+  const { type, subject_id, object_id, is_private_session, is_group_session, is_skill_session } = notif;
+
+  if (is_private_session || type === "PRIVATE_SESSION") return "/private-sessions";
+  if (is_group_session) return "/group-sessions";
+  if (is_skill_session) {
+    // The faculty side has no per-booking route; the learner side does.
+    if (isTeacher) return "/teacher/expert/bookings";
+    return subject_id ? `/skill-dev/sessions/${subject_id}` : "/skill-dev/sessions";
+  }
+  if (type === "SESSION" && object_id) return `/live/${object_id}`;
+
+  if (subject_id) {
+    switch (type) {
+      case "ASSIGNMENT":
+      case "SUBMISSION":
+        return `/subjects/${subject_id}/assignments`;
+      case "QUIZ":   return `/subjects/quiz/${subject_id}`;
+      case "SESSION": return "/live-sessions";
+      case "MATERIAL": return `/study-material/list/${subject_id}`;
+      default: return `/subjects/${subject_id}`;
+    }
+  }
+
+  // No subject to anchor on. Only offer a destination where one genuinely
+  // exists for this type — never invent one (that is exactly how the
+  // faculty bell used to dump people into the career-counsellor form).
+  switch (type) {
+    case "ASSIGNMENT":
+    case "SUBMISSION":
+      return isTeacher ? "/teacher/assignments" : "/assignments";
+    case "QUIZ":     return isTeacher ? "/teacher/quizzes" : "/subjects/quiz";
+    case "MATERIAL": return isTeacher ? "/teacher/study-materials" : "/study-material";
+    case "SESSION":  return "/live-sessions";
+    default:         return null;
   }
 }

@@ -61,6 +61,7 @@ const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 // Legacy research-hub landing kept for its own route.
 const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
+const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
@@ -354,6 +355,7 @@ function App() {
           </RequireRole>
         } />
         <Route path="/current-affairs" element={<Page><CurrentAffairs /></Page>} />
+        <Route path="/current-affairs/:slug" element={<Page><CurrentAffairDetail /></Page>} />
         {/* Legacy mini-app retired — redirect to the live, login-gated pages.
             Keeps old links/bookmarks working. The new canonical pages are
             /skill/browse (directory) and /experts/:id (profile + book + message). */}

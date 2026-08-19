@@ -73,12 +73,27 @@ export async function getBlogPost(slug, locale) {
 
 /* ── Current affairs ───────────────────────────────────────────── */
 
+/* The list endpoint is paginated, so this returns the page envelope rather
+   than a bare array — the page needs `next` to offer "Load more" and
+   `count` to say how many affairs matched the filters. */
 export async function getCurrentAffairs(params = {}) {
   try {
     const { data } = await api.get("/content/current-affairs/", { params });
-    return data.results || [];
+    return { items: data.results || [], next: data.next || null, count: data.count ?? 0 };
   } catch {
-    return [];
+    return { items: [], next: null, count: 0 };
+  }
+}
+
+/* Same {status} shape as getBlogPost: a 404 is a real answer ("no such
+   affair"), not a failure the caller should retry. */
+export async function getCurrentAffair(slug) {
+  try {
+    const { data } = await api.get(`/content/current-affairs/${encodeURIComponent(slug)}/`);
+    return { status: "ok", affair: data };
+  } catch (err) {
+    if (err?.response?.status === 404) return { status: "notfound" };
+    return { status: "error" };
   }
 }
 

@@ -18,7 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { IoNotificationsOutline, IoNotificationsSharp } from "react-icons/io5";
 import useNotificationSocket from "../hooks/useNotificationSocket";
 import { APP_URL, TEACHER_URL } from "../config/urls";
-import { resolveNotificationTarget } from "../utils/notificationRouting";
+import { resolveNotificationTarget, fallbackPathFor } from "../utils/notificationRouting";
+import { useAuth } from "../contexts/AuthContext";
 import "./NotificationBell.css";
 
 const TYPE_EMOJI = {
@@ -27,6 +28,10 @@ const TYPE_EMOJI = {
   SESSION: "🎥",
   SUBMISSION: "📬",
   CHAT: "💬",
+  // Study-material uploads became their own Activity type (MATERIAL) when
+  // they were moved onto the durable notification path; without an entry
+  // here they'd fall back to the generic 🔔 on this site only.
+  MATERIAL: "📚",
 };
 
 function timeAgo(iso) {
@@ -42,6 +47,10 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
+
+  // Which dashboard a student-shaped link_url means depends on who is
+  // signed in — see notificationRouting's STUDENT_TO_TEACHER.
+  const { isTeacherContext } = useAuth();
 
   const {
     notifications,
@@ -76,10 +85,18 @@ export default function NotificationBell() {
     // Routing rules (and the reason a plain navigate() was wrong here) live
     // in utils/notificationRouting.js — this SPA serves only a handful of
     // the paths notifications point at; the rest belong to the dashboards.
-    const target = resolveNotificationTarget(notif.link_url, {
+    const opts = {
       appUrl: APP_URL,
       teacherUrl: TEACHER_URL,
-    });
+      isTeacher: !!isTeacherContext,
+    };
+    // link_url first, then the type/subject fallback. The fallback is what
+    // makes this clickable at all for rows loaded from /activity/feed/,
+    // which carries no link_url — previously every one of those was a
+    // silent no-op.
+    const target =
+      resolveNotificationTarget(notif.link_url, opts) ||
+      resolveNotificationTarget(fallbackPathFor(notif, opts), opts);
     if (!target) return;
     if (target.kind === "local") navigate(target.path);
     else window.location.assign(target.url);
