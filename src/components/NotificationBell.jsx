@@ -17,6 +17,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoNotificationsOutline, IoNotificationsSharp } from "react-icons/io5";
 import useNotificationSocket from "../hooks/useNotificationSocket";
+import { APP_URL, TEACHER_URL } from "../config/urls";
+import { resolveNotificationTarget } from "../utils/notificationRouting";
 import "./NotificationBell.css";
 
 const TYPE_EMOJI = {
@@ -70,13 +72,17 @@ export default function NotificationBell() {
   const handleItemClick = (notif) => {
     if (notif.id) markOneRead(notif.id);
     setOpen(false);
-    // Only follow links that are real in-app paths. Anything else just
-    // gets marked read — never navigate to a dead or off-site route from
-    // a notification (see the instruction-source-boundary discipline).
-    const link = notif.link_url;
-    if (typeof link === "string" && link.startsWith("/")) {
-      navigate(link);
-    }
+
+    // Routing rules (and the reason a plain navigate() was wrong here) live
+    // in utils/notificationRouting.js — this SPA serves only a handful of
+    // the paths notifications point at; the rest belong to the dashboards.
+    const target = resolveNotificationTarget(notif.link_url, {
+      appUrl: APP_URL,
+      teacherUrl: TEACHER_URL,
+    });
+    if (!target) return;
+    if (target.kind === "local") navigate(target.path);
+    else window.location.assign(target.url);
   };
 
   return (
