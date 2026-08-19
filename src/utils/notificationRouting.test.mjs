@@ -79,6 +79,12 @@ test("skill links carry ?track=skill so the dashboard opens in the right chrome"
     "https://app.example.com/skill-dev/sessions/9?track=skill");
 });
 
+test("study-material links are classified academy", () => {
+  // materials.uploaded deep-links to /study-material/list/<subjectId>;
+  // without the prefix it hopped to the dashboard with no track hint.
+  assert.equal(trackForLink("/study-material/list/7"), "academy");
+});
+
 test("academy links carry ?track=academy", () => {
   assert.equal(resolve("/subjects/1/assignments").url,
     "https://app.example.com/subjects/1/assignments?track=academy");

@@ -34,6 +34,7 @@ const SKILL_PREFIXES = ["/skill-dev", "/skill-messages", "/skill-session"];
 const ACADEMY_PREFIXES = [
   "/subjects", "/live", "/live-sessions", "/private-sessions",
   "/group-sessions", "/my-courses", "/assignments",
+  "/study-material",   // materials.uploaded deep-links here
 ];
 
 // Segment-anchored so "/livestream-x" can never match "/live", and

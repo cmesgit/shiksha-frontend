@@ -25,16 +25,6 @@ const groupSessionService = {
     return res.data || [];
   },
 
-  // Students enrolled in the course that owns this subject
-  async getCourseStudents(subjectId, query = "") {
-    if (!subjectId) return [];
-    const params = query ? `?q=${encodeURIComponent(query)}` : "";
-    const res = await api.get(
-      `/sessions/subjects/${subjectId}/students/${params}`
-    );
-    return res.data || [];
-  },
-
   // ─────────────────────────────────────────────
   // Create / list / detail
   // ─────────────────────────────────────────────
@@ -346,7 +336,6 @@ export function extractApiError(err, fallback = "Something went wrong.") {
 export const {
   getMySubjects,
   getTeachers,
-  getCourseStudents,
   createGroupSession,
   getMyGroupSessions,
   getDetail,
