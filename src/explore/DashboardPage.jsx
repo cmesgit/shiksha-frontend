@@ -198,9 +198,24 @@ export default function ExploreDashboardPage() {
         </div>
 
         {/* tabs */}
+        {/* Two anchors on purpose. `explore-dashboard.tabs` (the strip) is the
+            right target for a spotlight step, which highlights a whole region.
+            `explore-dashboard.tab` (the FIRST tab button) is what the T3 beacon
+            uses: Beacon.jsx draws its dot at the target's top-RIGHT corner, and
+            .exp-dtabs is a full-width flex row with left-packed children — its
+            right corner is empty space hundreds of px past the last tab, so the
+            dot pointed at nothing. A single tab button's right corner is real
+            content. */}
         <div className="exp-dtabs" data-tour="explore-dashboard.tabs">
-          {TABS.map((t) => (
-            <button key={t} className={`exp-dtab${tab === t ? " active" : ""}`} onClick={() => setTab(t)}>{t}</button>
+          {TABS.map((t, i) => (
+            <button
+              key={t}
+              className={`exp-dtab${tab === t ? " active" : ""}`}
+              onClick={() => setTab(t)}
+              {...(i === 0 ? { "data-tour": "explore-dashboard.tab" } : null)}
+            >
+              {t}
+            </button>
           ))}
         </div>
 

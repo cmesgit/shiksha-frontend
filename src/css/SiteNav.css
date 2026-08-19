@@ -4,6 +4,11 @@
    All classes are prefixed `skn-`; tokens come from theme.css.
    ============================================================ */
 
+/* Height of the fixed header. Anything that sticks below it must offset by
+   this much or it pins underneath and disappears — the header is z-index
+   1000, so a lower-z sticky bar simply vanishes behind it on scroll. */
+:root { --skn-header-h: 82px; }
+
 /* ── Fixed header shell ── */
 .skn-header {
   position: fixed;

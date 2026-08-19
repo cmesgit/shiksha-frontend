@@ -24,8 +24,13 @@ export default function ExploreBrowse() {
   const [params, setParams] = useSearchParams();
   const nav = useNavigate();
   const [facets, setFacets] = useState(null);
+  // `res === null` means "nothing has ever loaded" — the ONLY state that shows
+  // the spinner. Once results exist they stay mounted across every subsequent
+  // filter change (see `busy` below), so `.exp-in`'s fade+slide plays exactly
+  // once per visit instead of replaying on each dropdown/chip/sort change, and
+  // the page height never collapses to the spinner and back.
   const [res, setRes] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(true);
 
   useEffect(() => { getFacets().then(setFacets); }, []);
 
@@ -42,9 +47,11 @@ export default function ExploreBrowse() {
   };
 
   useEffect(() => {
-    setLoading(true);
+    setBusy(true);
     let alive = true;
-    searchDocuments(filters).then((r) => { if (alive) { setRes(r); setLoading(false); } });
+    searchDocuments(filters)
+      .then((r) => { if (alive) { setRes(r); setBusy(false); } })
+      .catch(() => { if (alive) setBusy(false); });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
@@ -134,27 +141,37 @@ export default function ExploreBrowse() {
             </div>
           )}
 
-          {loading ? <Loading />
-            : res && res.count > 0 ? (
-              <div className="exp-docgrid exp-in">
-                {res.results.map((d) => <DocCard key={d.id} doc={d} />)}
-              </div>
-            ) : (
-              <div className="exp-empty">
-                {activeChips.length > 0 ? (
-                  <>
-                    <h3>No documents match those filters</h3>
-                    <p>Try removing a filter or searching a broader term.</p>
-                    <button className="exp-btn exp-btn-primary" style={{ marginTop: 16 }} onClick={clearAll}>Clear filters</button>
-                  </>
+          {res === null ? <Loading /> : (
+            /* `.exp-in` sits on this wrapper, which mounts once (the first time
+               results arrive) and is never unmounted again — that is what stops
+               the entry animation replaying per filter change. The dim lives on
+               the inner node; see Explore.css for why it can't share the
+               animated one. */
+            <div className="exp-in">
+              <div className={`exp-results-body${busy ? " is-busy" : ""}`} aria-busy={busy}>
+                {res.count > 0 ? (
+                  <div className="exp-docgrid">
+                    {res.results.map((d) => <DocCard key={d.id} doc={d} />)}
+                  </div>
                 ) : (
-                  <>
-                    <h3>No documents yet</h3>
-                    <p>Check back soon — the library is still being stocked.</p>
-                  </>
+                  <div className="exp-empty">
+                    {activeChips.length > 0 ? (
+                      <>
+                        <h3>No documents match those filters</h3>
+                        <p>Try removing a filter or searching a broader term.</p>
+                        <button className="exp-btn exp-btn-primary" style={{ marginTop: 16 }} onClick={clearAll}>Clear filters</button>
+                      </>
+                    ) : (
+                      <>
+                        <h3>No documents yet</h3>
+                        <p>Check back soon — the library is still being stocked.</p>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+            </div>
+          )}
         </main>
       </div>
     </div>

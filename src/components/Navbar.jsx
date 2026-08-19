@@ -668,7 +668,15 @@ const Navbar = () => {
                       {
                         label: "Dashboard",
                         icon: <LayoutDashboard size={17} />,
-                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL; },
+                        // Delegate, don't re-implement. This used to inline
+                        // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
+                        // which sent a TEACHER browsing in learner context —
+                        // the default landing state — to APP_URL, i.e. the
+                        // Learn app. Wrong destination for a control labelled
+                        // "Dashboard", and a duplicate of the Learn pill this
+                        // same menu already renders via learnUrl.
+                        // handleDashboard sends that case to /pick-profile.
+                        onClick: handleDashboard,
                       },
                     ]}
                   />
@@ -834,7 +842,15 @@ const Navbar = () => {
                       {
                         label: "Dashboard",
                         icon: <LayoutDashboard size={17} />,
-                        onClick: () => { window.location.href = isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL; },
+                        // Delegate, don't re-implement. This used to inline
+                        // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
+                        // which sent a TEACHER browsing in learner context —
+                        // the default landing state — to APP_URL, i.e. the
+                        // Learn app. Wrong destination for a control labelled
+                        // "Dashboard", and a duplicate of the Learn pill this
+                        // same menu already renders via learnUrl.
+                        // handleDashboard sends that case to /pick-profile.
+                        onClick: handleDashboard,
                       },
                     ]}
                   />

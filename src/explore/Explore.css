@@ -255,7 +255,8 @@
 .exp-browse { display: grid; grid-template-columns: 260px 1fr; gap: 26px; padding: 30px 0 60px; }
 .exp-filters {
   background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; align-self: start;
-  position: sticky; top: 90px;
+  /* header (82) + the now-visible toolbar (55) + a small gap */
+  position: sticky; top: calc(var(--skn-header-h, 82px) + 63px);
 }
 .exp-fgroup { padding: 12px 0; border-bottom: 1px solid var(--line); }
 .exp-fgroup:last-child { border-bottom: none; }
@@ -375,7 +376,9 @@
 }
 
 /* ── loading ────────────────────────────────────────────────────────────────── */
-.exp-loading { display: grid; place-items: center; min-height: 40vh; }
+/* min-height in px, not vh: vh units are banned in layout CSS here (mobile
+   browsers resize the viewport as the URL bar collapses, so a vh box jumps). */
+.exp-loading { display: grid; place-items: center; min-height: 320px; }
 .exp-spin { width: 40px; height: 40px; border: 3px solid rgba(18, 80, 39, .18); border-top-color: var(--forest); border-radius: 50%; animation: exp-spin .8s linear infinite; }
 .exp-skel { background: linear-gradient(90deg, #eef2ee 25%, #e3eae4 37%, #eef2ee 63%); background-size: 400% 100%; animation: exp-shimmer 1.3s infinite; border-radius: 12px; }
 
@@ -387,13 +390,32 @@
 @keyframes exp-toast { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .exp-in { animation: exp-fade .4s ease both; }
 
+/* Refetch-in-place state for the Browse results (see ExploreBrowse.jsx). The
+   previous results stay mounted and are dimmed while the next page loads, so
+   the grid never unmounts — which is what used to replay `.exp-in`'s 14px
+   slide on every single filter change, and collapse the page height to the
+   spinner's in between.
+   The dim MUST live on an inner element, never on the `.exp-in` node itself:
+   `animation-fill-mode: both` makes exp-fade's final `opacity: 1` win over any
+   plain `opacity` declaration on the same element (animations outrank normal
+   declarations in the cascade), so the dim would silently do nothing there. */
+.exp-results-body { transition: opacity .18s ease; }
+.exp-results-body.is-busy { opacity: .45; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .exp-results-body { transition: none; }
+}
+
 /* ── Explore toolbar (persistent sub-nav) ───────────────────────────────────── */
 /* NOTE: the toolbar renders OUTSIDE the `.exp` wrapper, so the `--forest`/etc.
    CSS variables (defined on `.exp`) are NOT in scope here — use literal hex. */
-.exp-toolbar { background: #fff; border-bottom: 1px solid rgba(18, 80, 39, .1); box-shadow: 0 2px 10px rgba(14, 28, 15, .04); position: sticky; top: 0; z-index: 20; font-family: Poppins, sans-serif; }
+/* top must clear the fixed .skn-header (z-index 1000): at `top: 0` this bar
+   pinned *behind* the header on scroll and smeared through its backdrop blur
+   instead of staying reachable. --skn-header-h is on :root, so it is in scope
+   here despite the `.exp` variables not being. */
+.exp-toolbar { background: #fff; border-bottom: 1px solid rgba(18, 80, 39, .1); box-shadow: 0 2px 10px rgba(14, 28, 15, .04); position: sticky; top: var(--skn-header-h, 82px); z-index: 20; font-family: Poppins, sans-serif; }
 .exp-toolbar-in { max-width: 1180px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .exp-toolbar-nav { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
-.exp-tblink { background: none; border: none; cursor: pointer; padding: 7px 12px; border-radius: 8px; font: 600 13px Poppins, sans-serif; color: #5b6b60; transition: background .15s, color .15s; }
+.exp-tblink { background: none; border: none; cursor: pointer; padding: 7px 12px; border-radius: 8px; font: 600 13px Poppins, sans-serif; color: #5b6b60; white-space: nowrap; transition: background .15s, color .15s; }
 .exp-tblink:hover { background: rgba(18, 80, 39, .06); color: #125027; }
 .exp-tblink.active { background: rgba(18, 80, 39, .09); color: #125027; }
 .exp-toolbar-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -406,7 +428,25 @@
 .exp-tbbtn.primary:hover { background: #1b9c85; border-color: #1b9c85; }
 @media (max-width: 640px) {
   .exp-toolbar-in { padding: 8px 14px; }
-  .exp-toolbar-nav { display: none; }
+  /* Was `display: none`, which left mobile with NO in-Explore navigation at
+     all — Home/Browse/Collections were unreachable without going back to the
+     site navbar. Kept as a single scrolling row instead: every destination
+     stays present and tappable, and it costs no extra chrome (no hamburger,
+     no second bar). `flex-wrap: nowrap` is what makes overflow-x actually
+     scroll — the base rule wraps, and a wrapping flex row never overflows
+     horizontally, so `overflow-x: auto` alone would do nothing. */
+  .exp-toolbar-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .exp-toolbar-nav::-webkit-scrollbar { display: none; }
+  .exp-tblink { flex: 0 0 auto; }
   .exp-toolbar-acts { width: 100%; justify-content: space-between; }
 }
 

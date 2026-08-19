@@ -44,7 +44,10 @@
  * targets the resolved route instead of the spec's literal one. Anchored on
  * the dashboard's own tab strip (Overview/Reading History/My Uploads/Saved),
  * the closest equivalent to "here's your library" now that there's no
- * dedicated library page to point at.
+ * dedicated library page to point at — specifically on the FIRST tab button
+ * (`explore-dashboard.tab`), not the strip container, because the beacon dot
+ * is drawn at the target's top-right corner and the container's right corner
+ * is empty space.
  *
  * NOT built in this pass:
  *   - `live.first-visit` — spec's own table lists this as reusing the
@@ -204,7 +207,11 @@ export const tourRegistry = [
     trigger: { match: "/explore/dashboard" },
     steps: [
       {
-        target: '[data-tour="explore-dashboard.tabs"]',
+        // The first tab BUTTON, not the `.exp-dtabs` strip. Beacon.jsx puts its
+        // dot on the target's top-right corner; the strip is a full-width flex
+        // row with left-packed children, so its right corner is empty space and
+        // the dot pointed at nothing. See DashboardPage.jsx's comment.
+        target: '[data-tour="explore-dashboard.tab"]',
         placement: "bottom",
         title: "Everything you've read or shared",
         body: "Switch tabs to see your reading history, your own uploads, and anything you've saved.",
