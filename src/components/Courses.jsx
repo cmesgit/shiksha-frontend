@@ -275,12 +275,15 @@ const Courses = () => {
     () => (boards && selectedBoard ? boards.find((b) => b.slug === selectedBoard) : null),
     [boards, selectedBoard]
   );
-  const currentBoardGroupLabel =
-    currentBoard?.board_type === 'CENTRAL'
-      ? 'Central Board'
-      : currentBoard?.board_type === 'STATE'
-      ? 'State Board'
-      : undefined;
+  // A competitive exam is a syllabus authority like a board, but calling it
+  // one reads wrong — "NEET Board" is not a thing. Unknown types still fall
+  // through to undefined so the label is simply omitted rather than guessed.
+  const BOARD_GROUP_LABELS = {
+    CENTRAL: 'Central Board',
+    STATE: 'State Board',
+    COMPETITIVE: 'Competitive Exam',
+  };
+  const currentBoardGroupLabel = BOARD_GROUP_LABELS[currentBoard?.board_type];
 
   const handleSelectBoard = (slug) => {
     setSelectedBoard(slug);
