@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getFormFillupData, submitFormFillup, getStates, getDistricts, getFacultyChoices } from "../api/formFillupApi";
 import { useAuth } from "../contexts/AuthContext";
@@ -75,6 +75,67 @@ const FALLBACK_SUBJECTS = [
   ["political_science", "Political Science"], ["other", "Other"],
 ];
 
+/* ── Draft autosave ────────────────────────────────────────────────────────
+   Same problem FacultySignup had: this is a long multi-step form held
+   entirely in component state, so any remount — tab switch, reload, an
+   accidental Back — wiped every answer and dropped the user on step 1.
+
+   One difference that matters: this form LOADS existing data from the server
+   first, so a draft must never silently overwrite it. A restored draft is
+   therefore always announced with a visible banner and a "Discard draft"
+   escape, and it is only applied when it belongs to the same user AND the
+   same form type.
+
+   DELIBERATELY NOT PERSISTED:
+   - `id_number` (Aadhaar/PAN). A government identifier in localStorage on a
+     shared or family device is exactly what this product is careful about
+     elsewhere; one field to retype is the right trade.
+   - every File. Blobs can't be JSON-serialised, and base64 would blow the
+     ~5 MB quota. Names are kept so the form can say what to re-attach.        */
+const FF_DRAFT_KEY = "shiksha_form_fillup_draft";
+const FF_DRAFT_VERSION = 1;
+const FF_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
+
+function ffReadDraft() {
+  try {
+    const raw = localStorage.getItem(FF_DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (d?.v !== FF_DRAFT_VERSION) { localStorage.removeItem(FF_DRAFT_KEY); return null; }
+    if (!d.savedAt || Date.now() - d.savedAt > FF_DRAFT_TTL_MS) {
+      localStorage.removeItem(FF_DRAFT_KEY);
+      return null;
+    }
+    return d;
+  } catch { return null; }
+}
+
+function ffClearDraft() {
+  try { localStorage.removeItem(FF_DRAFT_KEY); } catch { /* noop */ }
+}
+
+/* A stable fingerprint of the answers, used to tell "the user actually edited
+   something" from "this is just what the server already had".
+
+   Without it the autosave writes a draft on every load even when nothing was
+   touched, so the NEXT load finds one and announces "we brought back your
+   unsaved answers" to someone who never typed anything — and in dev
+   StrictMode's double-mount makes that happen on the very first visit.
+   Files and id_number are excluded because they are never persisted. */
+function ffSignature({ form, courseApps, skillApps, teacherFormType }) {
+  const safe = {};
+  for (const [k, v] of Object.entries(form || {})) {
+    if (v instanceof File || k === "id_number") continue;
+    safe[k] = v ?? "";
+  }
+  return JSON.stringify({
+    teacherFormType: teacherFormType || null,
+    form: safe,
+    courseApps: courseApps || [],
+    skillApps: (skillApps || []).map(({ skill_file, ...rest }) => rest),  // eslint-disable-line no-unused-vars
+  });
+}
+
 const STUDENT_STEPS = ["Basic Details", "Parent Information", "Academic Information"];
 const TEACHER_STEPS_COURSE = ["Basic Details", "Professional Background", "Course Application", "Verification"];
 const TEACHER_STEPS_SKILL = ["Basic Details", "Professional Background", "Specialized Skill", "Verification"];
@@ -92,6 +153,16 @@ const FormFillup = ({ onSuccess } = {}) => {
   // hardcoded here (this file used to keep THREE copies of it, all of which
   // had drifted narrower than what the backend actually accepts).
   const [facultySubjects, setFacultySubjects] = useState([]);
+  // Draft-restore state — see the FF_DRAFT_* block above.
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [staleFileNames, setStaleFileNames] = useState({});
+  // Fingerprint of the state as the SERVER gave it, so the autosave can tell
+  // a real edit from an untouched form. See ffSignature().
+  const baselineRef = useRef(null);
+  // Set while tearing down for a discard. Without it, the state updates in the
+  // discard handler re-trigger the autosave effect and it writes the draft
+  // straight back before the reload lands — so Discard silently did nothing.
+  const discardingRef = useRef(false);
   const [formType, setFormType] = useState(null);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -188,7 +259,62 @@ const FormFillup = ({ onSuccess } = {}) => {
         }
 
 
-        if (merged.state) {
+        // Apply a saved draft ON TOP of the freshly-loaded server data, but
+        // only if it belongs to this same user and form type — otherwise a
+        // stale draft from another account on a shared device could
+        // pre-fill (and then save) the wrong person's details.
+        // Baseline = exactly what the server just gave us, for the
+        // edited-or-not comparison below.
+        // Must mirror the component's OWN initial state exactly, including its
+        // one-blank-row fallbacks — otherwise the baseline never matches, the
+        // form looks permanently "edited", and the banner shows on every load.
+        const casRaw = formRes.data.course_applications || [];
+        const sasRaw = formRes.data.skill_applications || [];
+        const serverBaseline = ffSignature({
+          form: merged,
+          courseApps: casRaw.length
+            ? casRaw.map(({ subject, boards, classes, streams }) => ({
+                subject: subject || "", boards: boards || [],
+                classes: classes || [], streams: streams || [],
+              }))
+            : [{ subject: "", boards: [], classes: [], streams: [] }],
+          skillApps: sasRaw.length
+            ? sasRaw.map(({ skill_name, skill_description, skill_related_subject, skill_supporting_file }) => ({
+                skill_name: skill_name || "", skill_description: skill_description || "",
+                skill_related_subject: skill_related_subject || "",
+                skill_file: null, existing_file: skill_supporting_file,
+              }))
+            : [{ skill_name: "", skill_description: "", skill_related_subject: "", skill_file: null }],
+          teacherFormType: null,
+        });
+        baselineRef.current = serverBaseline;
+
+        const draft = ffReadDraft();
+        const draftIsRealEdit = draft && ffSignature({
+          form: draft.form, courseApps: draft.courseApps,
+          skillApps: draft.skillApps, teacherFormType: null,
+        }) !== serverBaseline;
+        if (draft && draftIsRealEdit
+            && draft.email === userEmail && draft.formType === form_type) {
+          setForm((prev) => ({ ...prev, ...(draft.form || {}), id_number: prev.id_number }));
+          if (Array.isArray(draft.courseApps) && draft.courseApps.length) {
+            setCourseApps(draft.courseApps);
+          }
+          if (Array.isArray(draft.skillApps) && draft.skillApps.length) {
+            // Files can't be persisted — keep the names only, to prompt a re-attach.
+            setSkillApps(draft.skillApps.map((a) => ({ ...a, skill_file: null })));
+          }
+          if (draft.teacherFormType) setTeacherFormType(draft.teacherFormType);
+          if (Number.isFinite(draft.currentStep)) setCurrentStep(draft.currentStep);
+          setStaleFileNames(draft.fileNames || {});
+          setDraftRestored(true);
+          if (draft.form?.state) {
+            try {
+              const dr = await getDistricts(draft.form.state);
+              setDistricts(dr.data);
+            } catch { /* non-fatal */ }
+          }
+        } else if (merged.state) {
           const distRes = await getDistricts(merged.state);
           setDistricts(distRes.data);
         }
@@ -202,6 +328,39 @@ const FormFillup = ({ onSuccess } = {}) => {
     };
     fetchData();
   }, []);
+
+  /* Autosave. Wrapped because localStorage throws in private-browsing modes
+     and on quota — a failed save must never break the form. Skipped while
+     still loading so we don't persist the empty initial state over a real
+     draft before the server data has even arrived. */
+  useEffect(() => {
+    if (loading || !formType || discardingRef.current) return;
+    // Nothing edited yet → no draft. Without this the form persists a draft
+    // on every load and the next visit falsely announces restored answers.
+    const sig = ffSignature({ form, courseApps, skillApps, teacherFormType: null });
+    if (baselineRef.current !== null && sig === baselineRef.current) {
+      ffClearDraft();
+      return;
+    }
+    // Strip Files (unserialisable) and id_number (sensitive) before writing.
+    const safeForm = {};
+    const fileNames = {};
+    for (const [k, v] of Object.entries(form)) {
+      if (v instanceof File) { fileNames[k] = v.name; continue; }
+      if (k === "id_number") continue;
+      safeForm[k] = v;
+    }
+    try {
+      localStorage.setItem(FF_DRAFT_KEY, JSON.stringify({
+        v: FF_DRAFT_VERSION, savedAt: Date.now(),
+        email, formType, teacherFormType, currentStep,
+        form: safeForm,
+        courseApps,
+        skillApps: skillApps.map(({ skill_file, ...rest }) => rest),  // eslint-disable-line no-unused-vars
+        fileNames: { ...staleFileNames, ...fileNames },
+      }));
+    } catch { /* private mode / quota — carry on without a draft */ }
+  }, [loading, formType, teacherFormType, currentStep, form, courseApps, skillApps, email, staleFileNames]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -516,6 +675,12 @@ if (
 
       await submitFormFillup(fd);
 
+      // Submitted for real — clear the draft. Doing it here (not on unmount)
+      // means a FAILED submit keeps the draft intact.
+      ffClearDraft();
+      setDraftRestored(false);
+      setStaleFileNames({});
+
       await bootstrap();
       if (onSuccess) {
         onSuccess();
@@ -586,6 +751,27 @@ if (
           );
         })()}
 
+
+        {/* A restored draft must be visible and escapable — silently
+            pre-filling a half-finished form (and then saving it) would be
+            worse than having lost it. */}
+        {draftRestored && (
+          <div className="ff-draft-notice" role="status">
+            <span>
+              We brought back your unsaved answers.
+              {Object.keys(staleFileNames).length > 0 && " Attached files need re-selecting."}
+              {" "}Your ID number needs re-entering.
+            </span>
+            <button type="button" onClick={() => {
+              // Guard FIRST — the reload is not instantaneous and any state
+              // change below would otherwise re-run the autosave effect and
+              // rewrite the draft we just deleted.
+              discardingRef.current = true;
+              ffClearDraft();
+              window.location.reload();
+            }}>Discard draft</button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} noValidate>
 
