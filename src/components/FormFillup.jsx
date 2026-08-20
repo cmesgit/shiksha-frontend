@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getFormFillupData, submitFormFillup, getStates, getDistricts } from "../api/formFillupApi";
+import { getFormFillupData, submitFormFillup, getStates, getDistricts, getFacultyChoices } from "../api/formFillupApi";
 import { useAuth } from "../contexts/AuthContext";
 import extractError from "../utils/extractError";
 import "../css/FormFillup.css";
@@ -62,6 +62,19 @@ const TEACHER_FIELDS = {
   signed_agreement: null,
 };
 
+/* Fallback only — the real list comes from getFacultyChoices(), served off
+   accounts/models.py. Kept as the conservative always-valid set so the form
+   still works if that request fails; see FacultySignup.jsx's note on the
+   drift these hardcoded copies already caused. */
+const FALLBACK_SUBJECTS = [
+  ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
+  ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
+  ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
+  ["economics", "Economics"], ["computer_science", "Computer Science"],
+  ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
+  ["political_science", "Political Science"], ["other", "Other"],
+];
+
 const STUDENT_STEPS = ["Basic Details", "Parent Information", "Academic Information"];
 const TEACHER_STEPS_COURSE = ["Basic Details", "Professional Background", "Course Application", "Verification"];
 const TEACHER_STEPS_SKILL = ["Basic Details", "Professional Background", "Specialized Skill", "Verification"];
@@ -75,6 +88,10 @@ const FormFillup = ({ onSuccess } = {}) => {
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
+  // Faculty subject taxonomy, served off accounts/models.py rather than
+  // hardcoded here (this file used to keep THREE copies of it, all of which
+  // had drifted narrower than what the backend actually accepts).
+  const [facultySubjects, setFacultySubjects] = useState([]);
   const [formType, setFormType] = useState(null);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -106,6 +123,17 @@ const FormFillup = ({ onSuccess } = {}) => {
         setEmail(userEmail);
         setUsername(uname || "");
         setStates(statesRes.data);
+
+        // Only the teacher form renders subject pickers — don't spend a
+        // request on it for a student. Non-fatal: subjectLabel() degrades to
+        // echoing the raw value and the <select> falls back below.
+        if (form_type === "teacher") {
+          getFacultyChoices()
+            .then((r) => setFacultySubjects(
+              (r.data?.subjects || []).map((o) => [o.value, o.label])
+            ))
+            .catch(() => { /* keep the fallback list */ });
+        }
 
         const defaults = form_type === "teacher" ? { ...TEACHER_FIELDS } : { ...STUDENT_FIELDS };
         const merged = { ...defaults };
@@ -305,15 +333,13 @@ if (
   };
 
   /* ── Display helpers ── */
+  // Labels come from the served taxonomy (facultySubjects) so this can't drift
+  // from what signup validation accepts — this used to be a third hardcoded
+  // copy of the subject list. Falls back to echoing the raw value, which is
+  // still readable ("computer_science") if the fetch failed.
   const subjectLabel = (val) => {
-    const entry = [
-      ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
-      ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
-      ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
-      ["economics", "Economics"], ["computer_science", "Computer Science"],
-      ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
-      ["political_science", "Political Science"], ["other", "Other"],
-    ].find(([k]) => k === val);
+    const list = facultySubjects.length ? facultySubjects : FALLBACK_SUBJECTS;
+    const entry = list.find(([k]) => k === val);
     return entry ? entry[1] : val;
   };
 
@@ -1153,8 +1179,8 @@ if (
                             <label>Subject *</label>
                             <select value={app.subject} onChange={(e) => updateCourseApp(idx, "subject", e.target.value)}>
                               <option value="">Select Subject</option>
-                              {["Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi", "Social Science", "History", "Geography", "Economics", "Computer Science", "Accountancy", "Business Studies", "Political Science", "Other"].map((s) => (
-                                <option key={s} value={s.toLowerCase().replace(/ /g, "_")}>{s}</option>
+                              {(facultySubjects.length ? facultySubjects : FALLBACK_SUBJECTS).map(([v, l]) => (
+                                <option key={v} value={v}>{l}</option>
                               ))}
                             </select>
                           </div>
@@ -1249,8 +1275,8 @@ if (
                             <label>Related Subject *</label>
                             <select value={app.skill_related_subject} onChange={(e) => updateSkillApp(idx, "skill_related_subject", e.target.value)}>
                               <option value="">Select Subject</option>
-                              {["Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi", "Social Science", "History", "Geography", "Economics", "Computer Science", "Accountancy", "Business Studies", "Political Science", "Other"].map((s) => (
-                                <option key={s} value={s.toLowerCase().replace(/ /g, "_")}>{s}</option>
+                              {(facultySubjects.length ? facultySubjects : FALLBACK_SUBJECTS).map(([v, l]) => (
+                                <option key={v} value={v}>{l}</option>
                               ))}
                             </select>
                           </div>

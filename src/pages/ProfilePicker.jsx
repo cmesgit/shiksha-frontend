@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   HOME_URL, LOGIN_URL, APP_DASHBOARD_URL,
-  TEACHER_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL,
+  TEACHER_ACADEMY_URL, TEACHER_SKILL_URL,
   signupAddTrackUrl,
 } from "../config/urls";
 import ProfilePickerIllustration from "./ProfilePickerIllustration.jsx";
@@ -83,9 +83,13 @@ const ProfilePicker = () => {
     } else if (context === "learner") {
       window.location.href = APP_DASHBOARD_URL;
     } else if (context === "teacher") {
-      window.location.href = TEACHER_DASHBOARD_URL;
+      // Route by the track actually in context — not always Academy — so a
+      // Skill-Dev-only expert returning here (e.g. via back navigation) with
+      // a track already chosen lands back on their own dashboard.
+      window.location.href = teacherInfo?.active_track === "skill"
+        ? TEACHER_SKILL_URL : TEACHER_ACADEMY_URL;
     }
-  }, [loading, isAuthenticated, context]);
+  }, [loading, isAuthenticated, context, teacherInfo]);
 
   // A profile/track choice ends in a full-page navigation. Play a short
   // fade-out + "Opening…" state first so the hard jump doesn't feel abrupt.
@@ -93,8 +97,25 @@ const ProfilePicker = () => {
     setLeaving(label || "Opening…");
     window.setTimeout(() => { window.location.href = url; }, 340);
   };
+  // Honour wherever the user was actually headed before landing here (e.g.
+  // Enroll.jsx's learner-context gate sends them here to pick/create a
+  // profile, then wants them back at /enroll/:courseId) — same safety rule
+  // as App.jsx's LoginRedirect: only a same-site path, never an auth/gate
+  // page loop. Falls back to the external student-dashboard app otherwise.
+  const consumeStoredRedirect = () => {
+    let stored = null;
+    try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
+    const isSafe = !!stored && stored.startsWith("/") && !stored.startsWith("//")
+      && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(stored);
+    if (!isSafe) return null;
+    try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
+    return stored;
+  };
   const goLearner = (name) =>
-    fadeThenGo(APP_DASHBOARD_URL, name ? `Opening ${name}'s space…` : "Opening…");
+    fadeThenGo(
+      consumeStoredRedirect() || APP_DASHBOARD_URL,
+      name ? `Opening ${name}'s space…` : "Opening…"
+    );
   const goTeacherTrack = (track) =>
     fadeThenGo(
       track === "academy" ? TEACHER_ACADEMY_URL : TEACHER_SKILL_URL,

@@ -168,11 +168,32 @@
 .af-step-back { animation: af-step-back .32s cubic-bezier(.22,1,.36,1) both; }
 
 /* Status icon chip */
+/* The 64px chip — for a SPINNER or an ICON only. Never put arbitrary-length
+   text in here: it has a fixed width and height, so a real sentence wrapped
+   one word per line and then overflowed the box, visually colliding with the
+   password field and "Forgot password?" link underneath it. That is exactly
+   what happened to "Your password has been changed. Please log in with your
+   new password." after a reset. Long text goes in .af-status-msg below. */
 .af-status {
   width: 64px; height: 64px; border-radius: 20px;
   display: flex; align-items: center; justify-content: center;
   background: var(--soft);
   margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+/* A real status message: full width, wraps normally, and reads as a banner
+   rather than a mis-sized icon chip. */
+.af-status-msg {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #191a20;
 }
 
 /* Compact spinner for the chip when it's standing in for a loading message

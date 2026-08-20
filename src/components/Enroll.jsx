@@ -227,7 +227,11 @@ const Enroll = () => {
     const learnerProfiles = (profiles || []).filter((p) => p?.is_active !== false);
 
     const rememberAndGo = (path) => {
-      try { sessionStorage.setItem("postAuthRedirect", `/enroll/${courseId}`); } catch {}
+      // Same key ProtectedRoute/LoginRedirect use ("postAuthRedirect" here was
+      // a silently dead key nothing ever read) — but this jump goes straight
+      // to /pick-profile, not /login, so it's ProfilePicker's goLearner (below)
+      // that has to consume it.
+      try { sessionStorage.setItem("post_auth_redirect", `/enroll/${courseId}`); } catch {}
       navigate(path);
     };
     // existing learner profiles → the picker; no profiles → manage/create page

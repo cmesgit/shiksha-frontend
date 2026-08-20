@@ -21,13 +21,18 @@
  * and the serializer ignored the keys, so the uploads were silently dropped
  * while admins were asked to approve applicants on the strength of them.
  *
- * STILL OPEN — the SIGNED agreement has no pre-approval upload path. Step 3 is
- * download + acknowledge only. /form-fillup serves the LEARNER form to a pending
- * applicant, because FormFillupView keys off get_active_roles() and a pending
- * faculty's TEACHER role is is_active=False; the teacher-app editor that does
- * handle signed_agreement sits behind teacher context, which returns 403
- * not_approved until the track is live. So signed_agreement can currently only
- * be supplied after approval.
+ * RESOLVED — the SIGNED agreement now has a pre-approval upload path. It was
+ * previously download + acknowledge only, and the "upload it from your
+ * dashboard" the checkbox promised did not exist for a pending applicant:
+ * /form-fillup serves the LEARNER form to one (FormFillupView keys off
+ * get_active_roles() and a pending faculty's TEACHER role is is_active=False),
+ * and the teacher-app editor that does handle signed_agreement sits behind
+ * teacher context, which returns 403 not_approved until the track is live.
+ * `signed_agreement` now rides the same base64 signup path as the other three
+ * documents (SignupSerializer._save_signup_document), and the applicant is
+ * bound to the agreement version in force at that moment via
+ * TeacherProfile.record_agreement_signature(). Still optional — an applicant
+ * who'd rather sign later can skip it and upload after approval.
  *
  * The teaching background rides the existing `faculty_profile` signup payload that
  * the backend SignupSerializer._provision_faculty() already understands (extended
@@ -43,16 +48,15 @@ import DOMPurify from "dompurify";
 import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
 
-/* Where the blank faculty agreement PDF lives. Drop the file in /public so it is
-   served at this path (e.g. public/faculty-agreement.pdf). Swap for a CDN/media
-   URL if you host it elsewhere. */
-const AGREEMENT_PDF_URL = "/faculty-agreement.pdf";
-
-/* Option lists.
-   Plain CharField-choice values (degree/experience/employment/subject/govt id)
-   MUST match accounts/models.py exactly or signup-time validation drops them.
-   Class + stream values use the design's wider taxonomy — safe because they are
-   stored in choice-less JSONFields (validated in code, see backend changes). */
+/* FALLBACK option lists only.
+   The real lists are fetched from GET /accounts/faculty-choices/, which serves
+   them straight off accounts/models.py — because these hardcoded copies DID
+   drift and broke the form: FAC_SUBJECTS below shipped 10 subjects while the
+   model accepted 15, so Computer Science / Accountancy / Business Studies /
+   Political Science / Other were unreachable for every applicant, and any
+   value not in the model's choices is silently dropped by signup validation.
+   These stay purely so the form still works if that request fails; they are
+   deliberately the CONSERVATIVE always-valid set, not the full taxonomy. */
 const FAC_DEGREES = [
   ["10th_pass", "10th Pass"], ["12th_pass", "12th Pass"], ["diploma", "Diploma"],
   ["bachelors", "Bachelors"], ["masters", "Masters"], ["phd", "PhD"], ["other", "Other"],
@@ -68,9 +72,16 @@ const FAC_EMPLOYMENT = [
 const FAC_GOVT_ID = [
   ["aadhaar", "Aadhaar"], ["pan", "PAN"], ["voter_id", "Voter ID"], ["driving_license", "Driving License"],
 ];
-const FAC_SUBJECTS = [
-  "Mathematics", "Physics", "Chemistry", "Biology", "English",
-  "Hindi", "Social Science", "History", "Geography", "Economics",
+/* One unnamed group so the grouped renderer can handle fallback unchanged. */
+const FAC_SUBJECT_GROUPS = [
+  { group: "", options: [
+    ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
+    ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
+    ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
+    ["economics", "Economics"], ["computer_science", "Computer Science"],
+    ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
+    ["political_science", "Political Science"], ["other", "Other"],
+  ] },
 ];
 /* [value, label] — value is what we store, label is what we show. */
 const FAC_CLASSES = [
@@ -91,8 +102,62 @@ const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 const DOC_ACCEPT = ".pdf,.jpg,.jpeg,.png";
 const DOC_OK_RE = /\.(pdf|jpe?g|png)$/i;
 
-/* subject label -> stored value (e.g. "Social Science" -> "social_science") */
-const subjectValue = (label) => label.toLowerCase().replace(/ /g, "_");
+/* Normalise a served {value,label} list into the [value,label] pairs the
+   existing renderers already expect, so the server data and the fallback
+   constants above are interchangeable. */
+const asPairs = (served, fallback) =>
+  Array.isArray(served) && served.length
+    ? served.map((o) => [o.value, o.label])
+    : fallback;
+
+/* ── Draft autosave ────────────────────────────────────────────────────────
+   This is a long form (qualifications, experience, employment, course
+   application) that lives entirely in component state, so ANY remount —
+   switching tab and back, a reload, following the Terms link, an accidental
+   Back — dropped every answer and returned to step 1. Re-typing all of it is
+   the single most annoying thing about applying.
+
+   DELIBERATELY NOT PERSISTED:
+   - the password / confirm fields. Never write a credential to disk.
+   - `id_number` (Aadhaar/PAN/etc). A government identifier sitting in
+     localStorage on a shared or family device is exactly the kind of thing
+     this product is careful about elsewhere (see scholarship/aadhaar_offline.py's
+     compliance notes) — one field to retype is the right trade.
+   - the base64 document bytes. Three 5 MB uploads is ~20 MB once base64'd,
+     several times the ~5 MB localStorage quota — writing them would throw
+     QuotaExceededError and lose the whole draft. Only the FILE NAMES are
+     kept, so the form can tell the applicant exactly what to re-attach.
+
+   localStorage (not sessionStorage) because closing the tab entirely is one
+   of the cases worth surviving; bounded by an explicit TTL so a stale draft
+   full of someone's professional history doesn't linger indefinitely. */
+const DRAFT_KEY = "shiksha_faculty_signup_draft";
+// Deliberately NOT bumped when the course-application shape changed from a
+// single {subject, classes, streams} to a courseApps LIST — bumping discards
+// the draft, which is the exact data loss this feature exists to prevent. The
+// courseApps initializer migrates the old shape in place instead. Only bump
+// for a change that genuinely can't be migrated.
+const DRAFT_VERSION = 1;
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
+
+function readDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    // A schema bump or an expired draft is discarded rather than half-applied.
+    if (d?.v !== DRAFT_VERSION) { localStorage.removeItem(DRAFT_KEY); return null; }
+    if (!d.savedAt || Date.now() - d.savedAt > DRAFT_TTL_MS) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return d;
+  } catch { return null; }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+}
 
 function readErr(err, fallback) {
   const raw = err?.message ?? err;
@@ -165,7 +230,28 @@ export default function FacultySignup({
   const totalSteps = visibleSteps.length;
   const dispNum = (n) => visibleSteps.findIndex((s) => s.n === n) + 1; // 1-based display index
 
-  const [step, setStep] = useState(FIRST_STEP);
+  /* Restored once, synchronously, before first paint — so the form never
+     flashes empty and then fills in. */
+  const [draft] = useState(readDraft);
+  const [draftRestored, setDraftRestored] = useState(
+    () => !!draft && !!draft.hasContent,
+  );
+
+  const [step, setStep] = useState(() => {
+    // STANDALONE mode owns the password, and a password is deliberately never
+    // persisted — so a restored draft always has an empty one. Resuming
+    // straight onto step 2/3 would hide that until the final submit failed
+    // with a "Password must be at least 8 characters" error pointing at a
+    // field on a step the applicant can't even see. Send them to step 1
+    // instead; every step-2/3 answer is still restored, so nothing is lost.
+    // (Embedded mode is exempt: its parent flow already collected both.)
+    if (!embedded) return FIRST_STEP;
+    // Clamp: never restore onto step 4 (the post-submit Verify screen) and
+    // never below this mode's first visible step.
+    const s = Number(draft?.step);
+    if (!Number.isFinite(s)) return FIRST_STEP;
+    return Math.min(Math.max(s, FIRST_STEP), 3);
+  });
   const [error, setError] = useState("");
   // An optional in-product next step to render beside `error`. Duplicate-account
   // errors are dead ends without one: the only "Log in" link on this page lives
@@ -176,7 +262,7 @@ export default function FacultySignup({
   const [submitting, setSubmitting] = useState(false);
 
   /* account */
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => draft?.email || "");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -187,13 +273,16 @@ export default function FacultySignup({
   const effectiveEmail = embedded ? presetEmail : email;
 
   /* teaching profile (scalars; documents are the base64 uploads below) */
-  const [f, setF] = useState({
+  const [f, setF] = useState(() => ({
     highest_degree: "", field_of_study: "", year_of_completion: "",
     teaching_certifications: "",
     experience_range: "", employment_status: "",
     currently_employed: false, current_institution: "", current_position: "",
     govt_id_type: "", id_number: "",
-  });
+    // Spread last so a restored draft wins — but `id_number` is never in the
+    // draft (see the DELIBERATELY NOT PERSISTED note above), so it stays "".
+    ...(draft?.f || {}),
+  }));
   const set = (k) => (e) => { setError(""); setF((p) => ({ ...p, [k]: e.target.value })); };
   const setVal = (k, v) => { setError(""); setF((p) => ({ ...p, [k]: v })); };
 
@@ -202,6 +291,7 @@ export default function FacultySignup({
     qualification_certificate: null,
     id_proof_front: null,
     id_proof_back: null,
+    signed_agreement: null,
   });
   const pickDoc = (key) => (e) => {
     setError("");
@@ -217,18 +307,30 @@ export default function FacultySignup({
       const url = String(reader.result || "");
       const base64 = url.includes(",") ? url.split(",")[1] : url;
       setDocs((p) => ({ ...p, [key]: { name: file.name, type: file.type || "application/octet-stream", data: base64 } }));
+      // Real bytes are attached now — drop the "re-attach this" reminder.
+      setStaleDocNames((p) => { const { [key]: _drop, ...rest } = p; return rest; });
     };
     reader.onerror = () => setError("Could not read that file. Please try again.");
     reader.readAsDataURL(file);
   };
-  const clearDoc = (key) => () => { setError(""); setDocs((p) => ({ ...p, [key]: null })); };
+  const clearDoc = (key) => () => {
+    setError("");
+    setDocs((p) => ({ ...p, [key]: null }));
+    setStaleDocNames((p) => { const { [key]: _drop, ...rest } = p; return rest; });
+  };
 
   /* Reusable file-upload control (uses the .fs-file-upload styles). */
   const docField = (key, labelText, cta) => {
     const d = docs[key];
+    const stale = !d && staleDocNames[key];
     return (
       <div className="fs-field">
         <label>{labelText} <span className="fs-opt">(optional)</span></label>
+        {stale && (
+          <p className="fs-hint" style={{ color: "var(--warn-text, #8a6d1f)", marginBottom: 6 }}>
+            Please re-attach <strong>{stale}</strong> — files aren't kept in a saved draft.
+          </p>
+        )}
         <label className={`fs-file-upload ${d ? "fs-selected" : ""}`}>
           <input type="file" accept={DOC_ACCEPT} onChange={pickDoc(key)} />
           <div className="fs-file-icon">
@@ -252,29 +354,137 @@ export default function FacultySignup({
     );
   };
 
-  /* course application */
-  const [subject, setSubject] = useState("");      // single-select
-  const [classes, setClasses] = useState([]);      // multi
-  const [streams, setStreams] = useState([]);      // multi
-  const toggle = (setter) => (v) =>
-    setter((arr) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]));
+  /* Course applications — a LIST. A faculty member commonly teaches more than
+     one subject, and this form used to capture exactly one, forcing everyone
+     to add the rest from /form-fillup after approval — which is also the form
+     a PENDING applicant cannot reach. Same {subject, classes, streams} shape
+     FormFillup's courseApps already uses, so the two agree. */
+  const blankApp = () => ({ subject: "", classes: [], streams: [] });
+  const [courseApps, setCourseApps] = useState(() => {
+    const saved = draft?.courseApps;
+    if (Array.isArray(saved) && saved.length) {
+      return saved.map((a) => ({
+        subject: a?.subject || "",
+        classes: Array.isArray(a?.classes) ? a.classes : [],
+        streams: Array.isArray(a?.streams) ? a.streams : [],
+      }));
+    }
+    // Migrate a draft written by the previous single-subject version instead
+    // of silently dropping what the applicant already filled in.
+    if (draft?.subject || draft?.classes?.length || draft?.streams?.length) {
+      return [{
+        subject: draft.subject || "",
+        classes: draft.classes || [],
+        streams: draft.streams || [],
+      }];
+    }
+    return [blankApp()];
+  });
+
+  const patchApp = (idx, key, value) => {
+    setError("");
+    setCourseApps((prev) => prev.map((a, i) => (i === idx ? { ...a, [key]: value } : a)));
+  };
+  const toggleIn = (idx, key) => (v) => {
+    setError("");
+    setCourseApps((prev) => prev.map((a, i) => {
+      if (i !== idx) return a;
+      const arr = a[key];
+      return { ...a, [key]: arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v] };
+    }));
+  };
+  const addApp = () => { setError(""); setCourseApps((p) => [...p, blankApp()]); };
+  const removeApp = (idx) => {
+    setError("");
+    setCourseApps((p) => (p.length <= 1 ? p : p.filter((_, i) => i !== idx)));
+  };
+  /* Subjects already claimed by another block — a duplicate row would just
+     show up twice in the admin review queue (the backend drops dupes too). */
+  const takenSubjects = (idx) =>
+    new Set(courseApps.filter((_, i) => i !== idx).map((a) => a.subject).filter(Boolean));
+
+  /* File names carried over from a restored draft — the bytes are never
+     persisted (quota), so these exist only to tell the applicant which
+     uploads to re-attach. Cleared per-key as soon as that file is re-picked. */
+  const [staleDocNames, setStaleDocNames] = useState(() => draft?.docNames || {});
 
   /* agreement */
   const [downloaded, setDownloaded] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [agreementText, setAgreementText] = useState(null);   // current published version
+  // Distinguishes "still loading" from "loaded, nothing published" — both
+  // used to look identical (agreementText === null), so a missing letter
+  // silently vanished the whole panel and signup proceeded anyway, bound to
+  // nothing. See the acknowledge-gate in submit() below.
+  const [agreementLoaded, setAgreementLoaded] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);  // site Terms of Use (new accounts only)
 
-  // Pull the live, admin-published Faculty Agreement so the applicant reads the
-  // exact current text (kept in sync with the admin editor). Falls back to the
-  // static PDF if nothing is published yet.
+  // Pull the live, admin-published Faculty Agreement so the applicant reads
+  // the exact current text, kept in sync with the admin editor — this text
+  // (not a separately downloaded file) is what "Print this agreement" below
+  // prints, so what's signed always matches what was actually shown.
   useEffect(() => {
     let cancelled = false;
     api.get("/accounts/agreements/faculty/")
       .then((res) => { if (!cancelled) setAgreementText(res.data?.current_version || null); })
-      .catch(() => { if (!cancelled) setAgreementText(null); });
+      .catch(() => { if (!cancelled) setAgreementText(null); })
+      .finally(() => { if (!cancelled) setAgreementLoaded(true); });
     return () => { cancelled = true; };
   }, []);
+
+  /* Autosave the draft on every change. Cheap (a few hundred bytes of JSON),
+     and wrapped because localStorage throws in private-browsing modes and
+     when the quota is hit — a failed save must never break the form. */
+  useEffect(() => {
+    const { id_number, ...safeF } = f;   // eslint-disable-line no-unused-vars
+    const docNames = Object.fromEntries(
+      Object.entries(docs).filter(([, v]) => v).map(([k, v]) => [k, v.name]),
+    );
+    // Only claim there's a draft worth restoring once something was actually
+    // typed — otherwise a first visit would show "we restored your draft".
+    const appsHaveContent = courseApps.some(
+      (a) => a.subject || a.classes.length || a.streams.length,
+    );
+    const hasContent = !!(
+      email || appsHaveContent ||
+      Object.values(safeF).some((v) => v !== "" && v !== false)
+    );
+    if (!hasContent) { clearDraft(); return; }
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        v: DRAFT_VERSION, savedAt: Date.now(), hasContent,
+        step, email, f: safeF, courseApps,
+        // Merge so a name survives until its file is actually re-attached.
+        docNames: { ...staleDocNames, ...docNames },
+      }));
+    } catch { /* private mode / quota — carry on without a draft */ }
+  }, [step, email, f, courseApps, docs, staleDocNames]);
+
+  /* Option lists, served from the model so they can't drift from what signup
+     validation actually accepts (see the FALLBACK note at the top of this
+     file). Failure is non-fatal — the fallback constants keep the form
+     usable, just with the narrower always-valid taxonomy. */
+  const [choices, setChoices] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    api.get("/accounts/faculty-choices/")
+      .then((res) => { if (!cancelled) setChoices(res.data || null); })
+      .catch(() => { if (!cancelled) setChoices(null); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const subjectGroups = (Array.isArray(choices?.subject_groups) && choices.subject_groups.length)
+    ? choices.subject_groups.map((g) => ({
+        group: g.group || "",
+        options: (g.options || []).map((o) => [o.value, o.label]),
+      }))
+    : FAC_SUBJECT_GROUPS;
+  const facClasses    = asPairs(choices?.classes,           FAC_CLASSES);
+  const facStreams    = asPairs(choices?.streams,           FAC_STREAMS);
+  const facDegrees    = asPairs(choices?.highest_degree,    FAC_DEGREES);
+  const facExperience = asPairs(choices?.experience_range,  FAC_EXPERIENCE);
+  const facEmployment = asPairs(choices?.employment_status, FAC_EMPLOYMENT);
+  const facGovtId     = asPairs(choices?.govt_id_type,      FAC_GOVT_ID);
 
   /* password strength 0–4 */
   const pwScore = (() => {
@@ -360,16 +570,26 @@ export default function FacultySignup({
     if (!f.year_of_completion) return setError("Enter your year of completion.");
     if (!f.experience_range) return setError("Select your experience range.");
     if (!f.employment_status) return setError("Select your employment status.");
-    if (!subject) return setError("Select the subject you want to teach.");
-    if (classes.length === 0) return setError("Select at least one class level.");
-    if (streams.length === 0) return setError("Select at least one stream.");
+    // Validate each subject block by position, so the message points at the
+    // one that's actually incomplete instead of just "select a subject".
+    for (let i = 0; i < courseApps.length; i++) {
+      const a = courseApps[i];
+      const where = courseApps.length > 1 ? ` for subject ${i + 1}` : "";
+      if (!a.subject) return setError(`Select the subject you want to teach${where}.`);
+      if (a.classes.length === 0) return setError(`Select at least one class level${where}.`);
+      if (a.streams.length === 0) return setError(`Select at least one stream${where}.`);
+    }
     go(3);
   };
 
   /* ── step 3 → submit → 4 ── */
   const submit = async () => {
+    if (agreementLoaded && !agreementText) {
+      setError("The faculty agreement isn't available right now. Please try again shortly, or contact support.");
+      return;
+    }
     if (!acknowledged) {
-      setError("Please confirm you'll download, sign, and upload the agreement after verifying your email.");
+      setError("Please confirm you'll print, sign, and upload the agreement after verifying your email.");
       return;
     }
     if (requireTerms && !termsAccepted) {
@@ -392,14 +612,18 @@ export default function FacultySignup({
       current_position: f.currently_employed ? f.current_position.trim() : "",
       govt_id_type: f.govt_id_type || "",
       id_number: f.id_number.trim(),
-      // One subject application (no boards — the design omits them). More can be
-      // added later from the dashboard /form-fillup form.
-      course_application: { subject, classes, streams },
+      // Every subject the applicant wants to teach (no boards — the design
+      // omits them). `_provision_faculty` creates one TeacherCourseApplication
+      // per entry and mirrors the FIRST onto the profile's headline fields.
+      course_applications: courseApps.map(({ subject, classes, streams }) => ({
+        subject, classes, streams,
+      })),
     };
 
     // Attach any uploaded documents (base64) — backend decodes + stores them.
     // Only include a key when a file was actually chosen.
-    for (const key of ["qualification_certificate", "id_proof_front", "id_proof_back"]) {
+    for (const key of ["qualification_certificate", "id_proof_front",
+                       "id_proof_back", "signed_agreement"]) {
       if (docs[key]) faculty_profile[key] = docs[key];   // { name, type, data }
     }
 
@@ -409,6 +633,9 @@ export default function FacultySignup({
         // creation; we just hand over the assembled application (+ whether
         // terms were accepted here, when this step is the one asking for it).
         await onSubmitProfile?.(faculty_profile, termsAccepted);
+        // Submitted for real — the draft has served its purpose. Clearing it
+        // here (not on unmount) means a FAILED submit keeps the draft intact.
+        clearDraft();
         setSubmitting(false);
         // Brand-new accounts see the Verify screen here; callers that navigate
         // away afterwards (e.g. add-a-track) pass showVerifyOnSuccess={false}.
@@ -422,6 +649,7 @@ export default function FacultySignup({
           faculty_profile,
           terms_accepted: termsAccepted,
         });
+        clearDraft();
         setSubmitting(false);
         go(4);
       }
@@ -548,6 +776,23 @@ export default function FacultySignup({
         {/* Content */}
         <main className="fs-content">
 
+          {/* A restored draft must be visible and escapable — silently
+              pre-filling someone else's half-finished application (shared
+              device) with no way out would be worse than losing it. */}
+          {draftRestored && step !== 4 && (
+            <div className="fs-draft-notice" role="status">
+              <span>
+                We brought back your saved answers. Attached files and your ID
+                number need re-entering.
+              </span>
+              <button type="button" onClick={() => {
+                clearDraft();
+                setDraftRestored(false);
+                window.location.reload();
+              }}>Start over</button>
+            </div>
+          )}
+
           {/* ── STEP 1: ACCOUNT (standalone only — embedded flows already have it) ── */}
           {!embedded && (
           <div className={`fs-screen ${step === 1 ? "fs-active" : ""}`}>
@@ -636,7 +881,7 @@ export default function FacultySignup({
               <label htmlFor="fs-deg">Highest degree <span className="fs-req">*</span></label>
               <select id="fs-deg" value={f.highest_degree} onChange={set("highest_degree")}>
                 <option value="">Select your highest qualification</option>
-                {FAC_DEGREES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                {facDegrees.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </div>
 
@@ -672,14 +917,14 @@ export default function FacultySignup({
                 <label htmlFor="fs-exp">Experience range <span className="fs-req">*</span></label>
                 <select id="fs-exp" value={f.experience_range} onChange={set("experience_range")}>
                   <option value="">Select range</option>
-                  {FAC_EXPERIENCE.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  {facExperience.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div className="fs-field">
                 <label htmlFor="fs-emp">Employment status <span className="fs-req">*</span></label>
                 <select id="fs-emp" value={f.employment_status} onChange={set("employment_status")}>
                   <option value="">Select status</option>
-                  {FAC_EMPLOYMENT.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  {facEmployment.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
             </div>
@@ -725,7 +970,7 @@ export default function FacultySignup({
                 <label htmlFor="fs-idtype">Government ID type <span className="fs-opt">(optional)</span></label>
                 <select id="fs-idtype" value={f.govt_id_type} onChange={set("govt_id_type")}>
                   <option value="">Select ID type</option>
-                  {FAC_GOVT_ID.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  {facGovtId.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div className="fs-field">
@@ -746,41 +991,77 @@ export default function FacultySignup({
               <div className="fs-section-divider-line" />
             </div>
 
-            <div className="fs-field">
-              <label>Subject <span className="fs-req">*</span></label>
-              <p className="fs-hint" style={{ marginBottom: 8 }}>Select the primary subject you want to teach.</p>
-              <div className="fs-tags-group">
-                {FAC_SUBJECTS.map((label) => {
-                  const v = subjectValue(label);
-                  return (
-                    <div key={v} className={`fs-tag-option ${subject === v ? "fs-selected" : ""}`}
-                      onClick={() => { setError(""); setSubject(v); }}>{label}</div>
-                  );
-                })}
-              </div>
-            </div>
+            {courseApps.map((app, idx) => {
+              const taken = takenSubjects(idx);
+              return (
+              <div key={idx} className="fs-course-app">
+                {courseApps.length > 1 && (
+                  <div className="fs-course-app-head">
+                    <span className="fs-course-app-title">Subject {idx + 1}</span>
+                    <button type="button" className="fs-course-app-remove"
+                      onClick={() => removeApp(idx)}>Remove</button>
+                  </div>
+                )}
 
-            <div className="fs-field">
-              <label>Classes <span className="fs-req">*</span></label>
-              <p className="fs-hint" style={{ marginBottom: 8 }}>Select all class levels you can teach.</p>
-              <div className="fs-tags-group">
-                {FAC_CLASSES.map(([v, l]) => (
-                  <div key={v} className={`fs-tag-option ${classes.includes(v) ? "fs-selected" : ""}`}
-                    onClick={() => { setError(""); toggle(setClasses)(v); }}>{l}</div>
-                ))}
-              </div>
-            </div>
+                <div className="fs-field">
+                  <label>Subject <span className="fs-req">*</span></label>
+                  <p className="fs-hint" style={{ marginBottom: 8 }}>
+                    {idx === 0
+                      ? "Select the main subject you want to teach."
+                      : "Select another subject you want to teach."}
+                  </p>
+                  {/* Grouped rather than one flat wall of chips — the taxonomy now
+                      covers school subjects, languages, commerce and competitive-exam
+                      prep, which is too many to scan unlabelled. The fallback list
+                      uses a single unnamed group, so it renders unchanged. */}
+                  {subjectGroups.map(({ group, options }) => (
+                    <div key={group || "all"} className="fs-subject-group">
+                      {group && <div className="fs-subject-group-label">{group}</div>}
+                      <div className="fs-tags-group">
+                        {options.map(([v, l]) => {
+                          // Claimed by another block — disabled rather than hidden,
+                          // so the list doesn't reshuffle as choices are made.
+                          const isTaken = taken.has(v);
+                          return (
+                            <div key={v}
+                              className={`fs-tag-option ${app.subject === v ? "fs-selected" : ""} ${isTaken ? "fs-tag-disabled" : ""}`}
+                              title={isTaken ? "Already added above" : undefined}
+                              onClick={() => { if (!isTaken) patchApp(idx, "subject", v); }}>{l}</div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-            <div className="fs-field">
-              <label>Streams <span className="fs-req">*</span></label>
-              <p className="fs-hint" style={{ marginBottom: 8 }}>Select all applicable academic streams.</p>
-              <div className="fs-tags-group">
-                {FAC_STREAMS.map(([v, l]) => (
-                  <div key={v} className={`fs-tag-option ${streams.includes(v) ? "fs-selected" : ""}`}
-                    onClick={() => { setError(""); toggle(setStreams)(v); }}>{l}</div>
-                ))}
+                <div className="fs-field">
+                  <label>Classes <span className="fs-req">*</span></label>
+                  <p className="fs-hint" style={{ marginBottom: 8 }}>Select all class levels you can teach for this subject.</p>
+                  <div className="fs-tags-group">
+                    {facClasses.map(([v, l]) => (
+                      <div key={v} className={`fs-tag-option ${app.classes.includes(v) ? "fs-selected" : ""}`}
+                        onClick={() => toggleIn(idx, "classes")(v)}>{l}</div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="fs-field">
+                  <label>Streams <span className="fs-req">*</span></label>
+                  <p className="fs-hint" style={{ marginBottom: 8 }}>Select all applicable academic streams.</p>
+                  <div className="fs-tags-group">
+                    {facStreams.map(([v, l]) => (
+                      <div key={v} className={`fs-tag-option ${app.streams.includes(v) ? "fs-selected" : ""}`}
+                        onClick={() => toggleIn(idx, "streams")(v)}>{l}</div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+              );
+            })}
+
+            <button type="button" className="fs-add-subject" onClick={addApp}>
+              + Add another subject
+            </button>
 
             {error && (
               <div className="fs-error">
@@ -807,32 +1088,59 @@ export default function FacultySignup({
             <div className="fs-form-header">
               <div className="fs-form-eyebrow">Step {dispNum(3)} of {totalSteps}</div>
               <h1 className="fs-form-title">Agreement letter</h1>
-              <p className="fs-form-subtitle">Download the faculty agreement and read it carefully. You'll sign it and upload the signed copy from your dashboard after verifying your email.</p>
+              <p className="fs-form-subtitle">Read the faculty agreement below and print it. You'll sign it and upload the signed copy from your dashboard after verifying your email.</p>
             </div>
 
-            {agreementText && (
-              <div className="fs-agreement-text"
+            {agreementText ? (
+              <div className="fs-agreement-text" id="fs-agreement-printable"
+                data-version={agreementText.version_number}
                 style={{ border: "1px solid #e2d9d3", borderRadius: 12, padding: "18px 20px", margin: "0 0 18px", maxHeight: 320, overflowY: "auto", lineHeight: 1.6, background: "#fff" }}>
                 <div style={{ fontWeight: 700, marginBottom: 8 }}>
                   {agreementText.title} <span style={{ fontSize: 12, color: "#9a8478" }}>· v{agreementText.version_number}</span>
                 </div>
                 <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderMarkdown(agreementText.body)) }} />
               </div>
+            ) : agreementLoaded && (
+              <div className="fs-agr-error" role="alert" style={{ color: "#c0392b", marginBottom: 18 }}>
+                The faculty agreement isn't available right now. Please try again shortly, or contact support.
+              </div>
             )}
 
             <div className="fs-agreement-step-card">
               <div className="fs-agr-step-num">1</div>
               <div className="fs-agr-step-body">
-                <strong>Download the agreement letter</strong>
-                <p>This document outlines the terms and conditions for faculty members on our platform. Please read it carefully before signing.</p>
-                <a className="fs-btn-primary" style={{ marginTop: 14, textDecoration: "none" }}
-                  href={AGREEMENT_PDF_URL} target="_blank" rel="noreferrer"
-                  onClick={() => setDownloaded(true)}>
-                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-                  Download Agreement (PDF)
-                </a>
-                {downloaded && (
-                  <div className="fs-agr-downloaded"><Check /> Agreement opened</div>
+                {/* Two authoring routes, both version-pinned: an admin either
+                    imported a file for this version (download it) or wrote the
+                    text in the CMS (print what's shown above). Either way the
+                    artifact matches the version number recorded on signing. */}
+                {agreementText?.document_url ? (
+                  <>
+                    <strong>Download the agreement letter</strong>
+                    <p>This is version {agreementText.version_number} of the faculty agreement — the exact document your application will be recorded against.</p>
+                    <a className="fs-btn-primary" style={{ marginTop: 14, textDecoration: "none" }}
+                      href={agreementText.document_url} target="_blank" rel="noreferrer"
+                      onClick={() => setDownloaded(true)}>
+                      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                      Download Agreement (v{agreementText.version_number})
+                    </a>
+                    {downloaded && (
+                      <div className="fs-agr-downloaded"><Check /> Agreement opened</div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <strong>Print the agreement letter</strong>
+                    <p>The text above is the current, admin-published version — printing it (rather than a separate downloaded file) guarantees you sign exactly what you were shown.</p>
+                    <button type="button" className="fs-btn-primary" style={{ marginTop: 14 }}
+                      disabled={!agreementText}
+                      onClick={() => { setDownloaded(true); window.print(); }}>
+                      <svg viewBox="0 0 24 24"><path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+                      Print Agreement (v{agreementText?.version_number ?? "…"})
+                    </button>
+                    {downloaded && (
+                      <div className="fs-agr-downloaded"><Check /> Print dialog opened</div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -840,8 +1148,8 @@ export default function FacultySignup({
             <div className="fs-agreement-step-card">
               <div className="fs-agr-step-num">2</div>
               <div className="fs-agr-step-body">
-                <strong>Print, sign, and photograph</strong>
-                <p>Print the agreement, sign it by hand, then take a clear photo or scan of the signed page. Ensure your signature is clearly visible.</p>
+                <strong>Sign and photograph</strong>
+                <p>Sign the printed agreement by hand, then take a clear photo or scan of the signed page. Ensure your signature is clearly visible.</p>
                 <div className="fs-agr-tips">
                   <div className="fs-agr-tip"><Check /> Good lighting, no shadows across signature</div>
                   <div className="fs-agr-tip"><Check /> Full page visible, not cropped</div>
@@ -854,11 +1162,20 @@ export default function FacultySignup({
               <div className="fs-agr-step-num">3</div>
               <div className="fs-agr-step-body">
                 <strong>Upload the signed agreement</strong>
-                <p>You'll upload the signed copy from your dashboard right after you verify your email — that's where document uploads (agreement, certificate, ID proof) are completed.</p>
+                {/* This used to be an acknowledge-only checkbox promising a
+                    dashboard upload that did not exist for a pending
+                    applicant — /form-fillup serves them the LEARNER form and
+                    the teacher editor 403s until the track is approved. The
+                    signed copy now rides the signup payload like the other
+                    documents, so it can genuinely be supplied here. */}
+                <p>Attach the signed copy now, or skip and upload it from your dashboard once your application is approved.</p>
+                {docField("signed_agreement", "Signed agreement", "Upload signed agreement")}
                 <label className="fs-checkbox-row">
                   <input type="checkbox" checked={acknowledged}
                     onChange={(e) => { setError(""); setAcknowledged(e.target.checked); }} />
-                  I understand I must download, sign, and upload the signed agreement from my dashboard after verifying my email.
+                  {docs.signed_agreement
+                    ? "I confirm this is the agreement I have read and signed."
+                    : "I understand I must print, sign, and upload the signed agreement before I can start teaching."}
                 </label>
               </div>
             </div>

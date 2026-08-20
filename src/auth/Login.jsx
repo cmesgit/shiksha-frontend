@@ -132,7 +132,7 @@ export default function Login() {
           {statusMsg && !error && (
             submitting
               ? <div className="af-status"><span className="af-status__spin" /></div>
-              : <div className="af-status">{statusMsg}</div>
+              : <div className="af-status-msg" role="status">{statusMsg}</div>
           )}
           <form onSubmit={submitEmail} style={{ display: "contents" }}>
             <Field id="lf-email" label="Email" type="email" value={email}
@@ -170,7 +170,7 @@ export default function Login() {
             {statusMsg && !error && (
               submitting
                 ? <div className="af-status"><span className="af-status__spin" /></div>
-                : <div className="af-status">{statusMsg}</div>
+                : <div className="af-status-msg" role="status">{statusMsg}</div>
             )}
             <div className="af-spacer" />
             <div className="af-actions">

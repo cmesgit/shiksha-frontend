@@ -11,7 +11,7 @@ import RequireProfileComplete from "../routes/RequireProfileComplete";
 import ProfileFillupModal from "./ProfileFillupModal";
 import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
-import { APP_DASHBOARD_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
+import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../config/urls";
 import Profile from "../pages/Profile";
 import { ExploreProvider } from "../explore/ExploreStore";
 import ExploreToolbar from "../explore/ExploreToolbar";
@@ -163,17 +163,19 @@ function RedirectExternal({ to }) {
 // forum/explore/etc. returns there. Only when there is NO in-app destination do
 // we fall back to the context dashboard (the old always-dashboard behaviour).
 function LoginRedirect() {
-  const { isLearnerContext, isTeacherContext } = useAuth();
+  const { isLearnerContext, isTeacherContext, teacherInfo } = useAuth();
   const location = useLocation();
 
   const next = new URLSearchParams(location.search).get("next");
   let stored = null;
   try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
-  const target = next || stored;
-  // Only honour a safe same-site path — never an absolute/protocol-relative URL,
-  // and never bounce straight back into an auth/profile-gate page.
-  const isLocalTarget = !!target && target.startsWith("/") && !target.startsWith("//")
-    && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(target);
+  // `next` only wins when it's actually usable — otherwise an attacker-supplied
+  // (or just stale) unsafe `?next=` would discard a legitimately stored
+  // destination and leave it stranded for the next login in this tab.
+  const isSafe = (v) => !!v && v.startsWith("/") && !v.startsWith("//")
+    && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
+  const target = isSafe(next) ? next : (isSafe(stored) ? stored : null);
+  const isLocalTarget = !!target;
 
   useEffect(() => {
     if (isLocalTarget && stored) {
@@ -183,7 +185,10 @@ function LoginRedirect() {
 
   if (isLocalTarget) return <Navigate to={target} replace />;
   if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
-  if (isTeacherContext) return <RedirectExternal to={TEACHER_DASHBOARD_URL} />;
+  if (isTeacherContext) {
+    const track = teacherInfo?.active_track;
+    return <RedirectExternal to={track === "skill" ? TEACHER_SKILL_URL : TEACHER_ACADEMY_URL} />;
+  }
   return <Navigate to="/pick-profile" replace />;
 }
 
