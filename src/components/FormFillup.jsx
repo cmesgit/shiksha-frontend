@@ -66,13 +66,21 @@ const TEACHER_FIELDS = {
    accounts/models.py. Kept as the conservative always-valid set so the form
    still works if that request fails; see FacultySignup.jsx's note on the
    drift these hardcoded copies already caused. */
+/* Mirrors accounts/models.py SUBJECT_GROUPS exactly (17 values). `science`,
+   `civics` and `sociology` were missing here while `computer_science` was
+   present but is no longer a valid choice — a fallback that offers an invalid
+   value is worse than no fallback, since the applicant only finds out when the
+   server rejects the submission. */
 const FALLBACK_SUBJECTS = [
-  ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
-  ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
-  ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
-  ["economics", "Economics"], ["computer_science", "Computer Science"],
+  ["mathematics", "Mathematics"], ["science", "Science (general)"],
+  ["physics", "Physics"], ["chemistry", "Chemistry"], ["biology", "Biology"],
+  ["english", "English"], ["hindi", "Hindi"],
+  ["social_science", "Social Science"], ["history", "History"],
+  ["geography", "Geography"], ["civics", "Civics"],
+  ["political_science", "Political Science"], ["economics", "Economics"],
+  ["sociology", "Sociology"],
   ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
-  ["political_science", "Political Science"], ["other", "Other"],
+  ["other", "Other"],
 ];
 
 /* ── Draft autosave ────────────────────────────────────────────────────────

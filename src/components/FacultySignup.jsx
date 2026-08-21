@@ -72,15 +72,31 @@ const FAC_EMPLOYMENT = [
 const FAC_GOVT_ID = [
   ["aadhaar", "Aadhaar"], ["pan", "PAN"], ["voter_id", "Voter ID"], ["driving_license", "Driving License"],
 ];
-/* One unnamed group so the grouped renderer can handle fallback unchanged. */
+/* Fallback only — the real list is served by getFacultyChoices() off
+   accounts/models.py SUBJECT_GROUPS. Mirrors it exactly (17 values in 5
+   groups): `science`, `civics` and `sociology` were missing here, and
+   `computer_science` was offered but is no longer a valid choice — a fallback
+   that offers an invalid value is worse than no fallback, because the
+   applicant only discovers it when the server rejects their submission. */
 const FAC_SUBJECT_GROUPS = [
-  { group: "", options: [
-    ["mathematics", "Mathematics"], ["physics", "Physics"], ["chemistry", "Chemistry"],
-    ["biology", "Biology"], ["english", "English"], ["hindi", "Hindi"],
-    ["social_science", "Social Science"], ["history", "History"], ["geography", "Geography"],
-    ["economics", "Economics"], ["computer_science", "Computer Science"],
+  { group: "Science & Mathematics", options: [
+    ["mathematics", "Mathematics"], ["science", "Science (general)"],
+    ["physics", "Physics"], ["chemistry", "Chemistry"], ["biology", "Biology"],
+  ] },
+  { group: "Languages", options: [
+    ["english", "English"], ["hindi", "Hindi"],
+  ] },
+  { group: "Social Studies", options: [
+    ["social_science", "Social Science"], ["history", "History"],
+    ["geography", "Geography"], ["civics", "Civics"],
+    ["political_science", "Political Science"], ["economics", "Economics"],
+    ["sociology", "Sociology"],
+  ] },
+  { group: "Commerce", options: [
     ["accountancy", "Accountancy"], ["business_studies", "Business Studies"],
-    ["political_science", "Political Science"], ["other", "Other"],
+  ] },
+  { group: "Other", options: [
+    ["other", "Other"],
   ] },
 ];
 /* [value, label] — value is what we store, label is what we show. */
