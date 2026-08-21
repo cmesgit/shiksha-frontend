@@ -175,7 +175,34 @@ function clearDraft() {
   try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
 }
 
+/* Why this is more than `err.message`:
+   this form base64-encodes up to FOUR 5 MB documents into one JSON body, so a
+   real application can weigh ~28 MB. When the server's body limit is smaller,
+   nginx rejects it with a 413 BEFORE Django ever sees it — and an nginx error
+   page carries no CORS headers, so the browser refuses to expose the response
+   and axios reports a bare "Network Error" with `response` undefined.
+   An applicant who has just filled in three steps then gets two useless words.
+   Both the explicit 413 and the response-less case now say what to actually do.
+
+   AuthContext.signup rejects with { message, raw }, so the original axios error
+   is still reachable through `raw`. */
+const TOO_LARGE_MSG =
+  "Your attached documents are too large to upload together. Remove one, or attach " +
+  "smaller files (each under 5 MB), and try again.";
+
 function readErr(err, fallback) {
+  const axiosErr = err?.raw ?? err;
+  const status = axiosErr?.response?.status;
+  const hadResponse = Boolean(axiosErr?.response);
+
+  if (status === 413) return TOO_LARGE_MSG;
+  if (axiosErr?.request && !hadResponse) {
+    return (
+      "Couldn't reach the server. If you attached documents they may be too " +
+      "large — try smaller files. Otherwise check your connection and try again."
+    );
+  }
+
   const raw = err?.message ?? err;
   return raw instanceof Error ? raw.message : typeof raw === "string" ? raw : fallback;
 }
