@@ -199,16 +199,23 @@
 
 /* ── Desktop pill nav ── */
 .skn-pillnav {
-  flex: 1;
+  /* The pill's content (Courses/Resources/About) has a fixed natural width —
+     376px — and nothing inside it can shrink. This used to be `flex: 1` with
+     `overflow: hidden`, which meant the nav absorbed every squeeze in the bar
+     and then clipped itself. Because it also centres its content, the clip
+     took bites out of BOTH ends, so the pill's left edge cut across the brand
+     logo: a hard vertical edge over the wordmark. Measured at 1025px with a
+     logged-in account name, the nav was handed 92px for 376px of content and
+     overlapped the brand by 126px. It clipped at every desktop width, 1425
+     included — not just narrow ones.
+
+     Primary navigation is the wrong thing to sacrifice, so it now takes its
+     natural width and never clips. The squeeze moves to .skn-actions, where
+     the search field can genuinely give (see below). */
+  flex: 0 0 auto;
   display: flex;
   justify-content: center;
   min-width: 0;
-  /* .skn-pill's content (Courses/Resources/About) has a natural width that
-     doesn't shrink. When a long account name in .skn-actions squeezes this
-     container below that width, `justify-content: center` would otherwise
-     let the pill bleed out symmetrically — overlapping the brand logo/
-     subtitle to its left instead of just clipping on its own. */
-  overflow: hidden;
 }
 .skn-pill {
   display: flex;
@@ -262,7 +269,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: none;
+  /* Was `flex: none`, which is what forced the nav to absorb every squeeze:
+     this cluster is 486px and simply refused to give any of it back. It now
+     shrinks, and `min-width: 0` is what actually lets that happen — without
+     it the default `min-width: auto` floors a flex item at its content size. */
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .skn-search {
@@ -270,6 +282,12 @@
   align-items: center;
   gap: 9px;
   width: 250px;
+  /* The search box is the one genuinely elastic control in the bar — a
+     narrower field still works, whereas the nav pill and the account cluster
+     both have irreducible content. So it absorbs the squeeze, down to a floor
+     that keeps the placeholder readable, before anything else has to give. */
+  flex: 1 1 auto;
+  min-width: 150px;
   background: rgba(246, 250, 247, 0.9);
   border: 1px solid var(--sk-line);
   border-radius: 999px;
@@ -389,6 +407,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* The account name is already capped and ellipsised in ProfileSwitcher.css,
+     but only min-width:0 lets that cap actually bind here — otherwise this
+     cluster reports its full content width to the bar and the ellipsis never
+     engages. This is what stops a long name widening the whole bar. */
+  min-width: 0;
+}
+.skn-authed .ps-root,
+.skn-authed .ps-trigger,
+.skn-authed .ps-trigger__txt {
+  min-width: 0;
 }
 
 /* Moderator/Admin link — small, unobtrusive icon button next to the
