@@ -118,6 +118,9 @@ export const toFeaturedCard = (c) => ({
   count: c.review_count,
   title: c.title,
   fact: c.fact_line,
+  // A course linked to a free card sends the literal "Free" rather than a
+  // formatted amount, so the card can say so instead of rendering "₹0".
+  free: c.price_label === "Free",
   price: c.price_label ? c.price_label.replace(/^₹/, "").replace(/\/month$/, "") : undefined,
   tutor: c.tutor_name || undefined,
   explore: !!c.is_explore_card,
