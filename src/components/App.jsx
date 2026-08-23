@@ -74,12 +74,7 @@ const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
-const About            = lazy(() => import("./About"));
 const About2           = lazy(() => import("./About2"));
-const Vision           = lazy(() => import("./Vision"));
-const Mission          = lazy(() => import("./Mission"));
-const Values           = lazy(() => import("./Values"));
-const WhySiksha        = lazy(() => import("./WhySiksha"));
 const Contact          = lazy(() => import("./Contact"));
 const TermsCondition   = lazy(() => import("./TermsCondition"));
 const Faq              = lazy(() => import("./Faq"));
@@ -110,9 +105,44 @@ const ForumProfilePage  = lazy(() => import("../forum/pages/ProfilePage"));
 const UserProfilePage   = lazy(() => import("../forum/pages/UserProfilePage"));
 const ForumDashboardPage = lazy(() => import("../forum/pages/DashboardPage"));
 
+/* Scroll behaviour on navigation.
+   This used to jump to the top on every pathname change and ignore the hash
+   entirely, which broke every in-page anchor on the site: a deep link like
+   /about#why-shiksha landed at the top of the page, because the browser's own
+   hash scroll happens before React has rendered the target and this effect
+   then reset the position to 0.
+   Now a hash wins when its target exists, and lazy routes mean the target
+   often isn't in the DOM on the first frame — so we retry briefly before
+   giving up and going to the top. */
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo(0, 0);
+      return undefined;
+    }
+
+    const id = decodeURIComponent(hash.slice(1));
+    let frame = 0;
+    let raf;
+
+    const tryScroll = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      // ~1s of frames: enough for a lazy route chunk to land, short enough
+      // that a genuinely missing anchor doesn't leave the page stuck.
+      if (frame++ < 60) raf = requestAnimationFrame(tryScroll);
+      else window.scrollTo(0, 0);
+    };
+
+    raf = requestAnimationFrame(tryScroll);
+    return () => cancelAnimationFrame(raf);
+  }, [pathname, hash]);
+
   return null;
 }
 
@@ -284,11 +314,22 @@ function App() {
         } />
 
         {/* Public content pages */}
-        <Route path="/about"           element={<Page><About2 /><About /></Page>} />
-        <Route path="/vision"          element={<Page><Vision /></Page>} />
-        <Route path="/mission"         element={<Page><Mission /></Page>} />
-        <Route path="/values"          element={<Page><Values /></Page>} />
-        <Route path="/why-shiksha"     element={<Page><WhySiksha /></Page>} />
+        {/* About.jsx was gutted to `() => null` long ago; mounting it here
+            only cost a lazy chunk fetch that rendered nothing. */}
+        <Route path="/about"           element={<Page><About2 /></Page>} />
+        {/* These four were standalone pages that hand-copied the matching
+            /about section. They had already drifted apart — /why-shiksha
+            showed Interactive Courses' description under "Personalized
+            Dashboards", and /vision's second bullet had gained a clause the
+            About page never had. Now that /about is CMS-driven, keeping four
+            hardcoded copies would guarantee they drift again and would make
+            an editor's change look like it silently did nothing. Nothing
+            links here except the homepage's Why Choose CTA; redirecting
+            keeps every existing URL and bookmark working. */}
+        <Route path="/vision"          element={<Navigate to="/about#vision" replace />} />
+        <Route path="/mission"         element={<Navigate to="/about#mission" replace />} />
+        <Route path="/values"          element={<Navigate to="/about#values" replace />} />
+        <Route path="/why-shiksha"     element={<Navigate to="/about#why-shiksha" replace />} />
         <Route path="/contact"         element={<Page><Contact /></Page>} />
         <Route path="/terms"           element={<Page><TermsCondition /></Page>} />
         <Route path="/faq"             element={<Page><Faq /></Page>} />
