@@ -512,7 +512,10 @@ export default function FeaturedCourses() {
     return () => { cancelled = true; };
   }, []);
 
-  const visible = courses.filter((c) => c.cats.includes(activeTab));
+  const visible =
+    activeTab === "all"
+      ? courses
+      : courses.filter((c) => c.cats.includes(activeTab));
 
   const goToCourse = (c) => {
     if (c.courseId) navigate(`/courses/${c.courseId}`);
