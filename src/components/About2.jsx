@@ -148,25 +148,32 @@ const About2 = () => {
       return undefined;
     }
 
-    // Same imperative reveal-on-scroll used by Cta.jsx / WhyChooseShiksha.jsx
-    // / TeachersStudents.jsx etc.: every .rv on this page has a static
-    // className (nothing here re-renders className from other state the way
-    // Faq's open/closed cards do), so classList.add("in") is safe and this
-    // page doesn't need Faq's React-state workaround.
+    // Same imperative reveal-on-scroll the homepage sections use: the
+    // observer adds `.in` via classList rather than React state.
+    //
+    // That imperative class is fragile here in a way it isn't on a static
+    // page. Each CMS fetch resolving triggers a re-render, and React then
+    // re-applies the JSX className ("sec-head rv"), silently dropping an
+    // `.in` it never knew about. Anything already revealed AND unobserved at
+    // that moment is stranded at opacity:0 forever — which is exactly what
+    // happened to the hero heading: visible at mount, revealed, unobserved,
+    // then wiped by the first fetch and never re-revealed.
+    //
+    // So: don't unobserve, and re-run whenever the fetched content changes.
+    // classList.add is idempotent, so re-observing costs nothing and the
+    // reveal survives every re-render.
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("in");
-            io.unobserve(entry.target);
-          }
+          if (entry.isIntersecting) entry.target.classList.add("in");
         });
       },
       { threshold: 0.12 }
     );
     root.querySelectorAll(".rv").forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [hero.block, vision.block, mission.block, values.block, why.block,
+      hero.items, vision.items, mission.items, values.items, why.items]);
 
   // ── Hero ──
   const heroEyebrow = hero.block?.eyebrow || HERO_DEFAULTS.eyebrow;
