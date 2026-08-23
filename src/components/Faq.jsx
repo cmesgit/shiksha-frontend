@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../css/Faq.css';
+import { getFaqs } from '../api/contentApi';
 
-const faqData = [
+// Default icons cycled onto whichever FAQ items are rendered, static or
+// CMS-sourced — the CMS rows carry no icon field of their own.
+const DEFAULT_ICONS = ['fa-book-open', 'fa-user-plus', 'fa-video', 'fa-rotate-left'];
+
+// Same static fallback as before — replaced wholesale by CMS rows for
+// page="general" the moment any are published, matching home/Faq.jsx's
+// "replace-if-present" convention.
+const DEFAULT_FAQS = [
   {
     icon: 'fa-book-open',
     question: 'What courses does the coaching provide?',
@@ -32,6 +40,29 @@ const accents = ['#60a5fa', '#34d399', '#fbbf24', '#a78bfa'];
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const [faqData, setFaqData] = useState(() =>
+    DEFAULT_FAQS.map((f) => ({ q: f.question, a: f.answer, icon: f.icon, html: false }))
+  );
+
+  useEffect(() => {
+    let alive = true;
+    getFaqs('general').then((rows) => {
+      if (alive && rows.length) {
+        setFaqData(
+          rows.map((r, i) => ({
+            q: r.question,
+            a: r.answer_html,
+            icon: DEFAULT_ICONS[i % DEFAULT_ICONS.length],
+            html: true,
+          }))
+        );
+        setActiveIndex(null);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const toggle = (i) => setActiveIndex(activeIndex === i ? null : i);
 
@@ -67,7 +98,7 @@ const FAQ = () => {
                   <div className="faq-q-icon">
                     <i className={`fa-solid ${faq.icon}`} />
                   </div>
-                  <span className="faq-q-text">{faq.question}</span>
+                  <span className="faq-q-text">{faq.q}</span>
                   <div className="faq-chevron">
                     <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
                       <polyline points="2,4 6,8 10,4" />
@@ -77,7 +108,11 @@ const FAQ = () => {
 
                 <div className={`faq-body ${isOpen ? 'open' : ''}`}>
                   <div className="faq-body-inner">
-                    <p className="faq-a">{faq.answer}</p>
+                    {faq.html ? (
+                      <p className="faq-a" dangerouslySetInnerHTML={{ __html: faq.a }} />
+                    ) : (
+                      <p className="faq-a">{faq.a}</p>
+                    )}
                   </div>
                 </div>
               </div>

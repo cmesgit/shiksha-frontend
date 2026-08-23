@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 import { FEATURED_COURSES, COURSE_TABS } from "./homeData";
 import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
+import { useHomeContent } from "../../hooks/useHomeContent";
 
 // Featured Courses — self-contained. Markup + full stylesheet unchanged from the
 // original ShikshaCom page, so this renders correctly on its own with no deps.
@@ -493,12 +494,29 @@ function CourseCard({ course: c, saved, onToggleSave, onAction }) {
   );
 }
 
+// Same static fallback as the original homepage — replaced by the CMS
+// "featured_courses" content block the moment it's populated, matching the
+// "replace-if-present" convention used by Cta/Resources/WhyChooseShiksha.
+const DEFAULTS = {
+  eyebrow: "Featured Courses",
+  heading: "Explore our",
+  heading_secondary: "popular courses",
+  subhead:
+    "Some of our most popular academic and competitive programs, built to help learners succeed with structured guidance.",
+};
+
 export default function FeaturedCourses() {
   const rootRef = useRef(null);
   const navigate = useNavigate();
+  const { block } = useHomeContent("featured_courses");
   const [courses, setCourses] = useState(FEATURED_COURSES);
   const [activeTab, setActiveTab] = useState("all");
   const [saved, setSaved] = useState(() => new Set());
+
+  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
+  const heading = block?.heading || DEFAULTS.heading;
+  const headingSecondary = block?.heading_secondary || DEFAULTS.heading_secondary;
+  const subhead = block?.subhead || DEFAULTS.subhead;
 
   // Paint immediately with the curated fallback (homeData.js), then swap in
   // real CMS showcase rows if the backend has any active ones — see
@@ -554,9 +572,9 @@ export default function FeaturedCourses() {
       <section className="sec" id="courses" ref={rootRef}>
         <div className="wrap">
           <div className="sec-head rv">
-            <span className="eyebrow"><u>Featured Courses</u></span>
-            <h2>Explore our <span className="em">popular courses</span></h2>
-            <p>Some of our most popular academic and competitive programs, built to help learners succeed with structured guidance.</p>
+            <span className="eyebrow"><u>{eyebrow}</u></span>
+            <h2>{heading}{headingSecondary ? <> <span className="em">{headingSecondary}</span></> : null}</h2>
+            <p>{subhead}</p>
           </div>
 
           <div className="fc-tabs rv" role="tablist" aria-label="Filter courses">

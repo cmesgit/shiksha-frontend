@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getFaqs } from "../../api/contentApi";
+import { useHomeContent } from "../../hooks/useHomeContent";
 
 /* Section-scoped styles, ported from the design handoff's Faq.jsx — shared
    tokens (--coral, --line-2, etc.) come from ShikshaHome.css, imported once
@@ -35,8 +36,18 @@ const DEFAULT_FAQS = [
   { q: "Can I learn on my mobile phone?", a: "Yes. ShikshaCom works on any device — phone, tablet or computer — so you can attend live classes and watch recordings wherever you are." },
 ];
 
+// Same static fallback as the original homepage — replaced by the CMS
+// "faq" content block the moment it's populated, matching the
+// "replace-if-present" convention used by Cta/Resources/WhyChooseShiksha.
+const DEFAULTS = {
+  eyebrow: "Frequently Asked Questions",
+  heading: "Have questions?",
+  heading_secondary: "We've got answers.",
+};
+
 export default function Faq() {
   const rootRef = useRef(null);
+  const { block } = useHomeContent("faq");
   const [open, setOpen] = useState(-1);
   const bodies = useRef([]);
   const [items, setItems] = useState(() =>
@@ -55,6 +66,10 @@ export default function Faq() {
   // too". The observer had already unobserve()d it, so it never came back.
   // Keeping the class in React's hands makes that unfixable-by-accident.
   const [revealed, setRevealed] = useState(() => new Set());
+
+  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
+  const heading = block?.heading || DEFAULTS.heading;
+  const headingSecondary = block?.heading_secondary || DEFAULTS.heading_secondary;
 
   useEffect(() => {
     let alive = true;
@@ -118,8 +133,8 @@ export default function Faq() {
       <section className="sec" ref={rootRef}>
         <div className="wrap">
           <div className="sec-head rv">
-            <span className="eyebrow"><u>Frequently Asked Questions</u></span>
-            <h2>Have questions? <span className="em">We've got answers.</span></h2>
+            <span className="eyebrow"><u>{eyebrow}</u></span>
+            <h2>{heading}{headingSecondary ? <> <span className="em">{headingSecondary}</span></> : null}</h2>
           </div>
           <div className="faq">
             {items.map((item, i) => {

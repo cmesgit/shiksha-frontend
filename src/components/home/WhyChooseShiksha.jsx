@@ -106,6 +106,9 @@ export default function WhyChooseShiksha() {
 
   const eyebrow = block?.eyebrow || "Why ShikshaCom";
   const heading = block?.heading || "Why choose ShikshaCom?";
+  const body =
+    block?.body ||
+    "ShikshaCom brings structured learning, expert mentorship and flexible digital education together — an engaging way to learn for school and everything after it.";
   const ctaLabel = block?.cta_primary_label || "More details";
   const ctaHref = block?.cta_primary_href || "/why-shiksha";
   const checks = items.length ? items : DEFAULT_ITEMS;
@@ -170,7 +173,7 @@ export default function WhyChooseShiksha() {
               <div className="why-copy rv">
                 <span className="eyebrow"><u>{eyebrow}</u></span>
                 <h2>{heading}</h2>
-                <p>ShikshaCom brings structured learning, expert mentorship and flexible digital education together — an engaging way to learn for school and everything after it.</p>
+                <p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />
                 <div className="checks">
                   {checks.map((c, i) => (
                     <div className="check" key={c.id ?? i}>
