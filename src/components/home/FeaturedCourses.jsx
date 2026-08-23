@@ -482,7 +482,15 @@ function CourseCard({ course: c, saved, onToggleSave, onAction }) {
             </button>
           ) : (
             <>
-              <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
+              {/* A linked course that costs nothing must read "Free", not
+                  "₹0 /month" — the platform is free at launch
+                  (GlobalSettings.live_launch_free_mode), so zero is the real
+                  price rather than missing data. */}
+              {c.free ? (
+                <span className="fc-price">Free</span>
+              ) : (
+                <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
+              )}
               <button type="button" className="fc-enroll" onClick={() => onAction(c)}>
                 Enroll now <ArrowSVG />
               </button>
