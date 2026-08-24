@@ -189,7 +189,7 @@ function priceBlock(cls) {
   );
 }
 
-function CourseCard({ cls, board, onOpen, onEnroll, onNotify, enrollmentStatus }) {
+function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enrollmentStatus }) {
   const isEnrolled = enrollmentStatus === 'APPROVED';
   const isPending = enrollmentStatus === 'PENDING';
   let enrollLabel = 'Enroll now';
@@ -234,6 +234,18 @@ function CourseCard({ cls, board, onOpen, onEnroll, onNotify, enrollmentStatus }
             {cls.seatsLeft} seat{cls.seatsLeft === 1 ? '' : 's'} left
           </div>
         )}
+        {/* The chapter-wise breakdown used to be reachable only by opening the
+            quick-view dialog first, which meant nobody browsing the grid could
+            tell what a course actually covers. Sits above the price divider
+            rather than in the footer, which is already a two-up price/enroll
+            row and has no space for a third control. */}
+        <button
+          type="button"
+          className="uc-gridcard__syllabus"
+          onClick={(e) => { e.stopPropagation(); onSyllabus(cls); }}
+        >
+          View syllabus <ArrowIcon />
+        </button>
         <div className="uc-gridcard__spacer" />
         <div className="uc-gridcard__foot">
           {cls.isComingSoon ? (
@@ -518,6 +530,7 @@ const UnifiedCatalog = ({
                 onOpen={(c) => onToggleExpand(c.id, true)}
                 onEnroll={onEnroll}
                 onNotify={setNotifyCourse}
+                onSyllabus={onSyllabus}
                 enrollmentStatus={enrollmentStatusByCourseId[cls.courseIds?.[selectedBoard]]}
               />
             ))}

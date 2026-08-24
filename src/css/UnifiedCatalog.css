@@ -123,6 +123,17 @@
 .uc-gridcard__seats { margin-top: 5px; font-size: 11px; font-weight: 700; color: var(--sk-green-dark); }
 .uc-gridcard__seats--low { color: var(--sk-red); }
 .uc-gridcard__spacer { flex: 1; }
+/* Quiet text-button, not a second CTA — the enroll button below it stays the
+   card's only filled action. */
+.uc-gridcard__syllabus {
+  align-self: flex-start; margin-top: 8px; padding: 0; border: none; background: none;
+  font-family: var(--sk-font); font-weight: 700; font-size: 11.5px; cursor: pointer;
+  color: var(--sk-green-dark); display: inline-flex; align-items: center; gap: 4px;
+  transition: gap .2s, opacity .2s;
+}
+.uc-gridcard__syllabus:hover { gap: 7px; opacity: .78; text-decoration: underline; }
+.uc-gridcard__syllabus svg { width: 11px; height: 11px; }
+
 .uc-gridcard__foot {
   display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 14px;
   border-top: 1.5px dashed var(--sk-line); padding-top: 13px;
