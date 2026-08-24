@@ -14,6 +14,10 @@ import img5 from "../assets/about-us/sticker_1.png";
 import visionImg from "../assets/meet.jpeg";
 import valuesImg from "../assets/studio.jpeg";
 
+// Deliberately not sequential — this is the order the row was designed in.
+// Kept as the fallback for when the CMS has no sticker rows.
+const STICKERS_DEFAULT = [img1, img2, img3, img4, img5];
+
 /* Every string below is a fallback only — the CMS ("about_hero",
    "about_vision", "about_mission", "about_values", "about_why" home-content
    sections) supplies the live copy the moment rows exist. With an empty CMS
@@ -186,12 +190,28 @@ const About2 = () => {
   const heroHeadingSecondary = hero.block?.heading_secondary || HERO_DEFAULTS.heading_secondary;
   const heroSubhead = hero.block?.subhead || HERO_DEFAULTS.subhead;
 
+  // The sticker row. Same replace-if-present rule as every list above: swap
+  // the whole row only when the CMS has stickers, so a half-populated section
+  // can't leave gaps between bundled and uploaded artwork.
+  //
+  // `img` is "" when an editor made a row but attached nothing, which would
+  // render a broken <img>, so those are dropped rather than shown empty.
+  const heroCmsStickers = hero.items.filter(
+    (i) => i.variant === "sticker" && i.img
+  );
+  const heroStickers = heroCmsStickers.length > 0
+    ? heroCmsStickers.map((i) => ({ key: i.id, src: i.img, alt: i.title }))
+    : STICKERS_DEFAULT.map((src, i) => ({ key: i, src, alt: "" }));
+
   // ── Vision ──
   const visionEyebrow = vision.block?.eyebrow || VISION_DEFAULTS.eyebrow;
   const visionHeading = vision.block?.heading || VISION_DEFAULTS.heading;
   const visionHeadingSecondary = vision.block?.heading_secondary || VISION_DEFAULTS.heading_secondary;
   const visionSubhead = vision.block?.subhead || VISION_DEFAULTS.subhead;
   const visionListLabel = vision.block?.extra?.list_label || VISION_DEFAULTS.list_label;
+  // HomeContentBlock has carried image/image_url all along; this page just
+  // never read it, so the photo could only be changed with a deploy.
+  const visionImage = vision.block?.img || visionImg;
   const visionCmsBullets = vision.items.filter((i) => i.variant === "default");
   const visionUsingCms = visionCmsBullets.length > 0;
   const visionBullets = visionUsingCms ? visionCmsBullets : VISION_BULLETS_DEFAULT;
@@ -211,6 +231,7 @@ const About2 = () => {
   const valuesSubhead = values.block?.subhead || VALUES_DEFAULTS.subhead;
   const valuesListLabel = values.block?.extra?.list_label || VALUES_DEFAULTS.list_label;
   const valuesListLabelSecondary = values.block?.extra?.list_label_secondary || VALUES_DEFAULTS.list_label_secondary;
+  const valuesImage = values.block?.img || valuesImg;
   const valuesCmsCore = values.items.filter((i) => i.variant === "default");
   const valuesUsingCms = valuesCmsCore.length > 0;
   const valuesCore = valuesUsingCms ? valuesCmsCore : VALUES_CORE_DEFAULT;
@@ -239,9 +260,9 @@ const About2 = () => {
             <p>{heroSubhead}</p>
           </div>
           <div className="ap-img-row rv">
-            {[img1, img2, img3, img4, img5].map((img, i) => (
-              <div className="ap-img-wrap" key={i} style={{ "--i": i }}>
-                <img src={img} alt={`classroom ${i + 1}`} />
+            {heroStickers.map((s, i) => (
+              <div className="ap-img-wrap" key={s.key} style={{ "--i": i }}>
+                <img src={s.src} alt={s.alt || `classroom ${i + 1}`} />
                 <div className="ap-img-overlay"></div>
               </div>
             ))}
@@ -267,7 +288,7 @@ const About2 = () => {
               </ul>
             </div>
             <div className="ap-card-img">
-              <img src={visionImg} alt="Vision" />
+              <img src={visionImage} alt="Vision" />
               <div className="ap-img-shine"></div>
             </div>
           </div>
@@ -314,7 +335,7 @@ const About2 = () => {
           </div>
           <div className="ap-card ap-row ap-row-reverse rv">
             <div className="ap-card-img">
-              <img src={valuesImg} alt="Values" />
+              <img src={valuesImage} alt="Values" />
               <div className="ap-img-shine"></div>
             </div>
             <div className="ap-card-text">
@@ -355,6 +376,14 @@ const About2 = () => {
                 style={{ "--delay": `${i * 90}ms` }}
               >
                 <span className="ap-why-num">{String(i + 1).padStart(2, "0")}</span>
+                {/* Optional per-card artwork. These cards ship number-only, so
+                    this renders nothing at all unless an editor attaches an
+                    image — the default look is unchanged. */}
+                {f.img ? (
+                  <div className="ap-why-img">
+                    <img src={f.img} alt="" />
+                  </div>
+                ) : null}
                 <h3 className="ap-why-title">{f.title}</h3>
                 <RichBody as="p" className="ap-why-desc" html={whyUsingCms}>{f.body}</RichBody>
                 <div className="ap-why-line"></div>
