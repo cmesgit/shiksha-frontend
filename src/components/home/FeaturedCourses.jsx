@@ -193,6 +193,13 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
   .fc-fact{display:flex;align-items:center;gap:7px;font-size:11.8px;color:var(--body)}
   .fc-fact svg{width:14px;height:14px;color:#8AA396}
   .fc-fact i{font-style:normal;color:#D4E2D8}
+  /* Quiet text-button. Deliberately not a second filled CTA — "Enroll now"
+     below stays the card's only one. */
+  .fc-syllabus{align-self:flex-start;margin-top:9px;padding:0;border:none;background:none;
+    font-family:var(--font);font-weight:700;font-size:11.5px;cursor:pointer;color:var(--coral);
+    display:inline-flex;align-items:center;gap:4px;transition:gap .2s,opacity .2s}
+  .fc-syllabus:hover{gap:7px;opacity:.78;text-decoration:underline}
+  .fc-syllabus svg{width:11px;height:11px}
   .fc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1.5px dashed var(--line);padding-top:14px}
   .fc-foot:has(.fc-explore:only-child){justify-content:center;padding-top:16px}
   .fc-tutor{display:flex;align-items:center;gap:9px;font-family:var(--font);font-size:12.2px;font-weight:600;color:var(--ink-2)}
@@ -443,7 +450,7 @@ function StarRow({ stars, count }) {
   );
 }
 
-function CourseCard({ course: c, saved, onToggleSave, onAction }) {
+function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
   return (
     <article className="fc-card rv" data-cat={c.cats.join(" ")}>
       <div
@@ -467,6 +474,14 @@ function CourseCard({ course: c, saved, onToggleSave, onAction }) {
         <StarRow stars={c.stars} count={c.count} />
         <h3>{c.title}</h3>
         <div className="fc-fact"><ClockSVG />{c.fact}</div>
+        {/* Only for cards that point at a real course — a showcase row with no
+            linked course has no chapters to show, and an "Explore Programs"
+            card is a category, not a syllabus. */}
+        {!c.explore && !c.soon && (c.courseSlug || c.courseId) && (
+          <button type="button" className="fc-syllabus" onClick={() => onSyllabus(c)}>
+            View syllabus <ArrowSVG />
+          </button>
+        )}
         <div className="fc-foot">
           {c.soon ? (
             <>
@@ -568,10 +583,24 @@ export default function FeaturedCourses() {
       ? matching.slice(0, maxCards)
       : matching;
 
+  // /courses/:slug resolves by slug (Courses.jsx -> getPublicCourseBySlug), so
+  // the old `/courses/${c.courseId}` sent a UUID into a slug lookup, 404'd, and
+  // silently dropped the visitor on the bare catalog — every "Enroll now" on a
+  // course-linked card was dead. Prefer the slug; fall back to the id via the
+  // `?open=` path the catalog does resolve by id.
   const goToCourse = (c) => {
-    if (c.courseId) navigate(`/courses/${c.courseId}`);
+    if (c.courseSlug) navigate(`/courses/${c.courseSlug}`);
+    else if (c.courseId) navigate(`/courses?open=${c.courseId}`);
     else if (c.to) navigate(c.to, c.state ? { state: c.state } : undefined);
     else navigate("/courses");
+  };
+
+  // Same destination, but /courses/:slug lands on the chapter-wise "Course
+  // Contents" view (SubjectList), which IS the syllabus. Only offered when we
+  // can actually get there.
+  const goToSyllabus = (c) => {
+    if (c.courseSlug) navigate(`/courses/${c.courseSlug}`);
+    else if (c.courseId) navigate(`/courses?open=${c.courseId}`);
   };
 
   const toggleSave = (title) => {
@@ -634,6 +663,7 @@ export default function FeaturedCourses() {
                 saved={saved.has(c.title)}
                 onToggleSave={() => toggleSave(c.title)}
                 onAction={goToCourse}
+                onSyllabus={goToSyllabus}
               />
             ))}
           </div>
