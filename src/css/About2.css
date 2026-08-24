@@ -333,6 +333,29 @@
   color: color-mix(in srgb, var(--teal) 10%, transparent);
 }
 
+/* Optional CMS artwork. These cards ship number-only, so this block only ever
+   applies when an editor attaches an image to the list item — sized to sit
+   above the title without pushing the card off the row. */
+.ap-why-img {
+  border-radius: 12px;
+  overflow: hidden;
+  height: 108px;
+  flex: 0 0 auto;
+  background: color-mix(in srgb, var(--teal) 8%, transparent);
+}
+
+.ap-why-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.ap-why-card:hover .ap-why-img img {
+  transform: scale(1.06);
+}
+
 .ap-why-card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: var(--sh-lg);
