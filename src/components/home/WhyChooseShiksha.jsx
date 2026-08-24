@@ -10,6 +10,10 @@ const css = `.why{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(36px,5
 .why-vis{position:relative;display:grid;place-items:center;padding:14px}
 .why-panel{position:relative;width:min(400px,96%);aspect-ratio:1/1.02;border-radius:34px;background:linear-gradient(150deg,var(--coral),var(--coral-dark));display:grid;place-items:center;box-shadow:var(--sh)}
 .why-art{width:92%;filter:drop-shadow(0 20px 30px rgba(0,0,0,.12))}
+/* CMS-uploaded replacement for .why-art. Inset rather than edge-to-edge so the
+   coral panel still reads as a frame around it, matching the SVG it replaces. */
+.why-photo{width:88%;height:88%;object-fit:cover;border-radius:24px;display:block;
+  box-shadow:0 20px 30px rgba(0,0,0,.14)}
 .why-art svg{width:100%;height:auto}
 .why-play{position:absolute;right:16%;bottom:14%;width:60px;height:60px;border-radius:50%;background:#fff;color:var(--coral);display:grid;place-items:center;box-shadow:var(--sh-lg);cursor:pointer;z-index:4}
 .why-play svg{width:22px;height:22px;margin-left:3px}
@@ -116,24 +120,34 @@ export default function WhyChooseShiksha() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    // Dead since the homepage rebuild: this section has no listeners left to
+    // attach (the "Play intro" button that needed them was removed), so the
+    // `on` helper it used to carry has gone with it. `cleanups` stays because
+    // the observer still registers a teardown through it.
     const cleanups = [];
-    const on = (el, type, fn, opts) => {
-      if (!el) return;
-      el.addEventListener(type, fn, opts);
-      cleanups.push(() => el.removeEventListener(type, fn, opts));
-    };
 
     // reveal on scroll
-    const io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12 });
-    root.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
-    cleanups.push(function () { io.disconnect(); });
+    //
+    // Same shape that left three other sections permanently invisible: an
+    // observer that unobserves on first reveal, plus `[]` deps, cannot cope
+    // with the CMS response swapping the nodes underneath it. Nothing under
+    // `.rv` here is keyed on a CMS row id today, so it wasn't actually broken —
+    // but this section now renders from `block.img` too, so don't leave the
+    // hazard armed for whoever next adds a keyed element.
+    if (typeof IntersectionObserver === "undefined") {
+      root.querySelectorAll(".rv").forEach((el) => el.classList.add("in"));
+    } else {
+      const io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add("in"); }
+        });
+      }, { threshold: 0.12 });
+      root.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
+      cleanups.push(function () { io.disconnect(); });
+    }
 
     return () => cleanups.forEach((fn) => fn());
-  }, []);
+  }, [block, items, floaters]);
 
   return (
     <>
@@ -144,7 +158,15 @@ export default function WhyChooseShiksha() {
             <div className="why">
               <div className="why-vis rv">
                 <div className="why-panel">
-                  <div className="why-art" dangerouslySetInnerHTML={{ __html: ART_SVG }} />
+                  {/* The section's illustration. ART_SVG is inlined (it was
+                      extracted from src/assets/home/why-illustration.svg during
+                      the homepage rebuild) and stays the fallback, so this looks
+                      unchanged until an editor uploads something. */}
+                  {block?.img ? (
+                    <img className="why-photo" src={block.img} alt="" />
+                  ) : (
+                    <div className="why-art" dangerouslySetInnerHTML={{ __html: ART_SVG }} />
+                  )}
                   {/*
                     A "Play intro" play button used to sit here with no onClick
                     at all — it looked like a video and did nothing when

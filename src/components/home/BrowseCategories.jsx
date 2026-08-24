@@ -11,6 +11,12 @@ const css = `.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .cat-head{padding:26px 24px 24px;color:#fff;position:relative;overflow:hidden}
 .cat-head::before{content:"";position:absolute;top:-50px;right:-40px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
 .cat-head::after{content:"";position:absolute;bottom:-40px;left:-30px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+/* Optional CMS artwork. Sits under the header content (which is z-index 1) and
+   over the tint gradient, with a scrim between it and the white text so
+   legibility doesn't depend on how bright the uploaded photo happens to be. */
+.cat-head-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
+.cat-head-scrim{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(150deg,rgba(0,0,0,.58),rgba(0,0,0,.28))}
 .cat-head-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
 .cat-ic{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:none;backdrop-filter:blur(4px)}
 .cat-ic svg{width:26px;height:26px;color:#fff}
@@ -143,6 +149,17 @@ export default function BrowseCategories() {
               {cards.map((c, i) => (
                 <div className="cat rv" key={c.id ?? i}>
                   <div className={`cat-head ${TINT_TO_GRADIENT[c.tint] || DEFAULT_GRADIENT}`}>
+                    {/* Optional CMS artwork behind the header. The card ships
+                        as a flat tinted gradient, so this renders nothing
+                        unless an editor attaches an image. The scrim is not
+                        decorative: the title and subtitle here are white, and
+                        an uploaded photo could be any brightness. */}
+                    {c.img ? (
+                      <>
+                        <img className="cat-head-img" src={c.img} alt="" />
+                        <span className="cat-head-scrim" aria-hidden="true" />
+                      </>
+                    ) : null}
                     <div className="cat-head-row">
                       <span className="cat-ic">{ICONS[c.icon] || FALLBACK_ICON}</span>
                       <div>
