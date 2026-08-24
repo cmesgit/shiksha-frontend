@@ -132,6 +132,9 @@ export const toFeaturedCard = (c) => ({
   state:
     c.link_state && Object.keys(c.link_state).length ? c.link_state : undefined,
   courseId: c.course_id || undefined,
+  // Absent on cache entries written before the backend started sending it, so
+  // every consumer has to cope with it being undefined.
+  courseSlug: c.course_slug || undefined,
 });
 
 /**
