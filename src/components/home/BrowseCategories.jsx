@@ -96,20 +96,37 @@ export default function BrowseCategories() {
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    const cleanups = [];
+    if (!root) return undefined;
+
+    // No IntersectionObserver (or an environment that never fires it) must not
+    // leave the cards at opacity:0 — same guard as About2.jsx / home/Faq.jsx.
+    if (typeof IntersectionObserver === "undefined") {
+      root.querySelectorAll(".rv").forEach((el) => el.classList.add("in"));
+      return undefined;
+    }
 
     // reveal on scroll
+    //
+    // `.cat` carries both `rv` and key={c.id ?? i}, so when the CMS fetch
+    // resolves the key flips from the array index to a real row id and React
+    // mounts *new* nodes with no `.in`, discarding the ones this observer held.
+    //
+    // Keying the deps on `cards.length` was not enough: prod has exactly as
+    // many browse_categories rows as DEFAULT_ITEMS has (3), so the length never
+    // changes, the effect never re-runs, and the replacement nodes end up
+    // observed by nobody — leaving three 334px cards at opacity:0.
+    //
+    // So: depend on the fetched values themselves, and don't unobserve.
+    // classList.add is idempotent, so re-observing costs nothing.
     const io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        if (e.isIntersecting) { e.target.classList.add("in"); }
       });
     }, { threshold: 0.12 });
     root.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
-    cleanups.push(function () { io.disconnect(); });
 
-    return () => cleanups.forEach((fn) => fn());
-  }, [cards.length]);
+    return () => io.disconnect();
+  }, [block, items]);
 
   return (
     <>

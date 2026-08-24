@@ -69,20 +69,39 @@ export default function TeachersStudents() {
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    const cleanups = [];
+    if (!root) return undefined;
+
+    // No IntersectionObserver (or an environment that never fires it) must not
+    // leave the cards at opacity:0 — same guard as About2.jsx / home/Faq.jsx.
+    if (typeof IntersectionObserver === "undefined") {
+      root.querySelectorAll(".rv").forEach((el) => el.classList.add("in"));
+      return undefined;
+    }
 
     // reveal on scroll
+    //
+    // The two duo-cards are keyed `item.id ?? i` (below), so when the CMS fetch
+    // resolves their key flips from the array index to a real row id and React
+    // mounts *new* DOM nodes. Those arrive as "duo-card … rv" with no `.in`,
+    // and the originals — which this observer was holding — are thrown away.
+    //
+    // With `[]` deps and an unobserve-on-reveal observer, nothing ever looked at
+    // the replacement nodes and both cards sat at opacity:0 forever on prod,
+    // taking 472px of blank space each. The section heading escaped it only
+    // because it has no key and is never remounted.
+    //
+    // So: don't unobserve, and re-run when the fetched content changes so the
+    // replacement nodes get observed. classList.add is idempotent, so
+    // re-observing an already-revealed element costs nothing.
     const io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        if (e.isIntersecting) { e.target.classList.add("in"); }
       });
     }, { threshold: 0.12 });
     root.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
-    cleanups.push(function () { io.disconnect(); });
 
-    return () => cleanups.forEach((fn) => fn());
-  }, []);
+    return () => io.disconnect();
+  }, [block, items]);
 
   return (
     <>
