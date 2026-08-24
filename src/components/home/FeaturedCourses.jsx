@@ -513,6 +513,10 @@ const DEFAULTS = {
     "Some of our most popular academic and competitive programs, built to help learners succeed with structured guidance.",
 };
 
+// Two full rows at the 3-column desktop grid. Overridable per-environment via
+// the featured_courses block's extra.max_cards — see the note where it's read.
+const DEFAULT_MAX_CARDS = 6;
+
 export default function FeaturedCourses() {
   const rootRef = useRef(null);
   const navigate = useNavigate();
@@ -538,10 +542,31 @@ export default function FeaturedCourses() {
     return () => { cancelled = true; };
   }, []);
 
-  const visible =
+  // How many cards the homepage grid shows. Every active ShowcaseCourse row is
+  // returned by /courses/public/featured/ and nothing used to cap the grid, so
+  // the homepage grew a card at a time as rows were added — 18 rows meant six
+  // rows of cards. The "All courses" link below the grid is the way through to
+  // the full catalog.
+  //
+  // Editable per-environment via the featured_courses block's extra.max_cards
+  // so the number can be tuned without a deploy; 0 or a blank value means "no
+  // cap", which is the only way back to the old behaviour.
+  const rawMaxCards = block?.extra?.max_cards;
+  const parsedMaxCards = Number(rawMaxCards);
+  const maxCards =
+    rawMaxCards === undefined || rawMaxCards === null || rawMaxCards === ""
+      ? DEFAULT_MAX_CARDS
+      : parsedMaxCards;
+
+  const matching =
     activeTab === "all"
       ? courses
       : courses.filter((c) => c.cats.includes(activeTab));
+
+  const visible =
+    Number.isFinite(maxCards) && maxCards > 0
+      ? matching.slice(0, maxCards)
+      : matching;
 
   const goToCourse = (c) => {
     if (c.courseId) navigate(`/courses/${c.courseId}`);
