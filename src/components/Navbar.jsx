@@ -279,13 +279,13 @@ function CoursesMega({ onGo, menu }) {
                 {cat.tabs
                   .filter((t) => t.id === schoolTab)
                   .map((t) => (
-                    {/* This list grows with the catalog: the backend emits one
-                        link per board PLUS one per class that board offers, so
-                        two boards already means ~20 entries and the panel
-                        measured 665px inside a 720px viewport. `skn-msec--wide`
-                        flows a long list into two columns instead of one tall
-                        one — nothing is hidden, it just stops growing downward.
-                        See SiteNav.css for the scroll backstop beyond that. */}
+                    /* This list grows with the catalog: the backend emits one
+                       link per board PLUS one per class that board offers, so
+                       two boards already means ~20 entries and the panel
+                       measured 665px inside a 720px viewport. `skn-msec--wide`
+                       flows a long list into two columns instead of one tall
+                       one — nothing is hidden, it just stops growing downward.
+                       See SiteNav.css for the scroll backstop beyond that. */
                     <div
                       className={`skn-msec${t.links.length > 6 ? " skn-msec--wide" : ""}`}
                       key={t.id}
