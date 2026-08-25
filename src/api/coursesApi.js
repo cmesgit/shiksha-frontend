@@ -114,8 +114,6 @@ export const toFeaturedCard = (c) => ({
   cats: Array.isArray(c.categories) ? c.categories : [],
   lvl: c.level_label,
   ribbon: c.ribbon || null,
-  stars: c.stars,
-  count: c.review_count,
   title: c.title,
   fact: c.fact_line,
   // A course linked to a free card sends the literal "Free" rather than a

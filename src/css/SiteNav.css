@@ -588,6 +588,37 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* Backstop. The link count is driven by the catalog, not by this file — the
+     nav-menu endpoint emits one entry per board plus one per class each board
+     offers — so with enough courses this list will outgrow the screen. Measured
+     at 665px inside a 720px viewport with just two boards. Cap it and scroll
+     rather than letting the panel run off the bottom where it can't be reached. */
+  max-height: min(52vh, 380px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* A long list flows into two columns instead of one tall one. Applied by
+   Navbar.jsx above ~6 links. Nothing is hidden — this only changes how the
+   same links are laid out, so it can't drop a course from the nav. */
+.skn-msec--wide ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 14px;
+}
+.skn-msec--wide .skn-viewall {
+  grid-column: 1 / -1;
+}
+@media (max-width: 900px) {
+  /* The mobile drawer flattens both board tabs into one list, where two
+     narrow columns would truncate labels like "Class 11 · Commerce". */
+  .skn-msec--wide ul {
+    grid-template-columns: 1fr;
+  }
+  .skn-msec ul {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 .skn-mlink {
   display: flex;
