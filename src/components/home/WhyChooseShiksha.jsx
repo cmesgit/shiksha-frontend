@@ -100,7 +100,13 @@ const DEFAULT_ITEMS = [
 // unchanged.
 const BADGE_SLOTS = {
   b_tl: { className: "b-tl", style: { background: "var(--coral-soft)", color: "var(--coral)" }, icon: "live", label: "Live + Recorded", sublabel: "" },
-  b_tr: { className: "b-tr", style: { background: "#f3edff", color: "var(--violet)" }, icon: "folder", label: "17+ Programs", sublabel: "Classes 8–12 & more" },
+  // Deliberately not a count. This is a build-time default that nothing
+  // recomputes, so any number here silently goes stale as the catalog changes
+  // — and "17+" never matched the data anyway (the catalog is 25 courses: 18
+  // live across only 9 distinct programs, each duplicated per board, plus 7
+  // coming soon). An editor who wants to advertise a specific figure can set
+  // one on this slot in the CMS and own keeping it true.
+  b_tr: { className: "b-tr", style: { background: "#f3edff", color: "var(--violet)" }, icon: "folder", label: "Structured Programs", sublabel: "Classes 8–12 & more" },
   b_bl: { className: "b-bl", style: { background: "#dff5e9", color: "var(--green)" }, icon: "check", label: "Guest preview", sublabel: "Free · no sign-up" },
 };
 

@@ -221,6 +221,9 @@ const About2 = () => {
   const missionHeading = mission.block?.heading || MISSION_DEFAULTS.heading;
   const missionHeadingSecondary = mission.block?.heading_secondary || MISSION_DEFAULTS.heading_secondary;
   const missionSubhead = mission.block?.subhead || MISSION_DEFAULTS.subhead;
+  // No bundled fallback on purpose: this section ships with no artwork, so it
+  // stays imageless until an editor attaches one in the CMS.
+  const missionImage = mission.block?.img || null;
   const missionCmsPillars = mission.items.filter((i) => i.variant === "pillar");
   const pillars = missionCmsPillars.length > 0 ? missionCmsPillars : PILLARS_DEFAULT;
 
@@ -244,6 +247,9 @@ const About2 = () => {
   const whyHeading = why.block?.heading || WHY_DEFAULTS.heading;
   const whyHeadingSecondary = why.block?.heading_secondary || WHY_DEFAULTS.heading_secondary;
   const whySubhead = why.block?.subhead || WHY_DEFAULTS.subhead;
+  // Section-level banner, distinct from the per-card artwork below. Also
+  // fallback-free, for the same reason as Mission.
+  const whyImage = why.block?.img || null;
   const whyCms = why.items.filter((i) => i.variant === "numbered");
   const whyUsingCms = whyCms.length > 0;
   const whyCards = whyUsingCms ? whyCms : WHY_DEFAULT;
@@ -303,6 +309,12 @@ const About2 = () => {
             <SplitHeading heading={missionHeading} secondary={missionHeadingSecondary} />
             <p>{missionSubhead}</p>
           </div>
+          {missionImage ? (
+            <div className="ap-sec-img rv">
+              <img src={missionImage} alt="" />
+              <div className="ap-img-shine"></div>
+            </div>
+          ) : null}
           <div className="ap-pillars">
             {pillars.map((p, i) => {
               const fallback = PILLARS_DEFAULT[i % PILLARS_DEFAULT.length];
@@ -368,6 +380,12 @@ const About2 = () => {
             <SplitHeading heading={whyHeading} secondary={whyHeadingSecondary} />
             <p>{whySubhead}</p>
           </div>
+          {whyImage ? (
+            <div className="ap-sec-img rv">
+              <img src={whyImage} alt="" />
+              <div className="ap-img-shine"></div>
+            </div>
+          ) : null}
           <div className="ap-why-cards">
             {whyCards.map((f, i) => (
               <div
