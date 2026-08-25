@@ -202,6 +202,11 @@ const About2 = () => {
   const heroStickers = heroCmsStickers.length > 0
     ? heroCmsStickers.map((i) => ({ key: i.id, src: i.img, alt: i.title }))
     : STICKERS_DEFAULT.map((src, i) => ({ key: i, src, alt: "" }));
+  // The hero's own block image. The CMS has offered this field all along and
+  // this page never read it, so an editor's upload vanished with no feedback —
+  // an image was found sitting in it on production, unreferenced. Rendered
+  // above the sticker row, and only when set, so the default hero is unchanged.
+  const heroImage = hero.block?.img || null;
 
   // ── Vision ──
   const visionEyebrow = vision.block?.eyebrow || VISION_DEFAULTS.eyebrow;
@@ -265,6 +270,12 @@ const About2 = () => {
             <SplitHeading as="h1" heading={heroHeading} secondary={heroHeadingSecondary} />
             <p>{heroSubhead}</p>
           </div>
+          {heroImage ? (
+            <div className="ap-sec-img rv">
+              <img src={heroImage} alt="" />
+              <div className="ap-img-shine"></div>
+            </div>
+          ) : null}
           <div className="ap-img-row rv">
             {heroStickers.map((s, i) => (
               <div className="ap-img-wrap" key={s.key} style={{ "--i": i }}>
