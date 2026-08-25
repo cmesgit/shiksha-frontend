@@ -186,10 +186,7 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
   .fc-heart.on svg{fill:currentColor}
   .fc-lvl{position:absolute;bottom:-13px;left:18px;background:#fff;border:1.5px solid var(--line);color:var(--coral-dark);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 13px;border-radius:999px;box-shadow:0 6px 14px rgba(11,46,32,.08)}
   .fc-body{padding:26px 20px 20px;display:flex;flex-direction:column;flex:1}
-  .fc-rate{display:flex;align-items:center;gap:7px}
-  .fc-rate svg{width:13px;height:13px}
-  .fc-rate span{font-size:11.5px;color:var(--body)}
-  .fc-body h3{font-family:var(--display);font-size:16.3px;font-weight:700;margin:8px 0 10px;line-height:1.35}
+  .fc-body h3{font-family:var(--display);font-size:16.3px;font-weight:700;margin:0 0 10px;line-height:1.35}
   .fc-fact{display:flex;align-items:center;gap:7px;font-size:11.8px;color:var(--body)}
   .fc-fact svg{width:14px;height:14px;color:#8AA396}
   .fc-fact i{font-style:normal;color:#D4E2D8}
@@ -398,11 +395,11 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
     .chip-marquee{overflow:visible;-webkit-mask-image:none;mask-image:none}.chip-track{flex-wrap:wrap;width:100%}.chip-group{flex-wrap:wrap}.chip-group:nth-child(2){display:none}}`;
 
 // ── Icons (paths copied 1:1 from the original static markup) ──────────────
-const StarSVG = ({ filled }) => (
-  <svg viewBox="0 0 24 24" fill={filled ? "#FFB21D" : "#E3E8E4"}>
-    <path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3L2.8 9.5l6.4-.8z" />
-  </svg>
-);
+// NOTE: StarSVG/StarRow lived here and rendered `stars` + `review_count` from
+// the showcase card. Those were hand-typed numbers, not an aggregate over any
+// review table — the platform has no course-review model at all — so the card
+// was showing fabricated social proof. Removed along with the backend columns
+// (content migration 0017). Re-add only when real reviews exist to average.
 const ClockSVG = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="12" cy="12" r="9" />
@@ -441,21 +438,20 @@ function CatIcon({ icon }) {
   );
 }
 
-function StarRow({ stars, count }) {
-  return (
-    <div className="fc-rate">
-      {[0, 1, 2, 3, 4].map((i) => <StarSVG key={i} filled={i < stars} />)}
-      <span>({count})</span>
-    </div>
-  );
-}
-
 function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
   return (
     <article className="fc-card rv" data-cat={c.cats.join(" ")}>
+      {/* The gradient is the card's own artwork and always renders; the photo
+          layers on top of it only when the CMS actually has one. Interpolating
+          an absent c.img produced url('undefined') — a real, failing image
+          request on every card the CMS hasn't been given artwork for. */}
       <div
         className="fc-thumb"
-        style={{ background: `linear-gradient(135deg,${c.grad}),url('${c.img}') center/cover` }}
+        style={{
+          background: c.img
+            ? `linear-gradient(135deg,${c.grad}),url('${c.img}') center/cover`
+            : `linear-gradient(135deg,${c.grad})`,
+        }}
       >
         <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>
         {c.ribbon && !c.soon && <span className="fc-ribbon">{c.ribbon}</span>}
@@ -471,7 +467,6 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
         <span className="fc-lvl">{c.lvl}</span>
       </div>
       <div className="fc-body">
-        <StarRow stars={c.stars} count={c.count} />
         <h3>{c.title}</h3>
         <div className="fc-fact"><ClockSVG />{c.fact}</div>
         {/* Only for cards that point at a real course — a showcase row with no
@@ -485,10 +480,15 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
         <div className="fc-foot">
           {c.soon ? (
             <>
-              <span className="fc-tutor">
-                <span className="fc-av" style={{ background: c.avColor }}>{c.tutor?.[0]}</span>
-                {c.tutor}
-              </span>
+              {/* Every showcase row currently has an empty tutor_name, which
+                  rendered a blank avatar disc next to a blank label. Only show
+                  the tutor when there is a real one to name. */}
+              {c.tutor ? (
+                <span className="fc-tutor">
+                  <span className="fc-av" style={{ background: c.avColor }}>{c.tutor[0]}</span>
+                  {c.tutor}
+                </span>
+              ) : <span />}
               <span className="fc-price soon">Coming Soon</span>
             </>
           ) : c.explore ? (
@@ -501,11 +501,14 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
                   "₹0 /month" — the platform is free at launch
                   (GlobalSettings.live_launch_free_mode), so zero is the real
                   price rather than missing data. */}
+              {/* A board-linked card gets price_label: null from the API, so
+                  `price` is undefined and the ₹ branch rendered the literal
+                  "₹undefined /month". Show nothing rather than a broken price. */}
               {c.free ? (
                 <span className="fc-price">Free</span>
-              ) : (
+              ) : c.price ? (
                 <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
-              )}
+              ) : null}
               <button type="button" className="fc-enroll" onClick={() => onAction(c)}>
                 Enroll now <ArrowSVG />
               </button>
@@ -578,10 +581,44 @@ export default function FeaturedCourses() {
       ? courses
       : courses.filter((c) => c.cats.includes(activeTab));
 
-  const visible =
-    Number.isFinite(maxCards) && maxCards > 0
-      ? matching.slice(0, maxCards)
-      : matching;
+  const capped = Number.isFinite(maxCards) && maxCards > 0;
+
+  // The "All" tab has to represent the whole catalog, but a flat slice of it
+  // could not. Showcase rows are ordered by the admin's `order`, and the seed
+  // lays every Class 8–12 card down first, so `matching.slice(0, 6)` returned
+  // six Class 8–12 cards and nothing else — the Boards and Competitive cards
+  // were invisible unless a visitor thought to click their tab. On a section
+  // headed "academic and competitive programs" that is exactly backwards.
+  //
+  // So on "All" only, deal one card from each category in turn (a card with
+  // several categories is dealt once, under its first) before taking a second
+  // from any. Within a category the admin's `order` still decides, and a
+  // category with fewer cards than the others simply drops out of later
+  // rounds rather than holding a slot open.
+  const interleaveByCategory = (list) => {
+    const buckets = new Map();
+    list.forEach((c) => {
+      const key = c.cats?.[0] || "";
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(c);
+    });
+    const queues = [...buckets.values()];
+    const out = [];
+    while (out.length < list.length) {
+      let dealt = false;
+      for (const q of queues) {
+        const next = q.shift();
+        if (next) { out.push(next); dealt = true; }
+      }
+      if (!dealt) break; // every queue empty — guards against an infinite loop
+    }
+    return out;
+  };
+
+  const ordered =
+    activeTab === "all" && capped ? interleaveByCategory(matching) : matching;
+
+  const visible = capped ? ordered.slice(0, maxCards) : ordered;
 
   // /courses/:slug resolves by slug (Courses.jsx -> getPublicCourseBySlug), so
   // the old `/courses/${c.courseId}` sent a UUID into a slug lookup, 404'd, and
