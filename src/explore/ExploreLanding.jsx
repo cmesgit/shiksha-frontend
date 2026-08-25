@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
 import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
+import { CategoryIcon } from "./components/categoryIcons";
 import "./Explore.css";
 
 export default function ExploreLanding() {
@@ -92,7 +93,7 @@ export default function ExploreLanding() {
                 {data.categories.map((c) => (
                   <button key={c.key} className="exp-cat"
                     onClick={() => nav(`/explore/browse?category=${c.key}`)}>
-                    <span className="ic" style={{ background: tint(c.color, 0.094), border: `1px solid ${tint(c.color, 0.19)}` }}>{c.icon}</span>
+                    <span className="ic" style={{ background: tint(c.color, 0.094), border: `1px solid ${tint(c.color, 0.19)}`, color: c.color }}><CategoryIcon meta={c} /></span>
                     <h3>{c.name}</h3>
                     <p>{c.blurb}</p>
                     <span className="cnt" style={{ color: c.color }}>{c.count.toLocaleString()} docs</span>

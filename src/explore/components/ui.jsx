@@ -8,6 +8,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExplore } from "../ExploreStore";
 import { toggleLike as toggleLikeApi } from "../exploreApi";
+import { CategoryIcon } from "./categoryIcons";
+import {
+  PiBookmarkSimple, PiBookmarkSimpleFill, PiHeart, PiHeartFill,
+} from "react-icons/pi";
 
 // ── icons (kept inline so there's no icon-lib dependency) ─────────────────────
 export const Icon = {
@@ -75,7 +79,7 @@ export function LikeButton({ doc, className = "" }) {
       disabled={busy}
       title={liked ? "Unlike" : "Like"}
     >
-      <span aria-hidden="true">{liked ? "♥" : "♡"}</span> {count}
+      <span aria-hidden="true" className="exp-like-glyph">{liked ? <PiHeartFill /> : <PiHeart />}</span> {count}
     </button>
   );
 }
@@ -96,8 +100,8 @@ export function DocCard({ doc }) {
           className={`fsave${saved ? " on" : ""}`}
           title={saved ? "Remove from library" : "Save to library"}
           onClick={(e) => { e.stopPropagation(); toggleSave(doc.id); }}
-        >{saved ? "★" : "☆"}</button>
-        <span className="ficon">{meta.icon || "📄"}</span>
+        >{saved ? <PiBookmarkSimpleFill aria-hidden="true" /> : <PiBookmarkSimple aria-hidden="true" />}</button>
+        <span className="ficon"><CategoryIcon meta={meta} /></span>
       </div>
       <div className="exp-doc-body">
         <h3>{doc.title}</h3>
@@ -122,8 +126,8 @@ export function MiniDocCard({ doc }) {
   const color = meta.color || "#125027";
   return (
     <article className="exp-doc-mini" onClick={() => nav(`/explore/doc/${doc.id}`)}>
-      <div className="ic" style={{ background: tint(color, 0.13), border: `1px solid ${tint(color, 0.2)}` }}>
-        {meta.icon || "📄"}
+      <div className="ic" style={{ background: tint(color, 0.13), border: `1px solid ${tint(color, 0.2)}`, color }}>
+        <CategoryIcon meta={meta} />
       </div>
       <h3>{doc.title}</h3>
       <p>{doc.author?.name}</p>
