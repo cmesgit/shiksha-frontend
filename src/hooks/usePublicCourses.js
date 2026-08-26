@@ -55,11 +55,34 @@ function shapeClass(c, boardSlug) {
     // null = uncapped/no active batch; the class row hides the
     // "seats left" text in that case rather than showing a bogus 0.
     seatsLeft: c.seats_left ?? null,
+    slug: c.slug,
+    // Per-course board. The card used to read the board name off the single
+    // `currentBoard` prop, which is correct only while exactly one board is
+    // selected — in the new "All boards" mode every card would otherwise be
+    // labelled with the same board. Null for competitive courses.
+    boardName: c.board?.name || null,
+    // What tells a competitive course apart from an academic one. Both are
+    // carried because they can disagree: `kind` is written on create and read
+    // by nothing else, while every live surface keys on a linked category
+    // whose group is "competitive". A COACHING course with no category link
+    // is invisible to the nav menu, and this is where a client can see that.
+    kind: c.kind || null,
+    categoryGroups: Array.isArray(c.category_groups) ? c.category_groups : [],
     // Wrapped under the current board slug so the existing
     // `cls.courseIds?.[selectedBoard]` lookups keep working unchanged.
+    // Competitive rows have no board, so they are filed under a sentinel the
+    // catalog passes as its "selected board" in that mode.
     courseIds: { [boardSlug]: c.id },
   };
 }
+
+/** Sentinel board slug for the board-less competitive axis. Not a real board
+ *  — it exists so `courseIds[selectedBoard]` and the enrollment lookup keep
+ *  working unchanged when no board is selected. */
+export const COMPETITIVE_KEY = "__competitive__";
+
+/** Sentinel for "every board", the option the board filter never had. */
+export const ALL_BOARDS_KEY = "__all__";
 
 /** Live board rows from the real backend (id/name/board_type/
  * has_published_courses). `null` while the first request is in flight. */
@@ -98,16 +121,30 @@ export function useBoardClasses(boards, boardSlug) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const board =
-      boards && boardSlug
-        ? boards.find((b) => b.slug === boardSlug)
-        : null;
-
     let cancelled = false;
     setLoading(true);
-    // getPublicCatalog resolves to [] for a missing/unmatched board id, so no
-    // separate synchronous early-return branch is needed here.
-    getPublicCatalog(board?.id).then((rows) => {
+
+    // Three fetch shapes, one hook, because everything downstream reads the
+    // same shaped rows regardless of which axis produced them.
+    let query;
+    if (boardSlug === COMPETITIVE_KEY) {
+      // Board-less on purpose: competitive courses have board = NULL, so any
+      // board filter excludes them.
+      query = { group: "competitive" };
+    } else if (boardSlug === ALL_BOARDS_KEY) {
+      // Every school course across every board. Filtered on `kind` rather
+      // than "no board filter" so competitive rows don't leak into the School
+      // axis — the two axes must stay disjoint or a course appears twice.
+      query = { kind: "ACADEMIC" };
+    } else {
+      const board =
+        boards && boardSlug ? boards.find((b) => b.slug === boardSlug) : null;
+      // getPublicCatalog resolves to [] for a missing/unmatched board id, so
+      // no separate synchronous early-return branch is needed here.
+      query = board?.id || null;
+    }
+
+    getPublicCatalog(query).then((rows) => {
       if (cancelled) return;
       setClasses(rows.map((c) => shapeClass(c, boardSlug)));
       setLoading(false);

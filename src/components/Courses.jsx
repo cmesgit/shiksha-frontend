@@ -14,7 +14,12 @@ import { useToast } from '../contexts/ToastContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getMyEnrollmentRequests } from '../api/enrollments';
 import { getPublicCourseDetail, getPublicCourseBySlug, getMyEnrolledCourses } from '../api/coursesApi';
-import { usePublicBoards, useBoardClasses } from '../hooks/usePublicCourses';
+import {
+  usePublicBoards,
+  useBoardClasses,
+  ALL_BOARDS_KEY,
+  COMPETITIVE_KEY,
+} from '../hooks/usePublicCourses';
 import { APP_URL } from '../config/urls';
 
 const LAST_BOARD_KEY = 'shiksha.courses.lastBoard';
@@ -84,29 +89,44 @@ const Courses = () => {
   const boards = usePublicBoards();
   const { classes: liveClasses, loading: classesLoading } = useBoardClasses(boards, selectedBoard);
 
-  // Default board once boards have loaded and nothing is selected yet: a
+  // Default axis once boards have loaded and nothing is selected yet: a
   // navbar/homepage deep-link wins (a specific board, or — from the navbar's
   // "View All Central/State Boards" link — just a board_type group, in which
   // case the first unlocked board in that group stands in for it), then the
-  // remembered last board, then the first unlocked board overall.
+  // remembered last board, then ALL BOARDS.
+  //
+  // It used to fall through to `firstUnlocked` — the first board with
+  // published courses — which meant a first-time visitor was silently
+  // force-filtered to CBSE and shown one board's courses as if that were the
+  // whole catalog. There was no "All" to escape to, because the board filter
+  // was a mandatory single-select: `resetAll` deliberately skipped it since
+  // there was nothing to reset it TO. Defaulting to ALL_BOARDS_KEY makes the
+  // unfiltered catalog the landing state and gives the reset somewhere to go.
   useEffect(() => {
     if (!boards || selectedBoard) return;
     const resolve = (slug) => {
+      // The two sentinels are not rows in `boards`, so a plain find() would
+      // drop them — losing a remembered "All boards" / "Competitive" choice
+      // and silently snapping the visitor back to a single board.
+      if (slug === ALL_BOARDS_KEY || slug === COMPETITIVE_KEY) return { slug };
       const b = slug && boards.find((x) => x.slug === slug);
       return b && b.has_published_courses ? b : null;
     };
     const resolveGroup = (group) => {
-      const boardType = (group || '').toUpperCase();
+      const g = (group || '').toLowerCase();
+      // The navbar's competitive column deep-links with ?group=competitive,
+      // which is not a board_type — it is the category group competitive
+      // courses are tagged with, and they have no board at all.
+      if (g === 'competitive') return { slug: COMPETITIVE_KEY };
+      const boardType = g.toUpperCase();
       if (!boardType) return null;
       return boards.find((b) => b.board_type === boardType && b.has_published_courses) || null;
     };
-    const firstUnlocked = boards.find((b) => b.has_published_courses);
     const match =
       resolve(deepLink.selectedBoard) ||
       resolveGroup(deepLink.selectedBoardGroup) ||
       resolve(loadLastBoard()) ||
-      firstUnlocked ||
-      boards[0];
+      { slug: ALL_BOARDS_KEY };
     if (match) setSelectedBoard(match.slug);
   }, [boards, selectedBoard, deepLink]);
 

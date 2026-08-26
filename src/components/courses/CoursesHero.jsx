@@ -103,6 +103,17 @@ const css = `
   .ch-sub{margin-left:auto;margin-right:auto}
   .ch-cta-row,.ch-facts{justify-content:center}
   .ch-disc{width:min(390px,86%)}
+  /* Pull the floating chips back inside the viewport.
+     They hang on negative offsets (left:-6%, right:-7%, left:-9%) which read
+     as a deliberate overlap only while .ch-vis is a narrow grid column. Once
+     the grid collapses to one full-width column here, those negatives put the
+     chips past the page edge — and because body{overflow-x:hidden} is global
+     on this site they are CLIPPED rather than scrolled to, so the right-hand
+     chip rendered visibly sliced in half at tablet widths. Measured at 820px:
+     .ch-chip--b ended at x=834 against an 805px viewport. */
+  .ch-chip--a{left:0}
+  .ch-chip--b{right:0}
+  .ch-chip--c{left:0}
 }
 @media(max-width:620px){
   .ch-chip{transform:scale(.86)}
