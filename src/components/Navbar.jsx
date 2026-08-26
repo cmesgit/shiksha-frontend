@@ -11,7 +11,7 @@
  * in NAV_MENUS below — edit there to add/remove links.
  * Styles: css/SiteNav.css (all classes prefixed `skn-`).
  */
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 import { LayoutDashboard } from "lucide-react";
@@ -22,6 +22,39 @@ import ProfileSwitcher from "../shared/ProfileSwitcher";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
 import { getPublicNavMenu } from "../api/coursesApi";
+
+/* Both of these are fetched on mount, and Navbar is NOT hoisted into a single
+   layout — ForumLayout, SkillBrowsePage, the three Live pages and both
+   moderator panels each render their own. Entering any of those routes
+   remounted the navbar and refired both requests, for payloads that are
+   identical for every visitor and already server-cached.
+
+   Cached as the in-flight PROMISE, not the result, so concurrent mounts share
+   one request instead of racing. Module scope means the cache dies with the
+   tab, which is the right lifetime: the nav menu changes when an admin edits
+   the catalog, and a reload is how you'd see that anyway. */
+let navMenuPromise = null;
+let announcementsPromise = null;
+
+function fetchNavMenuOnce() {
+  if (!navMenuPromise) {
+    navMenuPromise = getPublicNavMenu().catch((err) => {
+      navMenuPromise = null; // let a later mount retry a failed fetch
+      throw err;
+    });
+  }
+  return navMenuPromise;
+}
+
+function fetchAnnouncementsOnce() {
+  if (!announcementsPromise) {
+    announcementsPromise = getAnnouncements().catch((err) => {
+      announcementsPromise = null;
+      throw err;
+    });
+  }
+  return announcementsPromise;
+}
 import "../css/theme.css";
 import "../css/SiteNav.css";
 import {
@@ -244,7 +277,7 @@ function IconCard({ item, onGo }) {
 
 /* ────────────────────────── MEGA PANELS ────────────────────────── */
 
-function CoursesMega({ onGo, menu }) {
+const CoursesMega = memo(function CoursesMega({ onGo, menu }) {
   const [schoolTab, setSchoolTab] = useState("central");
 
   return (
@@ -332,9 +365,9 @@ function CoursesMega({ onGo, menu }) {
       })}
     </div>
   );
-}
+});
 
-function CardsMega({ items, onGo, cols = 3 }) {
+const CardsMega = memo(function CardsMega({ items, onGo, cols = 3 }) {
   return (
     <div className={`skn-mega-cards skn-cols-${cols}`}>
       {items.map((item) => (
@@ -342,7 +375,7 @@ function CardsMega({ items, onGo, cols = 3 }) {
       ))}
     </div>
   );
-}
+});
 
 /* ────────────────────────── MOBILE DRAWER ────────────────────────── */
 
@@ -421,9 +454,13 @@ const Navbar = () => {
      the static fallback so the menu never renders empty while this loads. */
   useEffect(() => {
     let alive = true;
-    getPublicNavMenu().then((categories) => {
-      if (alive) setCoursesMenu(mergeLiveNavMenu(categories));
-    });
+    fetchNavMenuOnce()
+      .then((categories) => {
+        if (alive) setCoursesMenu(mergeLiveNavMenu(categories));
+      })
+      .catch(() => {
+        /* menu keeps the static fallback — same as before */
+      });
     return () => {
       alive = false;
     };
@@ -443,9 +480,13 @@ const Navbar = () => {
      wording hidden for everyone who had dismissed the old one. */
   useEffect(() => {
     let alive = true;
-    getAnnouncements().then((rows) => {
-      if (alive && rows.length) setAnnouncements(rows);
-    });
+    fetchAnnouncementsOnce()
+      .then((rows) => {
+        if (alive && rows.length) setAnnouncements(rows);
+      })
+      .catch(() => {
+        /* strip stays hidden — same as before */
+      });
     return () => {
       alive = false;
     };
@@ -471,7 +512,10 @@ const Navbar = () => {
 
   /* platform hint for the ⌘K / Ctrl K badge */
   useEffect(() => {
-    setIsMac(/mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent));
+    // navigator.platform is deprecated; userAgentData is the replacement and
+    // userAgent the fallback everywhere it isn't implemented yet.
+    const plat = navigator.userAgentData?.platform || navigator.userAgent || "";
+    setIsMac(/mac|iphone|ipad/i.test(plat));
   }, []);
 
   /* compact header after slight scroll */
