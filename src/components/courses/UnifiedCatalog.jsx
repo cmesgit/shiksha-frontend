@@ -19,7 +19,12 @@
 // UI-local concerns owned here, same split as before this redesign.
 
 import { useEffect, useMemo, useState } from 'react';
-import { isBoardLocked, useCrossBoardMatches } from '../../hooks/usePublicCourses';
+import {
+  isBoardLocked,
+  useCrossBoardMatches,
+  ALL_BOARDS_KEY,
+  COMPETITIVE_KEY,
+} from '../../hooks/usePublicCourses';
 import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 import '../../css/UnifiedCatalog.css';
 
@@ -87,10 +92,39 @@ const CheckIcon = () => (
   </svg>
 );
 
+// What to print where the board name goes.
+//
+// Deliberately NOT "no board implies competitive": a misconfigured academic
+// course can also have board = NULL, and labelling it "Competitive exam"
+// states something false about it on a public page. Only the course's own
+// type decides, and an unclassifiable row prints nothing rather than a guess.
+function boardLabelFor(cls, fallbackBoard, hideKindLabel) {
+  if (cls.boardName) return cls.boardName;
+  const competitive =
+    cls.kind === 'COACHING' || (cls.categoryGroups || []).includes('competitive');
+  // Suppressed on the Competitive axis, where it would repeat on every card.
+  if (competitive) return hideKindLabel ? '' : 'Competitive exam';
+  return fallbackBoard?.name || '';
+}
+
 const BOARD_TABS = [
   { type: 'CENTRAL', label: 'Central' },
   { type: 'STATE', label: 'State' },
 ];
+
+// The top-level axis, above the board picker.
+//
+// Competitive exams are Courses with `board = NULL`, so they can never be a
+// chip in the board list — a board-scoped query excludes them by
+// construction. They need their own axis, which is also how the navbar
+// already splits this ("school" vs "competitive").
+const AXIS_SCHOOL = 'school';
+const AXIS_COMPETITIVE = 'competitive';
+
+// Locked boards are boards with nothing published yet. There are ~31 of them
+// against 2 real ones, so showing the full list first buries the courses that
+// actually exist. Kept reachable behind a toggle rather than hidden.
+const LOCKED_BOARDS_PREVIEW = 4;
 const SORTS = [
   { value: 'rec', label: 'Recommended' },
   { value: 'fee-asc', label: 'Lowest fee' },
@@ -189,7 +223,7 @@ function priceBlock(cls) {
   );
 }
 
-function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enrollmentStatus }) {
+function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enrollmentStatus, hideKindLabel }) {
   const isEnrolled = enrollmentStatus === 'APPROVED';
   const isPending = enrollmentStatus === 'PENDING';
   let enrollLabel = 'Enroll now';
@@ -219,7 +253,9 @@ function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enroll
         {levelPill && <span className="uc-gridcard__pill">{levelPill}</span>}
       </div>
       <div className="uc-gridcard__body">
-        <span className="uc-gridcard__board">{board?.name}</span>
+        {/* The course's own board, not the selected one — in "All boards"
+            mode `board` is null and every card would be unlabelled. */}
+        <span className="uc-gridcard__board">{boardLabelFor(cls, board, hideKindLabel)}</span>
         <h3>
           {cls.title}
           {cls.subtitle && <span className="uc-gridcard__sub"> ({cls.subtitle})</span>}
@@ -281,7 +317,7 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, 
       <div className="uc-modal__box">
         <button type="button" className="uc-modal__x" aria-label="Close" onClick={onClose}>&times;</button>
         <span className="uc-modal__eyebrow">
-          {board?.name}{cls.subtitle ? ` · ${cls.subtitle}` : ''}
+          {boardLabelFor(cls, board)}{cls.subtitle ? ` · ${cls.subtitle}` : ''}
         </span>
         <h3 id="ucModalTitle">{cls.title}</h3>
         <p className="uc-modal__sub">
@@ -362,6 +398,7 @@ const UnifiedCatalog = ({
   // query that narrows it — the design reference's board-picker shape.
   const [boardCategory, setBoardCategory] = useState('CENTRAL');
   const [boardQuery, setBoardQuery] = useState('');
+  const [showAllLocked, setShowAllLocked] = useState(false);
   const [collapsed, setCollapsed] = useState({});
   const [classFilter, setClassFilter] = useState(null);
   const [streamFilter, setStreamFilter] = useState(null);
@@ -413,6 +450,29 @@ const UnifiedCatalog = ({
       .filter((b) => !bq || b.name.toLowerCase().includes(bq) || (b.slug || '').toLowerCase().includes(bq));
   }, [boards, boardCategory, bq]);
 
+  // Which axis we are on. Derived from `selectedBoard` rather than held as
+  // its own state so there is exactly one source of truth — a deep link, the
+  // remembered choice and a click all set the same value.
+  const axis = selectedBoard === COMPETITIVE_KEY ? AXIS_COMPETITIVE : AXIS_SCHOOL;
+  const isCompetitive = axis === AXIS_COMPETITIVE;
+
+  // Boards that actually have courses, first. The catalog seeds 33 boards and
+  // only ~2 are live, so an unsorted list is 31 dead "Soon" chips above the
+  // two that work. While the visitor is searching we show every match
+  // ungrouped — hiding results behind a "show more" during a search is worse
+  // than a long list.
+  const { openBoards, lockedBoards } = useMemo(() => {
+    const open = [];
+    const locked = [];
+    for (const b of tabBoards) (b.has_published_courses ? open : locked).push(b);
+    return { openBoards: open, lockedBoards: locked };
+  }, [tabBoards]);
+
+  const searching = !!bq;
+  const visibleLocked =
+    searching || showAllLocked ? lockedBoards : lockedBoards.slice(0, LOCKED_BOARDS_PREVIEW);
+  const hiddenLockedCount = lockedBoards.length - visibleLocked.length;
+
   const classTitles = useMemo(
     () => Array.from(new Set(classes.map((c) => c.title))),
     [classes]
@@ -446,7 +506,11 @@ const UnifiedCatalog = ({
     setStreamFilter(null);
     setSortBy('rec');
     setBoardQuery('');
+    setShowAllLocked(false);
     onSearchChange('');
+    // Previously skipped, because a mandatory single-select board had nothing
+    // to reset TO. "All boards" is now a real state, so Reset can honour it.
+    onSelectBoard(ALL_BOARDS_KEY);
   };
 
   const quickViewClass = expandedClassId ? classes.find((c) => c.id === expandedClassId) : null;
@@ -476,11 +540,21 @@ const UnifiedCatalog = ({
 
         <div className="uc-gridhead">
           <div>
-            <h2>{currentBoard ? `${currentBoard.name} courses` : 'Courses'}</h2>
+            <h2>
+              {isCompetitive
+                ? 'Competitive exams'
+                : currentBoard
+                  ? `${currentBoard.name} courses`
+                  : 'All courses'}
+            </h2>
             <p>Live classes, tests and notes mapped to the syllabus</p>
           </div>
           <span className="uc-gridhead__tot">
-            {classesLoading ? '' : `${visibleClasses.length} batch${visibleClasses.length === 1 ? '' : 'es'}`}
+            {classesLoading
+              ? ''
+              : isCompetitive
+                ? `${visibleClasses.length} exam${visibleClasses.length === 1 ? '' : 's'}`
+                : `${visibleClasses.length} batch${visibleClasses.length === 1 ? '' : 'es'}`}
           </span>
         </div>
 
@@ -532,6 +606,7 @@ const UnifiedCatalog = ({
                 onNotify={setNotifyCourse}
                 onSyllabus={onSyllabus}
                 enrollmentStatus={enrollmentStatusByCourseId[cls.courseIds?.[selectedBoard]]}
+                hideKindLabel={isCompetitive}
               />
             ))}
           </div>
@@ -545,8 +620,43 @@ const UnifiedCatalog = ({
           <button type="button" className="uc-fclose" aria-label="Close filters" onClick={() => setDrawerOpen(false)}>&times;</button>
         </div>
 
-        {boards && (
+        {/* Top-level axis. Competitive exams have no board, so they cannot be
+            a chip in the list below — they need their own switch. */}
+        <div className="uc-faxis" role="tablist" aria-label="Course type">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isCompetitive}
+            className={!isCompetitive ? 'uc-on' : undefined}
+            onClick={() => { onSelectBoard(ALL_BOARDS_KEY); setDrawerOpen(false); }}
+          >
+            School
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isCompetitive}
+            className={isCompetitive ? 'uc-on' : undefined}
+            onClick={() => { onSelectBoard(COMPETITIVE_KEY); setDrawerOpen(false); }}
+          >
+            Competitive
+          </button>
+        </div>
+
+        {boards && !isCompetitive && (
           <FilterGroup title="Board" open={!collapsed.board} onToggle={() => toggleGroup('board')}>
+            {/* The option the board filter never had. Without it the picker
+                was a mandatory single-select and a first-time visitor was
+                silently pinned to one board's courses. */}
+            <button
+              type="button"
+              className={`uc-fall${selectedBoard === ALL_BOARDS_KEY ? ' uc-on' : ''}`}
+              aria-pressed={selectedBoard === ALL_BOARDS_KEY}
+              onClick={() => { onSelectBoard(ALL_BOARDS_KEY); setDrawerOpen(false); }}
+            >
+              All boards
+            </button>
+
             <div className="uc-fseg" role="tablist">
               {BOARD_TABS.map((t) => (
                 <button
@@ -554,7 +664,7 @@ const UnifiedCatalog = ({
                   type="button"
                   role="tab"
                   aria-selected={boardCategory === t.type}
-                  onClick={() => { setBoardCategory(t.type); setBoardQuery(''); }}
+                  onClick={() => { setBoardCategory(t.type); setBoardQuery(''); setShowAllLocked(false); }}
                 >
                   {t.label}
                 </button>
@@ -571,18 +681,50 @@ const UnifiedCatalog = ({
               />
             </div>
             {tabBoards.length > 0 ? (
-              <div className="uc-flist">
-                {tabBoards.map((b) => (
-                  <BoardChip
-                    key={b.slug}
-                    board={b}
-                    boards={boards}
-                    selectedBoard={selectedBoard}
-                    onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
-                    onLockedClick={setNotifyBoard}
-                  />
-                ))}
-              </div>
+              <>
+                {openBoards.length > 0 && (
+                  <div className="uc-flist">
+                    {openBoards.map((b) => (
+                      <BoardChip
+                        key={b.slug}
+                        board={b}
+                        boards={boards}
+                        selectedBoard={selectedBoard}
+                        onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
+                        onLockedClick={setNotifyBoard}
+                      />
+                    ))}
+                  </div>
+                )}
+                {visibleLocked.length > 0 && (
+                  <>
+                    {openBoards.length > 0 && (
+                      <p className="uc-fsublabel">Coming soon</p>
+                    )}
+                    <div className="uc-flist">
+                      {visibleLocked.map((b) => (
+                        <BoardChip
+                          key={b.slug}
+                          board={b}
+                          boards={boards}
+                          selectedBoard={selectedBoard}
+                          onSelectBoard={(slug) => { onSelectBoard(slug); setDrawerOpen(false); }}
+                          onLockedClick={setNotifyBoard}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+                {hiddenLockedCount > 0 && (
+                  <button
+                    type="button"
+                    className="uc-fmore"
+                    onClick={() => setShowAllLocked(true)}
+                  >
+                    Show {hiddenLockedCount} more
+                  </button>
+                )}
+              </>
             ) : (
               <p className="uc-fnone">No board matches “{boardQuery.trim()}”.</p>
             )}
@@ -597,7 +739,7 @@ const UnifiedCatalog = ({
           />
         )}
 
-        {classTitles.length > 0 && (
+        {!isCompetitive && classTitles.length > 0 && (
           <FilterGroup title="Class" open={!collapsed.class} onToggle={() => toggleGroup('class')}>
             <div className="uc-fchips">
               <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
@@ -610,7 +752,7 @@ const UnifiedCatalog = ({
           </FilterGroup>
         )}
 
-        {showStreams && streamOptions.length > 0 && (
+        {!isCompetitive && showStreams && streamOptions.length > 0 && (
           <FilterGroup title="Stream" open={!collapsed.stream} onToggle={() => toggleGroup('stream')}>
             <div className="uc-fchips">
               <button type="button" className={`uc-pill${streamFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setStreamFilter(null)}>All</button>

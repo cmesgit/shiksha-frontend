@@ -16,10 +16,40 @@ export async function getPublicBoards() {
   }
 }
 
-export async function getPublicCatalog(boardId) {
-  if (!boardId) return [];
+/**
+ * Public course catalog.
+ *
+ * Accepts either a bare board id (the original signature, still used by the
+ * cross-board search) or an options object `{ board, group, kind }`.
+ *
+ * The bare-boardId form used to `return []` when the id was falsy, and that
+ * early return is why competitive exams were invisible on /courses: they are
+ * created with `board = NULL` (see create_competitive_courses.py), so a
+ * board-scoped fetch excludes them by construction and the only query that
+ * could reach them — a board-less one — was refused by the client before it
+ * ever left the browser. The backend has accepted `?group=` and `?kind=`
+ * since the endpoint was written; nothing sent them.
+ *
+ * The guard is kept for the boardId form ONLY, where "no board yet" really
+ * does mean "nothing to ask for". A call carrying a group/kind is a
+ * deliberate board-less query and is allowed through.
+ */
+export async function getPublicCatalog(boardIdOrOptions) {
+  const opts =
+    typeof boardIdOrOptions === "string" || boardIdOrOptions == null
+      ? { board: boardIdOrOptions }
+      : boardIdOrOptions;
+
+  const { board, group, kind } = opts;
+  if (!board && !group && !kind) return [];
+
+  const params = {};
+  if (board) params.board = board;
+  if (group) params.group = group;
+  if (kind) params.kind = kind;
+
   try {
-    const { data } = await api.get("/courses/public/catalog/", { params: { board: boardId } });
+    const { data } = await api.get("/courses/public/catalog/", { params });
     return Array.isArray(data) ? data : [];
   } catch {
     return [];

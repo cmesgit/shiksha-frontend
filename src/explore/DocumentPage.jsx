@@ -10,6 +10,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getDocument, reportDocument, recordDownload, recordView } from "./exploreApi";
 import { useExplore } from "./ExploreStore";
 import { DocCard, Icon, Loading, fileGlyph, LikeButton } from "./components/ui";
+import { CategoryIcon } from "./components/categoryIcons";
+import {
+  PiBookmarkSimple, PiBookmarkSimpleFill, PiCheck, PiFlag,
+  PiHeart, PiHeartFill, PiPlus, PiShareNetwork,
+} from "react-icons/pi";
 import "./Explore.css";
 
 export default function DocumentPage() {
@@ -105,7 +110,7 @@ export default function DocumentPage() {
           {/* cover + actions */}
           <div>
             <div className="exp-bigcover" style={{ background: cover }}>
-              <span className="ficon">{meta.icon || "📄"}</span>
+              <span className="ficon"><CategoryIcon meta={meta} /></span>
               <span className="ftype" style={{ position: "absolute", top: 12, left: 12, background: "rgba(0,0,0,.28)", color: "#fff", font: "700 11px Poppins", padding: "5px 9px", borderRadius: 7 }}>
                 {fileGlyph(doc.filetype)} · {doc.pages} pages
               </span>
@@ -118,15 +123,15 @@ export default function DocumentPage() {
                 onClick={downloadNow}>Download</button>
               <div className="row">
                 <button className={`exp-iconbtn${saved ? " on" : ""}`} onClick={() => store.toggleSave(doc.id)}>
-                  {saved ? "★ Saved" : "☆ Save"}
+                  {saved ? <><PiBookmarkSimpleFill aria-hidden="true" /> Saved</> : <><PiBookmarkSimple aria-hidden="true" /> Save</>}
                 </button>
                 <button className={`exp-iconbtn${liked ? " on" : ""}`} onClick={() => store.toggleLike(doc.id)}>
-                  {liked ? "♥ Liked" : "♡ Like"}
+                  {liked ? <><PiHeartFill aria-hidden="true" /> Liked</> : <><PiHeart aria-hidden="true" /> Like</>}
                 </button>
               </div>
               <div className="row">
-                <button className="exp-iconbtn" onClick={share}>↗ Share</button>
-                <button className="exp-iconbtn" onClick={() => setReport({ reason: "", detail: "" })}>⚑ Report</button>
+                <button className="exp-iconbtn" onClick={share}><PiShareNetwork aria-hidden="true" /> Share</button>
+                <button className="exp-iconbtn" onClick={() => setReport({ reason: "", detail: "" })}><PiFlag aria-hidden="true" /> Report</button>
               </div>
             </div>
           </div>
@@ -150,7 +155,7 @@ export default function DocumentPage() {
                     className={`exp-btn ${following ? "exp-btn-ghost" : "exp-btn-primary"}`}
                     style={{ marginLeft: "auto", padding: "8px 16px" }}
                     onClick={(e) => { e.stopPropagation(); store.toggleFollow(doc.author.id); }}
-                  >{following ? "✓ Following" : "+ Follow"}</button>
+                  >{following ? <><PiCheck aria-hidden="true" /> Following</> : <><PiPlus aria-hidden="true" /> Follow</>}</button>
                 )}
               </div>
             )}

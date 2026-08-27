@@ -216,6 +216,47 @@
 .uc-fseg button:hover { color: var(--sk-ink); }
 .uc-fseg button[aria-selected="true"] { background: #fff; color: var(--sk-green-dark); box-shadow: 0 3px 10px rgba(11, 46, 32, .09); }
 
+/* Top-level axis (School / Competitive), above the Board group. Same
+   segmented-pill vocabulary as .uc-fseg so the two read as one system, but
+   full-width and a step up in weight since it gates what the panel shows. */
+.uc-faxis {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--sk-paper);
+  border: 1px solid var(--sk-line); border-radius: 999px; padding: 4px; margin-bottom: 14px;
+}
+.uc-faxis button {
+  border: none; background: none; font-family: var(--sk-font); font-size: 12.5px; font-weight: 800;
+  padding: 9px 4px; border-radius: 999px; color: var(--sk-body); cursor: pointer;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.uc-faxis button:hover { color: var(--sk-ink); }
+.uc-faxis button[aria-selected="true"] {
+  background: var(--sk-green-dark); color: #fff; box-shadow: 0 3px 10px rgba(11, 46, 32, .16);
+}
+
+/* "All boards" — the escape hatch the mandatory single-select never had. */
+.uc-fall {
+  width: 100%; text-align: left; border: 1px solid var(--sk-line); background: #fff;
+  font-family: var(--sk-font); font-size: 12.5px; font-weight: 700; color: var(--sk-ink);
+  padding: 9px 12px; border-radius: 12px; cursor: pointer; margin-bottom: 10px;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.uc-fall:hover { border-color: var(--sk-green); }
+.uc-fall.uc-on {
+  background: var(--sk-green-dark); border-color: var(--sk-green-dark); color: #fff;
+}
+
+/* Divider above the locked ("Coming soon") boards, which are sorted below the
+   live ones so ~31 dead chips don't bury the 2 that work. */
+.uc-fsublabel {
+  margin: 10px 0 4px; font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--sk-body);
+}
+.uc-fmore {
+  margin-top: 6px; border: none; background: none; padding: 6px 2px; cursor: pointer;
+  font-family: var(--sk-font); font-size: 12px; font-weight: 700; color: var(--sk-green-dark);
+}
+.uc-fmore:hover { text-decoration: underline; }
+
 .uc-ffind { position: relative; margin-bottom: 8px; }
 .uc-ffind svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--sk-body); }
 .uc-ffind input {
