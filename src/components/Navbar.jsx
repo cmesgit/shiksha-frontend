@@ -855,8 +855,14 @@ const Navbar = () => {
                       ...(t.viewAll ? [t.viewAll] : []),
                     ])
                   : cat.sections.flatMap((s) => s.links)
-                ).map((l) => (
-                  <MenuLink link={l} onGo={closeAll} key={cat.title + l.label} />
+                ).map((l, i) => (
+                  // Index, because this list is FLATTENED across board tabs and
+                  // the label alone is not unique across them: CBSE and MBSE
+                  // both offer Class 8-12, so `cat.title + l.label` collided on
+                  // nine rows. The backend now qualifies each label with its
+                  // board, but the key must not depend on the catalog staying
+                  // that way.
+                  <MenuLink link={l} onGo={closeAll} key={`${cat.title}-${l.label}-${i}`} />
                 ))}
               </div>
             ))}
