@@ -490,7 +490,7 @@
   border-radius: 24px;
   box-shadow: 0 20px 50px -12px rgba(11, 46, 32, 0.14),
     0 0 0 1px rgba(11, 46, 32, 0.03);
-  padding: 30px 34px;
+  padding: 24px 30px;
   opacity: 0;
   transform: translateY(10px) scale(0.985);
   transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1),
@@ -508,20 +508,27 @@
 .skn-mega-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 38px;
+  /* 16 here + 11 of column padding either side = the 38px of visual space
+     between column CONTENT that this used to set directly. Split that way so
+     each column has room to hold its list's 11px hover bleed instead of
+     overflowing. Net spacing is unchanged. */
+  gap: 16px;
+}
+.skn-mcol {
+  padding: 0 11px;
 }
 .skn-mcol-head {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  gap: 11px;
+  padding-bottom: 10px;
+  margin-bottom: 13px;
   border-bottom: 1px solid var(--sk-line);
 }
 .skn-mcol-ic {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
   background: var(--sk-green-deep);
   color: #fff;
   display: grid;
@@ -530,8 +537,8 @@
   flex: none;
 }
 .skn-mcol-ic svg {
-  width: 19px;
-  height: 19px;
+  width: 17px;
+  height: 17px;
 }
 .skn-mcol-head h3 {
   margin: 0;
@@ -548,7 +555,7 @@
   background: var(--sk-mint);
   border: 1px solid rgba(15, 157, 107, 0.18);
   border-radius: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 13px;
 }
 .skn-seg button {
   flex: 1;
@@ -559,7 +566,7 @@
   font-size: 12.5px;
   font-weight: 700;
   color: rgba(0, 74, 51, 0.75);
-  padding: 7px 10px;
+  padding: 6px 10px;
   border-radius: 9px;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -571,10 +578,10 @@
 
 /* link lists */
 .skn-msec + .skn-msec {
-  margin-top: 18px;
+  margin-top: 14px;
 }
 .skn-msec h4 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 0.09em;
@@ -583,7 +590,15 @@
 }
 .skn-msec ul {
   list-style: none;
-  margin: 0;
+  /* Bleed the whole list 11px either side instead of each link individually.
+     .skn-mlink used to carry `margin: 0 -11px` so its hover background could
+     extend past the text, but nothing absorbed it: every li — and in turn every
+     .skn-msec, .skn-mcol and the grid itself — reported 11px of horizontal
+     overflow, 33 elements on the Courses panel, each becoming a stray scroll
+     area because the max-height rule below makes overflow-x compute to auto.
+     Widening the list instead puts the bleed inside a box that has room for it.
+     Text lands in exactly the same place; only the overflow goes away. */
+  margin: 0 -11px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -603,7 +618,14 @@
    same links are laid out, so it can't drop a course from the nav. */
 .skn-msec--wide ul {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Two columns only when a row can actually hold a label AND its status chip.
+     repeat(2, minmax(0, 1fr)) forced two tracks at any width: inside a 359px
+     column that is ~173px each, and once the "Coming Soon" chip takes its
+     share the label is left ~62px — enough to put "Banking PO" and "MPSC
+     Rajyaseva" onto two lines each. That is the cramping. auto-fill falls back
+     to one full-width row when two won't fit, and restores two on wider
+     panels. */
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 2px 14px;
 }
 .skn-msec--wide .skn-viewall {
@@ -625,8 +647,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 7px 11px;
-  margin: 0 -11px;
+  /* 5px, not 7px. Vertical row padding is multiplied by the row count, so it
+     is what makes a 12-entry column feel heavy; the label's own line box still
+     gives each row a 23px core and a comfortable hit target. */
+  padding: 5px 11px;
+  /* No negative margin — the list bleeds now. See .skn-msec ul above. */
+  margin: 0;
   border-radius: 9px;
   font-size: 14.5px;
   font-weight: 500;
