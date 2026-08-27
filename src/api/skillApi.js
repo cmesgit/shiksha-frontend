@@ -216,32 +216,7 @@ export async function registerStudent(payload) {
   return data;
 }
 
-export async function registerTeacher(payload) {
-  if (USE_MOCK) { await wait(); return { ok: true, applicationId: "mock-app-1" }; }
-  // Creates a teacher APPLICATION (status: pending screening), not a live teacher.
-  const { data } = await api.post("/skill/teacher-applications/", payload);
-  return data;
-}
-
 /* ── Interview screening ──────────────────────────────────── */
-export async function fetchInterviewSlots() {
-  if (USE_MOCK) { await wait(150); return null; /* screens use built-in demo slots */ }
-  const { data } = await api.get("/skill/interview-slots/");
-  return data;
-}
-
-export async function scheduleInterview({ applicationId, slot }) {
-  if (USE_MOCK) { await wait(); return { ok: true, slot }; }
-  const { data } = await api.post(`/skill/teacher-applications/${applicationId}/schedule/`, { slot });
-  return data;
-}
-
-export async function fetchReviewQueue() {
-  if (USE_MOCK) { await wait(200); const { CANDIDATES } = await import("../components/skill/data"); return CANDIDATES; }
-  const { data } = await api.get("/skill/admin/interview-queue/");
-  return data;
-}
-
 export async function submitEvaluation({ candidateId, decision, tier, scores, feedback }) {
   if (USE_MOCK) { await wait(); return { ok: true }; }
   const { data } = await api.post(`/skill/admin/interviews/${candidateId}/evaluation/`, { decision, tier, scores, feedback });

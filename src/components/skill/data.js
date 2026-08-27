@@ -105,18 +105,6 @@ export const TIERS = [
   { key: "expert",   label: "Expert",   range: "₹600+",    note: "Exceptional / specialist" },
 ];
 
-export const CANDIDATES = [
-  { id: "c1", name: "Lalrinpuia Sailo", skill: "Python & Data Science", cat: "Coding",
-    img: teacher9, time: "Today · 4:30 PM", status: "ready", exp: "3–5 yrs" },
-  { id: "c2", name: "Ruth Vanlalhriati", skill: "Spoken English", cat: "Languages",
-    img: teacher2, time: "Today · 5:15 PM", status: "scheduled", exp: "5–10 yrs" },
-  { id: "c3", name: "Malsawmtluanga", skill: "Acoustic Guitar", cat: "Music",
-    img: teacher5, time: "Tomorrow · 11:00 AM", status: "scheduled", exp: "1–3 yrs" },
-  { id: "c4", name: "Esther Lalruatfeli", skill: "Watercolour", cat: "Crafts",
-    img: teacher6, time: "Reviewed · yesterday", status: "approved", exp: "3–5 yrs" },
-  { id: "c5", name: "Vanlalruata", skill: "UPSC GS", cat: "Exam prep",
-    img: teacher4, time: "Reviewed · 2 days ago", status: "hold", exp: "1–3 yrs" },
-];
 
 export const DEFAULT_APPLICANT = {
   name: "Lalrinpuia Sailo",
