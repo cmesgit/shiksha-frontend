@@ -246,8 +246,19 @@ export async function payForSession({ teacherId, draft, method, amount, activePr
 export default {
   fetchTeachers, fetchTeacherPage, fetchDirectoryStats,
   fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
-  registerStudent, registerTeacher,
-  fetchInterviewSlots, scheduleInterview, fetchReviewQueue, submitEvaluation,
+  // registerTeacher, fetchInterviewSlots, scheduleInterview and fetchReviewQueue
+  // were listed here but never defined anywhere in this module, and nothing
+  // imports them. Evaluating this object literal therefore threw
+  // `ReferenceError: registerTeacher is not defined` on the FIRST of them,
+  // which unmounted the whole React tree — /skill/browse served a completely
+  // blank #root on production.
+  //
+  // Note this cannot be caught by `npm run build`: a bare undefined identifier
+  // is a global reference to Rollup, so it bundles clean and only fails at
+  // runtime. That is why it shipped. Re-add each name here in the same commit
+  // that defines it, never ahead of it.
+  registerStudent,
+  submitEvaluation,
   requestSession, payForSession, enrollCourse,
   startConversation, sendMessage, messageExpert,
 };
