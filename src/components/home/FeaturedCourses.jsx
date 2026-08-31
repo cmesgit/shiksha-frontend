@@ -12,6 +12,7 @@ import { useAuth } from "../../contexts/AuthContext";
 // .wrap/.sec/.sec-head/.eyebrow/.btn vocabulary this markup also uses come
 // from ShikshaHome.css, imported once by the homepage composer
 // (ShikshaHome.jsx) — which is the only place this component renders.
+import CourseCard from "../courses/CourseCard";
 import "../../css/FeaturedCourses.css";
 
 
@@ -30,11 +31,6 @@ const ClockSVG = () => (
 const ArrowSVG = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-const HeartSVG = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z" />
   </svg>
 );
 
@@ -59,124 +55,33 @@ function CatIcon({ icon }) {
   );
 }
 
-function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus, enrollmentStatus }) {
-  // Shared with the /courses card — same definition, so the two surfaces
-  // cannot say different things about the same course.
-  const { label: enrollLabel, isPending } = enrollLabelFor(enrollmentStatus);
-
-  return (
-    <article className="fc-card rv" data-cat={c.cats.join(" ")}>
-      {/* The gradient is the card's own artwork and always renders; the photo
-          layers on top of it only when the CMS actually has one. Interpolating
-          an absent c.img produced url('undefined') — a real, failing image
-          request on every card the CMS hasn't been given artwork for. */}
-      <div
-        className={`fc-thumb${c.img ? " fc-thumb--photo" : ""}`}
-        style={{
-          background: c.img
-            ? `url('${c.img}') center/cover`
-            : `linear-gradient(135deg,${c.grad})`,
-        }}
-      >
-        {/* The gradient used to be layered ON TOP of the photo at the CMS's own
-            0.72/0.88 alphas, leaving 12–28% of the artwork visible — every card
-            with a real uploaded picture rendered as a flat colour block. The
-            gradient is the card's artwork only when there is no photo; when
-            there is one, legibility comes from the .fc-thumb--photo scrim. */}
-        {/* The icon is that same no-artwork fallback, not a badge, so it goes
-            with it. /courses already treats the two as mutually exclusive —
-            `cls.image ? <img> : <placeholder-icon>` in UnifiedCatalog.jsx. */}
-        {!c.img && <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>}
-        {c.ribbon && !c.soon && <span className="fc-ribbon">{c.ribbon}</span>}
-        <button
-          type="button"
-          className={`fc-heart${saved ? " on" : ""}`}
-          aria-label="Save course"
-          aria-pressed={saved}
-          onClick={onToggleSave}
-        >
-          <HeartSVG />
-        </button>
-        <span className="fc-lvl">{c.lvl}</span>
-      </div>
-      <div className="fc-body">
-        <h3>{c.title}</h3>
-        <div className="fc-fact"><ClockSVG />{c.fact}</div>
-        {/* Only for cards that point at a real course — a showcase row with no
-            linked course has no chapters to show, and an "Explore Programs"
-            card is a category, not a syllabus. */}
-        {!c.explore && !c.soon && (c.courseSlug || c.courseId) && (
-          <button type="button" className="fc-syllabus" onClick={() => onSyllabus(c)}>
-            View syllabus <ArrowSVG />
-          </button>
-        )}
-        <div className="fc-foot">
-          {c.soon ? (
-            <>
-              {/* Every showcase row currently has an empty tutor_name, which
-                  rendered a blank avatar disc next to a blank label. Only show
-                  the tutor when there is a real one to name. */}
-              {c.tutor ? (
-                <span className="fc-tutor">
-                  {/* `avColor` was read here but never produced by
-                      toFeaturedCard — no showcase field backs it — so this was
-                      always `background: undefined` and the disc rendered
-                      white-on-white with an invisible initial. The colour
-                      belongs in the stylesheet, not in a field nothing sets. */}
-                  <span className="fc-av">{c.tutor[0]}</span>
-                  {c.tutor}
-                </span>
-              ) : <span />}
-              <span className="fc-price soon">Coming Soon</span>
-            </>
-          ) : c.explore ? (
-            <button type="button" className="fc-explore" onClick={() => onAction(c)}>
-              Explore Programs
-            </button>
-          ) : (
-            <>
-              {/* A linked course that costs nothing must read "Free", not
-                  "₹0 /month" — the platform is free at launch
-                  (GlobalSettings.live_launch_free_mode), so zero is the real
-                  price rather than missing data. */}
-              {/* A board-linked card gets price_label: null from the API, so
-                  `price` is undefined and the ₹ branch rendered the literal
-                  "₹undefined /month". Show nothing rather than a broken price. */}
-              {/* Was a bare price. The endpoint sends mrp + discount_label for
-                  every linked course and the mapper dropped both, so /courses
-                  advertised "was ₹3,000 · 100% off" while the homepage showed
-                  the amount alone. Wrapped rather than three siblings because
-                  .fc-foot is a space-between flex row — loose children would
-                  spread across it instead of stacking against "Enroll now". */}
-              {c.free || c.price ? (
-                <span className="fc-priceblock">
-                  {c.mrp && c.mrp !== c.price && (
-                    <span className="fc-mrp">&#8377;{c.mrp}</span>
-                  )}
-                  {c.free ? (
-                    <span className="fc-price">Free</span>
-                  ) : (
-                    <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
-                  )}
-                  {c.discountLabel ? (
-                    <span className="fc-discount">{c.discountLabel}</span>
-                  ) : null}
-                </span>
-              ) : null}
-              <button
-                type="button"
-                className="fc-enroll"
-                disabled={isPending}
-                onClick={() => { if (!isPending) onAction(c); }}
-              >
-                {enrollLabel} <ArrowSVG />
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </article>
-  );
+/* Adapter: a featured/showcase card -> the shared CourseCard's model.
+ *
+ * Spreads `c` so the navigation handlers still receive courseId/courseSlug/
+ * to/state and keep working untouched. The added keys are display-only.
+ */
+function toHomeCard(c) {
+  return {
+    ...c,
+    categories: c.cats,
+    image: c.img,
+    // The card's own artwork, used only when there is no photo. The full
+    // linear-gradient() wrapper belongs here because `grad` stores the STOPS
+    // only — the same split the admin preview got wrong.
+    gradient: `linear-gradient(135deg,${c.grad})`,
+    icon: <CatIcon icon={c.icon} />,
+    levelLabel: c.lvl,
+    factIcon: <ClockSVG />,
+    isFree: c.free,
+    amount: c.price,
+    isComingSoon: c.soon,
+    isExplore: c.explore,
+    // A showcase row with no linked course has no chapters to show, and an
+    // "Explore Programs" card is a category rather than a course.
+    canViewSyllabus: !c.explore && !c.soon && !!(c.courseSlug || c.courseId),
+    arrow: <ArrowSVG />,
+    revealOnScroll: true,
+  };
 }
 
 // Same static fallback as the original homepage — replaced by the CMS
@@ -207,7 +112,6 @@ export default function FeaturedCourses() {
   // Seeded with the fallback so the tab row paints on first render, then
   // replaced by the CMS rows the featured payload carries.
   const [tabs, setTabs] = useState(COURSE_TABS);
-  const [saved, setSaved] = useState(() => new Set());
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
@@ -325,14 +229,6 @@ export default function FeaturedCourses() {
     else if (c.courseId) navigate(`/courses?open=${c.courseId}`);
   };
 
-  const toggleSave = (title) => {
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title); else next.add(title);
-      return next;
-    });
-  };
-
   // Reveal-on-scroll, scoped to this section and re-attached whenever the
   // card list changes (real CMS rows swap in, or a tab filter re-renders).
   useEffect(() => {
@@ -380,9 +276,8 @@ export default function FeaturedCourses() {
             {visible.map((c) => (
               <CourseCard
                 key={c.title}
-                course={c}
-                saved={saved.has(c.title)}
-                onToggleSave={() => toggleSave(c.title)}
+                variant="home"
+                card={toHomeCard(c)}
                 onAction={goToCourse}
                 onSyllabus={goToSyllabus}
                 // Only course-linked cards can be enrolled in; a board or

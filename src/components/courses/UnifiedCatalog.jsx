@@ -30,6 +30,7 @@ import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 // homepage's Featured card so the two surfaces cannot disagree about the same
 // course.
 import { enrollLabelFor } from '../../hooks/useEnrollmentStatus';
+import CourseCard from './CourseCard';
 import '../../css/UnifiedCatalog.css';
 
 const SearchIcon = () => (
@@ -216,105 +217,40 @@ function thumbGradient(cls) {
   return NEUTRAL_GRADIENTS[idx];
 }
 
-function priceBlock(cls) {
-  const showMrp = cls.mrp && cls.mrp !== cls.fee;
-  return (
-    <div className="uc-price">
-      {showMrp && <span className="uc-price__mrp">₹{cls.mrp}</span>}
-      {/* The MRP strikethrough and the discount label stay: an admin set those
-          up deliberately and they carry the real "was ₹3,000" framing. Only the
-          amount itself changes, because "₹0 /month" is not how anyone says
-          this — and the homepage already says "Free" for the same course. */}
-      {cls.isZeroPrice ? (
-        <span className="uc-price__now">Free</span>
-      ) : (
-        <span className="uc-price__now">₹{cls.fee}<small> /month</small></span>
-      )}
-      {cls.discountLabel && <span className="uc-price__discount">{cls.discountLabel}</span>}
-    </div>
-  );
-}
-
-function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enrollmentStatus, hideKindLabel }) {
-  // Shared with the homepage's Featured card — same definition, so the two
-  // surfaces cannot say different things about the same course.
-  const { label: enrollLabel, isPending } = enrollLabelFor(enrollmentStatus);
-  const seatsLow = cls.seatsLeft != null && cls.seatsLeft <= 8;
-  // Real class_level -> a "CLASS 8" ribbon, same field the earlier fee/
-  // subject-count facts already use — falls back to the admin-set `badge`
-  // (a real, CMS-editable field) only when class_level isn't present.
-  const ribbon = cls.classLevel ? `Class ${cls.classLevel}` : cls.badge;
-  // Stream (Science/Commerce/Arts) is real data and shown as its own pill.
-  // For classes with no stream, "Board year" for 10/12 vs "Foundation"
-  // otherwise is a plain fact about the Indian school system tied to the
-  // real class_level — not a per-course statistic like the mockup's
-  // "4,100 learners" (which has no backing field at all).
-  const levelPill = cls.subtitle || (cls.classLevel === 10 || cls.classLevel === 12 ? 'Board year' : cls.classLevel ? 'Foundation' : null);
-
-  return (
-    <article className="uc-gridcard" onClick={() => onOpen(cls)}>
-      <div className="uc-gridcard__thumb" style={cls.image ? undefined : { background: thumbGradient(cls) }}>
-        {ribbon && <span className="uc-gridcard__ribbon">{ribbon}</span>}
-        {cls.image ? (
-          <img src={cls.image} alt="" className="uc-gridcard__img" />
-        ) : (
-          <span className="uc-gridcard__placeholder-icon"><ThumbIcon subtitle={cls.subtitle} /></span>
-        )}
-        {levelPill && <span className="uc-gridcard__pill">{levelPill}</span>}
-      </div>
-      <div className="uc-gridcard__body">
-        {/* The course's own board, not the selected one — in "All boards"
-            mode `board` is null and every card would be unlabelled. */}
-        <span className="uc-gridcard__board">{boardLabelFor(cls, board, hideKindLabel)}</span>
-        <h3>
-          {cls.title}
-          {cls.subtitle && <span className="uc-gridcard__sub"> ({cls.subtitle})</span>}
-        </h3>
-        <div className="uc-gridcard__fact">
-          <ClockIcon />
-          {cls.duration} · {cls.mode}
-          {cls.subjectCount > 0 && ` · ${cls.subjectCount} subject${cls.subjectCount === 1 ? '' : 's'}`}
-        </div>
-        {cls.seatsLeft != null && (
-          <div className={`uc-gridcard__seats${seatsLow ? ' uc-gridcard__seats--low' : ''}`}>
-            {cls.seatsLeft} seat{cls.seatsLeft === 1 ? '' : 's'} left
-          </div>
-        )}
-        {/* The chapter-wise breakdown used to be reachable only by opening the
-            quick-view dialog first, which meant nobody browsing the grid could
-            tell what a course actually covers. Sits above the price divider
-            rather than in the footer, which is already a two-up price/enroll
-            row and has no space for a third control. */}
-        <button
-          type="button"
-          className="uc-gridcard__syllabus"
-          onClick={(e) => { e.stopPropagation(); onSyllabus(cls); }}
-        >
-          View syllabus <ArrowIcon />
-        </button>
-        <div className="uc-gridcard__spacer" />
-        <div className="uc-gridcard__foot">
-          {cls.isComingSoon ? (
-            <span className="uc-gridcard__soon">Coming Soon</span>
-          ) : (
-            priceBlock(cls)
-          )}
-          <button
-            type="button"
-            className="uc-gridcard__enroll"
-            disabled={isPending || isEnrolled}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (cls.isComingSoon) onNotify(cls);
-              else if (!isPending) onEnroll(cls);
-            }}
-          >
-            {cls.isComingSoon ? 'Notify me' : enrollLabel} <ArrowIcon />
-          </button>
-        </div>
-      </div>
-    </article>
-  );
+/* Adapter: a catalog row -> the shared CourseCard's model.
+ *
+ * Spreads `cls` so every callback still receives an object carrying the
+ * original fields (id, slug, courseIds, ...) and the existing handlers in
+ * Courses.jsx keep working untouched. The added keys are display-only.
+ */
+function toCatalogCard(cls, board, hideKindLabel) {
+  const subjects = cls.subjectCount > 0
+    ? ` \u00b7 ${cls.subjectCount} subject${cls.subjectCount === 1 ? '' : 's'}`
+    : '';
+  return {
+    ...cls,
+    image: cls.image,
+    gradient: thumbGradient(cls),
+    icon: <ThumbIcon subtitle={cls.subtitle} />,
+    // Real class_level -> a "Class 8" ribbon; falls back to the admin-set
+    // `badge` only when class_level isn't present.
+    ribbon: cls.classLevel ? `Class ${cls.classLevel}` : cls.badge,
+    // Stream is real data. For classes with no stream, "Board year" for 10/12
+    // vs "Foundation" is a plain fact about the Indian school system tied to
+    // the real class_level — not an invented per-course statistic.
+    levelLabel: cls.subtitle
+      || (cls.classLevel === 10 || cls.classLevel === 12 ? 'Board year'
+          : cls.classLevel ? 'Foundation' : null),
+    // The course's own board, not the selected one — in "All boards" mode
+    // `board` is null and every card would otherwise be unlabelled.
+    boardLabel: boardLabelFor(cls, board, hideKindLabel),
+    fact: `${cls.duration} \u00b7 ${cls.mode}${subjects}`,
+    factIcon: <ClockIcon />,
+    isFree: cls.isZeroPrice,
+    amount: cls.fee,
+    canViewSyllabus: true,
+    arrow: <ArrowIcon />,
+  };
 }
 
 function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, enrollmentStatus }) {
@@ -619,14 +555,13 @@ const UnifiedCatalog = ({
             {visibleClasses.map((cls) => (
               <CourseCard
                 key={cls.id}
-                cls={cls}
-                board={currentBoard}
+                variant="catalog"
+                card={toCatalogCard(cls, currentBoard, isCompetitive)}
                 onOpen={(c) => onToggleExpand(c.id, true)}
-                onEnroll={onEnroll}
+                onAction={onEnroll}
                 onNotify={setNotifyCourse}
                 onSyllabus={onSyllabus}
                 enrollmentStatus={enrollmentStatusByCourseId[cls.courseIds?.[selectedBoard]]}
-                hideKindLabel={isCompetitive}
               />
             ))}
           </div>

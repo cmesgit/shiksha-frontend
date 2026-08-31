@@ -43,10 +43,6 @@
 .fc-thumb-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.16);display:grid;place-items:center;backdrop-filter:blur(2px)}
 .fc-thumb-ic svg{width:30px;height:30px}
 .fc-ribbon{position:absolute;top:14px;left:14px;background:var(--gold);color:var(--ink);font-family:var(--font);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
-.fc-heart{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.2);display:grid;place-items:center;transition:background .2s;color:#fff}
-.fc-heart svg{width:16px;height:16px}
-.fc-heart.on{background:#fff;color:var(--red)}
-.fc-heart.on svg{fill:currentColor}
 .fc-lvl{position:absolute;bottom:-13px;left:18px;background:#fff;border:1.5px solid var(--line);color:var(--coral-dark);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 13px;border-radius:999px;box-shadow:0 6px 14px rgba(11,46,32,.08)}
 .fc-body{padding:26px 20px 20px;display:flex;flex-direction:column;flex:1}
 .fc-body h3{font-family:var(--display);font-size:16.3px;font-weight:700;margin:0 0 10px;line-height:1.35}
