@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-import { FEATURED_COURSES, COURSE_TABS } from "./homeData";
+import { FEATURED_COURSES, COURSE_TABS, ALL_TAB } from "./homeData";
 import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import useEnrollmentStatus from "../../hooks/useEnrollmentStatus";
@@ -606,7 +606,10 @@ export default function FeaturedCourses() {
   const { isAuthenticated } = useAuth();
   const { statusByCourseId } = useEnrollmentStatus(isAuthenticated);
   const [courses, setCourses] = useState(FEATURED_COURSES);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState(ALL_TAB.id);
+  // Seeded with the fallback so the tab row paints on first render, then
+  // replaced by the CMS rows the featured payload carries.
+  const [tabs, setTabs] = useState(COURSE_TABS);
   const [saved, setSaved] = useState(() => new Set());
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
@@ -619,9 +622,28 @@ export default function FeaturedCourses() {
   // homeData.js's own header comment for why the fallback stays.
   useEffect(() => {
     let cancelled = false;
-    getPublicFeatured().then((cards) => {
-      if (cancelled || !cards.length) return;
-      setCourses(cards.map(toFeaturedCard));
+    getPublicFeatured().then(({ cards, tabs: apiTabs }) => {
+      if (cancelled) return;
+      if (cards.length) setCourses(cards.map(toFeaturedCard));
+      // Tabs are CMS rows now (content.ShowcaseCategory). Only replace the
+      // fallback when the backend actually sent some: an empty list means
+      // either a stale cached response written before the backend sent the
+      // key, or a failure — and rendering a grid with no filters at all is
+      // worse than rendering the three it has always had.
+      // ALL_TAB is prepended here, not sent by the server. Without it the
+      // default activeTab ("all") would match no tab at all and the grid would
+      // load empty with no way back.
+      if (apiTabs.length) {
+        setTabs([ALL_TAB, ...apiTabs]);
+        // The fallback row is clickable before this response lands, so a
+        // visitor can already have selected a tab the CMS has since switched
+        // off. Falling back to All beats an empty grid with nothing selected.
+        setActiveTab((cur) =>
+          cur === ALL_TAB.id || apiTabs.some((t) => t.id === cur)
+            ? cur
+            : ALL_TAB.id
+        );
+      }
     });
     return () => { cancelled = true; };
   }, []);
@@ -743,7 +765,7 @@ export default function FeaturedCourses() {
           </div>
 
           <div className="fc-tabs rv" role="tablist" aria-label="Filter courses">
-            {COURSE_TABS.map((t) => (
+            {tabs.map((t) => (
               <button
                 key={t.id}
                 type="button"

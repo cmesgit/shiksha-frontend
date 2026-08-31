@@ -138,12 +138,22 @@ export async function submitCourseNotify(courseId, email) {
  * here are already derived server-side from the linked Course/Board, so this
  * mapper trusts them directly instead of re-deriving a "soon" heuristic.
  */
+/* Returns `{cards, tabs}` rather than a bare cards array: the filter tabs are
+ * CMS rows now (content.ShowcaseCategory) and ship in this same payload, so the
+ * grid and the tabs that filter it can never be a cache generation apart.
+ *
+ * `tabs` is [] on an old cached response written before the backend sent the
+ * key, and on any failure — callers must fall back rather than render no tabs.
+ */
 export async function getPublicFeatured() {
   try {
     const { data } = await api.get("/courses/public/featured/");
-    return Array.isArray(data?.cards) ? data.cards : [];
+    return {
+      cards: Array.isArray(data?.cards) ? data.cards : [],
+      tabs: Array.isArray(data?.tabs) ? data.tabs : [],
+    };
   } catch {
-    return [];
+    return { cards: [], tabs: [] };
   }
 }
 

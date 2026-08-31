@@ -23,8 +23,21 @@
    Keep it that way: anything added here is a claim the site makes before
    it has talked to the backend. */
 
+/* The reserved "no filter applied" sentinel. The backend deliberately never
+ * sends this — content.ShowcaseCategory.clean() refuses the slug, because a
+ * real row named "all" would give the grid two All tabs, one of which filters
+ * for cards literally tagged "all" and is therefore always empty. The grid
+ * owns it and prepends it to whatever the CMS returns. */
+export const ALL_TAB = { id: "all", label: "All" };
+
+/* Fallback only. The live tab list is content.ShowcaseCategory, served in the
+ * /courses/public/featured/ payload as `tabs`. These three are what the
+ * homepage has always shown and what migration content/0028 seeds, so they are
+ * the right thing to paint before the first response lands — and the right
+ * thing to keep if that response has no tabs (an old cached entry, or a
+ * failure), since a grid with no filters at all is worse. */
 export const COURSE_TABS = [
-  { id: "all", label: "All" },
+  ALL_TAB,
   { id: "boards", label: "Boards" },
   { id: "class8-12", label: "Class 8–12" },
   { id: "competitive", label: "Competitive" },
