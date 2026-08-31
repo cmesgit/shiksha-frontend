@@ -4,7 +4,7 @@
 // catalog. Everything downstream (ClassRow, handleEnrollNow, handleSyllabus)
 // reads the same field names this layer produces.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getPublicBoards, getPublicCatalog } from "../api/coursesApi";
 
 const STREAM_LABELS = { SCIENCE: "Science", COMMERCE: "Commerce", ARTS: "Arts" };
@@ -39,6 +39,20 @@ function shapeClass(c, boardSlug) {
     image: c.thumbnail || null,
     duration: c.duration_weeks ? `${c.duration_weeks} Weeks` : "1 Year",
     fee: formatFee(c.price),
+    // A zero price is a real state, not missing data: the platform runs free at
+    // launch, so `price = 0` is the honest answer and the card has to say "Free"
+    // rather than "₹0 /month" — which is what all 18 live cards rendered.
+    //
+    // Deliberately a separate flag from `isFree` below. That one is the
+    // platform-wide free-launch MODE (GlobalSettings.effective_mode); this is
+    // "this course costs nothing", which is the condition the homepage's
+    // featured endpoint already keys on (`"Free" if not detail_course.price`,
+    // courses/views.py). Keying on the same thing is what stops the two
+    // surfaces from disagreeing about the same course.
+    //
+    // Not derived from `fee`, which is a preformatted display string ("—" when
+    // the price is null) and would make "unpriced" and "free" indistinguishable.
+    isZeroPrice: c.price === 0,
     // mrp/discountLabel/badge are real, admin-CMS-editable Course fields
     // that already exist on the backend (Courses.jsx's admin CMS work) but
     // were never surfaced here — null/"" when unset, same "nothing to
@@ -164,43 +178,54 @@ export function useBoardClasses(boards, boardSlug) {
  * (a ref, not state) so re-typing the same query never refetches; `boards`
  * itself never changes shape often enough to need cache invalidation. */
 export function useCrossBoardMatches(boards, query, excludeSlug) {
-  const cacheRef = useRef({});
-  const [, bumpRender] = useState(0);
+  const [matches, setMatches] = useState([]);
   const trimmed = query.trim();
 
   useEffect(() => {
-    if (!trimmed || !boards) return;
+    if (!trimmed || !boards) {
+      setMatches([]);
+      return undefined;
+    }
+
     let cancelled = false;
-    const targets = boards.filter(
-      (b) => b.slug !== excludeSlug && b.has_published_courses && !(b.slug in cacheRef.current)
-    );
-    targets.forEach((b) => {
-      cacheRef.current[b.slug] = null; // mark in-flight so a second render doesn't re-fetch
-      getPublicCatalog(b.id).then((rows) => {
+
+    // ONE filtered request, not one full catalog per board. This used to fetch
+    // every other unlocked board's ENTIRE catalog into a client-side cache and
+    // filter it in the browser — work that grows with the number of boards
+    // times the courses in each, for a list that only ever shows a handful of
+    // matches. `board` is an independent filter on the endpoint, so a q-only
+    // call already searches across every board server-side.
+    //
+    // It also searches `description`, which the old client-side pass could not:
+    // it compared against the `title (subtitle)` label alone. The stream still
+    // matches because the raw Course.title carries it — "Class 11 (Science)" —
+    // and splitTitle only strips it for display.
+    //
+    // Debounced because this is now a network call per keystroke rather than a
+    // filter over a warm cache.
+    const timer = setTimeout(() => {
+      getPublicCatalog({ q: trimmed }).then((rows) => {
         if (cancelled) return;
-        cacheRef.current[b.slug] = rows.map((c) => shapeClass(c, b.slug));
-        bumpRender((n) => n + 1);
+        const boardById = new Map(boards.map((b) => [b.id, b]));
+        const out = [];
+        rows.forEach((c) => {
+          // Competitive courses have board = NULL and are not part of the
+          // "also matches in other boards" list by definition.
+          const b = c.board ? boardById.get(c.board.id) : null;
+          if (!b || b.slug === excludeSlug || !b.has_published_courses) return;
+          const cls = shapeClass(c, b.slug);
+          const label = `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ""}`;
+          out.push({ board: b, cls, label: `${label} — ${b.name}` });
+        });
+        setMatches(out);
       });
-    });
+    }, 250);
+
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [boards, trimmed, excludeSlug]);
 
-  if (!trimmed || !boards) return [];
-
-  const q = trimmed.toLowerCase();
-  const matches = [];
-  boards.forEach((b) => {
-    if (b.slug === excludeSlug || !b.has_published_courses) return;
-    const classes = cacheRef.current[b.slug];
-    if (!classes) return; // not fetched yet (or in flight)
-    classes.forEach((cls) => {
-      const label = `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ""}`;
-      if (label.toLowerCase().includes(q)) {
-        matches.push({ board: b, cls, label: `${label} — ${b.name}` });
-      }
-    });
-  });
   return matches;
 }

@@ -217,7 +217,15 @@ function priceBlock(cls) {
   return (
     <div className="uc-price">
       {showMrp && <span className="uc-price__mrp">₹{cls.mrp}</span>}
-      <span className="uc-price__now">₹{cls.fee}<small> /month</small></span>
+      {/* The MRP strikethrough and the discount label stay: an admin set those
+          up deliberately and they carry the real "was ₹3,000" framing. Only the
+          amount itself changes, because "₹0 /month" is not how anyone says
+          this — and the homepage already says "Free" for the same course. */}
+      {cls.isZeroPrice ? (
+        <span className="uc-price__now">Free</span>
+      ) : (
+        <span className="uc-price__now">₹{cls.fee}<small> /month</small></span>
+      )}
       {cls.discountLabel && <span className="uc-price__discount">{cls.discountLabel}</span>}
     </div>
   );
@@ -488,7 +496,12 @@ const UnifiedCatalog = ({
     let list = classes.filter((cls) => {
       if (classFilter && cls.title !== classFilter) return false;
       if (streamFilter && cls.subtitle !== streamFilter) return false;
-      if (q) return `${cls.title} ${cls.subtitle || ''}`.toLowerCase().includes(q);
+      // `desc` is included so this matches the same fields the backend's ?q=
+      // does (title OR description) — the cross-board list below goes to the
+      // server, and without this a course findable there was not findable in
+      // the board you were already looking at. Stays client-side deliberately:
+      // the rows are already loaded, so it is instant and costs no request.
+      if (q) return `${cls.title} ${cls.subtitle || ''} ${cls.desc || ''}`.toLowerCase().includes(q);
       return true;
     });
     if (sortBy === 'fee-asc') list = list.slice().sort((a, b) => feeNumber(a.fee) - feeNumber(b.fee));

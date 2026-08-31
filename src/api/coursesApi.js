@@ -40,13 +40,20 @@ export async function getPublicCatalog(boardIdOrOptions) {
       ? { board: boardIdOrOptions }
       : boardIdOrOptions;
 
-  const { board, group, kind } = opts;
-  if (!board && !group && !kind) return [];
+  // `q` is a filter in its own right, so a q-only call is a deliberate
+  // board-less query and passes the guard for the same reason group/kind do.
+  // The backend has always accepted it (`title__icontains OR
+  // description__icontains`) and nothing sent it — the catalog filtered
+  // client-side on title+subtitle only, so a course findable by its
+  // description was unfindable in the UI.
+  const { board, group, kind, q } = opts;
+  if (!board && !group && !kind && !q) return [];
 
   const params = {};
   if (board) params.board = board;
   if (group) params.group = group;
   if (kind) params.kind = kind;
+  if (q) params.q = q;
 
   try {
     const { data } = await api.get("/courses/public/catalog/", { params });
@@ -150,6 +157,13 @@ export const toFeaturedCard = (c) => ({
   // formatted amount, so the card can say so instead of rendering "₹0".
   free: c.price_label === "Free",
   price: c.price_label ? c.price_label.replace(/^₹/, "").replace(/\/month$/, "") : undefined,
+  // The featured endpoint has always computed these two off the linked course
+  // (courses/views.py) and this mapper silently dropped both, so a card
+  // advertising "100% off / was ₹3,000" on /courses showed a bare price on the
+  // homepage. Paise, like every other money field on the API — /courses formats
+  // it the same way in usePublicCourses.js's formatFee.
+  mrp: c.mrp != null ? Math.round(c.mrp / 100).toLocaleString("en-IN") : null,
+  discountLabel: c.discount_label || "",
   tutor: c.tutor_name || undefined,
   explore: !!c.is_explore_card,
   soon: !!c.is_coming_soon,

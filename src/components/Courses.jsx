@@ -12,8 +12,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { useToast } from '../contexts/ToastContext';
 import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
-import { getMyEnrollmentRequests } from '../api/enrollments';
-import { getPublicCourseDetail, getPublicCourseBySlug, getMyEnrolledCourses } from '../api/coursesApi';
+import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
+import useEnrollmentStatus from '../hooks/useEnrollmentStatus';
 import {
   usePublicBoards,
   useBoardClasses,
@@ -74,7 +74,21 @@ const Courses = () => {
   // deep-link into this page with a pre-filled query.
   const [searchQuery, setSearchQuery] = useState(deepLink.searchQuery);
   const [expandedClassId, setExpandedClassId] = useState(null);
-  const [enrollmentStatusByCourseId, setEnrollmentStatusByCourseId] = useState({});
+  // The merge behind this (EnrollmentRequest queue + real enrollments, with
+  // real enrollment winning as APPROVED) lives in the hook, shared with the
+  // homepage's Featured grid — which used to have no access to it and so
+  // rendered a bare "Enroll now" to already-enrolled learners. Aliased to the
+  // names this file already used so nothing downstream had to change.
+  //
+  // `markApproved`/`handleEnrolled` is called by EnrollModal the instant a
+  // free-enroll succeeds, so the catalog reflects it even if the learner closes
+  // the popup (✕, Escape, backdrop) instead of clicking through to "Start
+  // Learning" — otherwise the map only refreshes on load/auth change and the
+  // button would still invite a re-enroll.
+  const {
+    statusByCourseId: enrollmentStatusByCourseId,
+    markApproved: handleEnrolled,
+  } = useEnrollmentStatus(isAuthenticated);
   const [enrollModalCourseId, setEnrollModalCourseId] = useState(null);
   const [activeCourseLoading, setActiveCourseLoading] = useState(false);
   // A homepage/showcase card linked to a specific real course (see
@@ -180,63 +194,6 @@ const Courses = () => {
       window.removeEventListener('popstate', handleBrowserBack);
     };
   }, [activeCourse]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setEnrollmentStatusByCourseId({});
-      return;
-    }
-
-    let cancelled = false;
-
-    const priority = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
-
-    // Two independent sources, merged: the manual-UPI review queue
-    // (EnrollmentRequest, via /enrollments/requests/mine/) and the learner's
-    // real active enrollments (/courses/my/). A free-enroll writes only the
-    // latter — FreeEnrollView creates an Enrollment/Subscription directly and
-    // never touches EnrollmentRequest — so relying on the request queue alone
-    // makes a free-enrolled course look un-enrolled forever unless the
-    // learner happens to click all the way through to "Start Learning"
-    // before closing the popup. Real enrollment always wins as APPROVED.
-    Promise.all([getMyEnrollmentRequests(), getMyEnrolledCourses()])
-      .then(([reqData, enrolled]) => {
-        if (cancelled) return;
-
-        const list = Array.isArray(reqData) ? reqData : reqData?.results || [];
-        const map = {};
-
-        for (const req of list) {
-          const cid = req?.course?.id;
-          if (!cid) continue;
-
-          const existing = map[cid];
-          if (!existing || (priority[req.status] || 0) > (priority[existing] || 0)) {
-            map[cid] = req.status;
-          }
-        }
-
-        for (const course of enrolled) {
-          if (course?.id) map[course.id] = 'APPROVED';
-        }
-
-        setEnrollmentStatusByCourseId(map);
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated]);
-
-  // Called by EnrollModal the instant a free-enroll succeeds, so the catalog
-  // reflects it immediately even if the learner closes the popup (✕, Escape,
-  // backdrop click) instead of clicking through to "Start Learning" — without
-  // this, enrollmentStatusByCourseId is only refreshed on page load/auth
-  // change, so the "Enroll Now" button would still invite a re-enroll.
-  const handleEnrolled = (courseId) => {
-    setEnrollmentStatusByCourseId((prev) => ({ ...prev, [courseId]: 'APPROVED' }));
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);

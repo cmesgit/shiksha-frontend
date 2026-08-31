@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { FEATURED_COURSES, COURSE_TABS } from "./homeData";
 import { getPublicFeatured, toFeaturedCard } from "../../api/coursesApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import useEnrollmentStatus from "../../hooks/useEnrollmentStatus";
+import { useAuth } from "../../contexts/AuthContext";
 
 // Featured Courses — self-contained. Markup + full stylesheet unchanged from the
 // original ShikshaCom page, so this renders correctly on its own with no deps.
@@ -177,6 +179,16 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
   .fc-card{background:#fff;border-radius:24px;overflow:hidden;border:1.5px solid var(--line);transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column}
   .fc-card:hover{transform:translateY(-7px);box-shadow:0 26px 50px rgba(11,46,32,.13)}
   .fc-thumb{position:relative;height:170px;padding:16px;background-size:cover !important;background-position:center !important}
+  /* Legibility scrim for cards that have a real CMS photo. Dark at the very top
+     and bottom so the white ribbon / heart / level chips stay readable, and
+     near-clear through the middle third where the subject of the photo is.
+     Deliberately NOT the card's own --grad: that is a full-strength brand tint
+     and re-applying it here is exactly what hid the artwork. Only z-index is
+     set on the children — several are position:absolute (.fc-lvl even hangs
+     below the thumb) and forcing position:relative would break their placement. */
+  .fc-thumb--photo::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,46,32,.46) 0%,rgba(11,46,32,.10) 34%,rgba(11,46,32,.06) 62%,rgba(11,46,32,.44) 100%)}
+  .fc-thumb--photo>*{z-index:1}
   .fc-thumb-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.16);display:grid;place-items:center;backdrop-filter:blur(2px)}
   .fc-thumb-ic svg{width:30px;height:30px}
   .fc-ribbon{position:absolute;top:14px;left:14px;background:var(--gold);color:var(--ink);font-family:var(--font);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
@@ -200,7 +212,13 @@ const css = `@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@
   .fc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1.5px dashed var(--line);padding-top:14px}
   .fc-foot:has(.fc-explore:only-child){justify-content:center;padding-top:16px}
   .fc-tutor{display:flex;align-items:center;gap:9px;font-family:var(--font);font-size:12.2px;font-weight:600;color:var(--ink-2)}
-  .fc-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:700;font-size:11.5px;border:2.5px solid #fff;flex-shrink:0}
+  .fc-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--coral-dark);color:#fff;font-family:var(--display);font-weight:700;font-size:11.5px;border:2.5px solid #fff;flex-shrink:0}
+  /* Mirrors .uc-price__mrp / .uc-price__discount in UnifiedCatalog.css so the
+     same course reads identically on both surfaces. The amber pair is already
+     this file's discount colouring — see .fc-price.soon just above. */
+  .fc-priceblock{display:flex;flex-direction:column;gap:1px;align-items:flex-start}
+  .fc-mrp{font-size:10.5px;color:var(--body);text-decoration:line-through}
+  .fc-discount{font-size:9.5px;font-weight:700;color:#B45309;background:#FFF3DC;border-radius:999px;padding:1px 7px;margin-top:2px}
   .fc-price{font-family:var(--display);font-size:16.8px;font-weight:800;color:var(--coral)}
   .fc-price small{font-style:normal;font-size:10.5px;color:var(--body);font-weight:600}
   .fc-price.soon{font-family:var(--font);font-size:11.5px;font-weight:700;color:#B45309;background:#FFF3DC;padding:6px 12px;border-radius:999px}
@@ -438,7 +456,17 @@ function CatIcon({ icon }) {
   );
 }
 
-function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
+function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus, enrollmentStatus }) {
+  // Same three states and the same wording as the /courses card
+  // (UnifiedCatalog.jsx) — this grid used to render a bare "Enroll now" to a
+  // learner who was already enrolled, while the catalog said "Enrolled" for
+  // the very same course.
+  const isEnrolled = enrollmentStatus === "APPROVED";
+  const isPending = enrollmentStatus === "PENDING";
+  let enrollLabel = "Enroll now";
+  if (isEnrolled) enrollLabel = "Enrolled";
+  else if (isPending) enrollLabel = "Pending";
+
   return (
     <article className="fc-card rv" data-cat={c.cats.join(" ")}>
       {/* The gradient is the card's own artwork and always renders; the photo
@@ -446,14 +474,22 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
           an absent c.img produced url('undefined') — a real, failing image
           request on every card the CMS hasn't been given artwork for. */}
       <div
-        className="fc-thumb"
+        className={`fc-thumb${c.img ? " fc-thumb--photo" : ""}`}
         style={{
           background: c.img
-            ? `linear-gradient(135deg,${c.grad}),url('${c.img}') center/cover`
+            ? `url('${c.img}') center/cover`
             : `linear-gradient(135deg,${c.grad})`,
         }}
       >
-        <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>
+        {/* The gradient used to be layered ON TOP of the photo at the CMS's own
+            0.72/0.88 alphas, leaving 12–28% of the artwork visible — every card
+            with a real uploaded picture rendered as a flat colour block. The
+            gradient is the card's artwork only when there is no photo; when
+            there is one, legibility comes from the .fc-thumb--photo scrim. */}
+        {/* The icon is that same no-artwork fallback, not a badge, so it goes
+            with it. /courses already treats the two as mutually exclusive —
+            `cls.image ? <img> : <placeholder-icon>` in UnifiedCatalog.jsx. */}
+        {!c.img && <span className="fc-thumb-ic"><CatIcon icon={c.icon} /></span>}
         {c.ribbon && !c.soon && <span className="fc-ribbon">{c.ribbon}</span>}
         <button
           type="button"
@@ -485,7 +521,12 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
                   the tutor when there is a real one to name. */}
               {c.tutor ? (
                 <span className="fc-tutor">
-                  <span className="fc-av" style={{ background: c.avColor }}>{c.tutor[0]}</span>
+                  {/* `avColor` was read here but never produced by
+                      toFeaturedCard — no showcase field backs it — so this was
+                      always `background: undefined` and the disc rendered
+                      white-on-white with an invisible initial. The colour
+                      belongs in the stylesheet, not in a field nothing sets. */}
+                  <span className="fc-av">{c.tutor[0]}</span>
                   {c.tutor}
                 </span>
               ) : <span />}
@@ -504,13 +545,34 @@ function CourseCard({ course: c, saved, onToggleSave, onAction, onSyllabus }) {
               {/* A board-linked card gets price_label: null from the API, so
                   `price` is undefined and the ₹ branch rendered the literal
                   "₹undefined /month". Show nothing rather than a broken price. */}
-              {c.free ? (
-                <span className="fc-price">Free</span>
-              ) : c.price ? (
-                <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
+              {/* Was a bare price. The endpoint sends mrp + discount_label for
+                  every linked course and the mapper dropped both, so /courses
+                  advertised "was ₹3,000 · 100% off" while the homepage showed
+                  the amount alone. Wrapped rather than three siblings because
+                  .fc-foot is a space-between flex row — loose children would
+                  spread across it instead of stacking against "Enroll now". */}
+              {c.free || c.price ? (
+                <span className="fc-priceblock">
+                  {c.mrp && c.mrp !== c.price && (
+                    <span className="fc-mrp">&#8377;{c.mrp}</span>
+                  )}
+                  {c.free ? (
+                    <span className="fc-price">Free</span>
+                  ) : (
+                    <span className="fc-price">&#8377;{c.price}<small> /month</small></span>
+                  )}
+                  {c.discountLabel ? (
+                    <span className="fc-discount">{c.discountLabel}</span>
+                  ) : null}
+                </span>
               ) : null}
-              <button type="button" className="fc-enroll" onClick={() => onAction(c)}>
-                Enroll now <ArrowSVG />
+              <button
+                type="button"
+                className="fc-enroll"
+                disabled={isPending}
+                onClick={() => { if (!isPending) onAction(c); }}
+              >
+                {enrollLabel} <ArrowSVG />
               </button>
             </>
           )}
@@ -539,6 +601,10 @@ export default function FeaturedCourses() {
   const rootRef = useRef(null);
   const navigate = useNavigate();
   const { block } = useHomeContent("featured_courses");
+  // Anonymous visitors short-circuit inside the hook and issue no requests, so
+  // this stays safe on the public homepage.
+  const { isAuthenticated } = useAuth();
+  const { statusByCourseId } = useEnrollmentStatus(isAuthenticated);
   const [courses, setCourses] = useState(FEATURED_COURSES);
   const [activeTab, setActiveTab] = useState("all");
   const [saved, setSaved] = useState(() => new Set());
@@ -701,6 +767,9 @@ export default function FeaturedCourses() {
                 onToggleSave={() => toggleSave(c.title)}
                 onAction={goToCourse}
                 onSyllabus={goToSyllabus}
+                // Only course-linked cards can be enrolled in; a board or
+                // "Explore Programs" card has no course id to look up.
+                enrollmentStatus={c.courseId ? statusByCourseId[c.courseId] : undefined}
               />
             ))}
           </div>
