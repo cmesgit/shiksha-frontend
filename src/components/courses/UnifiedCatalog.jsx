@@ -26,6 +26,10 @@ import {
   COMPETITIVE_KEY,
 } from '../../hooks/usePublicCourses';
 import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
+// One definition of the Enroll now / Enrolled / Pending states, shared with the
+// homepage's Featured card so the two surfaces cannot disagree about the same
+// course.
+import { enrollLabelFor } from '../../hooks/useEnrollmentStatus';
 import '../../css/UnifiedCatalog.css';
 
 const SearchIcon = () => (
@@ -232,11 +236,9 @@ function priceBlock(cls) {
 }
 
 function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enrollmentStatus, hideKindLabel }) {
-  const isEnrolled = enrollmentStatus === 'APPROVED';
-  const isPending = enrollmentStatus === 'PENDING';
-  let enrollLabel = 'Enroll now';
-  if (isEnrolled) enrollLabel = 'Enrolled';
-  else if (isPending) enrollLabel = 'Pending';
+  // Shared with the homepage's Featured card — same definition, so the two
+  // surfaces cannot say different things about the same course.
+  const { label: enrollLabel, isPending } = enrollLabelFor(enrollmentStatus);
   const seatsLow = cls.seatsLeft != null && cls.seatsLeft <= 8;
   // Real class_level -> a "CLASS 8" ribbon, same field the earlier fee/
   // subject-count facts already use — falls back to the admin-set `badge`
@@ -300,7 +302,7 @@ function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enroll
           <button
             type="button"
             className="uc-gridcard__enroll"
-            disabled={isPending}
+            disabled={isPending || isEnrolled}
             onClick={(e) => {
               e.stopPropagation();
               if (cls.isComingSoon) onNotify(cls);
@@ -316,7 +318,12 @@ function CourseCard({ cls, board, onOpen, onEnroll, onNotify, onSyllabus, enroll
 }
 
 function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, enrollmentStatus }) {
-  const isPending = enrollmentStatus === 'PENDING';
+  // This modal derived ONLY isPending, so it told an already-enrolled learner
+  // to "Enroll now" — the same bug the card had, still live here. The shared
+  // helper carries the Enrolled state too; `verbose` keeps this screen's
+  // existing "Pending approval" wording.
+  const { label: enrollLabel, isEnrolled, isPending } =
+    enrollLabelFor(enrollmentStatus, { verbose: true });
   if (!cls) return null;
 
   return (
@@ -347,14 +354,14 @@ function CourseQuickView({ cls, board, onClose, onSyllabus, onEnroll, onNotify, 
           <button
             type="button"
             className="uc-modal__go"
-            disabled={isPending}
+            disabled={isPending || isEnrolled}
             onClick={() => {
               onClose();
               if (cls.isComingSoon) onNotify(cls);
               else onEnroll(cls);
             }}
           >
-            {cls.isComingSoon ? 'Notify me' : isPending ? 'Pending approval' : 'Enroll now'} <ArrowIcon />
+            {cls.isComingSoon ? 'Notify me' : enrollLabel} <ArrowIcon />
           </button>
         </div>
       </div>

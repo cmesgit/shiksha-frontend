@@ -1,0 +1,96 @@
+/* PLACEMENT: src/css/FeaturedCourses.css
+ *
+ * The homepage "Featured courses" grid, and ONLY that grid.
+ *
+ * This lived in a ~400-line template literal inside FeaturedCourses.jsx,
+ * injected with <style dangerouslySetInnerHTML>. It was the whole original
+ * static homepage stylesheet carried along with the one section that needed
+ * 58 lines of it: it re-declared :root with a full palette of literal hex
+ * duplicating ShikshaHome.css's tokens under the same names, re-imported
+ * Poppins, and set GLOBAL rules for *, html, body, h1-h4, a, svg, ::selection,
+ * plus unprefixed .wrap/.sec/.btn/.badge/.faq/.cta/.hero/.deals/.cats/.qa —
+ * i.e. it restyled other people's components from inside this one.
+ *
+ * Every one of those shared classes and tokens is already defined in
+ * ShikshaHome.css, which the homepage composer (ShikshaHome.jsx) imports once
+ * — and FeaturedCourses renders nowhere else. Each sibling section
+ * (WhyShiksha, BrowseCategories, Faq, Cta, ...) already injects its own
+ * specific rules too, so the 122 non-fc classes here were pure duplication.
+ *
+ * Keep it that way: only .fc-* belongs in this file. Anything shared goes to
+ * ShikshaHome.css, per the convention Resources.jsx documents.
+ */
+
+/* ===================== FEATURED COURSES (fc-*) ===================== */
+.fc-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:40px}
+.fc-tab{font-family:var(--font);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;padding:9px 18px;border-radius:999px;border:none;background:var(--coral-soft);color:var(--coral);cursor:pointer;transition:background .2s,color .2s}
+.fc-tab[aria-selected="true"]{background:var(--coral);color:#fff;box-shadow:0 8px 18px rgba(15,157,107,.3)}
+.fc-tab:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.fc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.fc-card{background:#fff;border-radius:24px;overflow:hidden;border:1.5px solid var(--line);transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column}
+.fc-card:hover{transform:translateY(-7px);box-shadow:0 26px 50px rgba(11,46,32,.13)}
+.fc-thumb{position:relative;height:170px;padding:16px;background-size:cover !important;background-position:center !important}
+/* Legibility scrim for cards that have a real CMS photo. Dark at the very top
+   and bottom so the white ribbon / heart / level chips stay readable, and
+   near-clear through the middle third where the subject of the photo is.
+   Deliberately NOT the card's own --grad: that is a full-strength brand tint
+   and re-applying it here is exactly what hid the artwork. Only z-index is
+   set on the children — several are position:absolute (.fc-lvl even hangs
+   below the thumb) and forcing position:relative would break their placement. */
+.fc-thumb--photo::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(11,46,32,.46) 0%,rgba(11,46,32,.10) 34%,rgba(11,46,32,.06) 62%,rgba(11,46,32,.44) 100%)}
+.fc-thumb--photo>*{z-index:1}
+.fc-thumb-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.16);display:grid;place-items:center;backdrop-filter:blur(2px)}
+.fc-thumb-ic svg{width:30px;height:30px}
+.fc-ribbon{position:absolute;top:14px;left:14px;background:var(--gold);color:var(--ink);font-family:var(--font);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
+.fc-heart{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.2);display:grid;place-items:center;transition:background .2s;color:#fff}
+.fc-heart svg{width:16px;height:16px}
+.fc-heart.on{background:#fff;color:var(--red)}
+.fc-heart.on svg{fill:currentColor}
+.fc-lvl{position:absolute;bottom:-13px;left:18px;background:#fff;border:1.5px solid var(--line);color:var(--coral-dark);font-family:var(--font);font-size:10.5px;font-weight:700;padding:5px 13px;border-radius:999px;box-shadow:0 6px 14px rgba(11,46,32,.08)}
+.fc-body{padding:26px 20px 20px;display:flex;flex-direction:column;flex:1}
+.fc-body h3{font-family:var(--display);font-size:16.3px;font-weight:700;margin:0 0 10px;line-height:1.35}
+.fc-fact{display:flex;align-items:center;gap:7px;font-size:11.8px;color:var(--body)}
+.fc-fact svg{width:14px;height:14px;color:#8AA396}
+.fc-fact i{font-style:normal;color:#D4E2D8}
+/* Quiet text-button. Deliberately not a second filled CTA — "Enroll now"
+   below stays the card's only one. */
+.fc-syllabus{align-self:flex-start;margin-top:9px;padding:0;border:none;background:none;
+  font-family:var(--font);font-weight:700;font-size:11.5px;cursor:pointer;color:var(--coral);
+  display:inline-flex;align-items:center;gap:4px;transition:gap .2s,opacity .2s}
+.fc-syllabus:hover{gap:7px;opacity:.78;text-decoration:underline}
+.fc-syllabus svg{width:11px;height:11px}
+.fc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1.5px dashed var(--line);padding-top:14px}
+.fc-foot:has(.fc-explore:only-child){justify-content:center;padding-top:16px}
+.fc-tutor{display:flex;align-items:center;gap:9px;font-family:var(--font);font-size:12.2px;font-weight:600;color:var(--ink-2)}
+.fc-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--coral-dark);color:#fff;font-family:var(--display);font-weight:700;font-size:11.5px;border:2.5px solid #fff;flex-shrink:0}
+/* Mirrors .uc-price__mrp / .uc-price__discount in UnifiedCatalog.css so the
+   same course reads identically on both surfaces. The amber pair is already
+   this file's discount colouring — see .fc-price.soon just above. */
+.fc-priceblock{display:flex;flex-direction:column;gap:1px;align-items:flex-start}
+.fc-mrp{font-size:10.5px;color:var(--body);text-decoration:line-through}
+.fc-discount{font-size:9.5px;font-weight:700;color:#B45309;background:#FFF3DC;border-radius:999px;padding:1px 7px;margin-top:2px}
+.fc-price{font-family:var(--display);font-size:16.8px;font-weight:800;color:var(--coral)}
+.fc-price small{font-style:normal;font-size:10.5px;color:var(--body);font-weight:600}
+.fc-price.soon{font-family:var(--font);font-size:11.5px;font-weight:700;color:#B45309;background:#FFF3DC;padding:6px 12px;border-radius:999px}
+.fc-enroll{font-family:var(--font);font-weight:700;font-size:12.5px;padding:9px 16px;border-radius:999px;border:none;background:var(--coral);color:#fff;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:background .2s,transform .2s}
+.fc-enroll svg{width:13px;height:13px}
+.fc-enroll:hover{background:var(--coral-dark);transform:translateY(-1px)}
+.fc-explore{font-family:var(--font);font-weight:700;font-size:13px;padding:11px 26px;border-radius:999px;border:none;background:var(--coral);color:#fff;cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;box-shadow:0 8px 18px rgba(15,157,107,.28)}
+.fc-explore:hover{background:var(--coral-dark);transform:translateY(-2px);box-shadow:0 12px 24px rgba(15,157,107,.36)}
+.fc-explore:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+/* Responsive — these two rules lived inside the blob's shared media queries
+   (980px / 620px), which is exactly the kind of thing a careless extraction
+   drops on the floor. */
+@media (max-width: 980px) {
+  .fc-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .fc-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-card, .fc-tab, .fc-enroll, .fc-explore, .fc-syllabus { transition: none; }
+  .fc-card:hover { transform: none; }
+}

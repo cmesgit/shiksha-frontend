@@ -18,6 +18,34 @@ import { getMyEnrolledCourses } from "../api/coursesApi";
 const PRIORITY = { APPROVED: 3, PENDING: 2, REJECTED: 1 };
 
 /**
+ * The CTA state for one course, from its enrollment status.
+ *
+ * Lives here because both card surfaces render it and the strings are
+ * user-facing: the homepage grid and the /courses catalog each had their own
+ * copy of this three-way branch, so the same course could have said "Enrolled"
+ * on one screen and "Enroll now" on the other — which is precisely the class of
+ * bug this whole unification pass exists to remove. One definition, both
+ * callers.
+ *
+ * @param {string|undefined} status — APPROVED | PENDING | REJECTED | undefined
+ * @param {{verbose?: boolean}} [opts] — `verbose` gives the catalog's
+ *   quick-view modal its existing longer "Pending approval" wording. It has the
+ *   room; a card footer does not. Kept as an option rather than a second
+ *   hardcoded branch so the STATES stay single-sourced even where the copy
+ *   differs by design.
+ */
+export function enrollLabelFor(status, { verbose = false } = {}) {
+  const isEnrolled = status === "APPROVED";
+  const isPending = status === "PENDING";
+  let label = "Enroll now";
+  if (isEnrolled) label = "Enrolled";
+  else if (isPending) label = verbose ? "Pending approval" : "Pending";
+  // isPending also disables the button — a request already in the queue must
+  // not be submitted twice.
+  return { label, isEnrolled, isPending };
+}
+
+/**
  * @param {boolean} isAuthenticated — from useAuth(). Anonymous visitors get an
  *   empty map and no requests are made at all, which is what keeps this safe to
  *   call from the public homepage.
