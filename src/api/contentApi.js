@@ -167,3 +167,23 @@ export async function getHomeSectionOrder() {
   }
 }
 
+
+/* ── Contact page writes ───────────────────────────────────────── */
+//
+// Unlike every read helper above, these two deliberately do NOT swallow
+// failures into a falsy value. A list that quietly renders empty is a
+// degraded page; a form that quietly reports success when the request failed
+// is a lie — the visitor walks away believing we have their message.
+// Both reject, and Contact.jsx renders the failure.
+
+/** POST an enquiry from /contact. Rejects on any non-2xx. */
+export async function submitContactMessage(payload) {
+  const { data } = await api.post("/content/contact/", payload);
+  return data;
+}
+
+/** POST an address to the newsletter list. Rejects on any non-2xx. */
+export async function subscribeNewsletter(email) {
+  const { data } = await api.post("/content/newsletter/", { email });
+  return data;
+}

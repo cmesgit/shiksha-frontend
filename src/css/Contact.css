@@ -1,194 +1,545 @@
-/* ═══════════════════════════════════════════
-   CONTACT PAGE
-═══════════════════════════════════════════ */
-.contact2-container {
-  background: #ffffff;
-  background-image:
-    linear-gradient(rgba(132, 104, 39, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 173, 51, 0.07) 1px, transparent 1px);
-  background-size: 60px 60px;
-  font-family: "Poppins", sans-serif;
-  min-height: 100vh;
-  padding: 72px 24px 80px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+/* ============================================================================
+   SHIKSHACOM — CONTACT US PAGE
+   Everything is scoped under .contact-page and uses cp-* class names so it can
+   never affect the global header, footer, navigation or other WordPress /
+   Elementor widgets. Design tokens inherited from the Home, Courses & About pages.
+   ============================================================================ */
+
+.contact-page{
+  --cp-emerald:#0F9D6B;
+  --cp-emerald-dark:#0B5B3E;
+  --cp-emerald-soft:#E7F6EE;
+  --cp-ink:#0B2E20;
+  --cp-ink-2:#2B4237;
+  --cp-body:#5E7469;
+  --cp-peach:#F6FAF7;
+  --cp-line:#EDF3EE;
+  --cp-line-2:#DFEAE3;
+  --cp-white:#fff;
+  --cp-violet:#7C5CFC;
+  --cp-blue:#3b82f6;
+  --cp-red:#E14D2A;
+  --cp-gold:#FFB21D;
+  --cp-teal:#12b3a6;
+
+  --cp-font:'Poppins', system-ui, -apple-system, sans-serif;
+
+  --cp-sh-sm:0 6px 22px rgba(11,46,32,.06);
+  --cp-sh:0 18px 46px rgba(11,91,62,.12);
+  --cp-sh-lg:0 30px 70px rgba(11,46,32,.14);
+
+  font-family:var(--cp-font);
+  color:var(--cp-ink);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:clip;
+}
+.contact-page *,
+.contact-page *::before,
+.contact-page *::after{box-sizing:border-box}
+
+.contact-page h1,
+.contact-page h2,
+.contact-page h3,
+.contact-page h4{font-family:var(--cp-font);color:var(--cp-ink);margin:0;line-height:1.16;font-weight:700;letter-spacing:-.015em}
+.contact-page p{margin:0}
+.contact-page a{color:inherit;text-decoration:none}
+.contact-page svg{display:block}
+.contact-page ::selection{background:var(--cp-emerald);color:#fff}
+
+.contact-page .cp-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.contact-page .cp-sec{position:relative;padding:clamp(56px,7.5vw,100px) 0}
+.contact-page .cp-soft{background:var(--cp-peach)}
+
+/* ---- shared bits ---------------------------------------------------------- */
+.contact-page .cp-eyebrow{display:inline-flex;font-family:var(--cp-font);font-weight:700;font-size:12.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--cp-emerald);margin:0 0 16px}
+.contact-page .cp-eyebrow u{text-decoration:none;border-bottom:2px solid var(--cp-emerald);padding-bottom:5px}
+
+.contact-page .cp-head{max-width:640px;margin:0 auto clamp(36px,5vw,52px);text-align:center}
+.contact-page .cp-head .cp-eyebrow{margin-left:auto;margin-right:auto}
+.contact-page .cp-head h2{font-size:clamp(28px,4.1vw,42px);font-weight:800}
+.contact-page .cp-head p{margin-top:14px;color:var(--cp-body);font-size:15.5px}
+.contact-page .cp-em{color:var(--cp-emerald)}
+
+.contact-page .cp-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--cp-font);font-weight:700;
+  font-size:14.5px;padding:13px 26px;border-radius:999px;border:2px solid transparent;cursor:pointer;
+  transition:transform .2s,box-shadow .2s,background .2s,color .2s,border-color .2s}
+.contact-page .cp-btn svg{width:16px;height:16px;transition:transform .2s}
+.contact-page .cp-btn:hover svg{transform:translateX(3px)}
+.contact-page .cp-btn--solid{background:var(--cp-emerald);color:#fff;box-shadow:0 12px 26px rgba(15,157,107,.32)}
+.contact-page .cp-btn--solid:hover{background:var(--cp-emerald-dark);transform:translateY(-2px);box-shadow:0 16px 32px rgba(15,157,107,.4)}
+.contact-page .cp-btn--ghost{background:#fff;color:var(--cp-emerald);border-color:var(--cp-emerald)}
+.contact-page .cp-btn--ghost:hover{background:var(--cp-emerald);color:#fff;transform:translateY(-2px)}
+.contact-page .cp-btn--white{background:#fff;color:var(--cp-emerald-dark)}
+.contact-page .cp-btn--white:hover{transform:translateY(-2px);box-shadow:0 16px 32px rgba(0,0,0,.16)}
+.contact-page .cp-btn:focus-visible{outline:3px solid var(--cp-emerald);outline-offset:3px}
+
+.contact-page .cp-rv{opacity:0;transform:translateY(24px);
+  transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.contact-page .cp-rv.cp-in{opacity:1;transform:none}
+.contact-page .cp-rv.cp-d1{transition-delay:.08s}
+.contact-page .cp-rv.cp-d2{transition-delay:.16s}
+.contact-page .cp-rv.cp-d3{transition-delay:.24s}
+.contact-page .cp-rv.cp-d4{transition-delay:.32s}
+
+.contact-page .cp-dots{position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle at center,rgba(11,46,32,.045) 1px,transparent 1.6px);
+  background-size:24px 24px;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0,#000 40%,transparent 100%);
+          mask-image:radial-gradient(120% 80% at 50% 0,#000 40%,transparent 100%)}
+
+@keyframes cp-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes cp-pulse{0%{box-shadow:0 0 0 0 rgba(15,157,107,.5)}70%{box-shadow:0 0 0 9px rgba(15,157,107,0)}100%{box-shadow:0 0 0 0 rgba(15,157,107,0)}}
+
+/* ============================================================================
+   1 · HERO
+   ============================================================================ */
+.contact-page .cp-hero{position:relative;overflow:hidden;padding:clamp(44px,6vw,84px) 0 clamp(28px,4vw,54px);
+  background:radial-gradient(900px 540px at 84% -12%,var(--cp-emerald-soft) 0%,rgba(231,246,238,0) 62%),
+             linear-gradient(180deg,#F8FCFA 0%,#fff 62%)}
+.contact-page .cp-hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.02fr 1fr;
+  gap:clamp(30px,4.5vw,64px);align-items:center}
+
+.contact-page .cp-badge{display:inline-flex;align-items:center;gap:9px;background:var(--cp-emerald-soft);
+  color:var(--cp-emerald-dark);border:1px solid rgba(15,157,107,.2);font-size:12.5px;font-weight:700;
+  letter-spacing:.02em;padding:8px 16px 8px 12px;border-radius:999px}
+.contact-page .cp-badge i{width:7px;height:7px;border-radius:50%;background:var(--cp-emerald);
+  box-shadow:0 0 0 4px rgba(15,157,107,.18);flex:none;animation:cp-pulse 2.4s infinite}
+.contact-page .cp-hero h1{margin-top:20px;font-size:clamp(33px,4.7vw,54px);font-weight:800;
+  letter-spacing:-.022em;line-height:1.1}
+.contact-page .cp-hero-sub{margin-top:20px;max-width:35em;color:var(--cp-body);font-size:clamp(15px,1.1vw,16.5px)}
+.contact-page .cp-hero-cta{display:flex;flex-wrap:wrap;gap:13px;margin-top:30px}
+
+/* small trust facts under the hero copy */
+.contact-page .cp-facts{margin-top:28px;display:flex;flex-wrap:wrap;gap:9px}
+.contact-page .cp-fact{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:12.5px;
+  color:var(--cp-emerald-dark);background:var(--cp-emerald-soft);
+  border:1px solid rgba(15,157,107,.16);border-radius:999px;padding:7px 15px}
+.contact-page .cp-fact svg{width:14px;height:14px;color:var(--cp-emerald);flex:none}
+
+/* --- hero visual: soft disc + floating chips (same as Home / Courses / About) --- */
+.contact-page .cp-eco{position:relative;display:grid;place-items:center;min-width:0}
+.contact-page .cp-eco-disc{position:relative;width:min(430px,100%);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 44%,var(--cp-emerald-soft),var(--cp-peach) 72%);
+  display:grid;place-items:center}
+.contact-page .cp-eco-disc::before{content:"";position:absolute;inset:5%;border-radius:50%;
+  border:2px dashed rgba(15,157,107,.28)}
+/* artwork is square (500x500); 88% keeps it inside the dashed ring at inset:5% */
+.contact-page .cp-eco-art{position:relative;z-index:2;width:88%}
+.contact-page .cp-eco-art svg{width:100%;height:auto}
+
+.contact-page .cp-chip{position:absolute;z-index:4;display:flex;align-items:center;gap:10px;background:#fff;
+  border-radius:14px;padding:10px 14px;box-shadow:var(--cp-sh-lg);
+  animation:cp-bob 5.4s ease-in-out infinite}
+.contact-page .cp-chip b{display:block;font-family:var(--cp-font);font-weight:600;font-size:12.5px;
+  line-height:1.2;color:var(--cp-ink);letter-spacing:-.01em}
+.contact-page .cp-chip span{display:block;color:var(--cp-body);font-size:11px}
+.contact-page .cp-chip .cp-chip-ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;
+  place-items:center;color:#fff}
+.contact-page .cp-chip .cp-chip-ic svg{width:16px;height:16px}
+.contact-page .cp-chip.cp-fa{top:5%;left:-7%}
+.contact-page .cp-chip.cp-fb{top:29%;right:-8%;animation-delay:.7s}
+.contact-page .cp-chip.cp-fc{bottom:24%;right:-9%;animation-delay:1.4s}
+.contact-page .cp-chip.cp-fd{bottom:8%;left:-8%;animation-delay:.4s}
+.contact-page .cp-chip .cp-live{position:relative;flex:none;width:8px;height:8px;border-radius:50%;
+  background:var(--cp-emerald);animation:cp-pulse 1.8s infinite;margin:0 3px}
+
+/* tiny floating shapes */
+.contact-page .cp-spark{position:absolute;z-index:1;pointer-events:none;animation:cp-bob 6.4s ease-in-out infinite}
+.contact-page .cp-spark.cp-s1{top:7%;right:15%;width:16px;height:16px;border-radius:5px;
+  background:var(--cp-gold);transform:rotate(18deg)}
+.contact-page .cp-spark.cp-s2{bottom:9%;right:22%;width:13px;height:13px;border-radius:50%;
+  background:var(--cp-violet);animation-delay:.9s}
+.contact-page .cp-spark.cp-s3{bottom:19%;left:14%;width:11px;height:11px;border-radius:50%;
+  background:var(--cp-blue);animation-delay:1.6s}
+
+/* ============================================================================
+   2 · CONTACT DETAILS  (light info tiles — offices, email, phone)
+   ============================================================================ */
+.contact-page .cp-info{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.contact-page .cp-icard{position:relative;background:#fff;border:1px solid var(--cp-line);border-radius:22px;
+  padding:28px 24px;box-shadow:var(--cp-sh-sm);
+  transition:transform .3s,box-shadow .3s,border-color .3s}
+.contact-page .cp-icard:hover{transform:translateY(-6px);box-shadow:var(--cp-sh-lg);border-color:transparent}
+.contact-page .cp-icard .cp-icard-ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;
+  margin-bottom:18px;background:var(--grad,linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%));
+  transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.contact-page .cp-icard:hover .cp-icard-ic{transform:scale(1.07) rotate(-5deg)}
+.contact-page .cp-icard .cp-icard-ic svg{width:23px;height:23px;color:#fff}
+.contact-page .cp-icard h3{font-family:var(--cp-font);font-weight:700;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cp-emerald-dark)}
+.contact-page .cp-icard address{margin-top:11px;font-style:normal;font-size:14px;color:var(--cp-ink-2);line-height:1.75}
+.contact-page .cp-icard address span{display:block}
+.contact-page .cp-icard a{transition:color .2s}
+.contact-page .cp-icard a:hover{color:var(--cp-emerald)}
+.contact-page .cp-icard small{display:block;margin-top:10px;font-size:12px;color:var(--cp-body)}
+
+/* ============================================================================
+   3 · MESSAGE FORM  (copy + numbered steps left, form card right)
+   ============================================================================ */
+.contact-page .cp-split{position:relative;z-index:1;display:grid;grid-template-columns:.92fr 1.08fr;
+  gap:clamp(32px,4.6vw,64px);align-items:center}
+.contact-page .cp-copy h2{font-size:clamp(27px,3.7vw,42px);font-weight:800}
+.contact-page .cp-copy>p{margin-top:16px;color:var(--cp-body);font-size:15.5px;max-width:34em}
+.contact-page .cp-sublabel{margin:30px 0 14px;display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--cp-font);font-weight:700;font-size:11.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--cp-emerald-dark)}
+.contact-page .cp-sublabel::before{content:"";width:22px;height:2px;border-radius:2px;background:var(--cp-emerald)}
+
+/* --- animated vertical timeline (same component as the About page) --------- */
+.contact-page .cp-tl{list-style:none;position:relative;margin:0;padding:4px 0}
+.contact-page .cp-tl::before{content:"";position:absolute;left:23px;top:18px;bottom:18px;width:2px;
+  border-radius:2px;transform:scaleY(0);transform-origin:top;
+  background:linear-gradient(180deg,rgba(15,157,107,.85),rgba(15,157,107,.45) 55%,rgba(15,157,107,.08))}
+.contact-page .cp-copy.cp-in .cp-tl::before{animation:cp-tl-draw .9s cubic-bezier(.2,.7,.2,1) .15s forwards}
+@keyframes cp-tl-draw{to{transform:scaleY(1)}}
+
+.contact-page .cp-tl-item{position:relative;display:flex;gap:16px;align-items:flex-start;
+  padding:10px 12px 10px 0;border-radius:14px;transition:background .25s}
+.contact-page .cp-tl-item + .cp-tl-item{margin-top:10px}
+.contact-page .cp-tl-node{position:relative;z-index:1;flex:none;width:48px;height:48px;border-radius:15px;
+  display:grid;place-items:center;color:#fff;background:var(--nb,linear-gradient(135deg,#12b47a,#0B5B3E));
+  box-shadow:0 10px 22px var(--ng,rgba(15,157,107,.32));
+  transition:transform .32s cubic-bezier(.2,.7,.2,1),box-shadow .32s}
+.contact-page .cp-tl-node::after{content:"";position:absolute;inset:-5px;border-radius:19px;
+  border:1.5px solid var(--nr,rgba(15,157,107,.35));opacity:0;transform:scale(.9);
+  transition:opacity .32s,transform .32s}
+.contact-page .cp-tl-node svg{width:22px;height:22px}
+.contact-page .cp-tl-step{font-style:normal;position:absolute;top:-7px;right:-7px;z-index:2;min-width:20px;height:20px;
+  padding:0 5px;border-radius:999px;background:#fff;color:var(--cp-emerald-dark);font-size:10.5px;
+  font-weight:800;display:grid;place-items:center;box-shadow:0 3px 10px rgba(11,46,32,.16)}
+.contact-page .cp-tl-body{padding-top:4px;min-width:0;max-width:34em}
+.contact-page .cp-tl-body b{display:block;font-family:var(--cp-font);font-weight:700;font-size:15px;
+  color:var(--cp-ink);letter-spacing:-.01em;line-height:1.3}
+.contact-page .cp-tl-body p{margin-top:4px;font-size:13.6px;color:var(--cp-body);line-height:1.6}
+
+.contact-page .cp-tl-item:hover{background:rgba(15,157,107,.05)}
+.contact-page .cp-tl-item:hover .cp-tl-node{transform:scale(1.08) rotate(-5deg)}
+.contact-page .cp-tl-item:hover .cp-tl-node::after{opacity:1;transform:scale(1)}
+
+/* --- the form card --------------------------------------------------------- */
+.contact-page .cp-formcard{position:relative;background:#fff;border:1px solid var(--cp-line);border-radius:26px;
+  padding:clamp(24px,3.4vw,38px);box-shadow:var(--cp-sh)}
+.contact-page .cp-formcard h3{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.contact-page .cp-formcard>p{margin-top:7px;font-size:13.8px;color:var(--cp-body)}
+.contact-page .cp-form{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.contact-page .cp-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.contact-page .cp-field.cp-full{grid-column:1 / -1}
+.contact-page .cp-field label{font-family:var(--cp-font);font-weight:600;font-size:12.5px;color:var(--cp-ink-2);
+  letter-spacing:.01em}
+.contact-page .cp-field label i{font-style:normal;color:var(--cp-emerald)}
+.contact-page .cp-field input,
+.contact-page .cp-field select,
+.contact-page .cp-field textarea{width:100%;font-family:var(--cp-font);font-size:14.5px;color:var(--cp-ink);
+  background:var(--cp-peach);border:1.5px solid var(--cp-line-2);border-radius:14px;padding:13px 16px;
+  outline:none;transition:border-color .22s,box-shadow .22s,background .22s}
+.contact-page .cp-field textarea{resize:vertical;min-height:126px;line-height:1.6}
+.contact-page .cp-field input::placeholder,
+.contact-page .cp-field textarea::placeholder{color:#9BAEA4}
+.contact-page .cp-field input:focus,
+.contact-page .cp-field select:focus,
+.contact-page .cp-field textarea:focus{background:#fff;border-color:rgba(15,157,107,.55);
+  box-shadow:0 0 0 4px rgba(15,157,107,.12)}
+.contact-page .cp-field select{appearance:none;-webkit-appearance:none;-moz-appearance:none;cursor:pointer;
+  padding-right:44px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E7469' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;background-size:17px 17px}
+.contact-page .cp-field.cp-has-err input,
+.contact-page .cp-field.cp-has-err select,
+.contact-page .cp-field.cp-has-err textarea{border-color:rgba(225,77,42,.6);box-shadow:0 0 0 4px rgba(225,77,42,.1)}
+.contact-page .cp-err{display:none;font-size:11.5px;font-weight:600;color:var(--cp-red)}
+.contact-page .cp-field.cp-has-err .cp-err{display:block}
+
+.contact-page .cp-consent{grid-column:1 / -1;display:flex;align-items:flex-start;gap:11px;margin-top:2px}
+.contact-page .cp-consent input{flex:none;width:18px;height:18px;margin-top:2px;accent-color:var(--cp-emerald);cursor:pointer}
+.contact-page .cp-consent label{font-size:12.5px;color:var(--cp-body);font-weight:500;line-height:1.55;cursor:pointer}
+.contact-page .cp-consent a{color:var(--cp-emerald);font-weight:600;border-bottom:1px solid rgba(15,157,107,.35)}
+
+.contact-page .cp-submit{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:6px}
+.contact-page .cp-submit .cp-note{font-size:12px;color:var(--cp-body)}
+
+/* success state */
+.contact-page .cp-done{display:none;text-align:center;padding:26px 6px 10px}
+.contact-page .cp-done.cp-on{display:block;animation:cp-fade .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes cp-fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.contact-page .cp-done .cp-tick{width:62px;height:62px;border-radius:20px;margin:0 auto 18px;display:grid;
+  place-items:center;background:linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%);box-shadow:0 14px 30px rgba(15,157,107,.34)}
+.contact-page .cp-done .cp-tick svg{width:28px;height:28px;color:#fff}
+.contact-page .cp-done h4{font-size:20px;font-weight:800}
+.contact-page .cp-done p{margin-top:9px;font-size:14px;color:var(--cp-body)}
+.contact-page .cp-form.cp-off{display:none}
+
+/* ============================================================================
+   4 · DESKS  (tabbed panels)
+   ============================================================================ */
+.contact-page .cp-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:34px}
+.contact-page .cp-tab{font-family:var(--cp-font);font-weight:700;font-size:13px;letter-spacing:.03em;
+  text-transform:uppercase;padding:9px 18px;border-radius:999px;border:none;background:var(--cp-emerald-soft);
+  color:var(--cp-emerald);cursor:pointer;transition:background .2s,color .2s,transform .2s}
+.contact-page .cp-tab:hover{transform:translateY(-2px)}
+.contact-page .cp-tab[aria-selected="true"]{background:var(--cp-emerald);color:#fff;
+  box-shadow:0 10px 22px rgba(15,157,107,.28)}
+.contact-page .cp-tab:focus-visible{outline:3px solid var(--cp-emerald);outline-offset:2px}
+
+.contact-page .cp-panel{display:none}
+.contact-page .cp-panel.cp-on{display:block;animation:cp-fade .45s cubic-bezier(.2,.7,.2,1) both}
+.contact-page .cp-deck{background:#fff;border:1px solid var(--cp-line);border-radius:26px;overflow:hidden;
+  box-shadow:var(--cp-sh-sm);display:grid;grid-template-columns:1fr 1.15fr}
+.contact-page .cp-deck-l{padding:clamp(26px,3.2vw,38px);background:linear-gradient(160deg,#0C6C49 0%,var(--cp-emerald-dark) 100%);
+  color:#fff;position:relative;overflow:hidden}
+.contact-page .cp-deck-l::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle at center,rgba(255,255,255,.06) 1px,transparent 1.6px);
+  background-size:24px 24px;opacity:.7}
+.contact-page .cp-deck-l::after{content:"";position:absolute;top:-60px;right:-50px;width:190px;height:190px;
+  border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+.contact-page .cp-deck-l .cp-deck-ic{position:relative;z-index:1;width:50px;height:50px;border-radius:15px;
+  background:rgba(255,255,255,.14);display:grid;place-items:center;margin-bottom:18px;backdrop-filter:blur(4px)}
+.contact-page .cp-deck-l .cp-deck-ic svg{width:24px;height:24px;color:#fff}
+.contact-page .cp-deck-l h3{position:relative;z-index:1;color:#fff;font-size:21px;font-weight:800;letter-spacing:-.02em}
+.contact-page .cp-deck-l p{position:relative;z-index:1;margin-top:11px;font-size:14px;color:rgba(255,255,255,.82)}
+
+.contact-page .cp-deck-r{padding:clamp(24px,3.2vw,36px);display:flex;flex-direction:column;gap:2px}
+.contact-page .cp-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--cp-line)}
+.contact-page .cp-row:last-of-type{border-bottom:0}
+.contact-page .cp-row .cp-row-ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:var(--cp-emerald-soft);color:var(--cp-emerald)}
+.contact-page .cp-row .cp-row-ic svg{width:18px;height:18px}
+.contact-page .cp-row b{display:block;font-family:var(--cp-font);font-weight:600;font-size:14.5px;color:var(--cp-ink);letter-spacing:-.01em}
+.contact-page .cp-row .cp-row-tx{min-width:0}
+.contact-page .cp-row .cp-row-lab{display:block;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--cp-body)}
+.contact-page .cp-row b{word-break:break-word}
+.contact-page .cp-row a:hover b{color:var(--cp-emerald)}
+.contact-page .cp-deck-r .cp-btn{align-self:flex-start;margin-top:18px}
+
+/* ============================================================================
+   5 · FAQ
+   ============================================================================ */
+.contact-page .cp-faq{max-width:780px;margin:0 auto}
+.contact-page .cp-qa{background:#fff;border:1px solid var(--cp-line-2);border-radius:15px;margin-bottom:13px;
+  overflow:hidden;transition:box-shadow .25s,border-color .25s}
+.contact-page .cp-qa.cp-open{box-shadow:var(--cp-sh);border-color:transparent}
+.contact-page .cp-qa-q{width:100%;text-align:left;background:none;border:none;cursor:pointer;
+  font-family:var(--cp-font);font-weight:600;font-size:16px;color:var(--cp-ink);padding:19px 22px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px}
+.contact-page .cp-qa-q:focus-visible{outline:3px solid var(--cp-emerald);outline-offset:-3px}
+.contact-page .cp-qa-ic{flex:none;width:30px;height:30px;border-radius:9px;background:var(--cp-emerald-soft);
+  color:var(--cp-emerald);display:grid;place-items:center;transition:transform .3s,background .3s,color .3s}
+.contact-page .cp-qa-ic svg{width:16px;height:16px}
+.contact-page .cp-qa.cp-open .cp-qa-ic{transform:rotate(45deg);background:var(--cp-emerald);color:#fff}
+.contact-page .cp-qa-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.contact-page .cp-qa-a p{padding:0 22px 21px;color:var(--cp-body);font-size:14.4px}
+
+/* ============================================================================
+   6 · NEWSLETTER CTA
+   ============================================================================ */
+.contact-page .cp-cta{position:relative;overflow:hidden;border-radius:30px;text-align:center;color:#fff;
+  padding:clamp(46px,7vw,74px) 24px;background:linear-gradient(135deg,var(--cp-emerald),var(--cp-emerald-dark));
+  box-shadow:0 30px 70px rgba(11,91,62,.32)}
+.contact-page .cp-cta::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle at center,rgba(255,255,255,.06) 1px,transparent 1.6px);
+  background-size:26px 26px}
+.contact-page .cp-cta>*{position:relative;z-index:1}
+.contact-page .cp-cta .cp-eyebrow{color:#8FE3C0;margin-left:auto;margin-right:auto}
+.contact-page .cp-cta .cp-eyebrow u{border-bottom-color:#8FE3C0}
+.contact-page .cp-cta h2{color:#fff;font-size:clamp(27px,4.1vw,44px);font-weight:800;line-height:1.16}
+.contact-page .cp-cta>p{margin:16px auto 0;max-width:520px;color:rgba(255,255,255,.9);font-size:15.5px}
+
+.contact-page .cp-sub{max-width:620px;margin:32px auto 0;display:flex;align-items:center;gap:8px;background:#fff;
+  border-radius:999px;padding:8px 8px 8px 24px;box-shadow:0 20px 46px rgba(0,0,0,.22);
+  transition:transform .3s,box-shadow .3s}
+.contact-page .cp-sub:focus-within{transform:translateY(-2px);box-shadow:0 26px 56px rgba(0,0,0,.28)}
+.contact-page .cp-sub .cp-sub-ic{flex:none;color:var(--cp-emerald)}
+.contact-page .cp-sub .cp-sub-ic svg{width:20px;height:20px}
+.contact-page .cp-sub input{flex:1;min-width:0;border:none;outline:none;background:none;font-family:var(--cp-font);
+  font-size:15px;color:var(--cp-ink)}
+.contact-page .cp-sub input::placeholder{color:#9BAEA4}
+.contact-page .cp-sub button{flex:none;font-family:var(--cp-font);font-weight:700;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;padding:14px 26px;border-radius:999px;border:none;cursor:pointer;
+  background:var(--cp-emerald-dark);color:#fff;transition:background .22s,transform .2s}
+.contact-page .cp-sub button:hover{background:var(--cp-ink);transform:translateY(-1px)}
+.contact-page .cp-sub button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.contact-page .cp-submsg{margin:14px auto 0;font-size:13px;color:rgba(255,255,255,.85);min-height:20px}
+.contact-page .cp-cwm{position:absolute;opacity:.12;color:#fff;pointer-events:none;z-index:0}
+.contact-page .cp-cwm.cp-a{top:-26px;left:-6px;width:120px}
+.contact-page .cp-cwm.cp-b{bottom:-36px;right:-6px;width:140px}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+@media(max-width:1200px){
+  /* pull the chips inside the container so they are never clipped by the hero edge */
+  .contact-page .cp-chip.cp-fa{left:-2%}
+  .contact-page .cp-chip.cp-fd{left:-2%}
+  .contact-page .cp-chip.cp-fb{right:-2%}
+  .contact-page .cp-chip.cp-fc{right:-2%}
+}
+@media(max-width:1040px){
+  .contact-page .cp-info{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:980px){
+  .contact-page .cp-hero-grid{grid-template-columns:1fr;text-align:center}
+  .contact-page .cp-hero-sub{margin-left:auto;margin-right:auto}
+  .contact-page .cp-hero-cta,
+  .contact-page .cp-facts{justify-content:center}
+  .contact-page .cp-hero .cp-eco{order:-1;margin:0 auto 6px;width:100%}
+  .contact-page .cp-eco-disc{width:min(390px,86%)}
+
+  .contact-page .cp-split{grid-template-columns:1fr;gap:40px}
+  .contact-page .cp-copy{text-align:center}
+  .contact-page .cp-copy>p{margin-left:auto;margin-right:auto}
+  .contact-page .cp-eyebrow,
+  .contact-page .cp-sublabel{margin-left:auto;margin-right:auto}
+  .contact-page .cp-tl{max-width:520px;margin:0 auto;text-align:left}
+
+  .contact-page .cp-deck{grid-template-columns:1fr}
+  .contact-page .cp-deck-r .cp-btn{align-self:stretch;justify-content:center}
+}
+@media(max-width:620px){
+  .contact-page .cp-info{grid-template-columns:1fr}
+  .contact-page .cp-form{grid-template-columns:1fr}
+  .contact-page .cp-hero h1{font-size:clamp(30px,8.6vw,40px)}
+  .contact-page .cp-eco-disc{width:min(300px,76%)}
+  /* two chips is plenty on a phone — the other two would sit on top of the art */
+  .contact-page .cp-chip{transform:scale(.86)}
+  .contact-page .cp-chip.cp-fa{top:2%;left:-3%}
+  .contact-page .cp-chip.cp-fc{bottom:6%;right:-3%}
+  .contact-page .cp-chip.cp-fb,
+  .contact-page .cp-chip.cp-fd{display:none}
+  .contact-page .cp-spark.cp-s3{left:8%}
+  .contact-page .cp-tabs{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+    scroll-snap-type:x proximity;margin-inline:calc(50% - 50vw);padding:2px 24px 8px;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .contact-page .cp-tabs::-webkit-scrollbar{display:none}
+  .contact-page .cp-tab{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap}
+  .contact-page .cp-sub{flex-wrap:wrap;border-radius:24px;padding:14px}
+  .contact-page .cp-sub .cp-sub-ic{display:none}
+  .contact-page .cp-sub input{flex-basis:100%;padding:6px 8px 12px}
+  .contact-page .cp-sub button{width:100%}
+  .contact-page .cp-row b{font-size:13.2px;letter-spacing:-.015em}
+  .contact-page .cp-submit{flex-direction:column;align-items:stretch;text-align:center}
+  .contact-page .cp-submit .cp-btn{justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .contact-page *{animation:none!important;transition:none!important}
+  .contact-page .cp-rv{opacity:1;transform:none}
 }
 
-/* Ambient glows */
-.contact2-container::before {
-  content: "";
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 67, 18, 0.18), transparent 70%);
-  top: -180px;
-  right: -80px;
-  pointer-events: none;
-}
 
-.contact2-container::after {
-  content: "";
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 143, 1, 0.09), transparent 70%);
-  bottom: -100px;
-  left: -60px;
-  pointer-events: none;
-}
+/* ============================================================================
+   INTEGRATION OVERRIDES — not part of the design handoff
+   ----------------------------------------------------------------------------
+   Everything above this fence is the handoff's own stylesheet, kept as close to
+   verbatim as possible so it stays diffable against the designer's next drop.
+   The one edit made inside it is the class rename documented in §3 below.
 
-/* ── Header ── */
-.contact2-header {
-  margin-bottom: 56px;
-  position: relative;
-  z-index: 1;
-  animation: fadeUp 0.7s ease forwards;
-}
+   Site-fit fixes belong DOWN HERE, so re-importing the handoff does not
+   clobber them.
+   ============================================================================ */
 
-.contact2-header h1 {
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(32px, 5vw, 52px);
-  font-weight: 900;
-  color: #003223;
-  letter-spacing: -2px;
-  line-height: 1.08;
-  margin-bottom: 14px;
-}
+/* 1 · Anchor landing under the fixed header.
+   The handoff was authored as a standalone document with no site chrome. Here
+   the page renders under a `position: fixed` Navbar, and the hero's "Send a
+   message" CTA plus all four desk CTAs are in-page jumps to #cp-message.
+   Without a scroll-margin the browser aligns the section to the viewport top,
+   which is underneath the header.
 
-.contact2-header p {
-  font-size: 15px;
-  max-width: 480px;
-  margin: 0 auto;
-  line-height: 1.8;
-  color: rgba(14, 28, 15, 0.55);
-  font-weight: 400;
-}
+   Keyed off `--cp-header-h`, which Contact.jsx measures off the live
+   `.skn-spacer` element. Deliberately NOT `--skn-header-h`: that token is a
+   hardcoded `:root { 82px }` in SiteNav.css and never moves, while the real
+   header is 78px normally, 118px with the announcement bar, and 72/112px under
+   640px — wrong by 40px in exactly the case that matters. The 82px fallback
+   here only applies for the one frame before the measurement lands. */
+.contact-page [id] { scroll-margin-top: calc(var(--cp-header-h, 82px) + 24px); }
 
-/* ── Info cards ── */
-.contact2-info {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 22px;
-  margin-bottom: 0;
-  position: relative;
-  z-index: 1;
-}
+/* 2 · The reveal-on-scroll base state is opt-in per element.
+   `.cp-rv` starts at opacity:0 and only animates in when the IntersectionObserver
+   adds `.cp-in`. If JS never runs (a chunk fails to load, an error boundary
+   trips) the entire page would be invisible. This makes the no-JS state the
+   visible one; Contact.jsx re-arms the animation by adding `.cp-js` to the root
+   as its very first effect. */
+.contact-page:not(.cp-js) .cp-rv { opacity: 1; transform: none; }
 
-.contact2-card {
-  background: #004a33;
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 20px;
-  padding: 32px 30px;
-  max-width: 300px;
-  width: 100%;
-  text-align: left;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
-  animation: fadeUp 0.7s ease forwards;
-  transition:
-    transform 0.26s ease,
-    box-shadow 0.26s ease,
-    border-color 0.26s ease;
-  position: relative;
-  overflow: hidden;
-}
+/* 3 · The handoff's bare modifier classes were ALL prefixed with `cp-`:
+       .d1-.d4  .fa-.fd  .s1-.s3  .a .b  .full .on .off .in .open
+       .err -> .cp-has-err   (NOT .cp-err — see the note at the end)
 
-/* Top accent line */
-.contact2-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #9e5900, #ff8f01);
-  border-radius: 3px 3px 0 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.28s ease;
-}
+   NOT cosmetic, and not speculative — two of them were live collisions:
 
-.contact2-card:hover::before {
-  transform: scaleX(1);
-}
+   (a) `.d1`-`.d4`. This app's main bundle defines four GLOBAL decorative-
+       floater classes under exactly those names (ShikshaHome.css:57-60):
+           .d1{top:2%;right:4%;width:80px;color:var(--coral);opacity:.5}
+           .d2{bottom:4%;left:-1%;width:96px;color:var(--blue);opacity:.5}
+       The handoff's own rule is `.contact-page .cp-rv.d1`, which outranks a
+       bare `.d1` — but it declares ONLY transition-delay, so the global width,
+       offsets and opacity land unopposed. This exact bug shipped to production
+       on the /about page: the hero's illustration column collapsed from 529px
+       to 96px. Every DOM assertion passed; only a screenshot showed it.
 
-.contact2-card:hover {
-  transform: translateY(-6px) scale(1.015);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.26);
-  border-color: #04500c4d;
-}
+   (b) `.fa`. index.html:33 loads Font Awesome 6.5.0 from a CDN on every page,
+       and FA defines a bare `.fa`:
+           .fa{font-family:var(--fa-style-family,"Font Awesome 6 Free");
+               font-weight:var(--fa-style,900)}
+           .fa,...{display:...;font-style:normal;line-height:1}
+       `.cp-chip.fa` is the hero's "Support desk open" chip. `.cp-chip span`
+       sets no font-family, so its sublabel text would INHERIT the icon font and
+       render as garbage. `display:inline-block` loses to `.contact-page
+       .cp-chip{display:flex}` on specificity, but font-family and line-height
+       have no competing declaration and win.
 
-.contact2-card img {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 18px;
-  opacity: 0.75;
-  filter: invert(1) brightness(0.85);
-}
+   The rest (.a .b .s1 .on .full …) had no collision on the day this was
+   written. They are prefixed anyway because `.a` and `.b` as global class names
+   are one careless stylesheet away from the same bug, and because the audit
+   that finds them is manual and nobody will re-run it.
 
-.contact2-card h2 {
-  font-family: "Montserrat", sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: #ff8f01;
-  margin-bottom: 10px;
-}
+   Audit method, if another handoff is ever imported: extract every class token
+   from the JSX, then grep ALL of src/css/**.css *and* every external stylesheet
+   in index.html for a rule matching that token which is not scoped under this
+   page's own prefix. The Font Awesome hit above is the reason index.html has to
+   be part of that sweep — grepping src/ alone misses it entirely.
 
-.contact2-card p {
-  font-size: 14px;
-  line-height: 1.78;
-  color: white;
-  font-weight: 400;
-  margin: 0;
-}
+   Why `.err` became `.cp-has-err` and not `.cp-err`: `.cp-err` is already the
+   error-message <span>, and `.contact-page .cp-err{display:none}` would then
+   match the field wrapper too. Same specificity as `.contact-page .cp-field`
+   and declared later, so it wins — and every invalid field would vanish
+   entirely instead of showing its message. */
 
-/* ── Animations ── */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 4 · States the handoff had no markup for.
+   Its form could only ever succeed — it faked the result in the browser and
+   never called anything. A form wired to a real endpoint can also be in-flight
+   or fail, and both need to be visible or the page lies about what happened. */
+.contact-page .cp-btn[aria-busy="true"] { opacity: .72; pointer-events: none }
+.contact-page .cp-formerr {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  font-size: 12.8px;
+  font-weight: 600;
+  color: var(--cp-red);
+  background: rgba(225, 77, 42, .07);
+  border: 1px solid rgba(225, 77, 42, .22);
+  border-radius: 12px;
+  padding: 11px 14px;
 }
+/* The newsletter band's reply line. The handoff styled one message colour for
+   both outcomes, so a rejection read as a confirmation. */
+.contact-page .cp-submsg.cp-bad { color: #FFD9CE; font-weight: 600 }
 
-.contact2-card:nth-child(1) {
-  animation-delay: 0ms;
-}
-.contact2-card:nth-child(2) {
-  animation-delay: 80ms;
-}
-.contact2-card:nth-child(3) {
-  animation-delay: 160ms;
-}
+/* 5 · The reveal flag is an ATTRIBUTE, not a class.
+   The handoff's `.cp-rv.cp-in` rules above still exist but are now unused —
+   left in place so this file stays diffable against the designer's next drop.
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .contact2-info {
-    flex-direction: column;
-    align-items: center;
-  }
+   React owns `className` on these nodes. The FAQ cards rewrite it on every
+   toggle (`cp-qa cp-rv` -> `cp-qa cp-rv cp-open`), which wiped the `.cp-in`
+   the IntersectionObserver had added, and since an open card never leaves the
+   viewport the observer never fired again to restore it. Opening any FAQ made
+   that whole card fade to nothing. React does not manage `data-rv`, so the
+   observer's mark survives a re-render.
 
-  .contact2-card {
-    max-width: 420px;
-    width: 90%;
-  }
-}
-
-@media (max-width: 768px) {
-  .contact2-container {
-    padding: 56px 18px 64px;
-  }
-  .contact2-header {
-    margin-bottom: 40px;
-  }
+   Found by a screenshot. Every DOM assertion passed — the markup, the classes
+   and the copy were all correct; only the computed opacity was wrong. Same
+   failure mode as the two bugs that reached production on /about. */
+.contact-page .cp-rv[data-rv="in"] { opacity: 1; transform: none }
+.contact-page .cp-copy[data-rv="in"] .cp-tl::before {
+  animation: cp-tl-draw .9s cubic-bezier(.2, .7, .2, 1) .15s forwards;
 }
