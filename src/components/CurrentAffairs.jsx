@@ -1,15 +1,26 @@
-// Public Current Affairs — the CMS's own posts.
+// Public Current Affairs — the CMS's own posts, plus a live news wire.
 //
-// This page used to fetch `/news/top-headlines/`, a third-party news proxy
-// entirely unrelated to the CMS. The result was that everything an admin
-// wrote in Admin-dashboard → Content → Current Affairs was invisible on the
-// site: `getCurrentAffairs()` existed in contentApi.js but had ZERO callers
-// anywhere in any repo. The backend (model, publish workflow, list/detail
-// endpoints, filters) was complete and correct the whole time — only the
-// consumer was missing.
+// History matters here, because this page has now been wrong in both
+// directions:
+//
+//  1. It originally fetched ONLY `/news/top-headlines/`, a third-party news
+//     proxy unrelated to the CMS. Everything an admin wrote in
+//     Admin-dashboard → Content → Current Affairs was invisible on the site —
+//     `getCurrentAffairs()` existed in contentApi.js with ZERO callers.
+//  2. Fixing that switched it to fetch ONLY the CMS. But production has never
+//     had a single current-affairs row published, so the live page became a
+//     permanent "No current affairs have been published yet" — a dead link in
+//     the Resources menu.
+//
+// So it reads both. The CMS's editorial posts lead, because they are written
+// for exams and are what the team controls; the wire fills in underneath so
+// the page is never empty. The wire is hidden while CMS filters are active —
+// the category/month/search filters are CMS-only, and showing unfiltered wire
+// articles beneath them would look like the filter was broken.
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCurrentAffairs } from "../api/contentApi";
+import { getTopHeadlines } from "../api/newsApi";
 import "../css/CurrentAffairs.css";
 
 // Mirrors AffairCategory in content/models.py. Kept as an explicit list
@@ -47,6 +58,9 @@ const CurrentAffairs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const [wire, setWire] = useState([]);
+  const [wireLoading, setWireLoading] = useState(true);
+
   const [category, setCategory] = useState("");
   const [month, setMonth] = useState("");
   const [q, setQ] = useState("");
@@ -83,7 +97,21 @@ const CurrentAffairs = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  // Fetched once on mount, independently of the CMS list: the wire has no
+  // filters and no paging, and it must not be refetched every time someone
+  // types in the search box.
+  useEffect(() => {
+    let alive = true;
+    getTopHeadlines({ max: 9 })
+      .then((rows) => { if (alive) setWire(rows); })
+      .finally(() => { if (alive) setWireLoading(false); });
+    return () => { alive = false; };
+  }, []);
+
   const filtersActive = !!(category || month || queryTerm);
+  // Hidden while filtering (the filters are CMS-only, so unfiltered wire
+  // articles underneath would read as the filter not working).
+  const showWire = !filtersActive && !wireLoading && wire.length > 0;
 
   return (
     <div className="current-affairs-page">
@@ -142,11 +170,16 @@ const CurrentAffairs = () => {
           <button onClick={load} className="retry-btn">Retry</button>
         </div>
       ) : items.length === 0 ? (
+        /* With nothing published, the wire below carries the page — so say
+           that instead of the old dead end, which is what production has
+           shown since this page moved to the CMS. */
         <div className="empty-state">
           <p>
             {filtersActive
               ? "No current affairs match these filters."
-              : "No current affairs have been published yet. Check back soon."}
+              : showWire
+                ? "The ShikshaCom team hasn't published a written brief yet — here are today's headlines."
+                : "No current affairs have been published yet. Check back soon."}
           </p>
         </div>
       ) : (
@@ -201,6 +234,52 @@ const CurrentAffairs = () => {
             </div>
           )}
         </>
+      )}
+
+      {showWire && (
+        <section className="ca-wire">
+          <div className="ca-wireHead">
+            <h2>In the news today</h2>
+            <p>
+              Live headlines from the news wire, updated through the day. These
+              are not written by ShikshaCom.
+            </p>
+          </div>
+
+          <div className="ca-wireList">
+            {wire.map((a) => (
+              /* Keyed on the article URL — the wire has no ids, and titles do
+                 repeat across syndicated copies of the same story. */
+              <article key={a.url} className="ca-wireCard">
+                {a.image && (
+                  <img
+                    className="ca-wireImg"
+                    src={a.image}
+                    alt=""
+                    loading="lazy"
+                    /* A dead image host would otherwise leave a broken-image
+                       glyph in the middle of the card. */
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                )}
+                <div className="ca-wireBody">
+                  <div className="ca-cardMeta">
+                    {a.source && <span className="ca-cat">{a.source}</span>}
+                    <span className="ca-date">{fmtDate(a.publishedAt)}</span>
+                  </div>
+                  <h3 className="ca-wireTitle">
+                    {/* External by definition — a real anchor, opened in a new
+                        tab so the reader keeps their place in the list. */}
+                    <a href={a.url} target="_blank" rel="noopener noreferrer">
+                      {a.title}
+                    </a>
+                  </h3>
+                  {a.description && <p className="ca-summary">{a.description}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
