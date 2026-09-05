@@ -559,7 +559,7 @@ export default function AboutUs() {
             </div>
 
             {/* learning ecosystem — the five concepts as floating cards */}
-            <div className="ap-eco ap-rv d2" aria-hidden="true">
+            <div className="ap-eco ap-rv ap-d2" aria-hidden="true">
               <span className="ap-spark s1"></span>
               <span className="ap-spark s2"></span>
               <span className="ap-spark s3"></span>
@@ -600,7 +600,7 @@ export default function AboutUs() {
               <span className="ap-sublabel">{visionListLabel}</span>
             </div>
 
-            <div className="ap-media ap-rv d2">
+            <div className="ap-media ap-rv ap-d2">
               <span className="ap-media__shape"></span>
               <div className="ap-media__frame">
                 {visionImage
@@ -668,7 +668,7 @@ export default function AboutUs() {
             </div>
 
             {/* RIGHT: rotating stacked cards */}
-            <div className="ap-mission-stage ap-rv d1">
+            <div className="ap-mission-stage ap-rv ap-d1">
               <div className="ap-mstack" id="ap-mstack" aria-roledescription="carousel">
                 {missionCards.map((card) => (
                   <article
@@ -728,7 +728,7 @@ export default function AboutUs() {
               </div>
             </div>
 
-            <div className="ap-copy ap-rv d2">
+            <div className="ap-copy ap-rv ap-d2">
               <span className="ap-eyebrow"><u>{valuesEyebrow}</u></span>
               <h2>
                 {withBreaks(valuesHeading)}
@@ -740,7 +740,7 @@ export default function AboutUs() {
               <ol className="ap-vtl">
                 {valuesList.map((item, i) => (
                   <li
-                    className={`ap-vtl-item ap-rv${i ? ` d${i}` : ""}`}
+                    className={`ap-vtl-item ap-rv${i ? ` ap-d${i}` : ""}`}
                     key={item.key}
                     style={{ '--nb': item.nb }}
                   >
@@ -778,7 +778,7 @@ export default function AboutUs() {
           <div className="ap-why">
             {whyCards.map((card, i) => (
               <article
-                className={`ap-wcard ap-rv${i ? ` d${i}` : ""}`}
+                className={`ap-wcard ap-rv${i ? ` ap-d${i}` : ""}`}
                 key={card.key}
                 style={{ '--grad': card.grad }}
               >

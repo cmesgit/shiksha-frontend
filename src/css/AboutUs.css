@@ -96,10 +96,12 @@
 .about-page .ap-rv{opacity:0;transform:translateY(24px);
   transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
 .about-page .ap-rv.in{opacity:1;transform:none}
-.about-page .ap-rv.d1{transition-delay:.08s}
-.about-page .ap-rv.d2{transition-delay:.16s}
-.about-page .ap-rv.d3{transition-delay:.24s}
-.about-page .ap-rv.d4{transition-delay:.32s}
+/* Renamed from the handoff's bare .d1-.d4 — see the note in the integration
+   overrides at the foot of this file. The delays themselves are unchanged. */
+.about-page .ap-rv.ap-d1{transition-delay:.08s}
+.about-page .ap-rv.ap-d2{transition-delay:.16s}
+.about-page .ap-rv.ap-d3{transition-delay:.24s}
+.about-page .ap-rv.ap-d4{transition-delay:.32s}
 
 /* faint dotted texture used behind a couple of sections */
 .about-page .ap-dots{position:absolute;inset:0;pointer-events:none;z-index:0;
@@ -518,7 +520,30 @@
    of from zero. */
 .about-page .ap-scard { top: calc(var(--ap-header-h, 82px) + 16px + var(--i, 0) * 22px); }
 
-/* 3 · Reduced-motion parity.
+/* 3 · The handoff's reveal-delay modifiers were renamed .d1-.d4 -> .ap-d1-.ap-d4.
+   NOT cosmetic. This app's main bundle defines four GLOBAL decorative-floater
+   classes under exactly those names:
+
+       .d1 { top:2%;    right:4%;  width:80px; color:var(--coral);  opacity:.5 }
+       .d2 { bottom:4%; left:-1%;  width:96px; color:var(--blue);   opacity:.5 }
+       .d3 { top:24%;   left:-3%;  width:13px; height:13px; border-radius:50% }
+       .d4 { bottom:26%; right:-1%; width:11px; height:11px; border-radius:50% }
+
+   The handoff's own rule is `.about-page .ap-rv.d1`, which outranks a bare
+   `.d1` — but it only declares transition-delay, so the global width, offsets
+   and opacity:.5 landed unopposed on all 10 delayed elements. The visible
+   result was the hero's whole ecosystem column squeezed from 529px to 96px:
+   the disc is `width:min(360px,80%)`, so it followed down to 77px, the
+   illustration shrank to 54px, and the five absolutely-positioned nodes
+   collapsed into an overlapping vertical stack.
+
+   This shipped to production and was invisible to every DOM assertion — the
+   markup and the text were all correct. Only a screenshot showed it.
+
+   Any further class lifted from a design handoff needs the same check: this
+   app's global sheets also own .wrap, .sec, .em, .rv, .center and .btn. */
+
+/* 4 · Reduced-motion parity.
    The handoff's own `prefers-reduced-motion` block neutralises its animations,
    but the sticky stack is layout, not animation: with motion reduced the JS sets
    .ap-noparallax and the cards go `position: static`, so the offset above stops
