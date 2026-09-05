@@ -14,6 +14,8 @@ import { ICONS, icon } from "./about/aboutIcons";
  * wired onto the same five CMS sections the page it replaces already used:
  *
  *   about_hero · about_vision · about_mission · about_values · about_why
+ *   about_cta  (added with this redesign — the handoff invented a closing band
+ *               the old page had no section for)
  *
  * Those sections have live rows in production, so dropping the handoff in
  * as-is would have silently ended About-page editing for admins. Every string
@@ -26,14 +28,14 @@ import { ICONS, icon } from "./about/aboutIcons";
  * page renders the new layout with the old words. That is the wiring working
  * correctly, not a bug.
  *
- * What the handoff had that the CMS cannot yet drive, deliberately:
- *   · the closing CTA band — there is no `about_cta` section, and inventing one
- *     is a backend change this page should not smuggle in. Hardcoded.
- *   · the hero's five ecosystem node labels — `about_hero`'s five sticker rows
- *     carry an image and nothing else, and this design has no image slot for
- *     them. Editable only once those rows are given titles.
- *   · `about_values`' three `bullet` rows ("Digital Mode of Learning") — this
- *     design has no section for them. They are not rendered anywhere.
+ * Still hardcoded, deliberately — decorative labels, not content anyone edits:
+ *   · the "Key initiatives" sub-header above the scroll-stacking cards
+ *   · the three chips ("Classroom to your doorstep", "Reaching remote areas",
+ *     "Learning in Action") and the "Scroll to stack" hint
+ *
+ * And one thing the CMS holds but this design has no room for:
+ *   · `about_values`' three `bullet` rows ("Digital Mode of Learning"). They
+ *     are not rendered anywhere. Reported by seed_about_v2_copy, never deleted.
  */
 
 /* ==========================================================================
@@ -133,7 +135,6 @@ const WHY_CARDS_DEFAULT = [
   { glyph: "chat", grad: "linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)", title: "Vibrant Community", body: "Connect with peers, share knowledge, and grow together in a thriving forum." },
 ];
 
-/* No CMS section exists for the closing band — see the file header. */
 const CTA_DEFAULTS = {
   eyebrow: "Join ShikshaCom",
   heading: "Ready to learn with ShikshaCom?",
@@ -175,6 +176,20 @@ function RichText({ as: Tag = "p", html, children, ...rest }) {
   return html
     ? <Tag {...rest} dangerouslySetInnerHTML={{ __html: sanitizeInline(html) }} />
     : <Tag {...rest}>{children}</Tag>;
+}
+
+/* A CTA button whose destination an editor controls.
+ *
+ * react-router's <Link> is for in-app routes only: hand it "https://…" and it
+ * treats the whole URL as a path, producing /https:/example.com and a 404 with
+ * no error anywhere. Marketing repointing a button at a campaign domain is
+ * exactly the reason this band was made editable, so the external case has to
+ * work. Anything that is not a bare in-app path renders as a real anchor. */
+function CtaLink({ to, className, children }) {
+  const external = /^(https?:|mailto:|tel:|#)/i.test(to || "");
+  return external
+    ? <a className={className} href={to}>{children}</a>
+    : <Link className={className} to={to || "/"}>{children}</Link>;
 }
 
 /* Merge one CMS row over its same-index hardcoded card.
@@ -473,6 +488,7 @@ export default function AboutUs() {
   const mission = useHomeContent("about_mission");
   const values = useHomeContent("about_values");
   const why = useHomeContent("about_why");
+  const cta = useHomeContent("about_cta");
 
   /* ── Hero ── */
   const heroBadge = hero.block?.eyebrow || HERO_DEFAULTS.badge;
@@ -540,9 +556,28 @@ export default function AboutUs() {
     WHY_CARDS_DEFAULT
   );
 
+  /* ── Closing CTA ── */
+  /* Block-only: this band has no repeatable rows, so `about_cta` is deliberately
+     absent from the backend's SECTIONS_WITH_LIST_ITEMS and the editor shows it
+     no list panel. Both buttons reuse the block's existing cta_primary_ and
+     cta_secondary_ columns, the same ones the hero uses, rather than inventing
+     fields. (Written out longhand on purpose: a `cta_primary_*` glob here
+     closes this comment at the slash and the file stops parsing.) */
+  const ctaEyebrow = cta.block?.eyebrow || CTA_DEFAULTS.eyebrow;
+  const ctaHeading = cta.block?.heading || CTA_DEFAULTS.heading;
+  const ctaSubhead = cta.block?.subhead || CTA_DEFAULTS.subhead;
+  const ctaPrimary = {
+    label: cta.block?.cta_primary_label || CTA_DEFAULTS.primary.label,
+    to: cta.block?.cta_primary_href || CTA_DEFAULTS.primary.to,
+  };
+  const ctaSecondary = {
+    label: cta.block?.cta_secondary_label || CTA_DEFAULTS.secondary.label,
+    to: cta.block?.cta_secondary_href || CTA_DEFAULTS.secondary.to,
+  };
+
   useHeaderOffset(rootRef);
   useRevealOnScroll(rootRef, [
-    hero.block, vision.block, mission.block, values.block, why.block,
+    hero.block, vision.block, mission.block, values.block, why.block, cta.block,
     hero.items, vision.items, mission.items, values.items, why.items,
   ]);
   useMissionCarousel(rootRef, missionCards.map((c) => c.key).join("|"));
@@ -811,15 +846,15 @@ export default function AboutUs() {
           <div className="ap-cta ap-rv">
             <svg className="ap-cwm a" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             <svg className="ap-cwm b" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5"/></svg>
-            <span className="ap-eyebrow"><u>{CTA_DEFAULTS.eyebrow}</u></span>
-            <h2>{CTA_DEFAULTS.heading}</h2>
-            <p>{CTA_DEFAULTS.subhead}</p>
+            <span className="ap-eyebrow"><u>{ctaEyebrow}</u></span>
+            <h2>{withBreaks(ctaHeading)}</h2>
+            <RichText html={cta.block?.body}>{ctaSubhead}</RichText>
             <div className="ap-cta-actions">
               {/* The handoff left both of these as href="#". */}
-              <Link className="ap-btn ap-btn--white" to={CTA_DEFAULTS.primary.to}>{CTA_DEFAULTS.primary.label}
-                {ICONS.arrow}</Link>
-              <Link className="ap-btn ap-btn--outline" to={CTA_DEFAULTS.secondary.to}>{CTA_DEFAULTS.secondary.label}
-                {ICONS.userPlus}</Link>
+              <CtaLink className="ap-btn ap-btn--white" to={ctaPrimary.to}>{ctaPrimary.label}
+                {ICONS.arrow}</CtaLink>
+              <CtaLink className="ap-btn ap-btn--outline" to={ctaSecondary.to}>{ctaSecondary.label}
+                {ICONS.userPlus}</CtaLink>
             </div>
           </div>
         </div>
