@@ -297,7 +297,7 @@ const CARD_LAYOUTS = [
   { x: 10, y: 36, r: 9, s: 0.85, z: 10 },
 ];
 
-function useMissionCarousel(rootRef, cardCount) {
+function useMissionCarousel(rootRef, cardKeys) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
@@ -384,16 +384,25 @@ function useMissionCarousel(rootRef, cardCount) {
       stack.removeEventListener("mouseleave", start);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-    /* cardCount, not [rootRef]: if the CMS supplies a different number of
-       pillars React swaps the DOM nodes out from under this closure, leaving
-       listeners bound to detached cards and the dots out of sync. */
-  }, [rootRef, cardCount]);
+    /* cardKeys, not cardCount and not [rootRef].
+
+       Counting was not enough and shipped broken. The fallback list and the CMS
+       list are both 4 long, so a count dep never changes — but each card's React
+       key goes from "d0".."d3" to the CMS row id when the fetch lands, and a
+       changed key makes React destroy and recreate the element. This effect had
+       already bound to the originals, so it spent the rest of the page's life
+       driving four detached nodes: no transforms, no fan, all four cards stacked
+       at the same coordinates with every title overlapping.
+
+       Keying on identity re-runs the effect whenever React swaps the nodes,
+       which is exactly when the listeners and transforms need rebinding. */
+  }, [rootRef, cardKeys]);
 }
 
 /* ==========================================================================
    Behaviour 4 · scroll-stacking initiative cards (parallax depth: scale + dim)
    ========================================================================== */
-function useInitiativeParallax(rootRef, cardCount) {
+function useInitiativeParallax(rootRef, cardKeys) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
@@ -446,7 +455,11 @@ function useInitiativeParallax(rootRef, cardCount) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [rootRef, cardCount]);
+    /* cardKeys for the same reason as the carousel above: the sticky stacking
+       is pure CSS and keeps working, but this effect's scale/dim runs off a
+       closure over the node list, so a key change silently left it animating
+       five detached cards. */
+  }, [rootRef, cardKeys]);
 }
 
 /* ==========================================================================
@@ -532,8 +545,8 @@ export default function AboutUs() {
     hero.block, vision.block, mission.block, values.block, why.block,
     hero.items, vision.items, mission.items, values.items, why.items,
   ]);
-  useMissionCarousel(rootRef, missionCards.length);
-  useInitiativeParallax(rootRef, initiatives.length);
+  useMissionCarousel(rootRef, missionCards.map((c) => c.key).join("|"));
+  useInitiativeParallax(rootRef, initiatives.map((c) => c.key).join("|"));
 
   return (
     <main className="about-page" ref={rootRef}>
