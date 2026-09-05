@@ -74,7 +74,7 @@ const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
-const About2           = lazy(() => import("./About2"));
+const AboutUs          = lazy(() => import("./AboutUs"));
 const Contact          = lazy(() => import("./Contact"));
 const TermsCondition   = lazy(() => import("./TermsCondition"));
 const Faq              = lazy(() => import("./Faq"));
@@ -316,7 +316,7 @@ function App() {
         {/* Public content pages */}
         {/* About.jsx was gutted to `() => null` long ago; mounting it here
             only cost a lazy chunk fetch that rendered nothing. */}
-        <Route path="/about"           element={<Page><About2 /></Page>} />
+        <Route path="/about"           element={<Page><AboutUs /></Page>} />
         {/* These four were standalone pages that hand-copied the matching
             /about section. They had already drifted apart — /why-shiksha
             showed Interactive Courses' description under "Personalized
@@ -325,11 +325,18 @@ function App() {
             hardcoded copies would guarantee they drift again and would make
             an editor's change look like it silently did nothing. Nothing
             links here except the homepage's Why Choose CTA; redirecting
-            keeps every existing URL and bookmark working. */}
-        <Route path="/vision"          element={<Navigate to="/about#vision" replace />} />
-        <Route path="/mission"         element={<Navigate to="/about#mission" replace />} />
-        <Route path="/values"          element={<Navigate to="/about#values" replace />} />
-        <Route path="/why-shiksha"     element={<Navigate to="/about#why-shiksha" replace />} />
+            keeps every existing URL and bookmark working.
+
+            The fragments below are the AboutUs redesign's section ids, which
+            are `ap-`-prefixed and use the singular "value". The previous page
+            used bare `#vision` / `#values` / `#why-shiksha`; leaving those in
+            place would have quietly dumped all four of these URLs at the top
+            of the page instead of the section they name, since an unmatched
+            fragment is not an error. */}
+        <Route path="/vision"          element={<Navigate to="/about#ap-vision" replace />} />
+        <Route path="/mission"         element={<Navigate to="/about#ap-mission" replace />} />
+        <Route path="/values"          element={<Navigate to="/about#ap-value" replace />} />
+        <Route path="/why-shiksha"     element={<Navigate to="/about#ap-why" replace />} />
         <Route path="/contact"         element={<Page><Contact /></Page>} />
         <Route path="/terms"           element={<Page><TermsCondition /></Page>} />
         <Route path="/faq"             element={<Page><Faq /></Page>} />

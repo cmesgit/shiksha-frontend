@@ -22,7 +22,12 @@
     <script defer src="https://analytics.shikshacom.com/script.js" data-website-id="04fc97f7-06d2-4416-85c6-fa16427f97fc"></script>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Poppins 500 and 800 are used by /about (.ap-eyebrow, .ap-scard__num,
+         .ap-init-head h3) and by several homepage sections. They used to arrive
+         only via ShikshaHome.css's @import, so any page that did not pull that
+         sheet in synthesised them from 400/700 instead. Declared here so the
+         weight range does not depend on which chunk happened to load. -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
