@@ -47,6 +47,23 @@ export async function fetchDirectoryStats() {
   }
 }
 
+/**
+ * The states and districts experts are actually in.
+ *
+ * Replaces a hardcoded list of Mizoram's eight districts that lived in the
+ * frontend, which meant the directory's "across India" copy described a reach
+ * its own location filter could not deliver. Empty on failure so the filter
+ * degrades to "Any district" rather than the page breaking.
+ */
+export async function fetchDirectoryLocations() {
+  try {
+    const { data } = await api.get("/skill/locations/");
+    return { states: data?.states || [], districts: data?.districts || [] };
+  } catch {
+    return { states: [], districts: [] };
+  }
+}
+
 export async function fetchTeacher(id) {
   if (USE_MOCK) { await wait(150); const { TEACHERS } = await import("../components/skill/data"); return TEACHERS.find(t => t.id === id); }
   const { data } = await api.get(`/skill/teachers/${id}/`);
@@ -244,7 +261,7 @@ export async function payForSession({ teacherId, draft, method, amount, activePr
 }
 
 export default {
-  fetchTeachers, fetchTeacherPage, fetchDirectoryStats,
+  fetchTeachers, fetchTeacherPage, fetchDirectoryStats, fetchDirectoryLocations,
   fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
   // registerTeacher, fetchInterviewSlots, scheduleInterview and fetchReviewQueue
   // were listed here but never defined anywhere in this module, and nothing
