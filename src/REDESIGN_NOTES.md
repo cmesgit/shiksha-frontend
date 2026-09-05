@@ -57,8 +57,13 @@ No dependency changes — the new UI uses only packages already in the app
 **Resources mega** → `/blogs`, `/current-affairs`, `/forum`, `/explore`,
 `/explore/research-hub`, `/upcoming` (Placements — same target the old nav used).
 
-**About mega** → `/about`, `/about#vision`, `/about#why-shiksha`,
-`/contact`, `/faq`, `/feedback`.
+**About mega** → `/about`, `/contact`, `/faq`, `/feedback`.
+
+Was six entries: `/about#vision` and `/about#why-shiksha` sat between About Us
+and Contact. The About page redesign renamed every section id, so both
+fragments stopped resolving and landed visitors at the top of `/about`. Dropped
+rather than repointed — the redesigned page is one continuous narrative, so
+`/about` already covers what those two rows pointed at.
 
 **Right side** → guests: `/login`, `/signup`. Signed-in: `Dashboard`
 (same role logic as before: teacher → teacher app / pick-profile,

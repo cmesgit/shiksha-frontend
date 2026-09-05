@@ -74,9 +74,7 @@ import {
   IcCompass,
   IcInfo,
   IcMail,
-  IcHelp,
   IcChat,
-  IcEye,
 } from "./home/HomeIcons";
 
 /* ────────────────────────── MENU DATA ────────────────────────── */
@@ -210,10 +208,17 @@ const RESOURCES_MENU = [
   { title: "Placements", icon: IcBriefcase, to: "/upcoming", desc: "Career & placement support." },
 ];
 
+// "Vision & Mission" and "Why ShikshaCom" used to sit between About Us and
+// Contact, deep-linking to /about#vision and /about#why-shiksha. The About
+// page redesign renamed every section id (ap-vision, ap-mission, ap-value,
+// ap-why), and an unmatched fragment is not an error — both entries silently
+// dropped the visitor at the top of /about instead of the section they named.
+//
+// Removed rather than repointed: the redesigned page reads as one continuous
+// narrative, so "About Us" already lands on all of it, and three menu rows for
+// one page was the old multi-page structure showing through.
 const ABOUT_MENU = [
   { title: "About Us", icon: IcInfo, to: "/about", desc: "Who we are and our vision." },
-  { title: "Vision & Mission", icon: IcEye, to: "/about#vision", hash: true, desc: "What we aim to achieve." },
-  { title: "Why ShikshaCom", icon: IcHelp, to: "/about#why-shiksha", hash: true, desc: "What makes us different." },
   { title: "Contact", icon: IcMail, to: "/contact", desc: "Get in touch with us." },
   { title: "FAQ", icon: IcChat, to: "/faq", desc: "Answers to common questions." },
   { title: "Feedback", icon: IcForum, to: "/feedback", desc: "Tell us what to improve." },
