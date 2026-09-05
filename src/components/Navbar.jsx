@@ -121,13 +121,12 @@ const STATIC_COURSES_MENU = [
     title: "Competitive Exams",
     icon: IcTarget,
     sections: [
-      {
-        heading: "Prepare",
-        links: [
-          { label: "General Studies", to: "/general-studies" },
-          { label: "Current Affairs", to: "/current-affairs" },
-        ],
-      },
+      // The "Prepare" section (General Studies + Current Affairs) was removed
+      // from this menu. Current Affairs still has its own entry under
+      // Resources, which is where a reader looks for it; listing it twice made
+      // the Competitive Exams menu look like it owned the page. General Studies
+      // is no longer linked from anywhere — the route and component are left in
+      // place, so existing links and bookmarks still resolve.
       {
         heading: "Exam tracks",
         links: [
@@ -172,10 +171,12 @@ const STATIC_COURSES_MENU = [
 
 // Merges the live /courses/public/nav-menu/ categories ("school",
 // "competitive") into the static menu shape. Only replaces the parts the API
-// actually covers: the school tabs wholesale, and just the "Exam tracks"
-// section's links (the static "Prepare" section — General Studies/Current
-// Affairs — isn't course-catalog data, so it's left untouched). Returns the
-// static menu unchanged if the API has nothing usable yet.
+// actually covers: the school tabs wholesale, and the "Exam tracks" section's
+// links. Returns the static menu unchanged if the API has nothing usable yet.
+//
+// "Exam tracks" is now the only section under Competitive Exams (the static
+// "Prepare" section was removed), so this match is what keeps the menu
+// populated at all — renaming that heading would silently empty it.
 function mergeLiveNavMenu(categories) {
   if (!categories.length) return STATIC_COURSES_MENU;
   const school = categories.find((c) => c.key === "school");
