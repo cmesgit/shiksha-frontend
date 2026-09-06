@@ -37,6 +37,15 @@ import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 ════════════════════════════════════════════════════════════════ */
 
 const INTENT_KEY = "post_verify_intent";
+// Where to return after verifying. Registration now ends in an EMAIL, so a
+// ?next= in the URL cannot simply be read on the landing page — the person
+// leaves the tab and comes back through a link that knows nothing about it.
+// Stashing it survives that round trip. Same safety rule as App.jsx's
+// LoginRedirect: same-site paths only, never an auth page (which would loop).
+const NEXT_KEY = "post_auth_redirect";
+const isSafeNext = (v) =>
+  !!v && v.startsWith("/") && !v.startsWith("//") &&
+  !/^\/(login|register|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
 
 export default function Register() {
   const { register, signInWithGoogle } = useAuth();
@@ -57,8 +66,11 @@ export default function Register() {
   const [pendingGoogle, setPendingGoogle] = useState(null);
 
   const rememberIntent = () => {
-    if (!intent) return;
-    try { sessionStorage.setItem(INTENT_KEY, intent); } catch { /* unavailable */ }
+    try {
+      if (intent) sessionStorage.setItem(INTENT_KEY, intent);
+      const next = params.get("next");
+      if (isSafeNext(next)) sessionStorage.setItem(NEXT_KEY, next);
+    } catch { /* unavailable */ }
   };
 
   const submit = async (e) => {

@@ -138,7 +138,7 @@ export default function Login() {
   // Carry ?next= (and any other query params, e.g. ?action=) forward to
   // Signup — a visitor who arrived here mid-course-browse and realizes they
   // need a new account shouldn't lose that destination by switching forms.
-  const signupHref = `/signup${location.search}`;
+  const signupHref = `/register${location.search}`;
 
   return (
     <AuthShell role="student" flowLabel="Log in" loginIntro stepKey={step} dir={dir}>

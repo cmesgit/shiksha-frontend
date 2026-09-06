@@ -65,7 +65,7 @@ export const API_URL = clean(import.meta.env.VITE_API_URL || ENV.API);
 
 // Composite URLs
 export const LOGIN_URL             = HOME_URL    + "/login";
-export const SIGNUP_URL            = HOME_URL    + "/signup";
+export const SIGNUP_URL            = HOME_URL    + "/register";
 export const PICK_PROFILE_URL      = HOME_URL    + "/pick-profile";
 export const FORM_FILLUP_URL       = HOME_URL    + "/form-fillup";
 export const APP_DASHBOARD_URL     = APP_URL;
@@ -80,7 +80,14 @@ export const TEACHER_SKILL_URL   = TEACHER_URL + "/teacher/expert";
 export const ACADEMY_BROWSE_URL = HOME_URL + "/courses";
 export const SKILL_BROWSE_URL   = HOME_URL + "/skill-development";
 
-// Signup deep-link for adding a teaching track to an already-signed-in account
-// (skips the email / username step). track = "academy" | "skill".
+// Where an already-signed-in account goes to add a teaching track.
+// track = "academy" | "skill", and is only a hint — the screen shows whatever
+// the account can actually add.
+//
+// This used to deep-link into SIGNUP with ?add_track=, which existed solely to
+// bypass App.jsx's "signup is for logged-out visitors" guard. Adding a track
+// is no longer a signup at all: the caller is authenticated, so there is
+// nothing to prove and no account to create.
+export const BECOME_TEACHER_URL = HOME_URL + "/become-a-teacher";
 export const signupAddTrackUrl = (track) =>
-  `${HOME_URL}/signup?role=teacher&add_track=${encodeURIComponent(track)}`;
+  `${HOME_URL}/become-a-teacher?track=${encodeURIComponent(track)}`;

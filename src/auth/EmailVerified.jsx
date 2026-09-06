@@ -26,6 +26,10 @@ import {
 ════════════════════════════════════════════════════════════════ */
 
 const INTENT_KEY = "post_verify_intent";
+const NEXT_KEY   = "post_auth_redirect";
+const isSafeNext = (v) =>
+  !!v && v.startsWith("/") && !v.startsWith("//") &&
+  !/^\/(login|register|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
 
 const EmailVerified = () => {
   const [params] = useSearchParams();
@@ -53,6 +57,15 @@ const EmailVerified = () => {
     const go = (url) => window.setTimeout(() => { window.location.href = url; }, 600);
 
     if (intent === "teach") { go("/become-a-teacher"); return; }
+
+    // Wherever they were actually headed when they hit "create an account"
+    // (booking an expert, enrolling) beats any default dashboard.
+    let next = null;
+    try {
+      next = sessionStorage.getItem(NEXT_KEY);
+      if (next) sessionStorage.removeItem(NEXT_KEY);
+    } catch { /* unavailable */ }
+    if (isSafeNext(next)) { go(next); return; }
     if (isTeacherContext) {
       go(teacherInfo?.active_track === "skill" ? TEACHER_SKILL_URL : TEACHER_ACADEMY_URL);
       return;
