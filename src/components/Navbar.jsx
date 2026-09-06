@@ -216,8 +216,11 @@ const RESOURCES_MENU = [
   // these two are flagged as not-yet-launched at the NAV level only, so the
   // routes stay reachable by direct link and nothing had to be deleted.
   { title: "Research Hub", icon: IcCompass, soon: true, desc: "Curated research reading." },
-  // Has a real page (unlike the two above) — /quiz states its own position.
-  { title: "Quiz & Mock Test", icon: IcHelp, to: "/quiz", desc: "Practice quizzes and mock papers." },
+  // Quizzes only. The public hub has NO mock-test machinery — no sections, no
+  // negative marking, no per-question marks — and the backend's mock support
+  // is reachable only inside the academy. Naming it "Mock Test" out here
+  // promised something this page does not do.
+  { title: "Quizzes", icon: IcHelp, to: "/quiz", desc: "Free practice quizzes with instant explanations." },
   { title: "Placements", icon: IcBriefcase, soon: true, desc: "Career & placement support." },
 ];
 

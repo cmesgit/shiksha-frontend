@@ -1,30 +1,52 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useAuth } from "../contexts/AuthContext";
+import {
+  applyReview,
+  buildAnswerPayload,
+  difficultyLabel,
+  getAttemptReview,
+  getPersonalSummary,
+  getRails,
+  getSet,
+  getSets,
+  normalizeQuestion,
+  normalizeSet,
+  playerFromReview,
+  startAttempt,
+  submitAttempt,
+} from "../api/quizHub";
+
 /**
  * ShikshaCom — Quiz Hub page (self-contained).
  *
- * A React port of ShikshaCom_Quiz_Hub.html. The scoped stylesheet, the Poppins
- * webfont, the icon sprite, the demo question bank and every behaviour live in
- * this single file, so it drops into the React 19 + Vite app with no extra CSS,
- * assets or dependencies:
- *
- *   import QuizHub from "./QuizHub";
- *   <Route path="/quiz" element={<QuizHub />} />
+ * A React port of ShikshaCom_Quiz_Hub.html, wired to the live API
+ * (design_handoff_public_quiz_hub Phases 7 + 8). The scoped stylesheet, the
+ * Poppins webfont, the icon sprite and every behaviour live in this single
+ * file, so it needs no extra CSS, assets or dependencies.
  *
  * Every rule is scoped under `.quiz-page`, so the global header, footer and
  * navigation are untouched, and Tailwind / Elementor widgets are unaffected.
  *
- * BACKEND NOTES
- * -------------
- * 1. DATA — `SUBJECTS`, `BANK`, `QUIZZES`, `ATTEMPTS` and `RECS` below are demo
- *    fixtures. Replace them with the Django API response; the shapes are
- *    documented inline. Nothing else in the file needs to change.
- * 2. STATE — attempts are in-memory only. Nothing is persisted and no network
- *    call is made. Wire `handleSubmit` to POST the attempt, and `startQuiz` to
- *    GET the real question set.
- * 3. IMAGES — the recommendation covers hotlink Unsplash (free licence, no
- *    attribution required). Move them to our own CDN before launch; each card
- *    falls back to a generated gradient if a URL fails.
+ * ── WHERE THE DATA COMES FROM ─────────────────────────────────────────────
+ * `src/api/quizHub.js`. The design's fixtures (`SUBJECTS`, `BANK`, `QUIZZES`,
+ * `ATTEMPTS`, `RECS`, `CHART_DATA`) are GONE, not defaulted — the API layer
+ * maps the server payload into the per-question shape this file's JSX already
+ * spoke, so the markup below is the design's, unchanged.
+ *
+ * ── TWO PROPERTIES THAT ARE EASY TO BREAK ─────────────────────────────────
+ * 1. THE ANSWER KEY IS NOT ON THE WIRE MID-ATTEMPT. A question's `a` (correct
+ *    index) and `e` (explanation) are null until the attempt is submitted,
+ *    because the public serializer omits them. They are filled from the
+ *    submit response. Do not "simplify" by grading in the browser — there is
+ *    nothing to grade against, by design.
+ * 2. THE SIGNED-IN PANELS ARE HIDDEN FOR GUESTS, NEVER FAKED. Sections 6, 7
+ *    and 8 render only with a summary from the server. There is no zeroed
+ *    placeholder variant, and there must not be one.
+ *
+ * Filtering, search, sorting and paging are all SERVER-side: the set list is
+ * paginated, so doing any of them here would silently apply to the loaded
+ * page only.
  */
 
 /* ==========================================================================
@@ -144,10 +166,10 @@ const QUIZ_PAGE_CSS = `
 .quiz-page .qz-rv{opacity:0;transform:translateY(24px);
   transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
 .quiz-page .qz-rv.in{opacity:1;transform:none}
-.quiz-page .qz-rv.d1{transition-delay:.08s}
-.quiz-page .qz-rv.d2{transition-delay:.16s}
-.quiz-page .qz-rv.d3{transition-delay:.24s}
-.quiz-page .qz-rv.d4{transition-delay:.32s}
+.quiz-page .qz-rv.qz-d1{transition-delay:.08s}
+.quiz-page .qz-rv.qz-d2{transition-delay:.16s}
+.quiz-page .qz-rv.qz-d3{transition-delay:.24s}
+.quiz-page .qz-rv.qz-d4{transition-delay:.32s}
 
 /* difficulty tag — one shared component so it reads the same everywhere */
 .quiz-page .qz-diff{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
@@ -1006,236 +1028,71 @@ function useGoogleFont() {
 /* ==========================================================================
    Demo data
    ========================================================================== */
-const IMG = 'https://images.unsplash.com/';
-const IMGQ = '?auto=format&fit=crop&w=900&q=62';
+/* ==========================================================================
+   Presentation fallbacks
 
-const SUBJECTS = [
-  { id:'history',   name:'History',      icon:'qi-book',   color:'#0F9D6B', quizzes:25, questions:250, difficulty:'Easy',   progress:64,
-    photo: IMG+'photo-1491841573634-28140fc7ced7'+IMGQ },            /* stack of old books — Chris Lawton */
-  { id:'geography', name:'Geography',    icon:'qi-globe',  color:'#3b82f6', quizzes:22, questions:220, difficulty:'Medium', progress:41,
-    photo: IMG+'photo-1521295121783-8a321d551ad2'+IMGQ },            /* desk globe — Kyle Glenn */
-  { id:'polity',    name:'Polity',       icon:'qi-pillar', color:'#7C5CFC', quizzes:18, questions:180, difficulty:'Medium', progress:78,
-    photo: IMG+'photo-1472173148041-00294f0814a2'+IMGQ },            /* law library shelves — Thomas Kelley */
-  { id:'economy',   name:'Economy',      icon:'qi-coin',   color:'#FFB21D', quizzes:16, questions:160, difficulty:'Hard',   progress:29,
-    photo: IMG+'photo-1565373679107-344d38dbf734'+IMGQ },            /* rupee coins and notes — rupixen */
-  { id:'science',   name:'Science',      icon:'qi-flask',  color:'#12b3a6', quizzes:24, questions:240, difficulty:'Easy',   progress:55,
-    photo: IMG+'photo-1532094349884-543bc11b234d'+IMGQ },            /* laboratory beakers — Hans Reniers */
-  { id:'reasoning', name:'Reasoning',    icon:'qi-puzzle', color:'#ec4e86', quizzes:20, questions:200, difficulty:'Medium', progress:47,
-    photo: IMG+'photo-1628595351029-c2bf17511435'+IMGQ },            /* helix pattern — Braňo */
-  { id:'maths',     name:'Mathematics',  icon:'qi-calc',   color:'#E14D2A', quizzes:26, questions:260, difficulty:'Hard',   progress:33,
-    photo: IMG+'photo-1491841651911-c44c30c34548'+IMGQ },            /* stacked textbooks — Chris Lawton */
-  { id:'english',   name:'English',      icon:'qi-abc',    color:'#0B5B3E', quizzes:19, questions:190, difficulty:'Easy',   progress:71,
-    photo: IMG+'photo-1616405160919-c209d0062a4a'+IMGQ }             /* open book page — Aleksandra Sapozhnikova */
-];
-const SUBJ_BY_ID = {};
-SUBJECTS.forEach(function(s){ SUBJ_BY_ID[s.id] = s; });
+   A subject tag carries its own `icon` and `color`, set by an editor in the
+   admin. Both are optional and a freshly created subject has neither, so
+   these keep the tiles, cards and chart legible in the meantime: a known
+   slug gets a sensible icon, and anything else falls back positionally so
+   two adjacent subjects never render in the same colour.
 
-/* ---------------------------------------------------------------------------
-   2 · QUESTION BANK — 10 questions per subject.
-   Shape: { q, options[4], answer (0-3 index), explanation, topic }
-   ------------------------------------------------------------------------- */
-const BANK = {
-history:[
- {q:'Which Harappan site is best known for its dockyard, pointing to a thriving maritime trade?',o:['Kalibangan','Lothal','Dholavira','Ropar'],a:1,t:'Indus Valley',e:'Lothal, in present-day Gujarat, has the earliest known dockyard in the world. Its tidal basin connected the settlement to the Gulf of Khambhat, and seals found there link it to trade with Mesopotamia.'},
- {q:'Who founded the Mauryan Empire after overthrowing the Nanda dynasty?',o:['Bindusara','Ashoka','Chandragupta Maurya','Bimbisara'],a:2,t:'Mauryan Age',e:'Chandragupta Maurya defeated the last Nanda ruler around 322 BCE with the guidance of Chanakya (Kautilya) and established the Mauryan Empire with Pataliputra as its capital.'},
- {q:'The Brahmi script used in Ashoka\'s edicts was first deciphered by:',o:['William Jones','James Prinsep','John Marshall','Alexander Cunningham'],a:1,t:'Mauryan Age',e:'James Prinsep decoded Brahmi in 1837 while working at the Calcutta mint. His breakthrough made the Ashokan inscriptions readable and reconstructed a large part of early Indian history.'},
- {q:'Which Gupta ruler is often called the "Napoleon of India" for his extensive military campaigns?',o:['Chandragupta I','Samudragupta','Skandagupta','Kumaragupta'],a:1,t:'Gupta Period',e:'The historian V. A. Smith gave Samudragupta this title. His conquests are recorded in the Allahabad Pillar Inscription composed by his court poet Harisena.'},
- {q:'The Vijayanagara Empire was founded in 1336 CE by:',o:['Krishnadeva Raya','Harihara and Bukka','Devaraya II','Sadashiva Raya'],a:1,t:'Medieval India',e:'Brothers Harihara I and Bukka Raya I founded Vijayanagara on the banks of the Tungabhadra. The empire reached its peak much later under Krishnadeva Raya in the early 16th century.'},
- {q:'The Battle of Plassey in 1757 was fought between Robert Clive and:',o:['Mir Jafar','Tipu Sultan','Siraj-ud-Daulah','Shuja-ud-Daulah'],a:2,t:'Colonial India',e:'Clive defeated Nawab Siraj-ud-Daulah of Bengal, largely because the Nawab\'s commander Mir Jafar defected. The victory gave the East India Company political control over Bengal.'},
- {q:'Arya Samaj was founded in 1875 by:',o:['Raja Ram Mohan Roy','Swami Vivekananda','Dayanand Saraswati','Keshab Chandra Sen'],a:2,t:'Social Reform',e:'Swami Dayanand Saraswati founded the Arya Samaj in Bombay. It called for a return to the Vedas and campaigned against idol worship, caste rigidity and child marriage.'},
- {q:'Gandhiji\'s first satyagraha in India, launched in 1917, was at:',o:['Kheda','Champaran','Ahmedabad','Bardoli'],a:1,t:'Freedom Movement',e:'The Champaran Satyagraha in Bihar supported indigo cultivators forced into the tinkathia system by European planters. Its success established Gandhi as a national figure.'},
- {q:'At which session did the Indian National Congress formally adopt the demand for Purna Swaraj?',o:['Lahore, 1929','Calcutta, 1928','Karachi, 1931','Lucknow, 1916'],a:0,t:'Freedom Movement',e:'The Lahore session of December 1929, presided over by Jawaharlal Nehru, resolved on complete independence. The tricolour was hoisted on 31 December and 26 January 1930 was observed as Independence Day.'},
- {q:'The slogan "Do or Die" was given by Mahatma Gandhi during which movement?',o:['Non-Cooperation Movement','Civil Disobedience Movement','Quit India Movement','Khilafat Movement'],a:2,t:'Freedom Movement',e:'Gandhi gave the call on 8 August 1942 at the Gowalia Tank Maidan in Bombay when the Quit India Movement was launched. Most senior Congress leaders were arrested the following morning.'}
-],
-geography:[
- {q:'Which river is known as the "Dakshina Ganga" or Ganga of the South?',o:['Krishna','Godavari','Kaveri','Mahanadi'],a:1,t:'Indian Rivers',e:'The Godavari earns the name because it is the longest peninsular river. It rises at Trimbakeshwar in Maharashtra and drains into the Bay of Bengal after roughly 1,465 km.'},
- {q:'The Tropic of Cancer passes through how many Indian states?',o:['Six','Seven','Eight','Nine'],a:2,t:'Location & Extent',e:'It crosses eight states: Gujarat, Rajasthan, Madhya Pradesh, Chhattisgarh, Jharkhand, West Bengal, Tripura and Mizoram.'},
- {q:'Which is the highest mountain peak located entirely within India?',o:['Nanda Devi','Kangchenjunga','K2','Kamet'],a:1,t:'Physiography',e:'Kangchenjunga (8,586 m) on the Sikkim–Nepal border is the highest peak in India. Nanda Devi is the highest lying wholly inside Indian territory in the strictest sense, but Kangchenjunga is the accepted answer for the highest peak in India.'},
- {q:'Which soil type covers the largest area in India?',o:['Black soil','Red soil','Laterite soil','Alluvial soil'],a:3,t:'Soils',e:'Alluvial soil covers about 40% of India\'s land area, spread across the Indo-Gangetic plain and the coastal deltas. It is rich in potash but generally poor in nitrogen.'},
- {q:'The Palk Strait separates India from:',o:['Maldives','Sri Lanka','Myanmar','Indonesia'],a:1,t:'Water Bodies',e:'The Palk Strait lies between Tamil Nadu and northern Sri Lanka, connecting the Palk Bay with the Bay of Bengal. Adam\'s Bridge lies to its south.'},
- {q:'Loktak Lake, famous for its floating phumdis, is located in which state?',o:['Assam','Meghalaya','Manipur','Mizoram'],a:2,t:'Lakes',e:'Loktak is the largest freshwater lake in North East India. Keibul Lamjao, the world\'s only floating national park, sits on its phumdis and protects the endangered Sangai deer.'},
- {q:'Which state is the largest producer of coffee in India?',o:['Kerala','Tamil Nadu','Karnataka','Andhra Pradesh'],a:2,t:'Agriculture',e:'Karnataka accounts for roughly 70% of India\'s coffee output, concentrated in Kodagu, Chikkamagaluru and Hassan. Kerala is the second-largest producer.'},
- {q:'The deepest oceanic trench on Earth, the Mariana Trench, lies in which ocean?',o:['Atlantic Ocean','Indian Ocean','Pacific Ocean','Arctic Ocean'],a:2,t:'World Geography',e:'The Mariana Trench in the western Pacific reaches about 11,000 m at Challenger Deep. It formed where the Pacific Plate subducts beneath the Mariana Plate.'},
- {q:'Duncan Passage lies between:',o:['Great Andaman and Little Andaman','Andaman and Nicobar','Little Andaman and Car Nicobar','India and Sri Lanka'],a:0,t:'Islands',e:'Duncan Passage separates South Andaman from Little Andaman. The wider Ten Degree Channel is what separates the Andaman group from the Nicobar group.'},
- {q:'Which of these is a hot local wind that blows over the northern plains of India in summer?',o:['Norwester','Loo','Mango shower','Kalbaisakhi'],a:1,t:'Climate',e:'The Loo is a hot, dry wind that blows during May and June across Rajasthan, Punjab, Haryana and Uttar Pradesh, often pushing afternoon temperatures above 45°C.'}
-],
-polity:[
- {q:'The idea of Fundamental Rights in the Indian Constitution has been borrowed from the constitution of:',o:['United Kingdom','United States of America','Ireland','Canada'],a:1,t:'Sources',e:'Fundamental Rights, judicial review and the independence of the judiciary were drawn from the US Constitution. The Directive Principles came from Ireland and parliamentary procedure from the UK.'},
- {q:'Which article did Dr B. R. Ambedkar call the "heart and soul" of the Constitution?',o:['Article 14','Article 19','Article 21','Article 32'],a:3,t:'Fundamental Rights',e:'Article 32 gives every citizen the right to move the Supreme Court directly for the enforcement of Fundamental Rights, which is why Ambedkar described it in those terms.'},
- {q:'The Directive Principles of State Policy were inspired by the constitution of:',o:['Ireland','Australia','Germany','Japan'],a:0,t:'Sources',e:'Part IV of the Constitution takes its model from the Irish Constitution of 1937. The principles are not enforceable in a court but are meant to guide governance.'},
- {q:'The anti-defection provisions are contained in which schedule of the Constitution?',o:['Eighth Schedule','Ninth Schedule','Tenth Schedule','Eleventh Schedule'],a:2,t:'Schedules',e:'The Tenth Schedule was inserted by the 52nd Amendment in 1985. It lays down when a legislator can be disqualified for defecting from the party on whose ticket they were elected.'},
- {q:'A Money Bill can be introduced only in:',o:['Rajya Sabha','Lok Sabha','Either House','A joint sitting'],a:1,t:'Parliament',e:'Under Article 110, a Money Bill originates only in the Lok Sabha and only on the President\'s recommendation. The Rajya Sabha can hold it for a maximum of 14 days and may suggest changes the Lok Sabha is free to reject.'},
- {q:'Who appoints the Comptroller and Auditor General of India?',o:['Prime Minister','President','Chief Justice of India','Speaker of Lok Sabha'],a:1,t:'Constitutional Bodies',e:'The CAG is appointed by the President under Article 148 and holds office for six years or until the age of 65, whichever is earlier. Removal follows the same process as for a Supreme Court judge.'},
- {q:'The words "Socialist", "Secular" and "Integrity" were added to the Preamble by which amendment?',o:['24th Amendment','42nd Amendment','44th Amendment','52nd Amendment'],a:1,t:'Amendments',e:'The 42nd Amendment of 1976, often called the "mini-Constitution", inserted these three words. It also added the Fundamental Duties in Part IVA.'},
- {q:'What is the minimum age required to become a member of the Rajya Sabha?',o:['25 years','30 years','35 years','21 years'],a:1,t:'Parliament',e:'Article 84 sets 30 years as the minimum age for the Council of States, compared with 25 years for the Lok Sabha.'},
- {q:'A National Emergency can be proclaimed by the President under which article?',o:['Article 352','Article 356','Article 360','Article 365'],a:0,t:'Emergency Provisions',e:'Article 352 covers National Emergency on grounds of war, external aggression or armed rebellion. Article 356 deals with President\'s Rule in a state and Article 360 with financial emergency.'},
- {q:'Fundamental Duties were added to the Constitution on the recommendation of which committee?',o:['Sarkaria Commission','Swaran Singh Committee','Balwant Rai Mehta Committee','Ashok Mehta Committee'],a:1,t:'Fundamental Duties',e:'The Swaran Singh Committee recommended them in 1976 and they were inserted as Article 51A by the 42nd Amendment. A eleventh duty on education of children was added by the 86th Amendment.'}
-],
-economy:[
- {q:'The repo rate in India is fixed by:',o:['Ministry of Finance','SEBI','Reserve Bank of India','NITI Aayog'],a:2,t:'Monetary Policy',e:'The RBI\'s six-member Monetary Policy Committee sets the repo rate — the rate at which the central bank lends to commercial banks against government securities.'},
- {q:'NITI Aayog replaced the Planning Commission with effect from:',o:['1 January 2015','1 April 2014','15 August 2015','1 July 2017'],a:0,t:'Institutions',e:'NITI Aayog (National Institution for Transforming India) was constituted on 1 January 2015 as a policy think tank. Unlike the Planning Commission it does not allocate funds to states.'},
- {q:'The Goods and Services Tax was rolled out in India on:',o:['1 April 2017','1 July 2017','1 January 2018','15 August 2016'],a:1,t:'Taxation',e:'GST came into force on 1 July 2017 through the 101st Constitutional Amendment Act. It merged a long list of central and state indirect taxes into a single destination-based tax.'},
- {q:'NABARD, the apex bank for rural credit, was established in:',o:['1969','1975','1982','1991'],a:2,t:'Banking',e:'NABARD was set up on 12 July 1982 on the recommendation of the Sivaraman Committee. It refinances rural credit and supports the regional rural bank network.'},
- {q:'The Green Revolution in India is most closely associated with which crop?',o:['Rice','Wheat','Sugarcane','Cotton'],a:1,t:'Agriculture',e:'The gains of the late 1960s were led by high-yielding dwarf wheat varieties in Punjab, Haryana and western Uttar Pradesh. M. S. Swaminathan and Norman Borlaug are the names most associated with it.'},
- {q:'The Blue Revolution in India refers to the development of which sector?',o:['Dairy','Fisheries','Oilseeds','Poultry'],a:1,t:'Revolutions',e:'The Blue Revolution covers fisheries and aquaculture. The White Revolution refers to milk, the Yellow Revolution to oilseeds and the Pink Revolution to onion and meat processing.'},
- {q:'Which body is the statutory regulator of the Indian securities market?',o:['RBI','IRDAI','SEBI','PFRDA'],a:2,t:'Regulators',e:'SEBI was formed in 1988 and given statutory powers by the SEBI Act, 1992. It regulates stock exchanges, brokers, mutual funds and listed companies.'},
- {q:'Fiscal deficit is best defined as:',o:['Total expenditure minus total receipts excluding borrowings','Revenue expenditure minus revenue receipts','Interest payments minus tax revenue','Total receipts minus capital expenditure'],a:0,t:'Public Finance',e:'Fiscal deficit is the gap between the government\'s total expenditure and its total receipts excluding borrowings. It indicates how much the government needs to borrow in a year.'},
- {q:'Inflation in India based on the Consumer Price Index is released by:',o:['RBI','National Statistical Office','Ministry of Commerce','NITI Aayog'],a:1,t:'Price Indices',e:'The NSO under MoSPI publishes CPI-based retail inflation every month. The Wholesale Price Index is released separately by the Office of the Economic Adviser, Ministry of Commerce and Industry.'},
- {q:'The Reserve Bank of India was nationalised in which year?',o:['1935','1947','1949','1969'],a:2,t:'Banking',e:'The RBI began operations in 1935 as a private shareholders\' bank and was nationalised on 1 January 1949. The nationalisation of 14 major commercial banks came later, in 1969.'}
-],
-science:[
- {q:'The SI unit of force is the:',o:['Joule','Newton','Pascal','Watt'],a:1,t:'Physics',e:'One newton is the force needed to accelerate a mass of one kilogram at one metre per second squared. The joule is energy, the pascal pressure and the watt power.'},
- {q:'Which gas is most abundant in the Earth\'s atmosphere?',o:['Oxygen','Carbon dioxide','Nitrogen','Argon'],a:2,t:'Chemistry',e:'Nitrogen makes up about 78% of the atmosphere by volume, oxygen about 21% and argon roughly 0.93%. Carbon dioxide is present in traces but drives the greenhouse effect.'},
- {q:'Deficiency of vitamin C causes which disease?',o:['Rickets','Scurvy','Beriberi','Pellagra'],a:1,t:'Biology',e:'Vitamin C (ascorbic acid) is needed for collagen synthesis. Its deficiency causes scurvy, marked by bleeding gums and slow wound healing. Rickets comes from vitamin D deficiency.'},
- {q:'The chemical name of baking soda is:',o:['Sodium carbonate','Sodium bicarbonate','Calcium carbonate','Sodium hydroxide'],a:1,t:'Chemistry',e:'Baking soda is sodium bicarbonate, NaHCO₃. On heating it releases carbon dioxide, which is what makes baked goods rise. Sodium carbonate (Na₂CO₃) is washing soda.'},
- {q:'Insulin is produced in the human body by which organ?',o:['Liver','Kidney','Pancreas','Thyroid'],a:2,t:'Human Body',e:'The beta cells of the islets of Langerhans in the pancreas secrete insulin, which lowers blood glucose. Alpha cells in the same islets secrete glucagon, which raises it.'},
- {q:'The hardest naturally occurring substance is:',o:['Quartz','Corundum','Diamond','Topaz'],a:2,t:'Chemistry',e:'Diamond scores 10 on the Mohs scale. Its hardness comes from each carbon atom being covalently bonded to four others in a rigid three-dimensional lattice.'},
- {q:'Which blood group is called the universal donor?',o:['AB positive','O negative','A positive','B negative'],a:1,t:'Human Body',e:'O negative red cells carry neither A nor B antigens nor the Rh factor, so they can be given to any recipient in an emergency. AB positive is the universal recipient.'},
- {q:'Newton\'s first law of motion is also known as the law of:',o:['Inertia','Momentum','Acceleration','Gravitation'],a:0,t:'Physics',e:'A body stays at rest or in uniform motion unless an external force acts on it, so the first law is the law of inertia. Mass is the measure of inertia.'},
- {q:'The green pigment responsible for photosynthesis in plants is:',o:['Carotene','Chlorophyll','Xanthophyll','Anthocyanin',],a:1,t:'Biology',e:'Chlorophyll in the chloroplasts absorbs mainly red and blue light and reflects green, which is why leaves look green. It converts light energy into chemical energy.'},
- {q:'The speed of light in vacuum is approximately:',o:['3 × 10⁶ m/s','3 × 10⁸ m/s','3 × 10¹⁰ m/s','3 × 10⁵ m/s'],a:1,t:'Physics',e:'Light travels at about 299,792,458 m/s in vacuum, usually rounded to 3 × 10⁸ m/s. Nothing carrying information can exceed this speed.'}
-],
-reasoning:[
- {q:'Find the next number in the series: 2, 6, 12, 20, 30, ?',o:['36','40','42','44'],a:2,t:'Number Series',e:'The differences increase by 2 each time: 4, 6, 8, 10, then 12. So 30 + 12 = 42. Each term also equals n(n+1) — here 6 × 7 = 42.'},
- {q:'Which one does not belong to the group: 3, 5, 7, 9, 11?',o:['3','7','9','11'],a:2,t:'Odd One Out',e:'Every number in the list is prime except 9, which is divisible by 3.'},
- {q:'Doctor : Patient :: Lawyer : ?',o:['Court','Client','Judge','Law'],a:1,t:'Analogy',e:'A doctor provides professional service to a patient exactly as a lawyer does to a client. The court and the judge are the setting, not the person served.'},
- {q:'In a certain code FLOWER is written as EKNVDQ. How is GARDEN written in that code?',o:['FZQCDM','HBSEFO','FZQDCM','FYQCDM'],a:0,t:'Coding-Decoding',e:'Each letter moves one step backward in the alphabet. G→F, A→Z, R→Q, D→C, E→D, N→M, giving FZQCDM.'},
- {q:'A man walks 10 km north, turns right and walks 5 km, then turns right and walks 10 km. How far is he from the starting point?',o:['5 km','10 km','15 km','25 km'],a:0,t:'Direction Sense',e:'The two 10 km stretches are in opposite directions and cancel out. Only the 5 km eastward leg remains, so he ends 5 km from where he started, facing south.'},
- {q:'Pointing to a woman, a man said, "She is the daughter of my grandfather\'s only son." How is she related to him?',o:['Daughter','Sister','Aunt','Niece'],a:1,t:'Blood Relations',e:'The grandfather\'s only son is the man\'s own father. His father\'s daughter is therefore his sister.'},
- {q:'Complete the series: A, C, F, J, ?',o:['M','N','O','P'],a:2,t:'Letter Series',e:'The gaps widen by one each step: +2, +3, +4, then +5. J plus 5 letters gives O.'},
- {q:'In a row of 40 students, Ravi is 12th from the left. What is his position from the right?',o:['28th','29th','27th','30th'],a:1,t:'Ranking',e:'Position from the right = total − position from left + 1 = 40 − 12 + 1 = 29.'},
- {q:'Find the next term: 7, 14, 28, 56, ?',o:['84','98','112','128'],a:2,t:'Number Series',e:'Each term is double the one before it, so 56 × 2 = 112.'},
- {q:'If 1 January 2024 was a Monday, what day was 1 February 2024?',o:['Wednesday','Thursday','Friday','Saturday'],a:1,t:'Calendar',e:'January has 31 days. 31 ÷ 7 leaves a remainder of 3, so the day advances by three from Monday, giving Thursday.'}
-],
-maths:[
- {q:'Find the simple interest on ₹5,000 at 8% per annum for 3 years.',o:['₹1,000','₹1,200','₹1,400','₹1,600'],a:1,t:'Simple Interest',e:'SI = P × R × T ÷ 100 = 5000 × 8 × 3 ÷ 100 = ₹1,200.'},
- {q:'What is the average of the first 10 natural numbers?',o:['5','5.5','6','6.5'],a:1,t:'Averages',e:'Their sum is 10 × 11 ÷ 2 = 55, and 55 ÷ 10 = 5.5.'},
- {q:'25% of 480 is:',o:['96','110','120','140'],a:2,t:'Percentage',e:'25% is one quarter, so 480 ÷ 4 = 120.'},
- {q:'₹1,200 is divided between two people in the ratio 2 : 3. What is the smaller share?',o:['₹400','₹480','₹500','₹720'],a:1,t:'Ratio & Proportion',e:'Total parts = 5, so one part = 1200 ÷ 5 = 240. The smaller share is 2 × 240 = ₹480.'},
- {q:'A train 150 m long is running at 54 km/h. How long does it take to cross a pole?',o:['8 seconds','10 seconds','12 seconds','15 seconds'],a:1,t:'Time, Speed & Distance',e:'54 km/h = 54 × 5/18 = 15 m/s. To cross a pole the train covers only its own length: 150 ÷ 15 = 10 seconds.'},
- {q:'Find the compound interest on ₹10,000 at 10% per annum for 2 years, compounded annually.',o:['₹2,000','₹2,100','₹2,200','₹2,400'],a:1,t:'Compound Interest',e:'Amount = 10000 × (1.1)² = ₹12,100, so CI = 12,100 − 10,000 = ₹2,100.'},
- {q:'The LCM of 12, 15 and 20 is:',o:['30','45','60','120'],a:2,t:'HCF & LCM',e:'Prime factors: 12 = 2²×3, 15 = 3×5, 20 = 2²×5. Taking the highest power of each gives 2²×3×5 = 60.'},
- {q:'A shopkeeper sells an article for ₹720 at a profit of 20%. What was the cost price?',o:['₹576','₹600','₹640','₹660'],a:1,t:'Profit & Loss',e:'SP = CP × 1.2, so CP = 720 ÷ 1.2 = ₹600.'},
- {q:'The area of a circle with radius 7 cm is (take π = 22/7):',o:['144 cm²','154 cm²','164 cm²','176 cm²'],a:1,t:'Mensuration',e:'Area = πr² = (22/7) × 7 × 7 = 154 cm².'},
- {q:'The sum of the interior angles of a regular hexagon is:',o:['540°','600°','720°','900°'],a:2,t:'Geometry',e:'Sum = (n − 2) × 180° = (6 − 2) × 180° = 720°. Each interior angle of a regular hexagon is therefore 120°.'}
-],
-english:[
- {q:'Choose the word closest in meaning to BENEVOLENT.',o:['Hostile','Kind-hearted','Indifferent','Arrogant'],a:1,t:'Synonyms',e:'Benevolent describes someone well-meaning and generous towards others, so kind-hearted is the closest match.'},
- {q:'Choose the word opposite in meaning to SCARCE.',o:['Rare','Limited','Abundant','Sparse'],a:2,t:'Antonyms',e:'Scarce means in short supply. Abundant, meaning available in large quantity, is its opposite. Rare and sparse are near-synonyms.'},
- {q:'One word for "a person who cannot be corrected":',o:['Incorrigible','Illegible','Invincible','Impeccable'],a:0,t:'One Word Substitution',e:'Incorrigible describes a person whose bad habits cannot be reformed. Illegible means unreadable, invincible means unbeatable and impeccable means flawless.'},
- {q:'What does the idiom "to let the cat out of the bag" mean?',o:['To create confusion','To reveal a secret','To escape danger','To waste an opportunity'],a:1,t:'Idioms & Phrases',e:'The idiom means to disclose something that was meant to be kept quiet, usually by accident.'},
- {q:'Choose the correctly spelt word.',o:['Occurence','Ocurrence','Occurrence','Occurrance'],a:2,t:'Spelling',e:'Occurrence takes a double c, a double r and ends in -ence. The doubling happens because the stress falls on the final syllable of "occur".'},
- {q:'Fill in the blank: He has been living in Aizawl ____ 2015.',o:['for','from','since','by'],a:2,t:'Prepositions',e:'"Since" is used with a point in time such as a year or date, while "for" is used with a duration such as "for eight years".'},
- {q:'Identify the error: "One of my friend is a doctor."',o:['One of','my friend','is a doctor','No error'],a:1,t:'Error Spotting',e:'"One of" is always followed by a plural noun, so it should read "one of my friends". The verb stays singular because the subject is "one".'},
- {q:'Change to passive voice: "She writes a letter."',o:['A letter was written by her','A letter is written by her','A letter has written by her','A letter is being wrote by her'],a:1,t:'Active & Passive',e:'Simple present active becomes "is/are + past participle" in the passive, giving "A letter is written by her".'},
- {q:'Fill in the blank: He is good ____ mathematics.',o:['in','at','on','with'],a:1,t:'Prepositions',e:'"Good at" is the fixed collocation for skill in a subject or activity. "Good in" is used mainly with a period or context, as in "good in a crisis".'},
- {q:'The plural of "crisis" is:',o:['Crisises','Crisis','Crises','Crisies'],a:2,t:'Nouns',e:'Nouns of Greek origin ending in -is form the plural in -es, so crisis becomes crises. The same rule gives thesis/theses and analysis/analyses.'}
-]
+   FALLBACK_COLORS mirrors quizzes/public_insights.py, so a subject keeps one
+   accent across the tiles, the cards and the insights chart.
+   ========================================================================== */
+const SUBJECT_ICONS = {
+  history: "qi-book", geography: "qi-globe", polity: "qi-pillar",
+  economy: "qi-coin", science: "qi-flask", reasoning: "qi-puzzle",
+  maths: "qi-calc", mathematics: "qi-calc", english: "qi-abc",
 };
-
-/* ---------------------------------------------------------------------------
-   3 · QUIZZES
-   Demo note for backend: each quiz pulls its 10 questions from its subject
-   bank, rotated by `seed` so the order differs per quiz. In production each
-   quiz will carry its own question ids.
-   ------------------------------------------------------------------------- */
-const QUIZZES = [
- {id:'q01',title:'Ancient India — SSC History Quiz 01',subject:'history',desc:'Indus Valley, Mauryan and Gupta periods — the highest-yield ancient India questions.',diff:'Easy',mins:10,attempts:4820,exams:['SSC','Railways'],seed:0,done:true,fresh:false},
- {id:'q02',title:'Medieval India — SSC History Quiz 02',subject:'history',desc:'Delhi Sultanate, Vijayanagara and the Mughals, with dates you are expected to recall.',diff:'Medium',mins:12,attempts:3610,exams:['SSC','State PSC'],seed:3,done:false,fresh:false},
- {id:'q03',title:'Modern India & the Freedom Movement',subject:'history',desc:'From Plassey to Quit India — movements, sessions, leaders and slogans.',diff:'Medium',mins:12,attempts:5240,exams:['UPSC','SSC'],seed:6,done:false,fresh:true},
- {id:'q04',title:'Indian Physical Geography 01',subject:'geography',desc:'Relief, mountain ranges, soils and the physical divisions of the subcontinent.',diff:'Easy',mins:10,attempts:4110,exams:['SSC','Railways'],seed:0,done:false,fresh:false},
- {id:'q05',title:'Rivers, Lakes & Water Bodies',subject:'geography',desc:'Peninsular and Himalayan drainage, straits, passages and inland lakes.',diff:'Medium',mins:12,attempts:2980,exams:['SSC','State PSC'],seed:4,done:false,fresh:false},
- {id:'q06',title:'World Geography Essentials',subject:'geography',desc:'Oceans, trenches, winds and global physical features that repeat in prelims.',diff:'Hard',mins:15,attempts:1740,exams:['UPSC','CDS'],seed:7,done:false,fresh:true},
- {id:'q07',title:'Constitution Basics — Polity Quiz 01',subject:'polity',desc:'Sources, Preamble, Parts and Schedules — the foundation set for every exam.',diff:'Easy',mins:10,attempts:6120,exams:['SSC','Banking'],seed:0,done:true,fresh:false},
- {id:'q08',title:'Fundamental Rights & Duties',subject:'polity',desc:'Articles 12 to 35 plus Article 51A, with the amendments that shaped them.',diff:'Medium',mins:12,attempts:4460,exams:['UPSC','State PSC'],seed:5,done:false,fresh:false},
- {id:'q09',title:'Indian Economy Foundations',subject:'economy',desc:'Planning, institutions, revolutions in agriculture and basic fiscal terms.',diff:'Medium',mins:12,attempts:3320,exams:['SSC','Banking'],seed:0,done:false,fresh:false},
- {id:'q10',title:'Banking & Financial Awareness',subject:'economy',desc:'RBI policy tools, regulators and the banking timeline — built for Banking mains.',diff:'Hard',mins:15,attempts:5890,exams:['Banking'],seed:4,done:false,fresh:true},
- {id:'q11',title:'General Science — Physics & Chemistry',subject:'science',desc:'Units, laws, gases and everyday chemistry that appear in every general studies paper.',diff:'Easy',mins:10,attempts:7240,exams:['SSC','Railways'],seed:0,done:false,fresh:false},
- {id:'q12',title:'Biology & the Human Body',subject:'science',desc:'Organs, vitamins, blood groups and the systems examiners keep returning to.',diff:'Medium',mins:12,attempts:4030,exams:['Railways','Defence'],seed:4,done:false,fresh:false},
- {id:'q13',title:'Series, Analogy & Coding',subject:'reasoning',desc:'Number and letter series, analogies and letter-shift coding patterns.',diff:'Easy',mins:10,attempts:6650,exams:['SSC','Banking'],seed:0,done:false,fresh:false},
- {id:'q14',title:'Direction, Ranking & Blood Relations',subject:'reasoning',desc:'The three chapters that carry the most marks per minute in reasoning sections.',diff:'Medium',mins:12,attempts:3870,exams:['SSC','NDA'],seed:4,done:false,fresh:true},
- {id:'q15',title:'Quantitative Aptitude 01',subject:'maths',desc:'Percentage, ratio, interest, speed and mensuration at exam difficulty.',diff:'Medium',mins:15,attempts:5510,exams:['SSC','Banking'],seed:0,done:false,fresh:false},
- {id:'q16',title:'Grammar, Vocabulary & Idioms',subject:'english',desc:'Synonyms, antonyms, prepositions, voice and the idioms that repeat every year.',diff:'Easy',mins:10,attempts:4790,exams:['SSC','Banking'],seed:0,done:false,fresh:false}
+const FALLBACK_ICONS = [
+  "qi-book", "qi-globe", "qi-pillar", "qi-coin",
+  "qi-flask", "qi-puzzle", "qi-calc", "qi-abc",
+];
+const FALLBACK_COLORS = [
+  "#0F9D6B", "#3b82f6", "#7C5CFC", "#FFB21D",
+  "#12b3a6", "#ec4e86", "#E14D2A", "#0B5B3E",
 ];
 
-/* every subject quiz also answers to the General Awareness umbrella */
-const GA = ['history','geography','polity','economy','science'];
-QUIZZES.forEach(function(q){
-  q.groups = GA.indexOf(q.subject) > -1 ? ['General Awareness'] : [];
-  q.questions = rotate(BANK[q.subject], q.seed);
-  q.count = q.questions.length;
-});
-function rotate(arr, n) { const k = n % arr.length; return arr.slice(k).concat(arr.slice(0, k)); }
+function railIcon(rail, i = 0) {
+  return (
+    rail?.icon || SUBJECT_ICONS[rail?.slug] || FALLBACK_ICONS[i % FALLBACK_ICONS.length]
+  );
+}
 
-/* previous attempts + recommendations ------------------------------------- */
-const ATTEMPTS = [
-  {quiz:'q01', score:8,  total:10, date:'Yesterday',   spent:'7m 12s', color:'#0F9D6B'},
-  {quiz:'q07', score:9,  total:10, date:'2 days ago',  spent:'6m 40s', color:'#7C5CFC'},
-  {quiz:'q11', score:6,  total:10, date:'4 days ago',  spent:'9m 02s', color:'#12b3a6'},
-  {quiz:'q13', score:7,  total:10, date:'6 days ago',  spent:'8m 25s', color:'#ec4e86'},
-  {quiz:'q09', score:5,  total:10, date:'Last week',   spent:'11m 18s',color:'#FFB21D'}
-];
+function railColor(rail, i = 0) {
+  return rail?.color || FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+}
 
-/* `photo` here is optional — it overrides the subject's default cover so two
-   recommendations from the same subject don't show identical artwork. */
-const RECS = [
-  {quiz:'q02', why:'Same subject',  note:'You cleared Ancient India with 80% accuracy. Medieval India is the natural next block and shares roughly a third of its dates.'},
-  {quiz:'q03', why:'Next step',     note:'Modern History carries the largest share of history questions in SSC papers, and it follows straight on from what you have already covered.',
-   photo: IMG+'photo-1526285759904-71d1170ed2ac'+IMGQ},             /* archive shelves — Cristina Gottardi */
-  {quiz:'q09', why:'Weakest area',  note:'Economy is your lowest-scoring subject at 52%. Twenty minutes here will move your overall accuracy more than anything else.'}
-];
-
-
-/* Filter rails. `value` encodes what it matches: `s:` subject, `g:` umbrella
-   group, `e:` exam. Chips that match nothing render as a disabled "Soon". */
-const SUBJECT_CHIPS = [
-  { label: "All quizzes", value: "all" },
-  { label: "General Awareness", value: "g:General Awareness" },
-  { label: "History", value: "s:history" },
-  { label: "Geography", value: "s:geography" },
-  { label: "Polity", value: "s:polity" },
-  { label: "Economy", value: "s:economy" },
-  { label: "Science", value: "s:science" },
-  { label: "Reasoning", value: "s:reasoning" },
-  { label: "Mathematics", value: "s:maths" },
-  { label: "English", value: "s:english" },
-  { label: "Environment", value: "s:environment" },
-  { label: "Current Affairs", value: "s:current" },
-  { label: "Computer", value: "s:computer" },
-];
-
-const EXAM_CHIPS = [
-  { label: "All exams", value: "all" },
-  { label: "SSC", value: "e:SSC" },
-  { label: "Banking", value: "e:Banking" },
-  { label: "Railways", value: "e:Railways" },
-  { label: "Defence", value: "e:Defence" },
-  { label: "State PSC", value: "e:State PSC" },
-  { label: "UPSC", value: "e:UPSC" },
-  { label: "NDA", value: "e:NDA" },
-  { label: "CDS", value: "e:CDS" },
-  { label: "MPSC", value: "e:MPSC" },
-];
-
-/* Accuracy-by-subject figures behind the insights chart. */
-const CHART_DATA = [
-  { label: "History", value: 82, color: "#0F9D6B" },
-  { label: "Geography", value: 69, color: "#3b82f6" },
-  { label: "Polity", value: 88, color: "#7C5CFC" },
-  { label: "Economy", value: 52, color: "#FFB21D" },
-  { label: "Science", value: 76, color: "#12b3a6" },
-  { label: "Reasoning", value: 71, color: "#ec4e86" },
-  { label: "Maths", value: 58, color: "#E14D2A" },
-  { label: "English", value: 84, color: "#0B5B3E" },
-];
+/* A set is "new" for its first week. Derived from the real `created_at` the
+   card serializer sends, unlike the fixture's hand-set `fresh` flag. */
+const FRESH_DAYS = 7;
+function isFresh(createdAt) {
+  if (!createdAt) return false;
+  const age = Date.now() - new Date(createdAt).getTime();
+  return age >= 0 && age < FRESH_DAYS * 864e5;
+}
 
 const KEYS = ["A", "B", "C", "D"];
-const DIFF_ORDER = { Easy: 1, Medium: 2, Hard: 3 };
 
 /* ==========================================================================
    Pure helpers
    ========================================================================== */
 const nfmt = (n) => n.toLocaleString("en-IN");
+
+/** "Today" / "Yesterday" / "4 days ago" / a date, from an ISO timestamp. */
+function relativeDay(iso) {
+  if (!iso) return "";
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return "";
+  const startOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const days = Math.round((startOf(new Date()) - startOf(then)) / 864e5);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return "Last week";
+  return then.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
 
 function mmss(total) {
   const s = Math.max(0, total);
@@ -1244,17 +1101,7 @@ function mmss(total) {
   return `${m < 10 ? "0" : ""}${m}:${r < 10 ? "0" : ""}${r}`;
 }
 
-function matchChip(quiz, value) {
-  if (value === "all") return true;
-  const kind = value.slice(0, 2);
-  const v = value.slice(2);
-  if (kind === "s:") return quiz.subject === v;
-  if (kind === "g:") return quiz.groups.includes(v);
-  if (kind === "e:") return quiz.exams.includes(v);
-  return true;
-}
 
-const chipCount = (value) => QUIZZES.filter((q) => matchChip(q, value)).length;
 
 /* ==========================================================================
    Icons — one sprite in the document, referenced by <use>
@@ -1495,14 +1342,18 @@ function RecCover({ color, iconId, index, photo, children }) {
 /* ==========================================================================
    Quiz card
    ========================================================================== */
-function QuizCard({ quiz, menuOpen, onToggleMenu, onMenuPick, onStart, onPreview }) {
-  const sb = SUBJ_BY_ID[quiz.subject];
+function QuizCard({ quiz, subject, menuOpen, onToggleMenu, onMenuPick, onStart, onPreview }) {
+  const color = railColor(subject, quiz.colorIndex);
+  const icon = railIcon(subject, quiz.colorIndex);
+  const subjectName = subject?.label || quiz.subjectName || "";
 
   return (
-    <article className={`qz-card qz-rv${menuOpen ? " menu-open" : ""}`} style={{ "--c": sb.color }}>
+    <article className={`qz-card qz-rv${menuOpen ? " menu-open" : ""}`} style={{ "--c": color }}>
       <div className="qz-card-top">
-        <span className="qz-card-ic"><Icon id={sb.icon} /></span>
+        <span className="qz-card-ic"><Icon id={icon} /></span>
 
+        {/* Real: this account has a submitted attempt on this set. Guests
+            never see it, because they have no history to check against. */}
         {quiz.done && (
           <span className="qz-card-done"><Icon id="qi-check" />Completed</span>
         )}
@@ -1520,14 +1371,18 @@ function QuizCard({ quiz, menuOpen, onToggleMenu, onMenuPick, onStart, onPreview
           <div className="qz-menu" role="menu">
             <button type="button" onClick={() => onMenuPick("preview", quiz)}><Icon id="qi-eye" />Preview questions</button>
             <button type="button" onClick={() => onMenuPick("syllabus", quiz)}><Icon id="qi-list" />View topics covered</button>
-            <button type="button" onClick={() => onMenuPick("save", quiz)}><Icon id="qi-flag" />Save for later</button>
+            {/* "Save for later" was in the design and is NOT here: there is no
+                saved-list backend, and a button that toasts "Saved" while
+                saving nothing is worse than an absent feature. */}
             <button type="button" onClick={() => onMenuPick("share", quiz)}><Icon id="qi-share" />Copy quiz link</button>
           </div>
         </div>
       </div>
 
       <div className="qz-card-body">
-        <p className="qz-card-tag">{sb.name} · {quiz.exams.join(" / ")}</p>
+        <p className="qz-card-tag">
+          {[subjectName, quiz.exams.join(" / ")].filter(Boolean).join(" · ")}
+        </p>
         <h3>{quiz.title}</h3>
         <p className="qz-card-desc">{quiz.desc}</p>
         <div className="qz-card-meta">
@@ -1538,7 +1393,11 @@ function QuizCard({ quiz, menuOpen, onToggleMenu, onMenuPick, onStart, onPreview
       </div>
 
       <div className="qz-card-foot">
-        <span className="qz-attempts"><Icon id="qi-users" /><b>{nfmt(quiz.attempts)}</b> attempts</span>
+        {/* Submitted attempts only. A set nobody has finished says so rather
+            than showing a 0 dressed up as social proof. */}
+        {quiz.attempts > 0
+          ? <span className="qz-attempts"><Icon id="qi-users" /><b>{nfmt(quiz.attempts)}</b> attempts</span>
+          : <span className="qz-attempts"><Icon id="qi-users" />Be the first</span>}
         {quiz.fresh
           ? <span style={{ color: "#0B7A52", fontWeight: 700 }}>New this week</span>
           : <span>Auto-graded</span>}
@@ -1570,6 +1429,10 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
       if (a === null) skipped += 1;
       else if (a === q.a) correct += 1;
       else wrong += 1;
+      /* Only REAL topics are grouped. Most bank questions carry none, and
+         bucketing them all under a placeholder produced a one-row "breakdown"
+         and the sentence "Weakest topic: General. Strongest: General." */
+      if (!q.t) return;
       if (!byTopic[q.t]) byTopic[q.t] = { c: 0, t: 0 };
       byTopic[q.t].t += 1;
       if (a === q.a) byTopic[q.t].c += 1;
@@ -1587,6 +1450,10 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
   }, [quiz, answers, left]);
 
   const { correct, wrong, skipped, byTopic, topics, pct, accuracy, spent } = stats;
+
+  /* A breakdown needs at least two things to break down. With one topic (or
+     none) the panel says nothing, so it is omitted rather than padded. */
+  const hasTopicBreakdown = topics.length >= 2;
 
   const verdict =
     pct >= 80 ? "Strong attempt"
@@ -1650,6 +1517,7 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
           </p>
         </div>
 
+        {hasTopicBreakdown && (
         <div className="qz-insight" style={{ "--c": "#7C5CFC" }}>
           <div className="qz-insight-h"><span className="qz-insight-ic"><Icon id="qi-target" /></span><b>Topic breakdown</b></div>
           <div className="qz-topicbars">
@@ -1666,13 +1534,16 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
             })}
           </div>
         </div>
+        )}
 
         <div className="qz-insight" style={{ "--c": "#FFB21D" }}>
           <div className="qz-insight-h"><span className="qz-insight-ic"><Icon id="qi-bulb" /></span><b>What to do next</b></div>
           <p>
-            Weakest topic in this set: <strong>{weakest}</strong>. Strongest: <strong>{strongest}</strong>.{" "}
+            {hasTopicBreakdown && (
+              <>Weakest topic in this set: <strong>{weakest}</strong>. Strongest: <strong>{strongest}</strong>.{" "}</>
+            )}
             {skipped
-              ? `You also left ${skipped} unanswered — in most objective papers a considered guess is worth taking. `
+              ? `You left ${skipped} unanswered — in most objective papers a considered guess is worth taking. `
               : ""}
             Read the explanations below, then try the recommended set on the hub.
           </p>
@@ -1714,7 +1585,8 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
                 {st === "correct" && <span className="qz-rbadge ok"><Icon id="qi-check-c" />Correct</span>}
                 {st === "wrong" && <span className="qz-rbadge no"><Icon id="qi-x-c" />Incorrect</span>}
                 {st === "skipped" && <span className="qz-rbadge sk"><Icon id="qi-minus-c" />Skipped</span>}
-                <span className="qz-topic">{q.t}</span>
+                {/* Most bank questions have no topic; an empty chip is noise. */}
+                {q.t && <span className="qz-topic">{q.t}</span>}
               </div>
 
               <p className="qz-rq">{q.q}</p>
@@ -1756,17 +1628,40 @@ export default function QuizHub() {
   const bodyRef = useRef(null);
   const lastFocusRef = useRef(null);
 
+  /* Effects defined above startQuiz/handleSubmit reach them through these,
+     rather than depending on declaration order inside the component body.
+     `submittingRef` also guards the auto-submit: the countdown effect can
+     fire again before a re-render lands, and a second POST comes back 409. */
+  const submittingRef = useRef(false);
+  const submitNowRef = useRef(null);
+  const startQuizRef = useRef(null);
+
   const reduceMotion = usePrefersReducedMotion();
   useGoogleFont();
 
-  /* ---- browse state ---- */
+  const { isAuthenticated } = useAuth();
+
+  /* ---- browse state. `subject` / `exam` hold a tag SLUG, or "all". ---- */
   const [subject, setSubject] = useState("all");
   const [exam, setExam] = useState("all");
   const [query, setQuery] = useState("");
+  /* What is typed vs what has been asked for. The input updates on every
+     keystroke; `search` trails it by a debounce so the API is not called per
+     character. */
+  const [search, setSearch] = useState("");
   const [sort, setSort] = useState("popular");
-  const [shown, setShown] = useState(9);
   const [openMenu, setOpenMenu] = useState(null);
   const [toast, setToast] = useState("");
+
+  /* ---- server data ---- */
+  const [rails, setRails] = useState({ subjects: [], exams: [], stats: null });
+  const [railsError, setRailsError] = useState("");
+  const [list, setList] = useState([]);
+  const [listMeta, setListMeta] = useState({ count: 0, page: 1, hasMore: false });
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState("");
+  const [summary, setSummary] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   /* ---- player state. `null` when the overlay is closed. ---- */
   const [player, setPlayer] = useState(null);
@@ -1778,33 +1673,42 @@ export default function QuizHub() {
   const playerOpen = player !== null;
   useBodyLock(playerOpen);
 
-  /* ---- filtering + sorting ---- */
-  const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const out = QUIZZES.filter((z) => {
-      if (!matchChip(z, subject)) return false;
-      if (!matchChip(z, exam)) return false;
-      if (!q) return true;
-      const hay = [
-        z.title, z.desc, SUBJ_BY_ID[z.subject].name, z.exams.join(" "),
-        z.questions.map((x) => x.t).join(" "),
-      ].join(" ").toLowerCase();
-      return hay.includes(q);
-    });
+  /* Subject rails keyed by slug, with the positional index frozen in — the
+     tiles, the cards and the chart all resolve a subject's accent through
+     this, so an untinted subject keeps ONE colour across all three rather
+     than changing as it moves position in a filtered list. */
+  const subjectsBySlug = useMemo(() => {
+    const map = new Map();
+    rails.subjects.forEach((s, i) => map.set(s.slug, { ...s, index: i }));
+    return map;
+  }, [rails.subjects]);
 
-    return out.sort((a, b) => {
-      if (sort === "popular") return b.attempts - a.attempts;
-      if (sort === "new") return (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || b.attempts - a.attempts;
-      if (sort === "easy") return DIFF_ORDER[a.diff] - DIFF_ORDER[b.diff] || b.attempts - a.attempts;
-      if (sort === "hard") return DIFF_ORDER[b.diff] - DIFF_ORDER[a.diff] || b.attempts - a.attempts;
-      if (sort === "short") return a.mins - b.mins || b.attempts - a.attempts;
-      return 0;
-    });
-  }, [subject, exam, query, sort]);
+  /* Slugs of sets this account has already submitted. Empty for a guest,
+     which is why the "Completed" tick simply never appears for one. */
+  const doneSlugs = useMemo(
+    () => new Set((summary?.recent || []).map((r) => r.set_slug)),
+    [summary]
+  );
 
-  const visible = list.slice(0, shown);
+  const visible = useMemo(
+    () => list.map((z) => ({
+      ...z,
+      done: doneSlugs.has(z.slug),
+      /* Real, from the set's created_at — not the fixture's hand-set flag. */
+      fresh: isFresh(z.createdAt),
+      colorIndex: subjectsBySlug.get(z.subject)?.index ?? 0,
+    })),
+    [list, doneSlugs, subjectsBySlug]
+  );
 
-  useRevealOnScroll(rootRef, reduceMotion, [visible.length, player?.quiz.id, player?.submitted]);
+  /* ⚠ `summary` MUST be in here. The hook observes `.qz-rv:not(.in)` when its
+     deps change, and the three signed-in panels mount only once the summary
+     arrives — later than everything else on the page. Without it they are
+     never observed, so they never get the `in` class: the rings sit at 0%
+     and the chart bars render at zero height over perfectly good data. */
+  useRevealOnScroll(rootRef, reduceMotion, [
+    visible.length, player?.quiz.id, player?.submitted, summary,
+  ]);
   useHeroAnimation(rootRef, reduceMotion);
 
   /* ---- toast ---- */
@@ -1823,6 +1727,118 @@ export default function QuizHub() {
     return () => document.removeEventListener("click", close);
   }, [openMenu]);
 
+  /* ======================================================================
+     Server data
+     ====================================================================== */
+
+  /* Rails + hero counts. Once per mount — they do not depend on the filters. */
+  useEffect(() => {
+    const ac = new AbortController();
+    getRails(ac.signal)
+      .then((data) => setRails({
+        subjects: data.subjects || [],
+        exams: data.exams || [],
+        stats: data.stats || null,
+      }))
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        /* Say so rather than rendering an empty rail that reads as "there are
+           no subjects" — an outage and an empty bank look identical
+           otherwise, which is exactly how a dead backend once got read as
+           empty content elsewhere in this codebase. */
+        setRailsError(err.message);
+      });
+    return () => ac.abort();
+  }, []);
+
+  /* Debounce the search box. Without this every keystroke is a request. */
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(query.trim()), 350);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  /* The set grid. Refetches from page 1 whenever a filter changes; "Show
+     more" appends the next page instead. */
+  useEffect(() => {
+    const ac = new AbortController();
+    setListLoading(true);
+    setListError("");
+    getSets({ subject, exam, q: search, ordering: sort, page: 1 }, ac.signal)
+      .then((data) => {
+        setList((data.results || []).map(normalizeSet));
+        setListMeta({
+          count: data.count ?? 0,
+          page: 1,
+          hasMore: Boolean(data.next),
+        });
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        setList([]);
+        setListMeta({ count: 0, page: 1, hasMore: false });
+        setListError(err.message);
+      })
+      .finally(() => setListLoading(false));
+    return () => ac.abort();
+  }, [subject, exam, search, sort]);
+
+  /* The signed-in panels. Refetched when auth changes so signing in fills
+     them without a reload — and signing out CLEARS them rather than leaving
+     the previous account's figures on screen. */
+  useEffect(() => {
+    if (!isAuthenticated) { setSummary(null); return undefined; }
+    const ac = new AbortController();
+    getPersonalSummary(ac.signal)
+      .then((data) => setSummary(data && data.has_attempts ? data : null))
+      .catch(() => setSummary(null));
+    return () => ac.abort();
+  }, [isAuthenticated]);
+
+  /* `/quiz?set=<slug>` opens that set directly — this is what the card's
+     "Copy quiz link" hands out, so it has to actually work. Runs once, after
+     the first page of sets has loaded so the attempt can be titled properly,
+     and strips the parameter so a refresh does not restart the attempt. */
+  const deepLinkRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkRef.current || listLoading) return;
+    const slug = new URLSearchParams(window.location.search).get("set");
+    if (!slug) return;
+    deepLinkRef.current = true;
+    window.history.replaceState({}, "", window.location.pathname);
+    startQuizRef.current?.(slug);
+  }, [listLoading]);
+
+  const loadMore = useCallback(() => {
+    const next = listMeta.page + 1;
+    setListLoading(true);
+    getSets({ subject, exam, q: search, ordering: sort, page: next })
+      .then((data) => {
+        setList((cur) => [...cur, ...(data.results || []).map(normalizeSet)]);
+        setListMeta({
+          count: data.count ?? 0,
+          page: next,
+          hasMore: Boolean(data.next),
+        });
+      })
+      .catch((err) => setListError(err.message))
+      .finally(() => setListLoading(false));
+  }, [subject, exam, search, sort, listMeta.page]);
+
+  /* After an attempt lands, the panels and the attempt counts are stale. */
+  const refreshAfterAttempt = useCallback(() => {
+    if (isAuthenticated) {
+      getPersonalSummary()
+        .then((data) => setSummary(data && data.has_attempts ? data : null))
+        .catch(() => {});
+    }
+    getSets({ subject, exam, q: search, ordering: sort, page: 1 })
+      .then((data) => {
+        setList((data.results || []).map(normalizeSet));
+        setListMeta({ count: data.count ?? 0, page: 1, hasMore: Boolean(data.next) });
+      })
+      .catch(() => {});
+  }, [isAuthenticated, subject, exam, search, sort]);
+
   const scrollToQuizzes = useCallback(() => {
     const el = allRef.current;
     if (!el) return;
@@ -1832,82 +1848,136 @@ export default function QuizHub() {
 
   const pickChip = (group, value) => {
     if (group === "subject") setSubject(value); else setExam(value);
-    setShown(9);
     scrollToQuizzes();
   };
 
-  const pickSubjectCard = (id) => {
-    setSubject(`s:${id}`);
+  const pickSubjectCard = (slug) => {
+    setSubject(slug);
     setExam("all");
-    setShown(9);
     scrollToQuizzes();
   };
 
   const resetFilters = () => {
-    setSubject("all"); setExam("all"); setQuery(""); setSort("popular"); setShown(9);
+    setSubject("all"); setExam("all"); setQuery(""); setSearch(""); setSort("popular");
   };
 
-  /* ---- card kebab menu ---- */
-  const onMenuPick = (action, quiz) => {
-    const topics = [...new Set(quiz.questions.map((q) => q.t))].slice(0, 4).join(", ");
-    const msg = {
-      preview: `Preview: ${quiz.questions[0].q.slice(0, 52)}…`,
-      syllabus: `Topics: ${topics}`,
-      save: `Saved “${quiz.title}” to your practice list`,
-      share: "Quiz link copied to clipboard",
-    }[action];
-    showToast(msg);
+  /* ---- card kebab menu ----
+     Preview and topics need the PAPER, which the card list deliberately does
+     not carry (a list of 20 sets must not drag 200 questions behind it), so
+     both fetch the set on demand. */
+  const onMenuPick = useCallback(async (action, quiz) => {
     setOpenMenu(null);
-  };
+
+    if (action === "share") {
+      const url = `${window.location.origin}/quiz?set=${encodeURIComponent(quiz.slug)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("Quiz link copied to clipboard");
+      } catch {
+        /* Clipboard access is denied in some browsers and over plain http.
+           Saying so beats a success toast for something that did not happen. */
+        showToast(url);
+      }
+      return;
+    }
+
+    try {
+      const detail = await getSet(quiz.slug);
+      const questions = (detail.questions || []).map(normalizeQuestion);
+      if (!questions.length) {
+        showToast("This set has no questions ready yet.");
+        return;
+      }
+      if (action === "preview") {
+        showToast(`Preview: ${questions[0].q.slice(0, 52)}…`);
+      } else {
+        const topics = [...new Set(questions.map((q) => q.t))].slice(0, 4).join(", ");
+        showToast(topics ? `Topics: ${topics}` : "No topics recorded for this set yet.");
+      }
+    } catch (err) {
+      showToast(err.message);
+    }
+  }, [showToast]);
 
   /* ======================================================================
      Quiz player
      ====================================================================== */
-  const startQuiz = useCallback((id, mode, mockScore) => {
-    const quiz = QUIZZES.find((q) => q.id === id);
-    if (!quiz) return;
+  /**
+   * Open a set and start an attempt.
+   *
+   * ⚠ THE PAPER COMES FROM THE POST, NOT FROM THE CARD. Starting an attempt
+   * snapshots the questions server-side, and those are the ones that will be
+   * graded and reviewed — a set's membership is a live query and drifts as
+   * curation lands. Rendering the detail endpoint's questions instead would
+   * eventually show a learner a review of questions they were never asked.
+   */
+  const startQuiz = useCallback(async (slug) => {
+    if (busy) return;
+    const card = list.find((z) => z.slug === slug);
 
     lastFocusRef.current = document.activeElement;
-    setRailOpen(false);
-    setDialogOpen(false);
-    setReviewFilter("all");
-    setTimeUp(false);
-
-    if (mode === "review") {
-      /* Rebuild a plausible past attempt so "Review" from the history list has
-         something real to show. Misses are spread evenly across the paper
-         rather than bunched at the end. */
-      const target = mockScore ?? 7;
-      const misses = quiz.count - target;
-      const answers = [];
-      let lastMiss = -1;
-      for (let k = 0; k < quiz.count; k += 1) {
-        const isMiss = misses > 0 && (k * misses) % quiz.count < misses;
-        if (isMiss) { answers[k] = (quiz.questions[k].a + 1 + (k % 3)) % 4; lastMiss = k; }
-        else answers[k] = quiz.questions[k].a;
+    setBusy(true);
+    try {
+      const started = await startAttempt(slug);
+      const questions = (started.questions || []).map(normalizeQuestion);
+      if (!questions.length) {
+        showToast("This set has no questions ready yet.");
+        return;
       }
-      if (lastMiss > -1) answers[lastMiss] = null;   // one left blank, as usually happens
 
+      const minutes = card?.mins ?? 10;
+      setRailOpen(false);
+      setDialogOpen(false);
+      setReviewFilter("all");
+      setTimeUp(false);
       setPlayer({
-        quiz, i: 0,
-        answers,
-        marked: Array(quiz.count).fill(false),
-        seen: Array(quiz.count).fill(true),
-        left: Math.round(quiz.mins * 60 * 0.28),     // ~72% of the allotted time used
-        submitted: true,
+        quiz: {
+          ...(card || {}),
+          id: slug,
+          slug,
+          title: card?.title || started.title || "Practice set",
+          mins: minutes,
+          /* What was actually SERVED, which can be fewer than the set's
+             target if curation has not caught up. */
+          count: questions.length,
+          questions,
+        },
+        i: 0,
+        answers: Array(questions.length).fill(null),
+        marked: Array(questions.length).fill(false),
+        seen: Array(questions.length).fill(false),
+        left: minutes * 60,
+        submitted: false,
+        attemptId: started.attempt_id,
       });
-      return;
+    } catch (err) {
+      /* Covers the flag being off (503), the throttle (429) and a set whose
+         questions were unpublished since the page loaded (409). Each carries
+         the server's own sentence. */
+      showToast(err.message);
+    } finally {
+      setBusy(false);
     }
+  }, [busy, list, showToast]);
 
-    setPlayer({
-      quiz, i: 0,
-      answers: Array(quiz.count).fill(null),
-      marked: Array(quiz.count).fill(false),
-      seen: Array(quiz.count).fill(false),
-      left: quiz.mins * 60,
-      submitted: false,
-    });
-  }, []);
+  /** Reopen a past attempt's review — the real one, by id. */
+  const openReview = useCallback(async (attemptId, setSlug) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const review = await getAttemptReview(attemptId);
+      lastFocusRef.current = document.activeElement;
+      setRailOpen(false);
+      setDialogOpen(false);
+      setReviewFilter("all");
+      setTimeUp(false);
+      setPlayer(playerFromReview(review, list.find((z) => z.slug === setSlug)));
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, list, showToast]);
 
   const closeQuiz = useCallback(() => {
     setPlayer(null);
@@ -1927,11 +1997,12 @@ export default function QuizHub() {
     return () => clearInterval(t);
   }, [player?.quiz.id, player?.submitted]);
 
-  /* time up — auto-submit exactly once */
+  /* time up — auto-submit exactly once. */
   useEffect(() => {
     if (!player || player.submitted || player.left > 0) return;
+    if (submittingRef.current) return;
     setTimeUp(true);
-    setPlayer((p) => (p ? { ...p, submitted: true } : p));
+    submitNowRef.current?.();
   }, [player?.left, player?.submitted, player?.quiz.id]);
 
   /* mark the current question seen as it is shown */
@@ -1979,15 +2050,48 @@ export default function QuizHub() {
     });
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    if (!player) return;
-    /* BACKEND: POST the attempt here before flipping to the review screen. */
-    const correct = player.quiz.questions.filter((q, i) => player.answers[i] === q.a).length;
+  /**
+   * Submit the attempt and switch to the review.
+   *
+   * ⚠ THE SCORE COMES BACK FROM THE SERVER; it is not computed here. Until
+   * this response arrives the browser does not know a single correct answer —
+   * the public serializer omits `is_correct` and `explanation`, which is what
+   * keeps the answer key off the wire while the attempt is live. `applyReview`
+   * folds them onto the questions so the review screen renders unchanged.
+   */
+  const handleSubmit = useCallback(async () => {
+    if (!player || player.submitted || submittingRef.current) return;
+    submittingRef.current = true;
+    setBusy(true);
     setDialogOpen(false);
     setRailOpen(false);
-    setPlayer((p) => (p ? { ...p, submitted: true } : p));
-    showToast(`Attempt submitted — score ${correct}/${player.quiz.count}`);
-  }, [player, showToast]);
+
+    try {
+      const review = await submitAttempt(
+        player.attemptId,
+        buildAnswerPayload(player.quiz.questions, player.answers)
+      );
+      setPlayer((p) => (p ? {
+        ...p,
+        submitted: true,
+        score: review.score,
+        quiz: { ...p.quiz, questions: applyReview(p.quiz.questions, review) },
+      } : p));
+      showToast(`Attempt submitted — score ${review.score}/${review.total}`);
+      refreshAfterAttempt();
+    } catch (err) {
+      /* The attempt is NOT flipped to submitted on failure — the learner keeps
+         their answers and can retry, rather than being dropped onto a review
+         screen with no results in it. */
+      showToast(err.message);
+    } finally {
+      submittingRef.current = false;
+      setBusy(false);
+    }
+  }, [player, showToast, refreshAfterAttempt]);
+
+  submitNowRef.current = handleSubmit;
+  startQuizRef.current = startQuiz;
 
   const requestExit = useCallback(() => {
     if (!player) return;
@@ -2044,7 +2148,86 @@ export default function QuizHub() {
   };
 
   const q = player && !player.submitted ? player.quiz.questions[player.i] : null;
-  const sb = player ? SUBJ_BY_ID[player.quiz.subject] : null;
+  /* ---- signed-in panel figures ----
+     Every card here is computed from this account's own submitted attempts.
+     The design's fixture also carried "+6% this month" and "Top 12% of
+     learners"; neither is here, because neither can be derived from one
+     person's attempts, and a confident wrong number about someone's own work
+     is the worst thing this page could do. A card whose figure is null (no
+     answered questions in that subject yet) is dropped rather than shown
+     as 0%. */
+  const chartData = useMemo(
+    () => (summary?.by_subject || [])
+      .filter((row) => row.accuracy !== null)
+      .sort((a, b) => b.accuracy - a.accuracy),
+    [summary]
+  );
+
+  const perfRings = useMemo(() => {
+    if (!summary) return [];
+    const t = summary.totals;
+    const rings = [];
+
+    if (t.accuracy !== null) {
+      rings.push({
+        c: "#0F9D6B", v: t.accuracy, ring: t.accuracy, suffix: "%", h: "Accuracy",
+        p: `${nfmt(t.questions_correct)} correct out of ${nfmt(t.questions_answered)} answered`,
+      });
+    }
+    if (t.attempt_rate !== null) {
+      rings.push({
+        c: "#7C5CFC", v: t.attempt_rate, ring: t.attempt_rate, suffix: "%", h: "Attempt rate",
+        p: `You answered ${nfmt(t.questions_answered)} of the ${nfmt(t.questions_served)} questions you were shown`,
+        /* Only stated when it is true, and it is a fact about the figure
+           beside it rather than a claim about a trend. */
+        d: t.attempt_rate >= 90 ? "You leave very few blank" : "Blanks score nothing — guess",
+        di: t.attempt_rate >= 90 ? "qi-check-c" : "qi-target",
+        down: t.attempt_rate < 90,
+      });
+    }
+    if (t.average_score !== null) {
+      rings.push({
+        c: "#12b3a6", v: t.average_score, ring: t.average_score, suffix: "%", h: "Average score",
+        p: `Across ${nfmt(t.attempts)} completed ${t.attempts === 1 ? "set" : "sets"}`,
+      });
+    }
+    if (summary.best_subject) {
+      rings.push({
+        c: "#FFB21D", v: summary.best_subject.accuracy, ring: summary.best_subject.accuracy,
+        suffix: "%", h: "Best subject",
+        p: `${summary.best_subject.label} — your strongest area so far`,
+        d: "Your strongest", di: "qi-award",
+      });
+    }
+    if (summary.weak_subject && summary.weak_subject.slug !== summary.best_subject?.slug) {
+      rings.push({
+        c: "#E14D2A", v: summary.weak_subject.accuracy, ring: summary.weak_subject.accuracy,
+        suffix: "%", h: "Weak subject",
+        p: `${summary.weak_subject.label} — worth practising next`,
+        d: "Needs practice", di: "qi-target", down: true,
+      });
+    }
+    /* Days, not a percentage — the ring is filled against a seven-day week
+       and capped, while the number shown is the real count. */
+    rings.push({
+      c: "#3b82f6", v: t.streak_days, ring: Math.min(100, Math.round((t.streak_days / 7) * 100)),
+      suffix: t.streak_days === 1 ? " day" : " days", h: "Current streak",
+      p: t.streak_days
+        ? "Consecutive days with a completed set"
+        : "Complete a set today to start a streak",
+      d: t.streak_days ? "Keep it going" : null, di: "qi-zap",
+    });
+    return rings;
+  }, [summary]);
+
+  const playerRail = player ? subjectsBySlug.get(player.quiz.subject) : null;
+  const sb = player
+    ? {
+      name: playerRail?.label || player.quiz.subjectName || "Practice",
+      color: railColor(playerRail, playerRail?.index ?? 0),
+      icon: railIcon(playerRail, playerRail?.index ?? 0),
+    }
+    : null;
 
   return (
     <>
@@ -2070,7 +2253,12 @@ export default function QuizHub() {
                 </p>
 
                 <div className="qz-hero-cta">
-                  <button type="button" className="qz-btn qz-btn--solid" onClick={() => startQuiz("q11")}>
+                  <button
+                    type="button"
+                    className="qz-btn qz-btn--solid"
+                    disabled={busy}
+                    onClick={() => (visible[0] ? startQuiz(visible[0].slug) : scrollToQuizzes())}
+                  >
                     Start practicing <Icon id="qi-arrow" />
                   </button>
                   <a className="qz-btn qz-btn--ghost" href="#qz-subjects">
@@ -2078,9 +2266,26 @@ export default function QuizHub() {
                   </a>
                 </div>
 
+                {/* Real counts from the bank. The design shipped "1,000+
+                    questions" and "50+ subjects" as copy; the build guide's
+                    instruction was to make them real or cut them, so they are
+                    rendered only once the server has said what they are —
+                    never as a placeholder number. */}
                 <div className="qz-trust">
-                  <div><Icon id="qi-help" /><b>1,000+</b><span>questions</span></div>
-                  <div><Icon id="qi-layers" /><b>50+</b><span>subjects</span></div>
+                  {rails.stats && (
+                    <>
+                      <div>
+                        <Icon id="qi-help" />
+                        <b>{nfmt(rails.stats.questions)}</b>
+                        <span>{rails.stats.questions === 1 ? "question" : "questions"}</span>
+                      </div>
+                      <div>
+                        <Icon id="qi-layers" />
+                        <b>{nfmt(rails.stats.subjects)}</b>
+                        <span>{rails.stats.subjects === 1 ? "subject" : "subjects"}</span>
+                      </div>
+                    </>
+                  )}
                   <div><Icon id="qi-bulb" /><b>Instant</b><span>explanations</span></div>
                   <div><Icon id="qi-check-c" /><b>Free</b><span>to practice</span></div>
                 </div>
@@ -2133,7 +2338,7 @@ export default function QuizHub() {
               <p>Search by subject, quiz title or topic — or tap a filter to jump straight to the matching practice sets.</p>
             </div>
 
-            <div className="qz-rv d1">
+            <div className="qz-rv qz-d1">
               <div className={`qz-search${query ? " has-val" : ""}`} ref={searchRef}>
                 <span className="qz-si"><Icon id="qi-search" /></span>
                 <label
@@ -2149,14 +2354,14 @@ export default function QuizHub() {
                   autoComplete="off"
                   placeholder="Search subjects, quizzes or topics..."
                   value={query}
-                  onChange={(e) => { setQuery(e.target.value); setShown(9); }}
+                  onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") scrollToQuizzes(); }}
                 />
                 <button
                   type="button"
                   className="qz-search-clear"
                   aria-label="Clear search"
-                  onClick={() => { setQuery(""); setShown(9); }}
+                  onClick={() => { setQuery(""); setSearch(""); }}
                 >
                   <Icon id="qi-x" />
                 </button>
@@ -2166,49 +2371,79 @@ export default function QuizHub() {
               </div>
             </div>
 
-            <div className="qz-chipgroup qz-rv d2">
+            {/* ⚠ THE "Soon" STATE IS THE SERVER'S VERDICT, NOT A COUNT.
+                `status` here is `effective_status`: an admin can force a
+                subject to Soon or Hidden, but cannot force it Live over an
+                empty bank — the server degrades that back to Soon so a chip
+                can never be clickable onto an empty grid. The disabled
+                rendering below is the design's, unchanged; only the source
+                of `off` moved. */}
+            <div className="qz-chipgroup qz-rv qz-d2">
               <span className="qz-chiplab">Filter by subject</span>
               <div className="qz-chips" role="group" aria-label="Filter quizzes by subject">
-                {SUBJECT_CHIPS.map((c) => {
-                  const n = chipCount(c.value);
-                  const off = n === 0;
+                <button
+                  type="button"
+                  className="qz-chip"
+                  aria-pressed={subject === "all"}
+                  onClick={() => pickChip("subject", "all")}
+                >
+                  All quizzes<em>{listMeta.count}</em>
+                </button>
+                {rails.subjects.map((c) => {
+                  const off = c.status !== "live";
                   return (
                     <button
-                      key={c.value}
+                      key={c.id}
                       type="button"
                       className={`qz-chip${off ? " qz-chip--off" : ""}`}
-                      aria-pressed={subject === c.value}
+                      aria-pressed={subject === c.slug}
                       disabled={off}
-                      onClick={() => pickChip("subject", c.value)}
+                      onClick={() => pickChip("subject", c.slug)}
                     >
-                      {c.label}<em>{off ? "Soon" : n}</em>
+                      {c.label}<em>{off ? "Soon" : c.question_count}</em>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="qz-chipgroup qz-rv d3">
+            <div className="qz-chipgroup qz-rv qz-d3">
               <span className="qz-chiplab">Filter by exam</span>
               <div className="qz-chips" role="group" aria-label="Filter quizzes by exam">
-                {EXAM_CHIPS.map((c) => {
-                  const n = chipCount(c.value);
-                  const off = n === 0;
+                <button
+                  type="button"
+                  className="qz-chip"
+                  aria-pressed={exam === "all"}
+                  onClick={() => pickChip("exam", "all")}
+                >
+                  All exams<em>{listMeta.count}</em>
+                </button>
+                {rails.exams.map((c) => {
+                  const off = c.status !== "live";
                   return (
                     <button
-                      key={c.value}
+                      key={c.id}
                       type="button"
                       className={`qz-chip${off ? " qz-chip--off" : ""}`}
-                      aria-pressed={exam === c.value}
+                      aria-pressed={exam === c.slug}
                       disabled={off}
-                      onClick={() => pickChip("exam", c.value)}
+                      onClick={() => pickChip("exam", c.slug)}
                     >
-                      {c.label}<em>{off ? "Soon" : n}</em>
+                      {c.label}<em>{off ? "Soon" : c.question_count}</em>
                     </button>
                   );
                 })}
               </div>
             </div>
+
+            {railsError && (
+              <p className="qz-chiplab" role="status" style={{ marginTop: 14 }}>
+                {/* An outage and an empty bank look identical if this is
+                    silent — and "there is nothing here" is the wrong thing to
+                    tell a visitor when the truth is "we could not ask". */}
+                Filters could not be loaded. {railsError}
+              </p>
+            )}
           </div>
         </section>
 
@@ -2222,25 +2457,43 @@ export default function QuizHub() {
             </div>
 
             <div className="qz-subjects">
-              {SUBJECTS.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={`qz-subj qz-rv d${(i % 4) + 1}`}
-                  style={{ "--c": s.color }}
-                  onClick={() => pickSubjectCard(s.id)}
-                >
-                  <span className="qz-subj-ic"><Icon id={s.icon} /></span>
-                  <h3>{s.name}</h3>
-                  <p className="qz-subj-meta">{s.questions} questions <i />{s.quizzes} quizzes</p>
-                  <span className="qz-diff" data-d={s.difficulty}><i />{s.difficulty}</span>
-                  <div className="qz-prog">
-                    <div className="qz-prog-top"><span>Your progress</span><b>{s.progress}%</b></div>
-                    <div className="qz-track"><span className="qz-fill" data-w={s.progress} /></div>
-                  </div>
-                  <span className="qz-subj-cta">Begin practice <Icon id="qi-arrow" /></span>
-                </button>
-              ))}
+              {rails.subjects.map((s, i) => {
+                const off = s.status !== "live";
+                /* Accuracy on this subject, for signed-in learners who have
+                   actually answered something in it. The design's fixture had
+                   a "Your progress" bar for everyone; there is no such number
+                   for a guest, and none for a subject you have not touched,
+                   so the bar is omitted rather than shown at 0%. */
+                const mine = (summary?.by_subject || []).find(
+                  (row) => row.slug === s.slug && row.accuracy !== null
+                );
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`qz-subj qz-rv qz-d${(i % 4) + 1}${off ? " qz-chip--off" : ""}`}
+                    style={{ "--c": railColor(s, i) }}
+                    disabled={off}
+                    onClick={() => pickSubjectCard(s.slug)}
+                  >
+                    <span className="qz-subj-ic"><Icon id={railIcon(s, i)} /></span>
+                    <h3>{s.label}</h3>
+                    <p className="qz-subj-meta">
+                      {nfmt(s.question_count)} {s.question_count === 1 ? "question" : "questions"}
+                      <i />{s.set_count} {s.set_count === 1 ? "set" : "sets"}
+                    </p>
+                    {mine ? (
+                      <div className="qz-prog">
+                        <div className="qz-prog-top"><span>Your accuracy</span><b>{mine.accuracy}%</b></div>
+                        <div className="qz-track"><span className="qz-fill" data-w={mine.accuracy} /></div>
+                      </div>
+                    ) : null}
+                    <span className="qz-subj-cta">
+                      {off ? "Coming soon" : "Begin practice"} <Icon id="qi-arrow" />
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -2254,15 +2507,18 @@ export default function QuizHub() {
               <p>Every set is timed, auto-graded and comes with a written explanation for each question.</p>
             </div>
 
-            <div className="qz-bar qz-rv d1">
-              <p className="qz-count">Showing <b>{visible.length}</b> of {list.length} quizzes</p>
+            <div className="qz-bar qz-rv qz-d1">
+              <p className="qz-count">
+                Showing <b>{visible.length}</b> of {listMeta.count}{" "}
+                {listMeta.count === 1 ? "quiz" : "quizzes"}
+              </p>
               <div className="qz-sortwrap">
                 <label htmlFor="qz-sort">Sort by</label>
                 <select
                   className="qz-select"
                   id="qz-sort"
                   value={sort}
-                  onChange={(e) => { setSort(e.target.value); setShown(9); }}
+                  onChange={(e) => setSort(e.target.value)}
                 >
                   <option value="popular">Most attempted</option>
                   <option value="new">Newest first</option>
@@ -2278,16 +2534,35 @@ export default function QuizHub() {
                 <QuizCard
                   key={z.id}
                   quiz={z}
+                  subject={subjectsBySlug.get(z.subject)}
                   menuOpen={openMenu === z.id}
                   onToggleMenu={(id) => setOpenMenu((cur) => (cur === id ? null : id))}
                   onMenuPick={onMenuPick}
                   onStart={startQuiz}
-                  onPreview={(quiz) => showToast(`Preview: ${quiz.questions[0].q.slice(0, 58)}…`)}
+                  onPreview={(quiz) => onMenuPick("preview", quiz)}
                 />
               ))}
             </div>
 
-            <div className={`qz-empty${list.length === 0 ? " show" : ""}`}>
+            {/* Three different states, deliberately not collapsed into one:
+                loading, a real failure, and a genuinely empty result. Showing
+                "no quizzes match" while a request is in flight or after it
+                failed is how an outage gets read as an empty catalogue. */}
+            {listLoading && !visible.length && (
+              <p className="qz-count" role="status" style={{ textAlign: "center", padding: "28px 0" }}>
+                Loading practice sets…
+              </p>
+            )}
+
+            {!listLoading && listError && (
+              <div className="qz-empty show">
+                <div className="qz-empty-ic"><Icon id="qi-x-c" /></div>
+                <h3>Practice sets could not be loaded</h3>
+                <p>{listError}</p>
+              </div>
+            )}
+
+            <div className={`qz-empty${!listLoading && !listError && !visible.length ? " show" : ""}`}>
               <div className="qz-empty-ic"><Icon id="qi-search" /></div>
               <h3>No quizzes match that filter</h3>
               <p>Try a different subject, or clear the filters to see the full question bank.</p>
@@ -2296,17 +2571,27 @@ export default function QuizHub() {
               </button>
             </div>
 
-            {list.length > shown && (
+            {listMeta.hasMore && (
               <div className="qz-loadmore">
-                <button type="button" className="qz-btn qz-btn--ghost" onClick={() => setShown((n) => n + 6)}>
-                  Show more quizzes <Icon id="qi-arrow" />
+                <button
+                  type="button"
+                  className="qz-btn qz-btn--ghost"
+                  disabled={listLoading}
+                  onClick={loadMore}
+                >
+                  {listLoading ? "Loading…" : "Show more quizzes"} <Icon id="qi-arrow" />
                 </button>
               </div>
             )}
           </div>
         </section>
 
-        {/* ==================== 6 · PERFORMANCE INSIGHTS ==================== */}
+        {/* ==================== 6 · PERFORMANCE INSIGHTS ====================
+            SIGNED-IN ONLY. `summary` is null for a guest and for a signed-in
+            learner with no submitted attempts, and this whole section is then
+            absent — not zeroed, not greyed. That is the product decision:
+            hidden, never faked. Do not add a placeholder variant. */}
+        {summary && (
         <section className="qz-sec" id="qz-performance">
           <div className="qz-wrap">
             <div className="qz-head qz-rv">
@@ -2316,56 +2601,63 @@ export default function QuizHub() {
             </div>
 
             <div className="qz-perf">
-              <div className="qz-rings qz-rv d1">
-                {[
-                  { c: "#0F9D6B", v: 78, h: "Accuracy", p: "312 correct out of 400 attempted", d: "+6% this month", di: "qi-trend" },
-                  { c: "#7C5CFC", v: 91, h: "Attempt rate", p: "You leave very few questions blank", d: "+3% this month", di: "qi-trend" },
-                  { c: "#12b3a6", v: 74, h: "Average score", p: "Across 40 completed quizzes", d: "+9% this month", di: "qi-trend" },
-                  { c: "#FFB21D", v: 88, h: "Best subject", p: "Polity — your strongest area so far", d: "Top 12% of learners", di: "qi-award" },
-                  { c: "#E14D2A", v: 52, h: "Weak subject", p: "Economy — worth 20 minutes a day", d: "Needs practice", di: "qi-target", down: true },
-                  { c: "#3b82f6", v: 64, h: "Improvement rate", p: "Score growth over your last 10 attempts", d: "Steady climb", di: "qi-trend" },
-                ].map((r) => (
+              <div className="qz-rings qz-rv qz-d1">
+                {perfRings.map((r) => (
                   <div className="qz-ringcard" key={r.h} style={{ "--c": r.c }}>
                     <div className="qz-dial">
                       <svg viewBox="0 0 98 98">
                         <circle className="bg" cx="49" cy="49" r="43" />
-                        <circle className="fg" cx="49" cy="49" r="43" data-ring={r.v} data-circ="270" />
+                        <circle className="fg" cx="49" cy="49" r="43" data-ring={r.ring} data-circ="270" />
                       </svg>
-                      <em data-num={r.v} data-suffix="%">0%</em>
+                      <em data-num={r.v} data-suffix={r.suffix}>0{r.suffix}</em>
                     </div>
                     <div className="qz-ringcard-txt">
                       <h4>{r.h}</h4>
                       <p>{r.p}</p>
-                      <span className={`qz-delta${r.down ? " down" : ""}`}><Icon id={r.di} />{r.d}</span>
+                      {r.d && (
+                        <span className={`qz-delta${r.down ? " down" : ""}`}><Icon id={r.di} />{r.d}</span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="qz-chartcard qz-rv d2">
-                <h4>Accuracy by subject</h4>
-                <p>Based on your last 400 attempted questions.</p>
-                <div className="qz-chart">
-                  {CHART_DATA.map((d) => (
-                    <div className="qz-col" key={d.label} title={`${d.label} — ${d.value}% accuracy`}>
-                      <span className="qz-col-bar" style={{ "--c": d.color }} data-h={d.value}>
-                        <em className="qz-col-val" style={{ fontStyle: "normal" }}>{d.value}%</em>
-                      </span>
-                      <span className="qz-col-lab">{d.label}</span>
-                    </div>
-                  ))}
+              {chartData.length > 0 && (
+                <div className="qz-chartcard qz-rv qz-d2">
+                  <h4>Accuracy by subject</h4>
+                  <p>
+                    Across the {nfmt(summary.totals.questions_answered)}{" "}
+                    {summary.totals.questions_answered === 1 ? "question" : "questions"} you have answered.
+                  </p>
+                  <div className="qz-chart">
+                    {chartData.map((d) => (
+                      <div className="qz-col" key={d.slug} title={`${d.label} — ${d.accuracy}% accuracy`}>
+                        <span className="qz-col-bar" style={{ "--c": d.color }} data-h={d.accuracy}>
+                          <em className="qz-col-val" style={{ fontStyle: "normal" }}>{d.accuracy}%</em>
+                        </span>
+                        <span className="qz-col-lab">{d.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="qz-chart-legend">
+                    {summary.best_subject && (
+                      <span>Strongest: <b>{summary.best_subject.label} {summary.best_subject.accuracy}%</b></span>
+                    )}
+                    {summary.weak_subject && summary.weak_subject.slug !== summary.best_subject?.slug && (
+                      <span>Weakest: <b>{summary.weak_subject.label} {summary.weak_subject.accuracy}%</b></span>
+                    )}
+                    <span>Target: <b>80% across all</b></span>
+                  </div>
                 </div>
-                <div className="qz-chart-legend">
-                  <span>Strongest: <b>Polity 88%</b></span>
-                  <span>Weakest: <b>Economy 52%</b></span>
-                  <span>Target: <b>80% across all</b></span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
+        )}
 
-        {/* ==================== 7 · RECENTLY ATTEMPTED ==================== */}
+        {/* ==================== 7 · RECENTLY ATTEMPTED ====================
+            Signed-in only, same rule as section 6. */}
+        {summary && summary.recent.length > 0 && (
         <section className="qz-sec qz-soft" id="qz-recent">
           <div className="qz-wrap">
             <div className="qz-head qz-rv">
@@ -2375,11 +2667,14 @@ export default function QuizHub() {
             </div>
 
             <div className="qz-recent">
-              {ATTEMPTS.map((a, i) => {
-                const z = QUIZZES.find((x) => x.id === a.quiz);
-                const pct = Math.round((a.score / a.total) * 100);
+              {summary.recent.map((a, i) => {
+                const pct = a.total ? Math.round((a.score / a.total) * 100) : 0;
                 return (
-                  <div className={`qz-attempt qz-rv d${(i % 4) + 1}`} key={a.quiz} style={{ "--c": a.color }}>
+                  <div
+                    className={`qz-attempt qz-rv qz-d${(i % 4) + 1}`}
+                    key={a.attempt_id}
+                    style={{ "--c": a.color }}
+                  >
                     <div className="qz-attempt-ring">
                       <svg viewBox="0 0 62 62">
                         <circle className="bg" cx="31" cy="31" r="27" />
@@ -2388,24 +2683,30 @@ export default function QuizHub() {
                       <em>{pct}%</em>
                     </div>
                     <div className="qz-attempt-txt">
-                      <b>{z.title}</b>
+                      <b>{a.set_title}</b>
                       <p className="qz-attempt-meta">
-                        {SUBJ_BY_ID[z.subject].name} <i />{a.date} <i />{a.spent} spent <i />{z.count} questions
+                        {a.subject} <i />{relativeDay(a.submitted_at)}
+                        {a.seconds_spent !== null && <> <i />{mmss(a.seconds_spent)} spent</>}
+                        <i />{a.total} questions
                       </p>
                     </div>
                     <div className="qz-attempt-score"><b>{a.score}/{a.total}</b><span>SCORE</span></div>
                     <div className="qz-attempt-act">
+                      {/* Opens the REAL attempt by id. The fixture had to
+                          fabricate a plausible past attempt here. */}
                       <button
                         type="button"
                         className="qz-btn qz-btn--quiet qz-btn--sm"
-                        onClick={() => startQuiz(z.id, "review", a.score)}
+                        disabled={busy}
+                        onClick={() => openReview(a.attempt_id, a.set_slug)}
                       >
                         Review
                       </button>
                       <button
                         type="button"
                         className="qz-btn qz-btn--ghost qz-btn--sm"
-                        onClick={() => startQuiz(z.id)}
+                        disabled={busy}
+                        onClick={() => startQuiz(a.set_slug)}
                       >
                         Retake
                       </button>
@@ -2416,8 +2717,14 @@ export default function QuizHub() {
             </div>
           </div>
         </section>
+        )}
 
-        {/* ==================== 8 · RECOMMENDED NEXT ==================== */}
+        {/* ==================== 8 · RECOMMENDED NEXT ====================
+            Signed-in only, and additionally absent when there is nothing
+            genuinely worth recommending — every published set already
+            attempted, or the remaining ones resolve to no questions. An
+            empty "what to practise next" is worse than none. */}
+        {summary && summary.recommendations.length > 0 && (
         <section className="qz-sec" id="qz-recommended">
           <div className="qz-wrap">
             <div className="qz-head qz-rv">
@@ -2426,42 +2733,51 @@ export default function QuizHub() {
               <p>Picked from what you have already cleared and where your accuracy is still slipping.</p>
             </div>
 
-            <div style={{ textAlign: "center" }} className="qz-rv d1">
-              <span className="qz-rec-lead">
-                <span className="qz-rec-ic"><Icon id="qi-bulb" /></span>
-                Because you completed <b>Ancient India — SSC History Quiz 01</b>
-              </span>
-            </div>
+            {summary.recent[0] && (
+              <div style={{ textAlign: "center" }} className="qz-rv qz-d1">
+                <span className="qz-rec-lead">
+                  <span className="qz-rec-ic"><Icon id="qi-bulb" /></span>
+                  Because you completed <b>{summary.recent[0].set_title}</b>
+                </span>
+              </div>
+            )}
 
             <div className="qz-recs">
-              {RECS.map((r, i) => {
-                const z = QUIZZES.find((x) => x.id === r.quiz);
-                const s = SUBJ_BY_ID[z.subject];
-                return (
-                  <article className={`qz-rec qz-rv d${i + 1}`} key={r.quiz} style={{ "--c": s.color }}>
-                    <RecCover color={s.color} iconId={s.icon} index={i} photo={r.photo || s.photo}>
-                      <span className="qz-rec-subj">{s.name}</span>
-                      <span className="qz-rec-why"><Icon id="qi-zap" />{r.why}</span>
-                    </RecCover>
+              {summary.recommendations.map((r, i) => (
+                <article className={`qz-rec qz-rv qz-d${i + 1}`} key={r.slug} style={{ "--c": r.color }}>
+                  <RecCover
+                    color={r.color}
+                    iconId={railIcon(r, i)}
+                    index={i}
+                    photo={r.cover_image || undefined}
+                  >
+                    <span className="qz-rec-subj">{r.subject}</span>
+                    <span className="qz-rec-why"><Icon id="qi-zap" />{r.why}</span>
+                  </RecCover>
 
-                    <div className="qz-rec-body">
-                      <h3>{z.title}</h3>
-                      <p>{r.note}</p>
-                      <div className="qz-rec-meta">
-                        <span><Icon id="qi-help" />{z.count} questions</span>
-                        <span><Icon id="qi-clock" />{z.mins} min</span>
-                        <span>{z.diff}</span>
-                      </div>
-                      <button type="button" className="qz-btn qz-btn--solid" onClick={() => startQuiz(z.id)}>
-                        Start this quiz <Icon id="qi-arrow" />
-                      </button>
+                  <div className="qz-rec-body">
+                    <h3>{r.title}</h3>
+                    <p>{r.note}</p>
+                    <div className="qz-rec-meta">
+                      <span><Icon id="qi-help" />{r.question_count} questions</span>
+                      <span><Icon id="qi-clock" />{r.minutes} min</span>
+                      <span>{difficultyLabel(r.difficulty)}</span>
                     </div>
-                  </article>
-                );
-              })}
+                    <button
+                      type="button"
+                      className="qz-btn qz-btn--solid"
+                      disabled={busy}
+                      onClick={() => startQuiz(r.slug)}
+                    >
+                      Start this quiz <Icon id="qi-arrow" />
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
+        )}
 
         {/* ==================== 9 · FINAL CTA ==================== */}
         <section className="qz-sec qz-final">
@@ -2473,7 +2789,12 @@ export default function QuizHub() {
                 <h2>Practise daily.<br />Improve consistently.</h2>
                 <p>Ten questions a day is enough to move accuracy by double digits in a month. Start a set now — it takes ten minutes.</p>
                 <div className="qz-final-cta">
-                  <button type="button" className="qz-btn qz-btn--white" onClick={() => startQuiz("q11")}>
+                  <button
+                    type="button"
+                    className="qz-btn qz-btn--white"
+                    disabled={busy}
+                    onClick={() => (visible[0] ? startQuiz(visible[0].slug) : scrollToQuizzes())}
+                  >
                     Start a quiz <Icon id="qi-arrow" />
                   </button>
                   <a className="qz-btn qz-btn--outline" href="#qz-subjects">
@@ -2487,7 +2808,7 @@ export default function QuizHub() {
                 </div>
               </div>
 
-              <div className="qz-streak qz-rv d1">
+              <div className="qz-streak qz-rv qz-d1">
                 <div className="qz-streak-h">
                   <b>This week&apos;s practice</b>
                   <span>5 of 7 days</span>
