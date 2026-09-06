@@ -1,0 +1,103 @@
+/* PhoneGate — the just-in-time phone ask at enrolment.
+
+   Scoped custom properties, following Contact.css: this app has no live global
+   token substrate (src/shared/tokens.css exists but is imported nowhere — see
+   the note in shared/SettingsModal.css), so per-file locals are the convention
+   here. Values match Enroll.css's palette so the block sits inside the
+   enrolment card without looking bolted on. */
+
+.phone-gate {
+  --pg-ink: #111;
+  --pg-ink-2: #666;
+  --pg-line: #e5e7eb;
+  --pg-action: #4f6df5;
+  --pg-action-ink: #fff;
+  --pg-attn-bg: #fef3c7;
+  --pg-attn-line: #fde68a;
+  --pg-attn-ink: #78350f;
+  --pg-danger: #b91c1c;
+
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--pg-attn-bg);
+  border: 1px solid var(--pg-attn-line);
+  border-radius: 6px;
+}
+
+.phone-gate__why {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--pg-attn-ink);
+}
+
+.phone-gate__row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.phone-gate__input {
+  flex: 1 1 180px;
+  min-width: 0; /* let it shrink inside the flex row instead of overflowing */
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--pg-ink);
+  background: #fff;
+  border: 1px solid var(--pg-line);
+  border-radius: 6px;
+}
+
+.phone-gate__input::placeholder {
+  color: var(--pg-ink-2);
+}
+
+.phone-gate__input:focus-visible {
+  outline: 2px solid var(--pg-action);
+  outline-offset: 1px;
+  border-color: var(--pg-action);
+}
+
+.phone-gate__input[aria-invalid="true"] {
+  border-color: var(--pg-danger);
+}
+
+.phone-gate__input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.phone-gate__save {
+  flex: 0 0 auto;
+  padding: 9px 18px;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pg-action-ink);
+  background: var(--pg-action);
+  border: 1px solid var(--pg-action);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.phone-gate__save:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.phone-gate__save:focus-visible {
+  outline: 2px solid var(--pg-ink);
+  outline-offset: 2px;
+}
+
+.phone-gate__save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.phone-gate__error {
+  margin: 8px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--pg-danger);
+}
