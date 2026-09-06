@@ -19,6 +19,17 @@
      below depending on viewport width, since .wrap's own responsive
      behavior wouldn't be mirrored exactly by a second, independent
      max-width/padding pair here. */
+
+  /* VERTICAL padding only, which the rule above is not about — it is
+     guarding the horizontal gutter against being applied twice. Nothing in
+     the chain above supplied any top spacing at all (`.wrap` is
+     `padding: 0 24px`, `.uc-resbar` has only `margin-bottom`), so the
+     search/sort row and the Filters panel both sat flush against
+     `.cs-strip`'s bottom border — a measured 0px gap on a live page, which
+     read as the filter bar being part of the grey strip. Scales with the
+     hero's own `clamp(30px, 4vw, 54px)` bottom padding so the rhythm holds
+     across viewports. `.uc-page` is used on this one screen only. */
+  padding-top: clamp(28px, 3.5vw, 48px);
   width: 100%;
 }
 

@@ -64,6 +64,7 @@ const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
 const Upcoming         = lazy(() => import("./Upcoming"));
+const QuizMockTest     = lazy(() => import("./QuizMockTest"));
 const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
@@ -340,6 +341,7 @@ function App() {
         <Route path="/contact"         element={<Page><Contact /></Page>} />
         <Route path="/terms"           element={<Page><TermsCondition /></Page>} />
         <Route path="/faq"             element={<Page><Faq /></Page>} />
+        <Route path="/quiz"            element={<Page><QuizMockTest /></Page>} />
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
         <Route path="/courses"         element={<Page><Courses /></Page>} />
         <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />

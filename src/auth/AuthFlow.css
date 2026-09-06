@@ -15,6 +15,14 @@
 .af {
   --a: #0E8F7E;
   --soft: #E6F4F1;
+  /* One measure for every boxed control in the form column — fields, the
+     action bar, error and info banners, the 2FA row. These were previously
+     set individually (460px on the fields, 520px on the banners, and nothing
+     at all on `.af-actions`, which left the submit button stretching to the
+     full panel width — ~1078px against a 460px input on a wide viewport).
+     Pure text measures (`.af-sub`, `.af-brand__tagline`) and the multi-column
+     `.af-tiles` grid are deliberately NOT tied to this. */
+  --af-measure: 460px;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   /* Was `min-height: 100vh`, which only sets a floor: on a viewport short
      enough that the right-hand panel's real content (all the guest-expert
@@ -265,7 +273,7 @@
 .af-iconbtn:active { transform: translateX(-2px); }
 
 /* ── Fields ── */
-.af-field { margin-top: 20px; max-width: 460px; }
+.af-field { margin-top: 20px; max-width: var(--af-measure); }
 .af-field label {
   display: block;
   font-size: 13px;
@@ -346,7 +354,7 @@
 /* ── Error ── */
 .af-error {
   margin-top: 18px;
-  max-width: 520px;
+  max-width: var(--af-measure);
   background: #FBE7E7;
   border: 1px solid #f3b0b0;
   color: #991b1b;
@@ -364,6 +372,7 @@
   align-items: center;
   margin-top: 32px;
   flex-wrap: wrap;
+  max-width: var(--af-measure);
 }
 
 .af-btn {
@@ -517,7 +526,7 @@
   gap: 8px;
   justify-content: flex-start;
   margin-top: 20px;
-  max-width: 460px;
+  max-width: var(--af-measure);
 }
 .af-2fa-box {
   width: 52px;
@@ -551,7 +560,7 @@
   border-radius: 14px;
   padding: 14px 16px;
   margin-top: 20px;
-  max-width: 520px;
+  max-width: var(--af-measure);
 }
 .af-banner-info__icon {
   width: 40px;
@@ -571,7 +580,7 @@
   border-radius: 14px;
   padding: 20px;
   text-align: center;
-  max-width: 520px;
+  max-width: var(--af-measure);
   margin-top: 20px;
   background: #E7F4EB;
   border: 1px solid #bfe2c9;
@@ -593,7 +602,7 @@
   border-radius: 12px;
   padding: 14px 16px;
   margin-top: 18px;
-  max-width: 520px;
+  max-width: var(--af-measure);
 }
 
 @media (max-width: 760px) {

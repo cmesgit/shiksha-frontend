@@ -10,14 +10,43 @@ import { getPublicBoards, getPublicCatalog } from "../api/coursesApi";
 const STREAM_LABELS = { SCIENCE: "Science", COMMERCE: "Commerce", ARTS: "Arts" };
 
 // "Class 11 (Science)" -> { title: "Class 11", subtitle: "Science" }
+// "Class 11 Science"   -> { title: "Class 11", subtitle: "Science" }
 function splitTitle(title, streamName) {
-  const stripped = (title || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+  const subtitle = streamName ? STREAM_LABELS[streamName] || streamName : undefined;
+
+  let stripped = (title || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+
+  // Two title conventions exist in the catalog for the same thing. The static
+  // fixture writes the stream parenthesised ("Class 11 (Science)"), which the
+  // rule above already handles; the live rows are titled bare ("Class 11
+  // Science" — see courses/board_display.py's note that titles were
+  // normalised to that form). The bare form matched neither regex, so it fell
+  // through with the stream still in it AND picked up a subtitle, and the card
+  // rendered "Class 11 Science (Science)" with the stream also on the pill and
+  // in the quick-view eyebrow — three times over.
+  //
+  // Two knock-on effects mattered more than the doubled text: the Class filter
+  // chips dedupe on this title, so one class split into three chips ("Class 11
+  // Science" / "…Commerce" / "…Arts"), and selecting one of those failed
+  // UnifiedCatalog's `SENIOR_TITLES.includes(classFilter)` gate, which hid the
+  // Stream filter group outright.
+  //
+  // Only ever strips the course's OWN stream, never an arbitrary trailing
+  // word, so a title like "Class 11 Foundation" (or any course with no stream
+  // set) is left exactly as it is.
+  if (subtitle) {
+    const escaped = subtitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    stripped = stripped.replace(new RegExp(`[\\s·\\-–—]+${escaped}\\s*$`, "i"), "").trim();
+  }
+
   // Course records have inconsistently formatted "Class N" titles ("Class -11",
   // "Class- 11", "Class 11", ...) — collapse them to one canonical spelling so
   // callers that dedupe/group on `title` (e.g. the catalog's Class filter chips)
   // don't split a single class into multiple entries.
   const normalized = stripped.replace(/^class\s*-?\s*(\d+)\s*-?\s*$/i, "Class $1");
-  const subtitle = streamName ? STREAM_LABELS[streamName] || streamName : undefined;
+
+  // `|| title` guards the degenerate case where the title is nothing but the
+  // stream name — better to show it unchanged than to render an empty heading.
   return { title: normalized || title, subtitle };
 }
 

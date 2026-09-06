@@ -72,6 +72,7 @@ import {
   IcForum,
   IcLibrary,
   IcCompass,
+  IcHelp,
   IcInfo,
   IcMail,
   IcChat,
@@ -146,8 +147,14 @@ const STATIC_COURSES_MENU = [
         heading: "Skill Development",
         links: [
           { label: "Browse Skill Experts", to: "/skill/browse" },
-          { label: "Industrial Skills", to: "/skill/browse" },
-          { label: "Specialized Skills", to: "/skill/browse" },
+          // Both of these pointed at bare /skill/browse with no category
+          // filter, so all three rows landed on the identical unfiltered
+          // list — the two specialisms promised a cut of the directory that
+          // did not exist. `/skill/categories/` is what actually drives the
+          // browse filters; until it carries these two, say so plainly
+          // rather than sending people to a page that ignores the choice.
+          { label: "Industrial Skills", soon: true },
+          { label: "Specialized Skills", soon: true },
         ],
       },
       {
@@ -206,6 +213,12 @@ const RESOURCES_MENU = [
   { title: "Forum", icon: IcForum, to: "/forum", desc: "Ask and answer with peers." },
   { title: "Explore Library", icon: IcLibrary, to: "/explore", desc: "Notes, documents & papers." },
   { title: "Research Hub", icon: IcCompass, to: "/explore/research-hub", desc: "Curated research reading." },
+  // Not built on the public site yet. Points at a real page that says so
+  // rather than carrying `soon: true` — IconCard (the desktop renderer for
+  // this menu) has no `soon` branch the way MenuLink does, so a flagged
+  // entry would render <Link to={undefined}>, which resolves to the current
+  // path and gives a clickable card that just reloads the page.
+  { title: "Quiz & Mock Test", icon: IcHelp, to: "/quiz", desc: "Practice quizzes and mock papers." },
   { title: "Placements", icon: IcBriefcase, to: "/upcoming", desc: "Career & placement support." },
 ];
 
