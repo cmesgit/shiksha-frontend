@@ -148,7 +148,18 @@
 }
 
 .af-panel__inner {
-  min-height: 100%;
+  /* Was `min-height: 100%`. That gave `.af-spacer` (flex: 1) a full panel to
+     expand into, so on a 800px-tall desktop viewport the Login form's single
+     email field ended at 229px and its Continue button began at 658 — a 429px
+     void through the middle of a two-element form. It read as broken, not as
+     deliberate breathing room.
+
+     Mobile already overrode this to `auto` (see the max-width: 760px block),
+     which is exactly why the same screens compose correctly on a phone and
+     only fell apart on desktop. Dropping it lets every screen size to its
+     content on both, so the field and its button stay one group. The panel
+     itself keeps its own height and its overflow-y: auto, so tall screens
+     still scroll. */
   display: flex;
   flex-direction: column;
   animation: af-in .28s ease both;

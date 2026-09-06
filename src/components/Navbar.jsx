@@ -234,10 +234,19 @@ const NAV_ITEMS = [
 /* ────────────────────────── SMALL PARTS ────────────────────────── */
 
 function MenuLink({ link, onGo, className = "" }) {
+  // Two menu datasets with two different shapes feed this one component. The
+  // course catalog rows carry `label`; RESOURCES_MENU and ABOUT_MENU carry
+  // `title` (because the desktop mega-menu renders those through IconCard,
+  // which reads item.title). Reading only `label` made every Resources and
+  // About row in the MOBILE DRAWER render as <a><span></span></a> — six and
+  // four blank, correctly-linked, invisible rows. Desktop was unaffected,
+  // which is why it only ever looked broken on a phone.
+  const label = link.label ?? link.title;
+
   if (link.soon) {
     return (
       <span className={`skn-mlink skn-soon ${className}`}>
-        <span>{link.label}</span>
+        <span>{label}</span>
         <em>Coming Soon</em>
       </span>
     );
@@ -249,7 +258,7 @@ function MenuLink({ link, onGo, className = "" }) {
       state={link.state}
       onClick={onGo}
     >
-      <span>{link.label}</span>
+      <span>{label}</span>
     </Link>
   );
 }
@@ -432,7 +441,14 @@ const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const [lastMenu, setLastMenu] = useState(null); // keeps panel content during close animation
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [openAcc, setOpenAcc] = useState("courses");
+  // All three drawer accordions start CLOSED. Defaulting to "courses" opened
+  // the full course mega-menu (every board, competitive exam and skill link)
+  // the moment the drawer opened, which on a 375x812 phone pushed the
+  // Resources head to y=919 and About to y=975 — both below the fold. Nothing
+  // was broken, but you tapped the burger, saw no Resources row, and concluded
+  // the button didn't work. Closed by default, all three heads are on screen
+  // at once and one tap opens the one you want.
+  const [openAcc, setOpenAcc] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState("");
   const [isMac, setIsMac] = useState(false);
