@@ -755,6 +755,48 @@
   line-height: 1.5;
 }
 
+/* ── Coming-soon card ──
+   The mega-menu counterpart to `.skn-mlink.skn-soon` in the mobile drawer, so
+   one `soon: true` entry reads the same on both surfaces. It is a <span>, not
+   a <Link>: nothing to click, so the hover lift and the icon scale are both
+   suppressed and the whole row is muted rather than merely badged. The badge
+   itself reuses the drawer's amber pill exactly. */
+.skn-card--soon {
+  position: relative;
+  cursor: default;
+}
+.skn-card--soon:hover {
+  background: none;
+}
+.skn-card--soon:hover .skn-card-ic {
+  transform: none;
+}
+.skn-card--soon .skn-card-ic {
+  background: #cfdcd4;
+  box-shadow: none;
+}
+.skn-card--soon .skn-card-tx b,
+.skn-card--soon:hover .skn-card-tx b {
+  color: #8ea99b;
+}
+.skn-card--soon .skn-card-tx small {
+  color: #a8b8ae;
+}
+.skn-card-soon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
 /* ── Mobile drawer ── */
 .skn-backdrop {
   position: fixed;

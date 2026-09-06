@@ -212,14 +212,13 @@ const RESOURCES_MENU = [
   { title: "Current Affairs", icon: IcGlobe, to: "/current-affairs", desc: "Daily and monthly updates." },
   { title: "Forum", icon: IcForum, to: "/forum", desc: "Ask and answer with peers." },
   { title: "Explore Library", icon: IcLibrary, to: "/explore", desc: "Notes, documents & papers." },
-  { title: "Research Hub", icon: IcCompass, to: "/explore/research-hub", desc: "Curated research reading." },
-  // Not built on the public site yet. Points at a real page that says so
-  // rather than carrying `soon: true` — IconCard (the desktop renderer for
-  // this menu) has no `soon` branch the way MenuLink does, so a flagged
-  // entry would render <Link to={undefined}>, which resolves to the current
-  // path and gives a clickable card that just reloads the page.
+  // `/explore/research-hub` and `/upcoming` both still exist and still render;
+  // these two are flagged as not-yet-launched at the NAV level only, so the
+  // routes stay reachable by direct link and nothing had to be deleted.
+  { title: "Research Hub", icon: IcCompass, soon: true, desc: "Curated research reading." },
+  // Has a real page (unlike the two above) — /quiz states its own position.
   { title: "Quiz & Mock Test", icon: IcHelp, to: "/quiz", desc: "Practice quizzes and mock papers." },
-  { title: "Placements", icon: IcBriefcase, to: "/upcoming", desc: "Career & placement support." },
+  { title: "Placements", icon: IcBriefcase, soon: true, desc: "Career & placement support." },
 ];
 
 // "Vision & Mission" and "Why ShikshaCom" used to sit between About Us and
@@ -289,6 +288,22 @@ function IconCard({ item, onGo }) {
       </span>
     </>
   );
+
+  // `soon` support, mirroring MenuLink (which the mobile drawer uses for these
+  // same items). Without this branch a `soon: true` entry fell through to the
+  // <Link> below with `to` undefined — and React Router resolves a missing
+  // `to` to the CURRENT path, so the card stayed fully clickable and silently
+  // reloaded the page instead of reading as unavailable. Desktop and mobile
+  // now agree on what "coming soon" looks like for one menu entry.
+  if (item.soon) {
+    return (
+      <span className="skn-card skn-card--soon">
+        {inner}
+        <em className="skn-card-soon">Coming Soon</em>
+      </span>
+    );
+  }
+
   if (item.hash) {
     return (
       <HashLink smooth className="skn-card" to={item.to} onClick={onGo}>

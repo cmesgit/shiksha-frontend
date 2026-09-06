@@ -53,7 +53,13 @@ const V = {
   catalog: {
     card: "uc-gridcard",
     thumb: "uc-gridcard__thumb",
-    thumbPhoto: null,
+    // Was null while the catalog had no photos to put a scrim over — every
+    // course rendered the brand gradient, which is already dark enough for the
+    // gold ribbon and the white level pill. Now that Course.thumbnail is
+    // populated the catalog has the same legibility problem the homepage
+    // solved: chips sitting on an arbitrary photo. Same treatment, tuned to
+    // this card's shorter 128px thumb.
+    thumbPhoto: "uc-gridcard__thumb--photo",
     icon: "uc-gridcard__placeholder-icon",
     ribbon: "uc-gridcard__ribbon",
     pill: "uc-gridcard__pill",

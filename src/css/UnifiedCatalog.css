@@ -108,6 +108,48 @@
   display: flex; align-items: center; justify-content: center;
 }
 .uc-gridcard__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Legibility scrim, only on cards that have a real photo — the same treatment
+   `.fc-thumb--photo` gives the homepage card, so the two surfaces decorate one
+   shared picture the same way. Dark at the very top and bottom so the gold
+   ribbon and the white level pill stay readable, near-clear through the middle
+   where the subject of the photo is.
+
+   `::after`, not `::before`: the photo here is a real absolutely-positioned
+   <img> rather than the homepage's background-image, and an ::after is
+   generated as the thumb's last child, so it paints over the <img> without
+   either element needing a z-index. `.uc-gridcard__ribbon` already carries
+   `z-index: 1` and so stays above the scrim.
+
+   Deliberately NOT the card's own brand gradient: re-applying that at full
+   strength over the artwork is what left only ~27% of the photo visible on the
+   homepage before this treatment replaced it. */
+.uc-gridcard__thumb--photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 46, 32, .46) 0%,
+    rgba(11, 46, 32, .10) 34%,
+    rgba(11, 46, 32, .06) 62%,
+    rgba(11, 46, 32, .44) 100%
+  );
+}
+/* Lift the chips above the scrim. The homepage does this with a blanket
+   `.fc-thumb--photo > * { z-index: 1 }`, which is safe there because its photo
+   is a background-image and therefore not a child. Here the photo IS a child
+   (`<img class="uc-gridcard__img">`), so the same blanket rule would raise the
+   photo above the scrim too and cancel the effect entirely — hence the
+   exclusion. Without this the scrim's 0.44-alpha bottom stop tints the top
+   edge of the level pill, which overhangs the thumb at `bottom: -12px`.
+
+   ONLY z-index is set — never `position`. The ribbon and the pill are
+   `position: absolute` with their own top/left/bottom offsets, so forcing
+   `position: relative` here would drop them back into flow and wreck the
+   layout. z-index applies to them as-is because they are already positioned.
+   (`.fc-thumb--photo > *` carries the same warning for the same reason.) */
+.uc-gridcard__thumb--photo > *:not(.uc-gridcard__img) { z-index: 1; }
 .uc-gridcard__placeholder-icon {
   width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,.16);
   display: grid; place-items: center; backdrop-filter: blur(2px);
