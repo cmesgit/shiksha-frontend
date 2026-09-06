@@ -12,7 +12,6 @@ import {
 } from "../api/enrollments";
 import { getMyEnrolledCourses } from "../api/coursesApi";
 import { useToast } from "../contexts/ToastContext";
-import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
@@ -188,7 +187,9 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   const profile = user?.profile || {};
   // When form-fillup enforcement is off, never let profile-completeness block
   // enrollment (no disabled buttons, no "complete your profile" warnings).
-  const profileComplete = FORM_FILLUP_ENABLED ? user?.profile_complete : true;
+  // Profile completeness no longer gates enrolment — detail is asked for at
+  // the point it is needed, never as a wall in front of the product.
+  const profileComplete = true;
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
 
   const canSubmit =

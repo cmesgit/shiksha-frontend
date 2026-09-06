@@ -9,7 +9,6 @@ import {
   freeEnroll,
 } from "../api/enrollments";
 import { useToast } from "../contexts/ToastContext";
-import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
 import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
@@ -132,7 +131,8 @@ const Enroll = () => {
 
   const profile = user?.profile || {};
   // Form-fillup enforcement is off → never block enrollment on completeness.
-  const profileComplete = FORM_FILLUP_ENABLED ? user?.profile_complete : true;
+  // Profile completeness no longer gates enrolment — see Phase 7.
+  const profileComplete = true;
 
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 import { AuthShell, Field, PasswordField, FooterLink } from "./AuthKit";
 
 /* ════════════════════════════════════════════════════════════════
@@ -38,8 +39,9 @@ function readErr(err, fallback) {
 }
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, signInWithGoogle } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [step, setStep]             = useState(STEP_EMAIL);
   const [dir, setDir]               = useState(1);   // 1 = advancing, -1 = Back
@@ -57,6 +59,31 @@ export default function Login() {
   }, [location.state]);
 
 
+
+  /* ── Google sign-in ──
+     Login-only here: an address Google knows but we don't is sent to
+     /register, which owns the consent checkbox. Creating an account silently
+     from a click on a LOGIN screen would record terms acceptance the person
+     never gave. */
+  const onGoogle = async (credential) => {
+    setError(""); setSubmitting(true);
+    try {
+      const res = await signInWithGoogle(credential, false);
+      if (res?.unavailable) {
+        setError("Google sign-in isn't available right now. Use your password below.");
+        setSubmitting(false);
+        return;
+      }
+      if (res?.needsConsent) {
+        navigate("/register", { state: { googleEmail: res.email } });
+        return;
+      }
+      // Signed in — App.jsx's /login route decides where to go from here.
+    } catch (err) {
+      setError(readErr(err, "Google sign-in didn't work. Try your password."));
+      setSubmitting(false);
+    }
+  };
 
   /* ── Step 1: email → friendly greeting, then password ── */
   const submitEmail = async (e) => {
@@ -133,6 +160,12 @@ export default function Login() {
             submitting
               ? <div className="af-status"><span className="af-status__spin" /></div>
               : <div className="af-status-msg" role="status">{statusMsg}</div>
+          )}
+          {googleSignInConfigured() && (
+            <>
+              <GoogleButton onCredential={onGoogle} text="continue_with" disabled={submitting} />
+              <div className="af-or"><span>or</span></div>
+            </>
           )}
           <form onSubmit={submitEmail} style={{ display: "contents" }}>
             <Field id="lf-email" label="Email" type="email" value={email}

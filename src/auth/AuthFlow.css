@@ -329,6 +329,40 @@
 .af-checkbox a { color: var(--a); font-weight: 600; text-decoration: none; }
 .af-checkbox a:hover { text-decoration: underline; }
 
+/* ── "or" divider (between Google sign-in and the email form) ──
+   Matches the surrounding literal-hex convention of this stylesheet; the
+   token system this file predates belongs to the dashboards, not the
+   public site. */
+.af-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 4px;
+  max-width: 520px;
+  color: #8a8d99;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.af-or::before,
+.af-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e3e5ea;
+}
+
+/* ── Secondary / ghost action ── */
+.af-btn--ghost {
+  background: transparent;
+  color: #4b4d57;
+  border: 1px solid #d9dbe2;
+  box-shadow: none;
+  margin-top: 8px;
+}
+.af-btn--ghost:hover:not(:disabled) { background: #f6f7f9; filter: none; }
+
 /* ── Spacer pushes the action bar down ── */
 .af-spacer { flex: 1; }
 

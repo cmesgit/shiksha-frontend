@@ -7,8 +7,6 @@ import HomePage from "./HomePage";
 import useAnalytics from "../useAnalytics";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import RequireProfileComplete from "../routes/RequireProfileComplete";
-import ProfileFillupModal from "./ProfileFillupModal";
 import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../config/urls";
@@ -85,6 +83,8 @@ const Login            = lazy(() => import("../auth/Login"));
 const Signup           = lazy(() => import("../auth/Signup"));
 const VerifyEmail      = lazy(() => import("../auth/VerifyEmail"));
 const EmailVerified    = lazy(() => import("../auth/EmailVerified"));
+const Register         = lazy(() => import("../auth/Register"));
+const BecomeTeacher    = lazy(() => import("../auth/BecomeTeacher"));
 const ResendVerification = lazy(() => import("./ResendVerification"));
 const ForgotPassword   = lazy(() => import("../auth/ForgotPassword"));
 // Forum (redesign) — a nested route tree under a shared ForumLayout.
@@ -247,7 +247,6 @@ function App() {
     <ProfileModalProvider>
     <div className="app">
       <ScrollToTop />
-      <ProfileFillupModal />
 
       <Suspense fallback={<RouteFallback />}>
       <Routes>
@@ -256,11 +255,7 @@ function App() {
 
         {/* Protected app routes */}
         <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <RequireProfileComplete>
-              <Page><Dashboard /></Page>
-            </RequireProfileComplete>
-          </ProtectedRoute>
+          <ProtectedRoute><Page><Dashboard /></Page></ProtectedRoute>
         } />
 
         <Route path="/profile" element={
@@ -268,11 +263,7 @@ function App() {
         } />
 
         <Route path="/form-fillup" element={
-          <ProtectedRoute>
-            <RequireProfileComplete>
-              <Page><FormFillup /></Page>
-            </RequireProfileComplete>
-          </ProtectedRoute>
+          <ProtectedRoute><Page><FormFillup /></Page></ProtectedRoute>
         } />
 
         <Route path="/enroll/:courseId" element={
@@ -297,6 +288,20 @@ function App() {
           !isAuthenticated
             ? <Login />
             : <LoginRedirect />
+        } />
+
+        {/* Account-first registration. /signup below is the older role-first
+            flow, still mounted because it serves the add-a-track path until
+            Phase 8 retires it. New links should point here. */}
+        <Route path="/register" element={
+          isAuthenticated ? <Navigate to="/" replace /> : <Register />
+        } />
+
+        {/* Adding a teaching identity from inside the product — the
+            replacement for re-entering signup to add a track. Requires a
+            session; that is the whole point. */}
+        <Route path="/become-a-teacher" element={
+          <ProtectedRoute><Page><BecomeTeacher /></Page></ProtectedRoute>
         } />
 
         <Route path="/signup" element={

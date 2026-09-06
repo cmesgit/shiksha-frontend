@@ -11,7 +11,6 @@ import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
 import { useToast } from '../contexts/ToastContext';
-import { FORM_FILLUP_ENABLED } from '../config/featureFlags';
 import { getPublicCourseDetail, getPublicCourseBySlug } from '../api/coursesApi';
 import useEnrollmentStatus from '../hooks/useEnrollmentStatus';
 import {
@@ -334,11 +333,6 @@ const Courses = () => {
       return;
     }
 
-    if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {
-      openWithMessage('Please complete your profile to enroll in a course.');
-      return;
-    }
-
     const courseId = cls.courseIds?.[selectedBoard];
 
     if (!courseId) {
@@ -395,10 +389,6 @@ const Courses = () => {
           }}
           onEnroll={() => {
             if (!isAuthenticated) { navigate('/login'); return; }
-            if (FORM_FILLUP_ENABLED && user?.profile_complete === false) {
-              openWithMessage('Please complete your profile to subscribe to a course.');
-              return;
-            }
             setEnrollModalCourseId(activeCourseId);
           }}
         />
