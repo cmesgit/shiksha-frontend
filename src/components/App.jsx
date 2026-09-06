@@ -80,7 +80,6 @@ const Feedback         = lazy(() => import("./Feedback"));
 const ProfilePicker    = lazy(() => import("../pages/ProfilePicker"));
 const ManageProfiles   = lazy(() => import("../pages/ManageProfiles"));
 const Login            = lazy(() => import("../auth/Login"));
-const Signup           = lazy(() => import("../auth/Signup"));
 const VerifyEmail      = lazy(() => import("../auth/VerifyEmail"));
 const EmailVerified    = lazy(() => import("../auth/EmailVerified"));
 const Register         = lazy(() => import("../auth/Register"));
@@ -222,6 +221,25 @@ function LoginRedirect() {
   return <Navigate to="/pick-profile" replace />;
 }
 
+/* /signup → /register, or → /become-a-teacher when the old link was one of the
+   add-a-track deep links. Those carried ?add_track= purely to bypass the
+   "signup is for logged-out visitors" guard, because adding a track used to
+   mean re-entering signup while already signed in. It doesn't any more. */
+function RetiredSignupRedirect() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const addTrack = params.get("add_track");
+  if (addTrack) {
+    return <Navigate to={`/become-a-teacher?track=${encodeURIComponent(addTrack)}`} replace />;
+  }
+  if (params.get("role") === "teacher") {
+    return <Navigate to="/register?intent=teach" replace />;
+  }
+  params.delete("role");
+  const qs = params.toString();
+  return <Navigate to={`/register${qs ? `?${qs}` : ""}`} replace />;
+}
+
 function App() {
   const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
   const location = useLocation();
@@ -232,12 +250,6 @@ function App() {
   // profile id so an in-place profile switch remounts them (fresh fetch, and no
   // risk of a form loaded for one profile saving under another).
   const cKey = activeProfile?.id || "acct";
-
-  // Adding a teaching track to an already-signed-in account is the one signup
-  // flow allowed while authenticated (it skips email/username and just takes
-  // the track application + password). Detect it so the guard lets it through.
-  const isAddTrackSignup =
-    new URLSearchParams(location.search).get("add_track") != null;
 
   // Show spinner while bootstrap runs — but keep the route tree mounted
   // (do NOT return null, that unmounts Routes and causes remount loops)
@@ -304,11 +316,11 @@ function App() {
           <ProtectedRoute><Page><BecomeTeacher /></Page></ProtectedRoute>
         } />
 
-        <Route path="/signup" element={
-          (isAuthenticated && !isAddTrackSignup)
-            ? <Navigate to="/" replace />
-            : <Signup />
-        } />
+        {/* /signup is RETIRED (Phase 8). It redirects rather than 404s
+            because the path is in the wild — old emails, bookmarks, and
+            anything already indexed. The query string is preserved so
+            ?next= and ?intent= survive the hop. */}
+        <Route path="/signup" element={<RetiredSignupRedirect />} />
 
         <Route path="/verify-email"   element={<VerifyEmail />} />
         <Route path="/email-verified" element={<EmailVerified />} />
@@ -461,7 +473,7 @@ function App() {
             instead of a dead link.
         */}
         <Route path="/become-faculty" element={<FacultyIntro />} />
-        <Route path="/expert-apply"   element={<Navigate to="/signup?role=teacher&add_track=skill" replace />} />
+        <Route path="/expert-apply"   element={<Navigate to="/become-a-teacher?track=skill" replace />} />
 
         {/*
           Moderator Panel — ported from the internal Admin-dashboard app so

@@ -586,7 +586,7 @@ export default function FacultySignup({
               ? "This email is already registered as a Skill Dev expert. Add the Faculty track to that account instead of creating a new one."
               : "This email already has a teacher account.",
             state.teacher_type === "GUEST"
-              ? { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" }
+              ? { label: "Add Faculty to my account", to: "/become-a-teacher?track=academy" }
               : { label: "Log in instead", to: "/login" },
           );
         }
@@ -594,7 +594,7 @@ export default function FacultySignup({
         // here — it proves ownership with their EXISTING account password.
         return fail(
           "This email already has an account. You can add a Faculty track to it — no need to create a second account.",
-          { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" },
+          { label: "Add Faculty to my account", to: "/become-a-teacher?track=academy" },
         );
       }
     } catch {
@@ -711,7 +711,7 @@ export default function FacultySignup({
       );
       setErrorAction(
         isWrongPassword
-          ? { label: "Add Faculty to my account", to: "/signup?role=teacher&add_track=academy" }
+          ? { label: "Add Faculty to my account", to: "/become-a-teacher?track=academy" }
           : isDuplicate
             ? { label: "Log in instead", to: "/login" }
             : null,
@@ -769,7 +769,7 @@ export default function FacultySignup({
             <div className="fs-actions" style={{ justifyContent: "flex-start", gap: 10, flexWrap: "wrap" }}>
               {!heldTrack && (
                 <button type="button" className="fs-btn fs-btn-primary"
-                  onClick={() => navigate("/signup?role=teacher&add_track=academy")}>
+                  onClick={() => navigate("/become-a-teacher?track=academy")}>
                   Add Faculty to my account
                 </button>
               )}

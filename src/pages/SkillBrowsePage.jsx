@@ -706,7 +706,7 @@ export default function SkillBrowsePage() {
                   <div className="sk-promo__acts">
                     <CtaLink
                       className="sk-btn sk-btn--gold"
-                      href={teachBanner?.cta_url || "/signup?role=teacher&add_track=skill"}
+                      href={teachBanner?.cta_url || "/become-a-teacher?track=skill"}
                     >
                       {teachBanner?.cta_label || "I want to teach my craft"}
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
