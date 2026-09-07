@@ -52,10 +52,11 @@ const css = `.res-card{position:relative;overflow:hidden;display:flex;flex-direc
   .res-scroll>.res-card{flex-basis:100%}
 }`;
 
-// Icon glyphs used by the default 6 cards, extracted verbatim from the
-// design handoff's `.res-ic` spans. Keyed to match the icon strings seeded
-// on HomeListItem rows, so a CMS-authored card using the same key renders
-// identically.
+// Icon glyphs, extracted verbatim from the design handoff's `.res-ic` spans.
+// Keyed to match the icon strings seeded on HomeListItem rows, so a
+// CMS-authored card using the same key renders identically. `research` is no
+// longer used by any default card (the Research Hub was retired) but is kept
+// so a CMS row that still names it doesn't fall back to the generic circle.
 const ICONS = {
   forum: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
@@ -112,9 +113,11 @@ const DEFAULT_ITEMS = [
   { icon: "forum", title: "Community Forum", body: "Connect with fellow learners, ask questions and join discussions.", cta_label: "Visit forum", cta_href: "/forum" },
   { icon: "counselling", title: "Counselling", body: "Get academic and career guidance to choose the right path.", cta_label: "Get guidance", cta_href: "/counselling" },
   { icon: "skills", title: "Skill Development", body: "Practical courses to build skills beyond the syllabus.", cta_label: "Explore skills", cta_href: "/skill-development" },
-  { icon: "placement", title: "Placement & Opportunities", body: "Stay informed about placements and career opportunities.", cta_label: "View opportunities", cta_href: "/placements" },
+  // /upcoming, not /placements. The navbar and footer already send Placement
+  // there; this card was the last link to the orphan /placements page, which
+  // looked like an unrelated site.
+  { icon: "placement", title: "Placement & Opportunities", body: "Stay informed about placements and career opportunities.", cta_label: "View opportunities", cta_href: "/upcoming" },
   { icon: "library", title: "Explore Library", body: "Access notes, study materials, eBooks, previous year papers, guides and curated learning resources in one place.", cta_label: "Explore Library", cta_href: "/explore" },
-  { icon: "research", title: "Research Hub", body: "Discover research papers, journals, articles, case studies and curated academic resources for deeper learning.", cta_label: "Explore Research", cta_href: "/explore?tab=research" },
 ];
 
 export default function Resources() {

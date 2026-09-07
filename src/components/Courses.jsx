@@ -40,6 +40,29 @@ function saveLastBoard(slug) {
   }
 }
 
+// Resolve a `?group=` / `state.selectedBoardGroup` value to a board slug.
+//
+// Hoisted and shared by BOTH deep-link effects below. They used to resolve
+// groups differently: the mount effect understood `competitive`, while the
+// already-on-this-page effect only did the board_type branch — so the same
+// link worked on a fresh load and did nothing when clicked from another
+// /courses surface.
+//
+// Three kinds of value, only one of which is a real board_type:
+//   school       -> every academic course (the ALL_BOARDS sentinel)
+//   competitive  -> the category group; these courses have NO board at all
+//   central|state-> a genuine Board.board_type
+function resolveGroupSlug(boards, group) {
+  const g = (group || '').toLowerCase();
+  if (!g) return null;
+  if (g === 'school') return { slug: ALL_BOARDS_KEY };
+  if (g === 'competitive') return { slug: COMPETITIVE_KEY };
+  return (
+    boards.find((b) => b.board_type === g.toUpperCase() && b.has_published_courses)
+    || null
+  );
+}
+
 const Courses = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -126,19 +149,9 @@ const Courses = () => {
       const b = slug && boards.find((x) => x.slug === slug);
       return b && b.has_published_courses ? b : null;
     };
-    const resolveGroup = (group) => {
-      const g = (group || '').toLowerCase();
-      // The navbar's competitive column deep-links with ?group=competitive,
-      // which is not a board_type — it is the category group competitive
-      // courses are tagged with, and they have no board at all.
-      if (g === 'competitive') return { slug: COMPETITIVE_KEY };
-      const boardType = g.toUpperCase();
-      if (!boardType) return null;
-      return boards.find((b) => b.board_type === boardType && b.has_published_courses) || null;
-    };
     const match =
       resolve(deepLink.selectedBoard) ||
-      resolveGroup(deepLink.selectedBoardGroup) ||
+      resolveGroupSlug(boards, deepLink.selectedBoardGroup) ||
       resolve(loadLastBoard()) ||
       { slug: ALL_BOARDS_KEY };
     if (match) setSelectedBoard(match.slug);
@@ -230,10 +243,12 @@ const Courses = () => {
     // initial-mount default-board effect above only ever fires once.
     const wantedSlug = location.state?.selectedBoard;
     const wantedGroup = location.state?.selectedBoardGroup;
-    let target = wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
-    if (!target && wantedGroup) {
-      target = boards.find((b) => b.board_type === wantedGroup.toUpperCase() && b.has_published_courses);
-    }
+    // The two sentinels aren't rows in `boards`, so find() would drop them and
+    // an "All boards"/"Competitive" link clicked from this page did nothing.
+    let target = wantedSlug === ALL_BOARDS_KEY || wantedSlug === COMPETITIVE_KEY
+      ? { slug: wantedSlug }
+      : wantedSlug && boards.find((b) => b.slug === wantedSlug && b.has_published_courses);
+    if (!target) target = resolveGroupSlug(boards, wantedGroup);
     if (target) {
       setSelectedBoard(target.slug);
       setExpandedClassId(null);

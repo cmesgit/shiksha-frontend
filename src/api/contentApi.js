@@ -41,7 +41,14 @@ export async function getAllBlogCards({ maxPages = 20 } = {}) {
       url = data.next ? data.next.replace(/^.*\/api/, "") : null;
     }
   } catch {
-    /* API down / not deployed yet — legacy data still renders */
+    /* API down / not deployed yet — legacy data still renders. Flagged
+       rather than silent: an empty array is indistinguishable from "this
+       site has no posts", and the list page rendered "No blog posts yet"
+       over an outage. Non-enumerable so it can't leak into .map()/JSON,
+       matching the `safe()`/`__failed` convention in Admin-dashboard. */
+    Object.defineProperty(cards, "__failed", {
+      value: true, enumerable: false,
+    });
   }
   return cards;
 }

@@ -17,6 +17,20 @@ import "../css/BlogDetail.css";
 // Session-lifetime cache: navigating back to a chapter re-renders instantly.
 const htmlCache = new Map();
 
+// Would this body render as a blank page?
+//
+// A post saved from the block editor with zero blocks still stores a truthy
+// `body_html` — literally `<div class="cd-root"></div>` — so a plain
+// truthiness check passes and the reader gets an empty iframe with no
+// explanation. Checks for real text OR any self-contained visual element, so
+// an image-only or table-only chapter is NOT mistaken for empty.
+const VISUAL_TAG_RE = /<(img|iframe|video|audio|svg|table|hr|embed|object|figure)\b/i;
+const bodyLooksEmpty = (html) => {
+  if (!html) return true;
+  if (VISUAL_TAG_RE.test(html)) return false;
+  return !html.replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").trim();
+};
+
 // Chapter bodies render inside a sandboxed iframe rather than a plain div.
 // DOMPurify's default config keeps <style> tags, but only inside a
 // WHOLE_DOCUMENT parse — in a same-document fragment render they get
@@ -82,11 +96,31 @@ const BlogBody = ({ html, blocks, theme }) => {
     );
   }, [html, blocks, theme, hasBlocks]);
 
+  // Bumped by the iframe's own load event. THIS IS LOAD-BEARING: navigation
+  // to the `about:srcdoc` document is asynchronous, so on a bare [srcDoc]
+  // effect `contentDocument` is still the iframe's initial about:blank
+  // document. It has a documentElement, so the guard below passed, and then
+  // every listener attached to a document that was about to be thrown away:
+  // the ResizeObserver watched an about:blank <body> and never fired again,
+  // `doc.images` was always empty, and `doc.fonts.ready` resolved on the dead
+  // FontFaceSet. Only the one-shot onLoad measurement ever saw the real
+  // document, so anything that changed height after load — the CDN webfonts
+  // swapping in, every lazy-loaded image — was never measured, and with
+  // scrolling="no" the article simply ended mid-sentence.
+  const [loadTick, setLoadTick] = useState(0);
+
   useEffect(() => {
     const doc = iframeRef.current?.contentDocument;
     if (!doc?.documentElement) return;
 
-    const measure = () => setHeight(doc.documentElement.scrollHeight);
+    // A detached/blank document measures 0. Treating that as a real height
+    // fell through to `height || 400` below and rendered a 400px window onto
+    // the article — which reads as "the post is empty" rather than "the
+    // measurement failed". Never shrink to nothing on an unmeasurable frame.
+    const measure = () => {
+      const next = doc.documentElement.scrollHeight;
+      if (next > 0) setHeight((prev) => (next === prev ? prev : next));
+    };
     measure();
 
     // Observe <body>, NOT <documentElement>: documentElement's own box is
@@ -118,7 +152,9 @@ const BlogBody = ({ html, blocks, theme }) => {
         img.removeEventListener("error", measure);
       });
     };
-  }, [srcDoc]);
+    // loadTick re-runs this against the real document once it exists. The
+    // cleanup above tears down the throwaway about:blank listeners first.
+  }, [srcDoc, loadTick]);
 
   return (
     <iframe
@@ -126,10 +162,10 @@ const BlogBody = ({ html, blocks, theme }) => {
       title="Chapter content"
       srcDoc={srcDoc}
       sandbox="allow-same-origin"
-      onLoad={() => {
-        const doc = iframeRef.current?.contentDocument;
-        if (doc?.documentElement) setHeight(doc.documentElement.scrollHeight);
-      }}
+      // Re-bind the observers to the document that actually just loaded. The
+      // measurement itself happens in the effect, so there is one code path
+      // for it rather than two that can disagree.
+      onLoad={() => setLoadTick((t) => t + 1)}
       style={{
         width: "100%",
         border: "none",
@@ -398,8 +434,17 @@ const BlogDetail = ({ locale = "en" }) => {
         </div>
       )}
 
-      {status === "ready" && (html || (blocks && blocks.length > 0)) && (
-        <BlogBody html={html} blocks={blocks} theme={theme} />
+      {status === "ready" && (
+        (blocks && blocks.length > 0) || !bodyLooksEmpty(html)
+          ? <BlogBody html={html} blocks={blocks} theme={theme} />
+          : (
+            // Previously this branch rendered NOTHING — no body, no message —
+            // so a post with an empty body was indistinguishable from a
+            // failure to load.
+            <p style={{ color: "#556", padding: "24px 0" }}>
+              This chapter doesn’t have any content yet.
+            </p>
+          )
       )}
 
       {status === "notfound" && <h2>Blog not found</h2>}
@@ -410,7 +455,10 @@ const BlogDetail = ({ locale = "en" }) => {
           <h2 style={{ color: "#003223" }}>Couldn't load this chapter</h2>
           <p style={{ color: "#556" }}>Check your connection and try again.</p>
           <button
-            onClick={() => { htmlCache.delete(slug); setStatus("loading");
+            // Entries are keyed `${locale}:${slug}` (see cacheKey above), so
+            // deleting by bare slug never evicted anything and Retry could
+            // only ever re-serve the same failed state.
+            onClick={() => { htmlCache.delete(`${locale}:${slug}`); setStatus("loading");
                              /* retrigger */ navigate(0); }}
             style={{ padding: "10px 24px", borderRadius: 24, border: "none",
                      background: "#005c3a", color: "#fff", cursor: "pointer",

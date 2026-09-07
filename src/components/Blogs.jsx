@@ -7,11 +7,19 @@ import "../css/Blogs.css";
 const Blogs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [allBlogs, setAllBlogs] = useState([]);
+  // Without these two, the page rendered its "No blog posts yet" empty state
+  // both while the request was still in flight AND permanently whenever the
+  // API failed — getAllBlogCards resolves to [] on error either way.
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
     getAllBlogCards().then((cards) => {
-      if (alive) setAllBlogs(cards);
+      if (!alive) return;
+      setAllBlogs(cards);
+      setLoadFailed(!!cards.__failed);
+      setLoading(false);
     });
     return () => {
       alive = false;
@@ -74,7 +82,13 @@ const Blogs = () => {
         </div>
       ) : (
         <p className="blogs-empty">
-          {searchQuery.trim() ? <>No blogs found for &ldquo;{searchQuery.trim()}&rdquo;</> : "No blog posts yet — check back soon."}
+          {loading
+            ? "Loading blogs…"
+            : loadFailed
+              ? "Couldn’t load the blogs just now. Check your connection and refresh."
+              : searchQuery.trim()
+                ? <>No blogs found for &ldquo;{searchQuery.trim()}&rdquo;</>
+                : "No blog posts yet — check back soon."}
         </p>
       )}
     </div>

@@ -23,7 +23,6 @@ const FormFillup       = lazy(() => import("./FormFillup"));
 const FacultySignup    = lazy(() => import("./FacultySignup"));
 const Enroll           = lazy(() => import("./Enroll"));
 const Courses          = lazy(() => import("./Courses"));
-const Placements       = lazy(() => import("./Placements"));
 const NotFound         = lazy(() => import("./NotFound"));
 const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
@@ -58,8 +57,6 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
-// Legacy research-hub landing kept for its own route.
-const ResearchHub      = lazy(() => import("./explore/ResearchHub"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
@@ -68,7 +65,6 @@ const Upcoming         = lazy(() => import("./Upcoming"));
 // runtime, on the public_quiz_hub_enabled flag. QuizRoute owns that choice
 // and lazy-loads only the one it needs — see its header comment.
 const QuizRoute        = lazy(() => import("./QuizRoute"));
-const ExploreServices  = lazy(() => import("./ExploreServices"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
 const LivePreJoin      = lazy(() => import("../pages/LivePreJoin"));
@@ -348,7 +344,6 @@ function App() {
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
         <Route path="/courses"         element={<Page><Courses /></Page>} />
         <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
-        <Route path="/placements"      element={<Page><Placements /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
         {/* More specific than the wildcard below — React Router ranks static
@@ -400,7 +395,6 @@ function App() {
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
-        <Route path="/explore/research-hub" element={<Page><ResearchHub /></Page>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
             (distinct from the forum's /moderator). Renders the shared site
             <Navbar /> itself (like /moderator), so it sits outside the

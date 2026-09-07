@@ -83,9 +83,15 @@ const ARROW_ICON = (
 const TINT_TO_GRADIENT = { green: "g-green", blue: "g-cool", gold: "g-warm" };
 const DEFAULT_GRADIENT = "g-green";
 
+// Each card lands on ITS OWN slice of the catalog. All three used to point at
+// a bare `/courses`, so three cards promising three different things dropped
+// every visitor on the same unfiltered list. `?group=` is read by Courses.jsx
+// (see resolveGroupSlug there): `school` selects every academic course,
+// `competitive` selects the category group, and Skill & Career is a separate
+// app entirely and so leaves /courses altogether.
 const DEFAULT_ITEMS = [
-  { icon: "board", title: "School Education", subtitle: "Classes 8–12 · CBSE, NCERT & MBSE", pills: ["Mathematics", "Science", "English", "Social Studies"], stat_text: "Board-aligned live & recorded classes", cta_label: "Explore School Courses", cta_href: "/courses", tint: "green" },
-  { icon: "research", title: "Competitive Exams", subtitle: "JEE · NEET · UPSC · Banking", pills: ["IIT-JEE", "NEET", "UPSC", "SSC"], stat_text: "Expert mentors & proven strategies", cta_label: "Start Exam Prep", cta_href: "/courses", tint: "blue" },
+  { icon: "board", title: "School Education", subtitle: "Classes 8–12 · CBSE, NCERT & MBSE", pills: ["Mathematics", "Science", "English", "Social Studies"], stat_text: "Board-aligned live & recorded classes", cta_label: "Explore School Courses", cta_href: "/courses?group=school", tint: "green" },
+  { icon: "research", title: "Competitive Exams", subtitle: "JEE · NEET · UPSC · Banking", pills: ["IIT-JEE", "NEET", "UPSC", "SSC"], stat_text: "Expert mentors & proven strategies", cta_label: "Start Exam Prep", cta_href: "/courses?group=competitive", tint: "blue" },
   { icon: "skills", title: "Skill & Career", subtitle: "Olympiads · CA · Coding & more", pills: ["Olympiads", "CA Foundation", "Coding", "Career"], stat_text: "Beyond academics — build real skills", cta_label: "View Programs", cta_href: "/skill/browse", tint: "gold" },
 ];
 

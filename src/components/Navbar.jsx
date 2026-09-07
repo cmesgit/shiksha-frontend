@@ -71,7 +71,6 @@ import {
   IcGlobe,
   IcForum,
   IcLibrary,
-  IcCompass,
   IcHelp,
   IcInfo,
   IcMail,
@@ -212,10 +211,9 @@ const RESOURCES_MENU = [
   { title: "Current Affairs", icon: IcGlobe, to: "/current-affairs", desc: "Daily and monthly updates." },
   { title: "Forum", icon: IcForum, to: "/forum", desc: "Ask and answer with peers." },
   { title: "Explore Library", icon: IcLibrary, to: "/explore", desc: "Notes, documents & papers." },
-  // `/explore/research-hub` and `/upcoming` both still exist and still render;
-  // these two are flagged as not-yet-launched at the NAV level only, so the
-  // routes stay reachable by direct link and nothing had to be deleted.
-  { title: "Research Hub", icon: IcCompass, soon: true, desc: "Curated research reading." },
+  // Research Hub is gone, not flagged `soon` — the page it pointed at was
+  // entirely hardcoded sample data with no API behind it, so there was
+  // nothing to launch. `/upcoming` below is different: it is a real page.
   // Quizzes only. The public hub has NO mock-test machinery — no sections, no
   // negative marking, no per-question marks — and the backend's mock support
   // is reachable only inside the academy. Naming it "Mock Test" out here
