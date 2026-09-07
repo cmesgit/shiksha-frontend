@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExplore } from "../ExploreStore";
+import { useAuth } from "../../contexts/AuthContext";
 import { toggleLike as toggleLikeApi } from "../exploreApi";
 import { CategoryIcon } from "./categoryIcons";
 import {
@@ -34,6 +35,12 @@ export function tint(hex, alpha) {
 // ── like button (server-backed likes_count / is_liked, replaces the old
 //    static "rating" display everywhere a document is shown) ───────────────────
 export function LikeButton({ doc, className = "" }) {
+  // This control talks to exploreApi directly rather than through
+  // ExploreStore, so the store's auth gate does not cover it — it needs its
+  // own. Without it a logged-out heart click 401s and apiClient's interceptor
+  // hard-navigates the tab to /login with no `next`, losing the document.
+  const { isAuthenticated } = useAuth();
+  const nav = useNavigate();
   const [liked, setLiked] = useState(!!doc.is_liked);
   const [count, setCount] = useState(doc.likes_count ?? 0);
   const [busy, setBusy] = useState(false);
@@ -47,6 +54,11 @@ export function LikeButton({ doc, className = "" }) {
   const onClick = async (e) => {
     e.stopPropagation();
     if (busy) return;
+    if (!isAuthenticated) {
+      const back = window.location.pathname + window.location.search;
+      nav(`/login?next=${encodeURIComponent(back)}`);
+      return;
+    }
     setBusy(true);
     const prevLiked = liked;
     const prevCount = count;

@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { saveDocument, followAuthor, likeDocument } from "./exploreApi";
 
@@ -32,7 +33,8 @@ function load(key) {
 const ExploreCtx = createContext(null);
 
 export function ExploreProvider({ children }) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const nav = useNavigate();
   const key = storageKey(user?.id);
   const [lib, setLib] = useState(() => load(key));
   const [prevKey, setPrevKey] = useState(key);
@@ -51,29 +53,51 @@ export function ExploreProvider({ children }) {
     try { localStorage.setItem(key, JSON.stringify(lib)); } catch { /* quota */ }
   }, [key, lib]);
 
+  // ⚠ Save / Like / Follow all POST to IsAuthenticated endpoints
+  // (documents/views.py ToggleSaveView, ToggleLikeView, FollowAuthorView), but
+  // the controls render for anonymous visitors on /explore and /explore/browse,
+  // which are AllowAny. So a logged-out click 401'd, apiClient's interceptor
+  // tried a refresh, failed, and called redirectToLogin() —
+  // `window.location.href = LOGIN_URL`, a FULL page navigation with no `next`.
+  // The local store had already flipped to "saved", so the icon filled in and
+  // then the tab left the site with no path back to the document. The
+  // `.catch(() => {})` below cannot prevent that; by then it has navigated.
+  //
+  // Gate here rather than in each component so every caller is covered, and
+  // send them somewhere they can come back FROM.
+  const requireAuth = useCallback(() => {
+    if (isAuthenticated) return true;
+    const back = window.location.pathname + window.location.search;
+    nav(`/login?next=${encodeURIComponent(back)}`);
+    return false;
+  }, [isAuthenticated, nav]);
+
   const toggleSave = useCallback((id) => {
+    if (!requireAuth()) return;
     setLib((s) => {
       const has = s.saved.includes(id);
       saveDocument(id, !has).catch(() => {});
       return { ...s, saved: has ? s.saved.filter((x) => x !== id) : [id, ...s.saved] };
     });
-  }, []);
+  }, [requireAuth]);
 
   const toggleFollow = useCallback((authorId) => {
+    if (!requireAuth()) return;
     setLib((s) => {
       const has = s.following.includes(authorId);
       followAuthor(authorId, !has).catch(() => {});
       return { ...s, following: has ? s.following.filter((x) => x !== authorId) : [authorId, ...s.following] };
     });
-  }, []);
+  }, [requireAuth]);
 
   const toggleLike = useCallback((id) => {
+    if (!requireAuth()) return;
     setLib((s) => {
       const has = s.likes.includes(id);
       likeDocument(id, !has).catch(() => {});
       return { ...s, likes: has ? s.likes.filter((x) => x !== id) : [id, ...s.likes] };
     });
-  }, []);
+  }, [requireAuth]);
 
   const recordView = useCallback((id) => {
     setLib((s) => (s.viewed[0] === id ? s : { ...s, viewed: [id, ...s.viewed.filter((x) => x !== id)].slice(0, 40) }));
