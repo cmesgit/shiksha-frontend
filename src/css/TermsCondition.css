@@ -143,7 +143,10 @@
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 24px;
-  align-items: stretch; 
+  /* `stretch` forced the content column to the sticky nav's height, which is
+     what made the legal text a viewport-locked inner scrollbox. `start` lets
+     the content column be as tall as its content and the PAGE scroll. */
+  align-items: start;
 }
 /* ═══════════════════════════════════════════
    LEFT SIDEBAR NAV
@@ -276,7 +279,6 @@
 ═══════════════════════════════════════════ */
 .tc-content-wrap {
   display: flex;
-  height: 100%;
 }
 
 .tc-content-panel {
@@ -287,9 +289,8 @@
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
   overflow: hidden;
 
-  display: flex;              
-  flex-direction: column;     
-  height: 100%;               
+  display: flex;
+  flex-direction: column;
 
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
@@ -364,21 +365,15 @@
 }
 
 /* Content body */
+/* No max-height and no inner scroll: the section text flows and the document
+   scrolls. It used to be `max-height: calc(100vh - 280px); overflow-y: auto`,
+   which on a 720px window gave the text 440px — so a 1199px section ("Prohibited
+   Activities") was cut off with the remainder reachable only through a nested
+   scrollbar. That read as "the terms don't load at the bottom".
+   vh is also banned in layout CSS here: mobile browsers resize the viewport as
+   the URL bar collapses, so a vh-sized box jumps while you read. */
 .tc-content-body {
   padding: 28px 28px 32px;
-  max-height: calc(100vh - 280px);
-  overflow-y: auto;
-  flex: 1; 
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
-
-.tc-content-body::-webkit-scrollbar {
-  width: 5px;
-}
-.tc-content-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
 }
 
 .tc-content-text {
@@ -517,9 +512,6 @@
   .tc-mobile-drawer.open {
     display: block;
   }
-  .tc-content-body {
-    max-height: 60vh;
-  }
 }
 
 @media (max-width: 480px) {
@@ -649,9 +641,6 @@
     display: block;
   }
 
-  .tc-content-body {
-    max-height: 60vh;
-  }
 }
 
 @media (max-width: 480px) {

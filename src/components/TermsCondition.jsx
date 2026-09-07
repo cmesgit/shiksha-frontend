@@ -301,7 +301,13 @@ const TermsCondition = () => {
     setTimeout(() => {
       setActiveId(id);
       setAnimating(false);
-      if (contentRef.current) contentRef.current.scrollTop = 0;
+      // The section text used to live in its own scrollbox, so resetting
+      // `scrollTop` was enough. It flows in the document now, which makes that
+      // a no-op — and without this, picking a section while scrolled down
+      // leaves you part-way into the new one. Bring the panel back into view
+      // instead. `?.` because this runs from a timeout that can outlive the
+      // component if someone navigates away mid-animation.
+      contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
     }, 220);
 
     setMobileNavOpen(false);
