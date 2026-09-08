@@ -160,11 +160,19 @@ const STATIC_COURSES_MENU = [
         heading: "Career Guidance",
         links: [
           { label: "Career Counselling", to: "/counselling" },
-          // Admission in India is a future directory of Indian
-          // colleges/universities with rankings — a different, bigger
-          // feature than the existing study-in-india guide (which stays
-          // reachable from the Career Counselling guide library instead).
-          { label: "Admission in India", soon: true },
+          // This used to be `soon: true`, reserved for a future directory of
+          // Indian colleges with rankings — on the reasoning that the
+          // directory is a bigger feature than the existing study-in-india
+          // guide, which was "reachable from the guide library instead".
+          //
+          // In practice that made a nav entry people click render an inert
+          // "Coming Soon" row while a published 12-chapter Admissions
+          // Handbook sat two clicks away. Pointing at the guide that exists
+          // beats advertising one that doesn't. If the college directory is
+          // ever built it needs its own entry rather than reclaiming this
+          // one, since this URL will by then be the thing people have
+          // bookmarked.
+          { label: "Admission in India", to: "/counselling/guides/study-in-india" },
           // No source guide exists yet for study-abroad admissions —
           // point this at a real page once one is written, not at a
           // domestic guide that doesn't answer the question.
