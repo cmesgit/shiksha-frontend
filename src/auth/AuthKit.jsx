@@ -76,25 +76,24 @@ export function AuthShell({
           ShikshaCom
         </Link>
         {illustrated ? (
-          /* Signup gets the three-role intro; Login gets its own "welcome
-             back" illustration (the handoff's separate LoginAnimation3) —
-             both layer a heading over the artwork, same as the reference. */
-          <div className="af-brand__body af-brand__body--intro">
-            <Suspense fallback={null}>
-              {intro ? <IntroAnimation accent={pal.a} /> : <LoginAnimation />}
-            </Suspense>
-            <div className="af-brand__tagline">
-              <h2 className="af-brand__headline">
-                {intro ? "Where learning and teaching meet." : "Good to see you again."}
-              </h2>
-              <p className="af-brand__desc">
-                {intro
-                  ? "Sign up to learn from expert tutors, or to teach what you love."
-                  : "Sign in to your ShikshaCom account — learner, tutor or faculty."}
-              </p>
-            </div>
-          </div>
-        ) : (
+  /* Signup's IntroAnimation draws its own per-station caption (with the
+     numbered badge) directly in the SVG, so the static tagline here would
+     double up with it — only Login needs this overlay, since LoginAnimation
+     has no caption of its own. */
+  <div className="af-brand__body af-brand__body--intro">
+    <Suspense fallback={null}>
+      {intro ? <IntroAnimation accent={pal.a} /> : <LoginAnimation />}
+    </Suspense>
+    {!intro && (
+      <div className="af-brand__tagline">
+        <h2 className="af-brand__headline">Good to see you again.</h2>
+        <p className="af-brand__desc">
+          Sign in to your ShikshaCom account — learner, tutor or faculty.
+        </p>
+      </div>
+    )}
+  </div>
+) : (
         <div className="af-brand__body">
           <div className="af-brand__icon"><Icon name={brandIcon} size={26} color="#fff" /></div>
           <h2 className="af-brand__headline">
@@ -106,7 +105,6 @@ export function AuthShell({
           </p>
         </div>
         )}
-        <div className="af-brand__flow">{flowLabel}</div>
       </div>
 
       {/* RIGHT — content panel */}
