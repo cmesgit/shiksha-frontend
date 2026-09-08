@@ -11,7 +11,7 @@
  * css/SkillDevelopment.css for why bare modifiers are not used here.
  */
 import {
-  MODES, LANGS, RATINGS, EXPERIENCE, PRICE_ANY, priceLabel,
+  MODES, PINNED_LANGS, RATINGS, EXPERIENCE, PRICE_ANY, priceLabel,
 } from "./directoryOptions";
 
 const IcFilters = (
@@ -29,7 +29,7 @@ const IcStar = (
 );
 
 export default function SkillFilters({
-  filters, categories, locations, onChange, onClear, open,
+  filters, categories, locations, languages, onChange, onClear, open,
 }) {
   /* Districts come from GET /skill/locations/, not a hardcoded list, so the
      filter covers wherever experts actually are rather than one launch state.
@@ -59,6 +59,18 @@ export default function SkillFilters({
      single `icontains` match (directory_views.py), not a list, so this is
      single-select even though the design's chips imply multi-select. */
   const toggleLang = (l) => onChange("lang", filters.lang === l ? "" : l);
+
+  /* English and Hindi are always offered; everything else the roster teaches in
+     goes into the select beside them. The server's list is deduplicated
+     case-insensitively but is free-text underneath, so the pinned pair is
+     filtered out the same way — otherwise a teacher who typed "english" would
+     add a second "english" option next to the pinned "English" chip. */
+  const pinnedKeys = new Set(PINNED_LANGS.map((l) => l.toLowerCase()));
+  const otherLangs = (languages || []).filter((l) => !pinnedKeys.has(l.toLowerCase()));
+  /* The select shows the active language only when it is one of ITS options —
+     with English picked from a chip, the select must read "More languages"
+     rather than falsely showing a blank selection. */
+  const selectedOther = otherLangs.find((l) => l === filters.lang) || "";
 
   return (
     <form
@@ -199,7 +211,7 @@ export default function SkillFilters({
       <div className="sk-fgroup">
         <p className="sk-flabel">Language</p>
         <div className="sk-chips">
-          {LANGS.map((l) => (
+          {PINNED_LANGS.map((l) => (
             <button
               key={l}
               className={`sk-tog${filters.lang === l ? " sk-on" : ""}`}
@@ -211,6 +223,22 @@ export default function SkillFilters({
             </button>
           ))}
         </div>
+        {otherLangs.length > 0 && (
+          <>
+            <label className="sk-sr" htmlFor="sk-lang-more">More languages</label>
+            <select
+              id="sk-lang-more"
+              className="sk-select sk-select--inline"
+              value={selectedOther}
+              onChange={(e) => onChange("lang", e.target.value)}
+            >
+              <option value="">More languages</option>
+              {otherLangs.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
 
       <div className="sk-fgroup">

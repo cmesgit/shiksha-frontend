@@ -64,6 +64,23 @@ export async function fetchDirectoryLocations() {
   }
 }
 
+/**
+ * The languages experts actually teach in.
+ *
+ * Replaces a hardcoded ["Mizo", "English", "Hindi"] for the same reason as the
+ * districts above: anyone teaching in a fourth language was reachable by search
+ * but invisible to the language filter. Empty on failure — the rail still shows
+ * the two pinned languages, so it degrades rather than breaking.
+ */
+export async function fetchDirectoryLanguages() {
+  try {
+    const { data } = await api.get("/skill/languages/");
+    return Array.isArray(data?.languages) ? data.languages : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchTeacher(id) {
   if (USE_MOCK) { await wait(150); const { TEACHERS } = await import("../components/skill/data"); return TEACHERS.find(t => t.id === id); }
   const { data } = await api.get(`/skill/teachers/${id}/`);
@@ -262,6 +279,7 @@ export async function payForSession({ teacherId, draft, method, amount, activePr
 
 export default {
   fetchTeachers, fetchTeacherPage, fetchDirectoryStats, fetchDirectoryLocations,
+  fetchDirectoryLanguages,
   fetchTeacher, fetchAvailability, fetchExpertReviews, fetchExpertCourse, normalizeCourse,
   // registerTeacher, fetchInterviewSlots, scheduleInterview and fetchReviewQueue
   // were listed here but never defined anywhere in this module, and nothing

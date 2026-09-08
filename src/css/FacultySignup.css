@@ -110,11 +110,37 @@
 .fs-file-upload.fs-selected { border-color:var(--accent); border-style:solid; background:#e2ebfa; }
 .fs-file-upload.fs-selected .fs-file-text strong { color:var(--accent); }
 
-/* ── Tags multi-select ── */
-.fs-tags-group { display:flex; flex-wrap:wrap; gap:8px; padding:10px; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--white); }
-.fs-tag-option { padding:5px 12px; border-radius:20px; font-size:12px; font-weight:500; border:1.5px solid var(--border); color:var(--text-soft); cursor:pointer; user-select:none; transition:all .15s; background:var(--white); }
-.fs-tag-option:hover { border-color:var(--accent); color:var(--accent); }
-.fs-tag-option.fs-selected { background:var(--accent); border-color:var(--accent); color:white; font-weight:600; }
+/* ── Compact multi-select (classes / streams) ── */
+.fs-ms { position:relative; }
+.fs-ms__btn {
+  width:100%; padding:10px 36px 10px 14px; border:1.5px solid var(--border); border-radius:var(--radius);
+  font-size:14px; color:var(--text-soft); background:var(--white); text-align:left; cursor:pointer;
+  font-family:inherit; outline:none; transition:border-color .2s, box-shadow .2s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235b5f6b' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center;
+}
+.fs-ms__btn--filled { color:var(--text); }
+.fs-ms__btn:focus-visible { border-color:var(--accent); box-shadow:0 0 0 3px rgba(47,107,216,.12); }
+.fs-ms__panel {
+  position:absolute; z-index:20; top:calc(100% + 4px); left:0; right:0;
+  max-height:240px; overflow-y:auto; padding:6px;
+  background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+}
+.fs-ms__opt {
+  display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px;
+  font-size:13px; color:var(--text); cursor:pointer; user-select:none; outline:none;
+}
+.fs-ms__opt:hover, .fs-ms__opt:focus-visible { background:var(--bg); }
+.fs-ms__tick {
+  width:16px; height:16px; flex-shrink:0; border:1.5px solid var(--border); border-radius:4px;
+  background:var(--white); transition:all .15s;
+}
+.fs-ms__opt.fs-selected { font-weight:600; }
+.fs-ms__opt.fs-selected .fs-ms__tick {
+  background:var(--accent); border-color:var(--accent);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='9' viewBox='0 0 11 9'%3E%3Cpath d='M1 4.5l3 3 6-6' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:center;
+}
 
 /* ── Row ── */
 .fs-row { display:flex; gap:16px; }
@@ -260,19 +286,6 @@
   border-radius:var(--radius);
 }
 .fs-add-subject:hover { background:#e2ebfa; border-color:var(--accent); }
-/* A subject already claimed by another block. */
-.fs-tag-option.fs-tag-disabled {
-  opacity:.4; cursor:not-allowed; text-decoration:line-through;
-}
-.fs-tag-option.fs-tag-disabled:hover { border-color:var(--border); background:transparent; }
-
-/* ── Grouped subject picker (Science & Maths / Languages / Competitive …) ── */
-.fs-subject-group + .fs-subject-group { margin-top:14px; }
-.fs-subject-group-label {
-  font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-  color:var(--text-soft); margin-bottom:6px;
-}
-
 /* ── Print: isolate the agreement text so "Print Agreement" produces a clean
    copy of exactly the CMS-published version + a version-stamped footer,
    never the app chrome (topbar/sidebar/steps around it). ── */

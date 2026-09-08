@@ -199,6 +199,12 @@
   border-radius:24px;padding:28px 26px 26px;box-shadow:var(--sk-sh-sm);
   transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,border-color .3s}
 .skills-page .sk-step:hover{transform:translateY(-7px);box-shadow:var(--sk-sh-lg);border-color:transparent}
+/* Two cards would stretch to half the page each on a wide screen, so the
+   two-step variant is capped and centred instead of filling the row. */
+.skills-page .sk-steps--two{grid-template-columns:repeat(2,1fr);max-width:760px;margin:0 auto}
+/* Step 01 is a shortcut back to the hero search box. */
+.skills-page .sk-step--action{cursor:pointer}
+.skills-page .sk-step--action:focus-visible{outline:2px solid var(--sk-emerald);outline-offset:3px}
 .skills-page .sk-step__n{position:absolute;top:8px;right:18px;font-size:58px;font-weight:800;line-height:1;
   letter-spacing:-.04em;color:var(--sk-emerald-soft);z-index:0;user-select:none}
 .skills-page .sk-step__ic{position:relative;z-index:1;width:52px;height:52px;border-radius:15px;display:grid;
@@ -286,6 +292,9 @@
 .skills-page .sk-select:focus,.skills-page .sk-input:focus{border-color:rgba(15,157,107,.45);
   box-shadow:0 0 0 4px rgba(15,157,107,.10)}
 .skills-page .sk-fgroup .sk-select + .sk-input{margin-top:9px}
+/* "More languages" sits under the pinned English/Hindi chips, so it needs the
+   gap the chip row does not provide on its own. */
+.skills-page .sk-chips + .sk-select--inline{margin-top:9px}
 
 .skills-page .sk-range{width:100%;appearance:none;-webkit-appearance:none;background:none;height:22px;
   cursor:pointer;margin:2px 0 0}

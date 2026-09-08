@@ -33,11 +33,11 @@ import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
 import { RatingStars, RatingSummary, MIN_REVIEWS } from "../components/skill/RatingStars";
 import ReviewList, { RatingBreakdown } from "../components/skill/ReviewList";
+import { MODE_TEXT } from "../components/skill/directoryOptions";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
 const initials = (n) => (n || "?").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-const MODE_TEXT = { online: "Online only", home: "At the teacher's place", travel: "Travels to the learner" };
 
 /* ── Auth-gate modal ─────────────────────────────────────────────────── */
 function AuthGateModal({ action, expertName, onClose }) {

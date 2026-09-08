@@ -18,7 +18,7 @@
 export const MODE_TEXT = {
   online: "Online only",
   home:   "At the teacher's place",
-  travel: "Travels to the learner",
+  travel: "Home tutor",
 };
 
 export const MODES = [
@@ -37,7 +37,18 @@ export const MODES = [
  * now returns the states and districts the roster is actually in, and the rail
  * cascades state -> district off it. See skillApi.fetchDirectoryLocations. */
 
-export const LANGS = ["Mizo", "English", "Hindi"];
+/* Languages are no longer hardcoded either.
+ *
+ * This used to be ["Mizo", "English", "Hindi"], with the same failure mode the
+ * districts had: an expert teaching in Manipuri or Bengali was reachable by
+ * search but invisible to the language filter. The real set now comes from
+ * `GET /skill/languages/` — see skillApi.fetchDirectoryLanguages.
+ *
+ * These two stay pinned as always-visible chips regardless of what the roster
+ * currently offers, because they are the languages a learner is most likely to
+ * be scanning for; everything else sits behind the "More languages" select so
+ * the rail does not grow an unbounded wall of chips as the roster does. */
+export const PINNED_LANGS = ["English", "Hindi"];
 
 export const RATINGS = [[0, "Any"], [4, "4.0+"], [4.5, "4.5+"], [4.8, "4.8+"]];
 

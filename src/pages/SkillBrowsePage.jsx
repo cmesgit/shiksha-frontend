@@ -30,7 +30,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api/apiClient";
 import {
-  fetchMarketingBlocks, fetchDirectoryStats, fetchDirectoryLocations,
+  fetchMarketingBlocks, fetchDirectoryStats, fetchDirectoryLocations, fetchDirectoryLanguages,
 } from "../api/skillApi";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -52,7 +52,7 @@ const FAQ = [
   },
   {
     q: "Where do the lessons actually happen?",
-    a: "Online, at the teacher’s place, or with the teacher travelling to you. Every profile shows the modes that teacher offers, and you can filter the list by mode under “Where lessons happen”.",
+    a: "Online, at the teacher’s place, or as a home tutor who comes to you. Every profile shows the modes that teacher offers, and you can filter the list by mode under “Where lessons happen”.",
   },
   {
     q: "How much does a session cost?",
@@ -218,6 +218,7 @@ export default function SkillBrowsePage() {
   const [marketing, setMarketing] = useState({});
   const [stats, setStats]       = useState(null);
   const [locations, setLocations] = useState({ states: [], districts: [] });
+  const [languages, setLanguages] = useState([]);
   const [sheetOpen, setSheet]   = useState(false);
   const [openFaq, setOpenFaq]   = useState(-1);
   const [retryTick, setRetry]   = useState(0);
@@ -229,6 +230,7 @@ export default function SkillBrowsePage() {
     fetchMarketingBlocks().then(setMarketing);
     fetchDirectoryStats().then(setStats);
     fetchDirectoryLocations().then(setLocations);
+    fetchDirectoryLanguages().then(setLanguages);
   }, []);
 
   // Debounced so typing in the hero search does not fire a request per key.
@@ -290,6 +292,19 @@ export default function SkillBrowsePage() {
 
   const pickPopular = useCallback((term) => { changeSearch(term); gotoDirectory(); },
     [changeSearch, gotoDirectory]);
+
+  /* The "Search a skill" step is a shortcut back up to the hero search box.
+     focus() scrolls on its own, which fights the smooth scroll we just asked
+     for, so the caret is placed with preventScroll. */
+  const focusSearch = useCallback(() => {
+    const input = document.getElementById("sk-q");
+    if (!input) return;
+    input.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "center",
+    });
+    input.focus({ preventScroll: true });
+  }, []);
 
   /** Removable chips above the results — one per non-default filter. */
   const chips = useMemo(() => {
@@ -450,11 +465,20 @@ export default function SkillBrowsePage() {
           <div className="sk-wrap">
             <div className="sk-head sk-rv">
               <span className="sk-eyebrow"><u>How It Works</u></span>
-              <h2>Three steps to your <span className="sk-em">first session</span></h2>
-              <p>Browse the directory, shortlist the teachers who fit, and book a slot that suits you.</p>
+              <h2>Two steps to your <span className="sk-em">first session</span></h2>
+              <p>Search the skill you want to learn, then book a slot that suits you.</p>
             </div>
-            <div className="sk-steps">
-              <article className="sk-step sk-rv" style={{ "--sk-g": "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)" }}>
+            <div className="sk-steps sk-steps--two">
+              <article
+                className="sk-step sk-step--action sk-rv"
+                style={{ "--sk-g": "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)" }}
+                role="button"
+                tabIndex={0}
+                onClick={focusSearch}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusSearch(); }
+                }}
+              >
                 <span className="sk-step__n" aria-hidden="true">01</span>
                 <span className="sk-step__ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -465,19 +489,8 @@ export default function SkillBrowsePage() {
                 <p>Type what you want to learn — guitar, welding, spoken English — or start from one of the
                   popular searches.</p>
               </article>
-              <article className="sk-step sk-rv sk-d1" style={{ "--sk-g": "linear-gradient(135deg,#7C5CFC 0%,#5b3fd6 100%)" }}>
+              <article className="sk-step sk-rv sk-d1" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
                 <span className="sk-step__n" aria-hidden="true">02</span>
-                <span className="sk-step__ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 6h16M7 12h10M10 18h4" />
-                  </svg>
-                </span>
-                <h3>Compare teachers</h3>
-                <p>Filter by where lessons happen, district, price, language and rating until the list matches
-                  what you need.</p>
-              </article>
-              <article className="sk-step sk-rv sk-d2" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
-                <span className="sk-step__n" aria-hidden="true">03</span>
                 <span className="sk-step__ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="4.5" width="18" height="17" rx="3" /><path d="M8 2.5v4M16 2.5v4M3 10h18" /><path d="m9 15 2 2 4-4" />
@@ -570,6 +583,7 @@ export default function SkillBrowsePage() {
                   filters={filters}
                   categories={categories}
                   locations={locations}
+                  languages={languages}
                   onChange={setFilter}
                   onClear={clearAll}
                   open={sheetOpen}
@@ -718,7 +732,7 @@ export default function SkillBrowsePage() {
                 <div className="sk-promo__list">
                   {[
                     ["List the skills you teach", "Music, trades, languages, computing — anything you know well."],
-                    ["Choose how you teach", "Online, at your place, or travelling to the learner."],
+                    ["Choose how you teach", "Online, at your place, or as a home tutor."],
                     ["Set your price and slots", "You decide the session price and the hours you open up."],
                   ].map(([title, body]) => (
                     <div className="sk-pl" key={title}>

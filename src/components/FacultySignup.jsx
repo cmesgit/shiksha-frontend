@@ -40,7 +40,7 @@
  * and stream values use the FULL design taxonomy — no migration is needed because
  * TeacherCourseApplication.classes / .streams are choice-less JSONFields.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api/apiClient";
@@ -108,6 +108,91 @@ const FAC_STREAMS = [
   ["science", "Science"], ["commerce", "Commerce"], ["arts", "Arts / Humanities"],
   ["vocational", "Vocational"], ["general", "General"],
 ];
+/* Science, Commerce and Arts are the three streams applicants actually pick, so
+   they lead the list whatever order the server sends. Vocational and General
+   are kept rather than dropped: they are live values in TeacherProfile.streams,
+   and removing them from the form would leave a vocational teacher unable to
+   describe what they teach. */
+const MAIN_STREAMS = ["science", "commerce", "arts"];
+const orderStreams = (pairs) => [
+  ...MAIN_STREAMS.map((v) => pairs.find(([pv]) => pv === v)).filter(Boolean),
+  ...pairs.filter(([v]) => !MAIN_STREAMS.includes(v)),
+];
+
+/**
+ * A compact multi-select: a summary button that opens a checkbox panel.
+ *
+ * Classes and streams were walls of chips, which pushed the subject picker for
+ * a second subject most of a screen down. They stay MULTI-select — a teacher
+ * genuinely does teach several class levels — so this is a dropdown-shaped
+ * control rather than a native <select>, which cannot express that without
+ * ctrl-clicking.
+ */
+function FsMultiSelect({ options, value, onToggle, placeholder, label }) {
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDoc = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const chosen = options.filter(([v]) => value.includes(v));
+  /* Naming one or two is more useful than a count; past that the button would
+     wrap to three lines and stop looking like a control. */
+  const summary = chosen.length === 0
+    ? placeholder
+    : chosen.length <= 2
+      ? chosen.map(([, l]) => l).join(", ")
+      : `${chosen.length} selected`;
+
+  return (
+    <div className="fs-ms" ref={boxRef}>
+      <button
+        type="button"
+        className={`fs-ms__btn${chosen.length ? " fs-ms__btn--filled" : ""}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`${label} — ${chosen.length} selected`}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {summary}
+      </button>
+      {open && (
+        <div className="fs-ms__panel" role="listbox" aria-multiselectable="true" aria-label={label}>
+          {options.map(([v, l]) => {
+            const on = value.includes(v);
+            return (
+              <div
+                key={v}
+                role="option"
+                aria-selected={on}
+                tabIndex={0}
+                className={`fs-ms__opt${on ? " fs-selected" : ""}`}
+                onClick={() => onToggle(v)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(v); }
+                }}
+              >
+                <span className="fs-ms__tick" aria-hidden="true" />
+                {l}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* Verification-document uploads (optional at sign-up). Read to base64 and sent
    inside the JSON signup payload — the signup endpoint is JSON-only, so files
@@ -1053,50 +1138,56 @@ export default function FacultySignup({
                       ? "Select the main subject you want to teach."
                       : "Select another subject you want to teach."}
                   </p>
-                  {/* Grouped rather than one flat wall of chips — the taxonomy now
-                      covers school subjects, languages, commerce and competitive-exam
-                      prep, which is too many to scan unlabelled. The fallback list
-                      uses a single unnamed group, so it renders unchanged. */}
-                  {subjectGroups.map(({ group, options }) => (
-                    <div key={group || "all"} className="fs-subject-group">
-                      {group && <div className="fs-subject-group-label">{group}</div>}
-                      <div className="fs-tags-group">
-                        {options.map(([v, l]) => {
-                          // Claimed by another block — disabled rather than hidden,
-                          // so the list doesn't reshuffle as choices are made.
-                          const isTaken = taken.has(v);
-                          return (
-                            <div key={v}
-                              className={`fs-tag-option ${app.subject === v ? "fs-selected" : ""} ${isTaken ? "fs-tag-disabled" : ""}`}
-                              title={isTaken ? "Already added above" : undefined}
-                              onClick={() => { if (!isTaken) patchApp(idx, "subject", v); }}>{l}</div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                  {/* A native select with optgroups rather than a grid of chips:
+                      the taxonomy covers school subjects, languages, commerce and
+                      competitive-exam prep, and as chips it filled most of a
+                      screen per subject block. Subject is single-select, so a
+                      real <select> is the right control and comes with the
+                      platform's own keyboard and mobile pickers.
+                      A subject claimed by another block is disabled rather than
+                      hidden, so the list doesn't reshuffle as choices are made. */}
+                  <select
+                    value={app.subject}
+                    onChange={(e) => patchApp(idx, "subject", e.target.value)}
+                  >
+                    <option value="">Select a subject</option>
+                    {subjectGroups.map(({ group, options }) => {
+                      const opts = options.map(([v, l]) => (
+                        <option key={v} value={v} disabled={taken.has(v)}>
+                          {taken.has(v) ? `${l} — already added above` : l}
+                        </option>
+                      ));
+                      /* The fallback list uses a single unnamed group; an
+                         optgroup with no label renders as a stray blank row. */
+                      return group
+                        ? <optgroup key={group} label={group}>{opts}</optgroup>
+                        : <Fragment key="all">{opts}</Fragment>;
+                    })}
+                  </select>
                 </div>
 
                 <div className="fs-field">
                   <label>Classes <span className="fs-req">*</span></label>
                   <p className="fs-hint" style={{ marginBottom: 8 }}>Select all class levels you can teach for this subject.</p>
-                  <div className="fs-tags-group">
-                    {facClasses.map(([v, l]) => (
-                      <div key={v} className={`fs-tag-option ${app.classes.includes(v) ? "fs-selected" : ""}`}
-                        onClick={() => toggleIn(idx, "classes")(v)}>{l}</div>
-                    ))}
-                  </div>
+                  <FsMultiSelect
+                    label="Classes"
+                    placeholder="Select class levels"
+                    options={facClasses}
+                    value={app.classes}
+                    onToggle={toggleIn(idx, "classes")}
+                  />
                 </div>
 
                 <div className="fs-field">
                   <label>Streams <span className="fs-req">*</span></label>
                   <p className="fs-hint" style={{ marginBottom: 8 }}>Select all applicable academic streams.</p>
-                  <div className="fs-tags-group">
-                    {facStreams.map(([v, l]) => (
-                      <div key={v} className={`fs-tag-option ${app.streams.includes(v) ? "fs-selected" : ""}`}
-                        onClick={() => toggleIn(idx, "streams")(v)}>{l}</div>
-                    ))}
-                  </div>
+                  <FsMultiSelect
+                    label="Streams"
+                    placeholder="Select streams"
+                    options={orderStreams(facStreams)}
+                    value={app.streams}
+                    onToggle={toggleIn(idx, "streams")}
+                  />
                 </div>
               </div>
               );
