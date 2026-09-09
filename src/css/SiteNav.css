@@ -85,6 +85,15 @@
   font-weight: 600;
   letter-spacing: 0.01em;
 }
+/* design_handoff_live_ticker: the ticker's optional second line, inline so
+   the bar stays a fixed 40px. Dimmed rather than a new colour — it is
+   secondary to the message, and the bar already has three level backgrounds
+   to stay legible against. */
+.skn-annbar-body {
+  opacity: 0.82;
+  font-weight: 500;
+}
+
 .skn-annbar-link {
   margin-left: 10px;
   flex: none;

@@ -21,6 +21,7 @@ import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
+import { getPublicConfig } from "../api/publicConfig";
 import { getPublicNavMenu } from "../api/coursesApi";
 
 /* Both of these are fetched on mount, and Navbar is NOT hoisted into a single
@@ -502,6 +503,11 @@ const Navbar = () => {
     if (!isForumRoute) setForumSearchOpen(false);
   }, [isForumRoute]);
   const [announcements, setAnnouncements] = useState([]);
+  /* design_handoff_live_ticker Phase 3. Gates only the ticker EXTRAS on the
+     strip (the second line). It deliberately does NOT gate the strip itself:
+     the strip is a shipped feature with live content, and hiding it behind a
+     flag that defaults off would be a regression dressed up as a rollout. */
+  const [tickerEnabled, setTickerEnabled] = useState(false);
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState(readDismissedAnnouncements);
   const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
 
@@ -549,6 +555,17 @@ const Navbar = () => {
     return () => {
       alive = false;
     };
+  }, []);
+
+  /* Read through getPublicConfig, NOT apiClient: that instance's 401
+     interceptor can bounce a logged-out visitor to /login. It keeps its own
+     module-level cache, so the ~10 Navbar mount sites share one request. */
+  useEffect(() => {
+    let alive = true;
+    getPublicConfig()
+      .then((cfg) => { if (alive) setTickerEnabled(!!cfg.live_ticker_enabled); })
+      .catch(() => { /* fail closed — extras stay off */ });
+    return () => { alive = false; };
   }, []);
 
   const announcement =
@@ -683,7 +700,19 @@ const Navbar = () => {
       {announcementVisible && (
         <div className={`skn-annbar skn-annbar-${announcement.level}`}>
           <div className="skn-annbar-inner">
-            <span className="skn-annbar-msg">{announcement.message}</span>
+            <span className="skn-annbar-msg">
+              {announcement.message}
+              {/* The strip is a fixed 40px with nowrap + ellipsis
+                  (SiteNav.css:50,77-83), so a second line here CANNOT change
+                  its height — which is why .skn-spacer's 118/112px and
+                  .toast-container's top:140px need no adjustment. Deliberately
+                  no image: the design's own 390px guidance is "the message,
+                  the countdown line and a 44px dismiss target, nothing else",
+                  and a thumbnail is the one thing that would resize the bar. */}
+              {tickerEnabled && announcement.body ? (
+                <span className="skn-annbar-body"> — {announcement.body}</span>
+              ) : null}
+            </span>
             {announcement.link_url &&
               (announcement.link_url.startsWith("/") ? (
                 <Link to={announcement.link_url} className="skn-annbar-link">
