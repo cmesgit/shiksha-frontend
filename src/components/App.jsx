@@ -75,6 +75,7 @@ const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreMode
 const AboutUs          = lazy(() => import("./AboutUs"));
 const Contact          = lazy(() => import("./Contact"));
 const TermsCondition   = lazy(() => import("./TermsCondition"));
+const PrivacyPolicy    = lazy(() => import("./PrivacyPolicy"));
 const Faq              = lazy(() => import("./Faq"));
 const Feedback         = lazy(() => import("./Feedback"));
 const ProfilePicker    = lazy(() => import("../pages/ProfilePicker"));
@@ -356,6 +357,9 @@ function App() {
         <Route path="/why-shiksha"     element={<Navigate to="/about#ap-why" replace />} />
         <Route path="/contact"         element={<Page><Contact /></Page>} />
         <Route path="/terms"           element={<Page><TermsCondition /></Page>} />
+        {/* Register.jsx has linked /privacy since launch; until now it 404'd. */}
+        <Route path="/privacy"         element={<Page><PrivacyPolicy /></Page>} />
+        <Route path="/privacy-policy"  element={<Navigate to="/privacy" replace />} />
         <Route path="/faq"             element={<Page><Faq /></Page>} />
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
         <Route path="/courses"         element={<Page><Courses /></Page>} />

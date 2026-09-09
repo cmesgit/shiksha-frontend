@@ -138,7 +138,8 @@ const Footer = () => {
           <span>© {YEAR} ShikshaCom.com</span>
           <nav aria-label="Legal">
             <Link to="/faq">FAQ</Link>
-            <Link to="/terms">Terms of Policy</Link>
+            <Link to="/terms">Terms &amp; Conditions</Link>
+            <Link to="/privacy">Privacy Policy</Link>
             <Link to="/feedback">Feedback</Link>
           </nav>
         </div>
