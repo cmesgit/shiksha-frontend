@@ -75,6 +75,13 @@ export const APP_DASHBOARD_URL     = APP_URL;
 // "academy" maps to the Faculty dashboard, "skill" to the Guest-expert one.
 export const TEACHER_ACADEMY_URL = TEACHER_URL + "/teacher/dashboard";
 export const TEACHER_SKILL_URL   = TEACHER_URL + "/teacher/expert";
+// The expert profile EDITOR, not the dashboard root. A newly added Skill Dev
+// track creates a blank ExpertProfile, and ExpertProfile.refresh_listing only
+// sets is_listed once completeness() is satisfied — so a new expert is
+// unlisted until they fill this in. Sending them to the dashboard root
+// instead left them looking at a working-looking dashboard with an invisible
+// listing and nothing telling them why.
+export const TEACHER_SKILL_PROFILE_URL = TEACHER_URL + "/teacher/expert/profile";
 
 // Where a student is sent to enroll in a track they are not in yet.
 export const ACADEMY_BROWSE_URL = HOME_URL + "/courses";
