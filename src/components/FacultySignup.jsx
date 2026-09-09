@@ -254,6 +254,18 @@ const STEPS = [
  *                        add-a-track upgrade of an existing account, which
  *                        already accepted terms when it was first created)
  *   submitLabel          label for the submit button
+ *   requireDocuments     make the Section 3 verification fields mandatory
+ *                        (govt ID type, ID number, both ID proof scans).
+ *                        Default false, which is what this screen has always
+ *                        done standalone. BecomeTeacher passes true: an
+ *                        application with no identity evidence cannot be
+ *                        actioned, and `_provision_faculty` DROPS malformed
+ *                        documents silently rather than erroring, so an
+ *                        applicant otherwise gets "application received" for a
+ *                        submission that reaches the admin queue empty. That
+ *                        was already the rule on the add-a-track path before
+ *                        this form was reused for it — keeping it avoids
+ *                        loosening a gate by refactor.
  */
 export default function FacultySignup({
   embedded = false,
@@ -262,6 +274,7 @@ export default function FacultySignup({
   onBack,
   showVerifyOnSuccess = true,
   requireTerms = true,
+  requireDocuments = false,
   submitLabel = "Submit application",
 } = {}) {
   const navigate = useNavigate();
@@ -362,13 +375,21 @@ export default function FacultySignup({
     setStaleDocNames((p) => { const { [key]: _drop, ...rest } = p; return rest; });
   };
 
-  /* Reusable file-upload control (uses the .fs-file-upload styles). */
-  const docField = (key, labelText, cta) => {
+  /* Reusable file-upload control (uses the .fs-file-upload styles).
+     `required` is per-field rather than read off requireDocuments directly:
+     the qualification certificate stays optional even when identity proof is
+     mandatory, because review can proceed without it. */
+  const docField = (key, labelText, cta, required = false) => {
     const d = docs[key];
     const stale = !d && staleDocNames[key];
     return (
       <div className="fs-field">
-        <label>{labelText} <span className="fs-opt">(optional)</span></label>
+        <label>
+          {labelText}{" "}
+          {required
+            ? <span className="fs-req">*</span>
+            : <span className="fs-opt">(optional)</span>}
+        </label>
         {stale && (
           <p className="fs-hint" style={{ color: "var(--warn-text, #8a6d1f)", marginBottom: 6 }}>
             Please re-attach <strong>{stale}</strong> — files aren't kept in a saved draft.
@@ -613,6 +634,15 @@ export default function FacultySignup({
     if (!f.year_of_completion) return setError("Enter your year of completion.");
     if (!f.experience_range) return setError("Select your experience range.");
     if (!f.employment_status) return setError("Select your employment status.");
+    // Identity evidence, when the caller demands it. Checked here rather than
+    // at submit so the applicant is stopped on the step that owns the fields
+    // instead of being bounced back from the agreement screen.
+    if (requireDocuments) {
+      if (!f.govt_id_type) return setError("Select which government ID you're providing.");
+      if (!f.id_number.trim()) return setError("Enter the number on that ID.");
+      if (!docs.id_proof_front) return setError("Attach a scan of the front of your ID.");
+      if (!docs.id_proof_back) return setError("Attach a scan of the back of your ID.");
+    }
     // Validate each subject block by position, so the message points at the
     // one that's actually incomplete instead of just "select a subject".
     for (let i = 0; i < courseApps.length; i++) {
@@ -1004,28 +1034,48 @@ export default function FacultySignup({
               <div className="fs-section-divider-line" />
             </div>
             <p className="fs-hint fs-hint-box">
-              These fields are <strong>optional</strong> at sign-up, but adding them now speeds up review.
-              You can also add or replace them later from your <strong>dashboard after verifying your email</strong>.
+              {requireDocuments ? (
+                <>
+                  Academy teaching is a paid position, so our team verifies who you
+                  are before you start. We ask <strong>once, here</strong> — these
+                  can’t be added later while your application is in review.
+                </>
+              ) : (
+                <>
+                  These fields are <strong>optional</strong> at sign-up, but adding them now speeds up review.
+                  You can also add or replace them later from your <strong>dashboard after verifying your email</strong>.
+                </>
+              )}
             </p>
 
             <div className="fs-row">
               <div className="fs-field">
-                <label htmlFor="fs-idtype">Government ID type <span className="fs-opt">(optional)</span></label>
+                <label htmlFor="fs-idtype">
+                  Government ID type{" "}
+                  {requireDocuments
+                    ? <span className="fs-req">*</span>
+                    : <span className="fs-opt">(optional)</span>}
+                </label>
                 <select id="fs-idtype" value={f.govt_id_type} onChange={set("govt_id_type")}>
                   <option value="">Select ID type</option>
                   {facGovtId.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div className="fs-field">
-                <label htmlFor="fs-idnum">ID number <span className="fs-opt">(optional)</span></label>
+                <label htmlFor="fs-idnum">
+                  ID number{" "}
+                  {requireDocuments
+                    ? <span className="fs-req">*</span>
+                    : <span className="fs-opt">(optional)</span>}
+                </label>
                 <input id="fs-idnum" type="text" maxLength={50} placeholder="Enter ID number"
                   value={f.id_number} onChange={set("id_number")} />
               </div>
             </div>
 
             <div className="fs-row">
-              {docField("id_proof_front", "ID proof — front", "Upload front")}
-              {docField("id_proof_back", "ID proof — back", "Upload back")}
+              {docField("id_proof_front", "ID proof — front", "Upload front", requireDocuments)}
+              {docField("id_proof_back", "ID proof — back", "Upload back", requireDocuments)}
             </div>
 
             {/* Course Application */}

@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthShell, StatusChip, FooterLink } from "./AuthKit";
-import { getFacultyChoices } from "../api/formFillupApi";
 import { TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../config/urls";
-import "../css/TeacherDocs.css";
+
+/* Lazy, like every other route-sized component in this app: the faculty form
+   is ~35 kB of chunk that a Skill Dev applicant never needs. */
+const FacultySignup = lazy(() => import("../components/FacultySignup"));
 
 /* ════════════════════════════════════════════════════════════════
    BecomeTeacher — start teaching, from inside the product.
@@ -45,45 +47,28 @@ import "../css/TeacherDocs.css";
    commitment and before the submission, so an application never reaches an
    admin without the evidence needed to act on it. Skill Dev is untouched and
    still goes live in one click.
+
+   …AND ONE MORE, 2026-09-09. The hand-rolled document step above only ever
+   collected five fields. `/faculty/signup` also collects degree, field of
+   study, year of completion, experience, employment status and — crucially —
+   the SUBJECTS the applicant wants to teach, as `course_applications`. Without
+   those, `_provision_faculty` creates no TeacherCourseApplication rows, so
+   `TeacherProfile.subject/classes/streams` stay empty and the admin approval
+   queue renders the applicant's subjects as "—" (the serializer falls back to
+   `field_of_study`, which was also never collected). An admin was being asked
+   to approve a teacher without being told what they teach.
+
+   Rather than reimplement eight fields and a subject repeater here, this
+   screen now EMBEDS FacultySignup, which already owns all of it — the same
+   `embedded` mode the retired Signup.jsx drove. It hands the assembled
+   faculty_profile to `onSubmitProfile`, which is exactly the seam needed: no
+   email, no password, no account creation, just the application. One form, one
+   set of validators, no drift.
+
+   `requireDocuments` is passed so the 2026-09-06 decision above survives the
+   refactor — FacultySignup's own default leaves identity proof optional, and
+   silently loosening that gate is how the unreviewable-queue bug returns.
 ════════════════════════════════════════════════════════════════ */
-
-/* Fallback only — the real list is served by getFacultyChoices() off
-   accounts/models.py. Mirrors FacultySignup's FAC_GOVT_ID exactly; offering a
-   value the server rejects is worse than offering none, because the applicant
-   only finds out at submit. */
-const FAC_GOVT_ID = [
-  ["aadhaar", "Aadhaar"], ["pan", "PAN"], ["voter_id", "Voter ID"], ["driving_license", "Driving License"],
-];
-
-const asPairs = (served, fallback) =>
-  Array.isArray(served) && served.length
-    ? served.map((o) => [o.value, o.label])
-    : fallback;
-
-/* Mirrors SignupSerializer._SIGNUP_DOC_TYPES and _SIGNUP_DOC_MAX_BYTES
-   exactly. Checked here as well as there because `_save_signup_document` is
-   best-effort by design: it DROPS anything malformed, oversized or of an
-   unexpected type rather than raising, so without a client-side check an
-   applicant gets a cheerful "application received" for a submission that
-   reached the admin with no documents attached. */
-const DOC_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
-const DOC_MAX_BYTES = 5 * 1024 * 1024;
-
-/** One file → the {name, type, data} shape the backend decodes. */
-const readDocument = (file) =>
-  new Promise((resolve, reject) => {
-    if (!file) return resolve(null);
-    if (!DOC_TYPES.includes((file.type || "").toLowerCase())) {
-      return reject(new Error(`“${file.name}” must be a PDF, JPG or PNG.`));
-    }
-    if (file.size > DOC_MAX_BYTES) {
-      return reject(new Error(`“${file.name}” is larger than 5 MB. Please attach a smaller copy.`));
-    }
-    const reader = new FileReader();
-    reader.onload  = () => resolve({ name: file.name, type: file.type, data: reader.result });
-    reader.onerror = () => reject(new Error(`Couldn’t read “${file.name}”. Please try again.`));
-    reader.readAsDataURL(file);
-  });
 
 const TRACK_COPY = {
   skill: {
@@ -115,7 +100,7 @@ const STATUS_COPY = {
 };
 
 export default function BecomeTeacher() {
-  const { getTeacherIdentity, addTeacherIdentity } = useAuth();
+  const { user, getTeacherIdentity, addTeacherIdentity } = useAuth();
   const navigate = useNavigate();
 
   const [report, setReport] = useState(null);
@@ -123,15 +108,9 @@ export default function BecomeTeacher() {
   const [busy, setBusy]     = useState("");
   const [done, setDone]     = useState(null);
 
-  // Academy only: the document step, opened by the apply button rather than
-  // shown up front. `docs` holds the two text fields; files are read off the
-  // inputs at submit so a large upload never sits in React state.
+  // Academy only: the application form, opened by the apply button rather than
+  // shown up front. FacultySignup owns every field and its validation.
   const [docStep, setDocStep] = useState(false);
-  const [choices, setChoices] = useState(null);
-  const [docs, setDocs]       = useState({ govt_id_type: "", id_number: "" });
-  const [docFiles, setDocFiles] = useState({
-    id_proof_front: null, id_proof_back: null, qualification_certificate: null,
-  });
 
   useEffect(() => {
     let cancelled = false;
@@ -143,23 +122,16 @@ export default function BecomeTeacher() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The Academy card opens the document step instead of applying immediately.
-  // Skill Dev still applies in one click — it is a marketplace listing with no
-  // review, so there is nothing for a document to inform.
+  // The Academy card opens the application form instead of applying
+  // immediately. Skill Dev still applies in one click — it is a marketplace
+  // listing with no review, so there is nothing for an application to inform.
   const onCardClick = (track) => {
     if (track !== "academy") return apply(track);
     setError("");
     setDocStep(true);
-    if (!choices) getFacultyChoices().then(setChoices).catch(() => {});
   };
 
-  const docsReady =
-    docs.govt_id_type &&
-    docs.id_number.trim() &&
-    docFiles.id_proof_front &&
-    docFiles.id_proof_back;
-
-  /* Documents ride WITH the application, in one atomic call.
+  /* The application rides WITH the documents, in one atomic call.
 
      The obvious route — file the application, then PATCH the documents onto
      the teacher profile — cannot work, and the codebase already says so.
@@ -174,30 +146,12 @@ export default function BecomeTeacher() {
      The way through is the one signup already uses: base64 documents nested in
      `faculty_profile`, which `POST /identities/teacher/` accepts and passes to
      `_setup_teacher` / `_add_teacher_track` inside a transaction. One request,
-     so the application and its evidence can never land apart. */
-  const applyAcademy = async () => {
-    setError(""); setBusy("academy");
-    try {
-      const [front, back, cert] = await Promise.all([
-        readDocument(docFiles.id_proof_front),
-        readDocument(docFiles.id_proof_back),
-        readDocument(docFiles.qualification_certificate),
-      ]);
-
-      await apply("academy", {
-        faculty_profile: {
-          govt_id_type: docs.govt_id_type,
-          id_number: docs.id_number.trim(),
-          id_proof_front: front,
-          id_proof_back: back,
-          ...(cert ? { qualification_certificate: cert } : {}),
-        },
-      });
-    } catch (err) {
-      setError(err?.message || "Couldn’t send your application. Please try again.");
-      setBusy("");
-    }
+     so the application and its evidence can never land apart. FacultySignup
+     assembles that payload; this only forwards it. */
+  const applyAcademy = async (faculty_profile) => {
+    await apply("academy", { faculty_profile });
   };
+
 
   const apply = async (track, payload) => {
     setError(""); setBusy(track);
@@ -323,109 +277,22 @@ export default function BecomeTeacher() {
       )}
 
       {docStep && (
-        <div className="td-step">
-          <h2 className="td-step__title">Your verification documents</h2>
-          <p className="td-step__lead">
-            Academy teaching is a paid position, so our team verifies who you are
-            before you start. We ask once, here — you won’t be chased for these later.
-          </p>
-
-          {error && <p className="td-error">{error}</p>}
-
-          <div className="td-field">
-            <label className="td-field__label" htmlFor="td-govt-type">Government ID type</label>
-            <select
-              id="td-govt-type"
-              className="td-select"
-              value={docs.govt_id_type}
-              disabled={!!busy}
-              onChange={(e) => setDocs((d) => ({ ...d, govt_id_type: e.target.value }))}
-            >
-              <option value="">Choose one…</option>
-              {asPairs(choices?.govt_id_type, FAC_GOVT_ID).map(([v, label]) => (
-                <option key={v} value={v}>{label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="td-field">
-            <label className="td-field__label" htmlFor="td-govt-number">ID number</label>
-            <input
-              id="td-govt-number"
-              className="td-input"
-              type="text"
-              autoComplete="off"
-              value={docs.id_number}
-              disabled={!!busy}
-              onChange={(e) => setDocs((d) => ({ ...d, id_number: e.target.value }))}
-            />
-          </div>
-
-          <div className="td-pair">
-            <div className="td-field">
-              <label className="td-field__label" htmlFor="td-id-front">ID — front</label>
-              <input
-                id="td-id-front"
-                className="td-file"
-                type="file"
-                accept="image/*,.pdf"
-                disabled={!!busy}
-                onChange={(e) => setDocFiles((f) => ({ ...f, id_proof_front: e.target.files?.[0] || null }))}
-              />
-            </div>
-            <div className="td-field">
-              <label className="td-field__label" htmlFor="td-id-back">ID — back</label>
-              <input
-                id="td-id-back"
-                className="td-file"
-                type="file"
-                accept="image/*,.pdf"
-                disabled={!!busy}
-                onChange={(e) => setDocFiles((f) => ({ ...f, id_proof_back: e.target.files?.[0] || null }))}
-              />
-            </div>
-          </div>
-
-          <div className="td-field">
-            <label className="td-field__label" htmlFor="td-cert">
-              Qualification certificate <span style={{ fontWeight: 400 }}>(optional now)</span>
-            </label>
-            <input
-              id="td-cert"
-              className="td-file"
-              type="file"
-              accept="image/*,.pdf"
-              disabled={!!busy}
-              onChange={(e) => setDocFiles((f) => ({ ...f, qualification_certificate: e.target.files?.[0] || null }))}
-            />
-            <span className="td-field__hint">
-              You can add this later from your teaching profile, but review is faster with it.
-            </span>
-          </div>
-
-          <p className="td-note">
-            These are checked by our admin team and are not shown to students. Once
-            your application is approved they’re locked — ask an admin if anything
-            needs changing after that.
-          </p>
-
-          <div className="td-actions">
-            <button
-              className="af-btn"
-              disabled={!docsReady || !!busy}
-              onClick={applyAcademy}
-            >
-              {busy === "academy" ? "Sending…" : "Send application"}
-            </button>
-            <button
-              className="af-btn af-btn--ghost"
-              disabled={!!busy}
-              onClick={() => { setDocStep(false); setError(""); }}
-            >
-              Back
-            </button>
-          </div>
-        </div>
+        <Suspense fallback={<p className="af-sub">Loading the application form…</p>}>
+          <FacultySignup
+            embedded
+            presetEmail={user?.email || ""}
+            /* This account already exists and already accepted the terms when
+               it was created — re-asking would imply it hadn't. */
+            requireTerms={false}
+            /* No email to verify: the caller is signed in. We show our own
+               confirmation via `done` instead of the form's Verify card. */
+            showVerifyOnSuccess={false}
+            requireDocuments
+            submitLabel="Send application"
+            onBack={() => { setDocStep(false); setError(""); }}
+            onSubmitProfile={applyAcademy}
+          />
+        </Suspense>
       )}
 
       <FooterLink>Not now? <Link to="/">Back to ShikshaCom</Link></FooterLink>
