@@ -802,7 +802,7 @@ const Navbar = () => {
                       global top navbar. */}
                   <NotificationBell />
                   <ProfileSwitcher
-                    teacherSignupUrl="/signup?role=teacher"
+                    teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}
                     quickActions={[
@@ -827,7 +827,7 @@ const Navbar = () => {
                   <Link to="/login" className="skn-btn skn-btn-ghost" onClick={closeAll}>
                     Log in
                   </Link>
-                  <Link to="/signup" className="skn-btn skn-btn-solid" onClick={closeAll}>
+                  <Link to="/register" className="skn-btn skn-btn-solid" onClick={closeAll}>
                     Sign up free
                   </Link>
                 </div>
@@ -968,6 +968,12 @@ const Navbar = () => {
           <Link to="/become-faculty" className="skn-mlink skn-strong" onClick={closeAll}>
             <span>Become a Faculty</span>
           </Link>
+          {/* Skill Dev's equivalent door. Both tracks are offered here now —
+              previously only Academy was, so the drawer quietly implied
+              teaching on ShikshaCom meant school faculty work. */}
+          <Link to="/become-expert" className="skn-mlink skn-strong" onClick={closeAll}>
+            <span>Teach on Skill Dev</span>
+          </Link>
         </div>
 
         <div className="skn-drawer-cta">
@@ -982,7 +988,7 @@ const Navbar = () => {
                 <div className="skn-drawer-account-row">
                   <NotificationBell />
                   <ProfileSwitcher
-                    teacherSignupUrl="/signup?role=teacher"
+                    teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}
                     quickActions={[
@@ -1023,7 +1029,7 @@ const Navbar = () => {
                   Log in
                 </Link>
                 <Link
-                  to="/signup"
+                  to="/register"
                   className="skn-btn skn-btn-solid skn-wide"
                   onClick={closeAll}
                 >

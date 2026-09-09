@@ -141,7 +141,7 @@ const CTA_DEFAULTS = {
   subhead:
     "Explore our courses and find the learning path that fits you — accessible, engaging and built for how you learn.",
   primary: { label: "Explore courses", to: "/courses" },
-  secondary: { label: "Create free account", to: "/signup" },
+  secondary: { label: "Create free account", to: "/register" },
 };
 
 /* Repeated decoration, identical on every card in its group — hoisted so the

@@ -12,7 +12,7 @@ import {
 } from "../api/enrollments";
 import { getMyEnrolledCourses } from "../api/coursesApi";
 import { useToast } from "../contexts/ToastContext";
-import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
+import { usePhoneGate, PhoneGateField } from "./PhoneGate";
 import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
@@ -59,6 +59,11 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   // course actually has batches configured. `course.batches` comes straight
   // from getCoursePublic(), see the effect below.
   const [selectedBatch, setSelectedBatch] = useState(null);
+
+  // Just-in-time phone capture. On the free path we only reveal the ask once
+  // someone actually commits by clicking Enroll, then resume for them.
+  const phoneGate = usePhoneGate();
+  const [askingPhone, setAskingPhone] = useState(false);
 
   const initialPath = useRef(location.pathname);
 
@@ -186,13 +191,14 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
   };
 
   const profile = user?.profile || {};
-  // When form-fillup enforcement is off, never let profile-completeness block
-  // enrollment (no disabled buttons, no "complete your profile" warnings).
-  const profileComplete = FORM_FILLUP_ENABLED ? user?.profile_complete : true;
+  // Profile *completeness* no longer gates enrolment — detail is asked for at
+  // the point it is needed, never as a wall in front of the product. A phone
+  // number is the one detail this action genuinely needs, so it is asked for
+  // here and nowhere else.
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
 
   const canSubmit =
-    profileComplete &&
+    phoneGate.hasPhone &&
     utr.trim() &&
     paymentDate &&
     amount &&
@@ -369,11 +375,23 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
             ) : null}
           </p>
           {batchPicker}
+          {askingPhone && !phoneGate.hasPhone && (
+            <PhoneGateField
+              gate={phoneGate}
+              why="One last thing — we need a phone number so we can reach you about this course."
+              cta="Save & enroll"
+              onSaved={handleFreeEnroll}
+            />
+          )}
           <button
             type="button"
             className="em-btn em-btn--primary em-btn--submit"
-            onClick={handleFreeEnroll}
-            disabled={enrolling || batchRequired}
+            onClick={
+              phoneGate.hasPhone ? handleFreeEnroll : () => setAskingPhone(true)
+            }
+            disabled={
+              enrolling || batchRequired || (askingPhone && !phoneGate.hasPhone)
+            }
           >
             {enrolling ? (
               <><span className="em-btn-spinner" /> Enrolling…</>
@@ -439,15 +457,16 @@ const EnrollModal = ({ courseId, onClose, onEnrolled }) => {
           {/* Profile */}
           <div className="em-card">
             <p className="em-card__label">Your Details</p>
-            {!profileComplete && (
-              <div className="em-alert em-alert--warning">
-                Profile incomplete — please complete it before enrolling.
-              </div>
+            {!phoneGate.hasPhone && (
+              <PhoneGateField
+                gate={phoneGate}
+                why="We need a phone number so we can reach you about this enrollment and your payment."
+              />
             )}
             <ul className="em-profile">
               <li><span>Name</span><strong>{fullName || "—"}</strong></li>
               <li><span>Email</span><strong>{user?.email || "—"}</strong></li>
-              <li><span>Phone</span><strong>{profile.phone || "—"}</strong></li>
+              <li><span>Phone</span><strong>{phoneGate.phone || "—"}</strong></li>
               <li><span>Class</span><strong>{[profile.current_class, profile.board].filter(Boolean).join(" · ") || "—"}</strong></li>
               <li><span>School</span><strong>{profile.school_name || "—"}</strong></li>
               <li>

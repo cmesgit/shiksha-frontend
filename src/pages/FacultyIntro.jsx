@@ -102,7 +102,7 @@ export default function FacultyIntro({ embedded = false, onApply, onBack } = {})
   };
   const apply = () => {
     if (embedded && onApply) { onApply(); return; }
-    navigate(isNewVisitor ? "/faculty/signup" : "/signup?role=teacher&add_track=academy");
+    navigate(isNewVisitor ? "/faculty/signup" : "/become-a-teacher?track=academy");
   };
 
   const STEPS = (embedded || isNewVisitor) ? STEPS_SIGNUP : STEPS_ADDTRACK;

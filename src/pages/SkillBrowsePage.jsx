@@ -706,7 +706,15 @@ export default function SkillBrowsePage() {
                   <div className="sk-promo__acts">
                     <CtaLink
                       className="sk-btn sk-btn--gold"
-                      href={teachBanner?.cta_url || "/signup?role=teacher&add_track=skill"}
+                      /* /become-expert, not /become-a-teacher: this banner is
+                         on a PUBLIC page, and /become-a-teacher is a
+                         ProtectedRoute — a signed-out visitor clicking it was
+                         bounced to /login with no explanation. The intro page
+                         works signed in or out and routes to the right door.
+                         ⚠ The CMS row may still hold the old URL; check
+                         skill/marketing/'s teach_banner.cta_url on the live
+                         site, since it overrides this fallback. */
+                      href={teachBanner?.cta_url || "/become-expert"}
                     >
                       {teachBanner?.cta_label || "I want to teach my craft"}
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

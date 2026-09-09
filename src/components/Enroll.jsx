@@ -9,7 +9,7 @@ import {
   freeEnroll,
 } from "../api/enrollments";
 import { useToast } from "../contexts/ToastContext";
-import { FORM_FILLUP_ENABLED } from "../config/featureFlags";
+import { usePhoneGate, PhoneGateField } from "./PhoneGate";
 import { APP_URL } from "../config/urls";
 import "../css/Enroll.css";
 
@@ -61,6 +61,11 @@ const Enroll = () => {
 
   // Batch choice — only shown when the course has batches configured.
   const [selectedBatch, setSelectedBatch] = useState(null);
+
+  // Just-in-time phone capture. On the free path we only reveal the ask once
+  // someone actually commits by clicking Enroll, then resume for them.
+  const phoneGate = usePhoneGate();
+  const [askingPhone, setAskingPhone] = useState(false);
 
   useEffect(() => {
     setLoadingCourse(true);
@@ -131,13 +136,13 @@ const Enroll = () => {
   };
 
   const profile = user?.profile || {};
-  // Form-fillup enforcement is off → never block enrollment on completeness.
-  const profileComplete = FORM_FILLUP_ENABLED ? user?.profile_complete : true;
-
+  // Profile *completeness* no longer gates enrolment — Phase 7 deleted that
+  // ten-field wall. A phone number still does, because we need a way to reach
+  // someone about the enrolment they're making. One field, asked here.
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
 
   const canSubmit =
-    profileComplete &&
+    phoneGate.hasPhone &&
     utr.trim() &&
     paymentDate &&
     amount &&
@@ -392,11 +397,25 @@ const Enroll = () => {
             ) : null}
           </p>
           {batchPicker}
+          {askingPhone && !phoneGate.hasPhone && (
+            <PhoneGateField
+              gate={phoneGate}
+              why="One last thing — we need a phone number so we can reach you about this course."
+              cta="Save & enroll"
+              onSaved={handleFreeEnroll}
+            />
+          )}
           <button
             type="button"
             className="enroll-submit"
-            onClick={handleFreeEnroll}
-            disabled={enrolling || batchRequired}
+            onClick={
+              phoneGate.hasPhone ? handleFreeEnroll : () => setAskingPhone(true)
+            }
+            disabled={
+              enrolling ||
+              batchRequired ||
+              (askingPhone && !phoneGate.hasPhone)
+            }
           >
             {enrolling ? "Enrolling..." : batchRequired ? "Choose a batch to continue" : "Enroll free"}
           </button>
@@ -457,15 +476,16 @@ const Enroll = () => {
 
           <div className="enroll-card" style={{ marginTop: 16 }}>
             <h3>Your Details</h3>
-            {!profileComplete && (
-              <div className="enroll-profile-incomplete">
-                Your profile is incomplete. Please complete it before enrolling.
-              </div>
+            {!phoneGate.hasPhone && (
+              <PhoneGateField
+                gate={phoneGate}
+                why="We need a phone number so we can reach you about this enrollment and your payment."
+              />
             )}
             <div className="enroll-profile-summary">
               <div><strong>Name:</strong> {fullName || "—"}</div>
               <div><strong>Email:</strong> {user?.email || "—"}</div>
-              <div><strong>Phone:</strong> {profile.phone || "—"}</div>
+              <div><strong>Phone:</strong> {phoneGate.phone || "—"}</div>
               <div><strong>Class:</strong> {profile.current_class || "—"} · {profile.board || "—"}</div>
               <div><strong>School:</strong> {profile.school_name || "—"}</div>
               <div><strong>Guardian:</strong> {profile.father_name || profile.mother_name || profile.guardian_name || "—"}</div>

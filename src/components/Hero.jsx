@@ -42,7 +42,7 @@ const rotatingCards = [
     name: 'Become a Tutor',
     img: image5,
     accent: '#f87171',
-    path: '/signup?role=teacher&skill=true',
+    path: '/register?intent=teach',
   },
 ];
 

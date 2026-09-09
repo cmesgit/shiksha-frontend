@@ -28,7 +28,7 @@ const DEFAULTS = {
   body:
     "Create your free account, explore courses with Guest Preview, and begin your journey toward academic excellence.",
   cta_primary_label: "Create free account",
-  cta_primary_href: "/signup",
+  cta_primary_href: "/register",
   cta_secondary_label: "Browse as guest",
   cta_secondary_href: "/courses",
 };

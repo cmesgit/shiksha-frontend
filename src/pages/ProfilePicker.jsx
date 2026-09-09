@@ -49,8 +49,9 @@ const ProfilePicker = () => {
   const [leaving, setLeaving] = useState(null); // label shown during fade-out before redirect
 
   // Teacher-mode: reveal password, then (if 2 approved tracks) choose a dashboard.
-  const [teachPwVisible, setTeachPwVisible] = useState(false);
-  const [teachPw, setTeachPw]               = useState("");
+  // Only revealed when the server tells us this account has a teaching PIN.
+  const [teachPinVisible, setTeachPinVisible] = useState(false);
+  const [teachPin, setTeachPin]               = useState("");
   const [chooseTrack, setChooseTrack]       = useState(false);
 
   const approved = teacherInfo?.approved_tracks || [];
@@ -66,13 +67,17 @@ const ProfilePicker = () => {
   const tracks   = teacherInfo?.tracks || {};
   const rejected = ALL_TRACKS.filter((t) => tracks[t] === "rejected");
 
-  // Mirrors TeacherProfile.can_apply_track (accounts/models.py) exactly. The
-  // rule is ASYMMETRIC: a Guest expert may add Academy, but a Faculty account
-  // may never add Skill Dev. Deriving "not approved and not pending" instead
-  // meant every faculty account was offered "+ Apply for Skill Dev" — a link
-  // the backend rejects unconditionally.
+  // Mirrors TeacherProfile.can_apply_track (accounts/models.py) exactly:
+  // either track may be added whenever it is not already held.
+  //
+  // UPDATED 2026-09-06 alongside the backend. This used to encode the
+  // asymmetric rule — a Guest expert could add Academy, but a Faculty account
+  // could never add Skill Dev. That rule was policy only and has been removed;
+  // leaving this mirror behind would have hidden a now-valid "+ Apply for
+  // Skill Dev" link from every faculty account, which is the same drift in the
+  // opposite direction that the original comment here was warning about.
   const held      = (t) => tracks[t] === "pending" || tracks[t] === "approved";
-  const canApply  = (t) => (t === "academy" ? !held("academy") : !held("academy") && !held("skill"));
+  const canApply  = (t) => !held(t);
   const appliable = ALL_TRACKS.filter((t) => !held(t) && tracks[t] !== "rejected" && canApply(t));
 
   // Bounce out if there's no account session, or a context is already chosen.
@@ -156,8 +161,14 @@ const ProfilePicker = () => {
     }
   };
 
-  // First click reveals the password; with two approved tracks the next click
-  // opens the dashboard chooser; otherwise it enters the single approved track.
+  // With two approved tracks the click opens the dashboard chooser; otherwise
+  // it enters the single approved track directly.
+  //
+  // CHANGED 2026-09-06: this used to reveal an account-password field on the
+  // first click and require it on the second — two clicks and a password to
+  // reach your own timetable. Entry is now attempted with no PIN, and the PIN
+  // field appears only if the server says one is set (`bad_pin`). An account
+  // without a teaching PIN, which is the default, opens in one click.
   const teach = async () => {
     setError("");
     if (approved.length === 0) {
@@ -170,24 +181,32 @@ const ProfilePicker = () => {
           : "No approved teaching track yet.");
       return;
     }
-    if (!teachPwVisible) { setTeachPwVisible(true); setTeachPw(""); return; }
-    if (!teachPw) return;
     if (approved.length >= 2 && !chooseTrack) { setChooseTrack(true); return; }
+    // If the PIN field is already showing, the user is answering the prompt.
+    if (teachPinVisible && !teachPin) return;
     await doEnterTeacher(approved[0]);
   };
 
   const doEnterTeacher = async (track) => {
     setBusy(true);
     try {
-      const result = await enterTeacherMode(teachPw, track);
+      const result = await enterTeacherMode(teachPin, track);
+      if (result?.badPin) {
+        // Either the silent first attempt discovering a PIN exists, or a
+        // genuinely wrong one. Distinguished by whether we had already asked.
+        setError(teachPinVisible ? "Incorrect PIN." : "");
+        setTeachPinVisible(true);
+        setTeachPin(""); setBusy(false);
+        return;
+      }
       if (result?.needsSignup)  { setError("No teacher identity found on this account."); setBusy(false); return; }
       if (result?.notApproved)  { setError("Your teacher account is awaiting approval."); setBusy(false); return; }
       if (result?.trackPending) { setError("That track is still in review."); setBusy(false); return; }
       if (result?.trackLocked)  { setError("You haven't been assigned to that track yet."); setBusy(false); return; }
       goTeacherTrack(track);
     } catch (err) {
-      setError(err?.message || "Incorrect password.");
-      setTeachPw(""); setBusy(false);
+      setError(err?.message || "Couldn't open your teaching dashboard.");
+      setTeachPin(""); setBusy(false);
     }
   };
 
@@ -309,26 +328,29 @@ const ProfilePicker = () => {
                 <span className="pp-tag">{teacherSubtitle()}</span>
               </button>
 
-              {/* Step 1: account password */}
-              {teachPwVisible && !chooseTrack && (
+              {/* Shown only when this account has a teaching PIN set. */}
+              {teachPinVisible && !chooseTrack && (
                 <div className="pp-reveal">
                   <p className="pp-teach-hint">
-                    Confirm your account password to enter Teaching mode.
+                    Enter your teaching PIN to open your teaching dashboard.
                   </p>
                   <div className="pp-pin-row">
                   <input
                     className="pp-pin"
                     type="password"
-                    placeholder="Password"
-                    value={teachPw}
+                    inputMode="numeric"
+                    maxLength={6}
+                    autoComplete="off"
+                    placeholder="4–6 digits"
+                    value={teachPin}
                     autoFocus
-                    onChange={(e) => setTeachPw(e.target.value)}
+                    onChange={(e) => setTeachPin(e.target.value.replace(/\D/g, ""))}
                     onKeyDown={(e) => e.key === "Enter" && teach()}
                     disabled={busy}
                   />
                   <button
                     className="pp-pin-go"
-                    disabled={busy || teachPw.length < 1}
+                    disabled={busy || !/^\d{4,6}$/.test(teachPin)}
                     onClick={teach}
                   >
                     {approved.length >= 2 ? "Next" : "Go"}
