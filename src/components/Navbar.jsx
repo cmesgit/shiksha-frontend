@@ -931,6 +931,12 @@ const Navbar = () => {
           <Link to="/become-faculty" className="skn-mlink skn-strong" onClick={closeAll}>
             <span>Become a Faculty</span>
           </Link>
+          {/* Skill Dev's equivalent door. Both tracks are offered here now —
+              previously only Academy was, so the drawer quietly implied
+              teaching on ShikshaCom meant school faculty work. */}
+          <Link to="/become-expert" className="skn-mlink skn-strong" onClick={closeAll}>
+            <span>Teach on Skill Dev</span>
+          </Link>
         </div>
 
         <div className="skn-drawer-cta">

@@ -26,7 +26,9 @@ import {
 ════════════════════════════════════════════════════════════════ */
 
 const INTENT_KEY = "post_verify_intent";
+const TRACK_KEY  = "post_verify_track";
 const NEXT_KEY   = "post_auth_redirect";
+const TRACKS     = ["skill", "academy"];
 const isSafeNext = (v) =>
   !!v && v.startsWith("/") && !v.startsWith("//") &&
   !/^\/(login|register|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
@@ -48,15 +50,27 @@ const EmailVerified = () => {
     // Someone who arrived via "Teach with us" gets the teaching application
     // straight away instead of a learner dashboard they didn't ask for.
     let intent = null;
+    let track  = null;
     try {
       intent = sessionStorage.getItem(INTENT_KEY);
       if (intent) sessionStorage.removeItem(INTENT_KEY);
+      track = sessionStorage.getItem(TRACK_KEY);
+      // Always clear it, even if it fails the whitelist — a value we refuse to
+      // use should not sit in storage waiting to be picked up by a later flow.
+      if (track) sessionStorage.removeItem(TRACK_KEY);
+      if (!TRACKS.includes(track)) track = null;
     } catch { /* unavailable */ }
 
     setRedirecting(true);
     const go = (url) => window.setTimeout(() => { window.location.href = url; }, 600);
 
-    if (intent === "teach") { go("/become-a-teacher"); return; }
+    // Someone who said which track they wanted is taken to that one, not to a
+    // chooser that re-asks. BecomeTeacher falls back to the chooser on its own
+    // if the account turns out not to be able to add it.
+    if (intent === "teach") {
+      go(track ? `/become-a-teacher?track=${track}` : "/become-a-teacher");
+      return;
+    }
 
     // Wherever they were actually headed when they hit "create an account"
     // (booking an expert, enrolling) beats any default dashboard.

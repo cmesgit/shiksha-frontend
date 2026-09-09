@@ -23,11 +23,22 @@ import { radioKeyDown } from "./a11y";
 const UIDAI_GENERATE_URL =
   "https://uidai.gov.in/en/307-faqs/aadhaar-online-services/aadhaar-paperless-offline-e-kyc/10731-how-to-generate-offline-aadhaar-2.html";
 
+/* ORDER IS LOAD-BEARING: the effect below auto-selects the first ENABLED
+   entry, so whatever sits at the top is what a parent is handed by default.
+
+   DigiLocker used to be first and badged "Recommended" — for a method with no
+   callback route, which therefore never leaves `pending` and polls forever.
+   It shipped that way to prod. `allow_digilocker` now defaults False
+   (scholarship migration 0003), so it is already absent from this list, but
+   the ordering is what stops it silently becoming the default again the day
+   someone flips the flag back on. The two methods that can actually reach
+   `verified` today — offline e-KYC, synchronously; manual review, via an
+   admin — are the only ones above it. */
 const ALL_METHODS = [
-  ["digilocker", "DigiLocker", "Your parent/guardian fetches verified school records directly from their DigiLocker account.", "Recommended"],
   ["aadhaar_offline", "Aadhaar (Offline e-KYC)", "Download your free Offline e-KYC file from the UIDAI portal and upload it here — verified instantly, no waiting.", "Free & instant"],
-  ["aadhaar_otp", "Aadhaar OTP", "Your parent/guardian verifies with the mobile number registered against their Aadhaar.", "Fastest"],
   ["manual", "Manual document review", "Upload a school ID or marksheet. Reviewed within 24 hours.", "Fallback"],
+  ["digilocker", "DigiLocker", "Your parent/guardian fetches verified school records directly from their DigiLocker account.", "Not yet available"],
+  ["aadhaar_otp", "Aadhaar OTP", "Your parent/guardian verifies with the mobile number registered against their Aadhaar.", "Not yet available"],
 ];
 
 const CTA_LABEL = {

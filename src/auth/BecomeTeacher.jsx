@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthShell, StatusChip, FooterLink } from "./AuthKit";
 import api from "../api/apiClient";
@@ -8,6 +8,9 @@ import { TEACHER_ACADEMY_URL, TEACHER_SKILL_URL, TEACHER_SKILL_PROFILE_URL } fro
 /* Lazy, like every other route-sized component in this app: the faculty form
    is ~35 kB of chunk that a Skill Dev applicant never needs. */
 const FacultySignup = lazy(() => import("../components/FacultySignup"));
+/* Same reasoning as FacultySignup above — an Academy applicant never renders
+   the expert form, so it does not belong in this route's main chunk. */
+const ExpertDetails = lazy(() => import("./ExpertDetails"));
 
 /* ════════════════════════════════════════════════════════════════
    BecomeTeacher — start teaching, from inside the product.
@@ -88,11 +91,40 @@ const FacultySignup = lazy(() => import("../components/FacultySignup"));
 
    Fixed by routing and naming, not by rebuilding: the confirmation now links
    to the editor and lists what is missing, read from
-   GET /skill/teacher/profile/ which has always returned `missing`. The
-   one-click design is deliberate and is kept — a marketplace listing needs no
-   review — so nothing new is COLLECTED here. Re-implementing
-   ExpertProfileEdit's fields inline would be the same duplication the faculty
-   fix above exists to avoid.
+   GET /skill/teacher/profile/ which has always returned `missing`.
+
+   …AND NAMING THE GAP TURNED OUT NOT TO BE ENOUGH, 2026-09-09.
+   ────────────────────────────────────────────────────────────
+   "The one-click design is deliberate and is kept — a marketplace listing
+   needs no review — so nothing new is COLLECTED here" is what this docstring
+   said, and the conclusion does not follow from the premise. No review means
+   nobody has to APPROVE the expert; it does not mean the product knows who
+   they are. Driven for real on a local stack: register → click "Start
+   teaching on Skill Dev" → "7 things left before learners can find you", with
+   `is_listed` False. One click bought a listing nobody can find.
+
+   So the Skill card now opens ExpertDetails first, exactly as the Academy
+   card opens FacultySignup — and for the same reason, at the same seam: after
+   the decision, before the submission. The friction rule the original
+   decision was protecting is intact, because nothing is asked until they have
+   clicked. The form is also SKIPPABLE, so the true one-click path still
+   exists for anyone who wants it; it is now a choice rather than the only
+   option. See ExpertDetails.jsx for why the photo is the one gap it leaves.
+
+   ?track= WAS BEING DROPPED ON THE FLOOR, 2026-09-09.
+   ───────────────────────────────────────────────────
+   Four call sites have been sending one for months — SkillBrowsePage's teach
+   banner, /expert-apply, FacultyIntro's apply button, and signupAddTrackUrl()
+   in config/urls.js, which SettingsModal and ProfilePicker both use. This
+   screen never read it. So someone who clicked "I want to teach my craft" —
+   having answered the question as specifically as the product allows — landed
+   on a two-card chooser asking them the same question again.
+
+   Now an explicit ?track= opens that track directly. It is a PREFERENCE, not
+   a command: a track that the account already holds, or that it cannot add,
+   falls back to the full chooser rather than showing a dead end, and the
+   other track stays one click away. That keeps the deep link honest without
+   letting a stale bookmark strand anyone.
 ════════════════════════════════════════════════════════════════ */
 
 const TRACK_COPY = {
@@ -143,9 +175,16 @@ const MISSING_LABELS = {
   profile_photo:       "A profile photo",
 };
 
+const TRACKS = ["skill", "academy"];
+
 export default function BecomeTeacher() {
   const { user, getTeacherIdentity, addTeacherIdentity } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // Normalised here so a stray "?track=SKILL" or "?track=faculty" doesn't
+  // silently mean "show the chooser" for reasons nobody can see.
+  const rawTrack = (params.get("track") || "").trim().toLowerCase();
+  const wantedTrack = TRACKS.includes(rawTrack) ? rawTrack : null;
 
   const [report, setReport] = useState(null);
   const [error, setError]   = useState("");
@@ -155,6 +194,8 @@ export default function BecomeTeacher() {
   // Academy only: the application form, opened by the apply button rather than
   // shown up front. FacultySignup owns every field and its validation.
   const [docStep, setDocStep] = useState(false);
+  // Skill's equivalent: the profile form, opened by its own apply button.
+  const [skillStep, setSkillStep] = useState(false);
   // null = not known / not applicable; [] = complete. Only ever set for skill.
   const [missing, setMissing] = useState(null);
 
@@ -168,13 +209,13 @@ export default function BecomeTeacher() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The Academy card opens the application form instead of applying
-  // immediately. Skill Dev still applies in one click — it is a marketplace
-  // listing with no review, so there is nothing for an application to inform.
+  // Both cards now open a form rather than firing immediately: Academy needs
+  // an application an admin can act on, Skill needs a profile learners can
+  // find. Neither asks for anything before the person has chosen a track.
   const onCardClick = (track) => {
-    if (track !== "academy") return apply(track);
     setError("");
-    setDocStep(true);
+    if (track === "academy") { setDocStep(true); return; }
+    setSkillStep(true);
   };
 
   /* The application rides WITH the documents, in one atomic call.
@@ -196,6 +237,15 @@ export default function BecomeTeacher() {
      assembles that payload; this only forwards it. */
   const applyAcademy = async (faculty_profile) => {
     await apply("academy", { faculty_profile });
+  };
+
+  /* The expert profile rides WITH the track, for the same reason the faculty
+     documents do: `_provision_expert` applies it inside the same transaction
+     that adds the track, then calls `refresh_listing()`. Split into two calls
+     the listing would be created unlisted and only go live on a second
+     request that might never happen — which is the bug being fixed. */
+  const applySkill = async (expert_profile) => {
+    await apply("skill", { expert_profile });
   };
 
 
@@ -302,8 +352,16 @@ export default function BecomeTeacher() {
 
   const tracks  = report?.tracks || {};
   const canAdd  = report?.can_add || {};
-  const offered = ["skill", "academy"].filter((t) => canAdd[t]);
-  const held    = ["skill", "academy"].filter((t) => !canAdd[t] && tracks[t] && tracks[t] !== "locked");
+  const offered = TRACKS.filter((t) => canAdd[t]);
+  const held    = TRACKS.filter((t) => !canAdd[t] && tracks[t] && tracks[t] !== "locked");
+
+  /* An explicit ?track= narrows the page to that one card — but only when the
+     account can actually add it. Asking for a track that is already held (or
+     blocked) falls back to the chooser, where `held` above explains the real
+     status, rather than rendering a lone card that cannot be acted on. */
+  const focused = wantedTrack && offered.includes(wantedTrack) ? wantedTrack : null;
+  const shown   = focused ? [focused] : offered;
+  const other   = focused ? offered.find((t) => t !== focused) : null;
 
   return (
     <AuthShell role="neutral" flowLabel="Teaching" brandIcon="spark">
@@ -338,7 +396,7 @@ export default function BecomeTeacher() {
           </div>
         </>
       ) : (
-        offered.map((t) => {
+        shown.map((t) => {
           const c = TRACK_COPY[t];
           return (
             <section key={t} style={{
@@ -352,7 +410,7 @@ export default function BecomeTeacher() {
               <ul style={{ fontSize: 13, color: "#5b5e69", margin: "0 0 14px", paddingLeft: 18, lineHeight: 1.7 }}>
                 {c.points.map((p) => <li key={p}>{p}</li>)}
               </ul>
-              {!(t === "academy" && docStep) && (
+              {!(t === "academy" && docStep) && !(t === "skill" && skillStep) && (
                 <button
                   className="af-btn af-btn--block"
                   disabled={!!busy}
@@ -361,9 +419,32 @@ export default function BecomeTeacher() {
                   {busy === t ? "Setting up…" : c.cta}
                 </button>
               )}
+              {t === "skill" && skillStep && (
+                <Suspense fallback={<p className="af-sub">Loading…</p>}>
+                  <ExpertDetails
+                    busy={busy === "skill"}
+                    onSubmit={applySkill}
+                    /* Skipping is the ORIGINAL one-click behaviour, unchanged:
+                       add the track with no payload. The confirmation then
+                       lists the gaps, as it already did. */
+                    onSkip={() => apply("skill")}
+                    onBack={() => { setSkillStep(false); setError(""); }}
+                  />
+                </Suspense>
+              )}
             </section>
           );
         })
+      )}
+
+      {/* Narrowing to one track must never look like the other one is gone.
+          Hidden behind the academy form because a half-filled application is
+          not something to offer a "switch tracks" link next to. */}
+      {other && !docStep && !skillStep && (
+        <p className="af-sub" style={{ marginTop: 4, fontSize: 13 }}>
+          Looking for something else?{" "}
+          <Link to={`/become-a-teacher?track=${other}`}>{TRACK_COPY[other].title}</Link>
+        </p>
       )}
 
       {docStep && (

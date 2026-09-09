@@ -86,6 +86,9 @@ const Footer = () => {
               <li><Link to="/counselling">Counselling</Link></li>
               <li><Link to="/upcoming">Placement</Link></li>
               <li><Link to="/become-faculty">Become a Faculty</Link></li>
+              {/* The Skill Dev half of the same offer. Its absence here (and
+                  in the Navbar drawer) is why the track had no public door. */}
+              <li><Link to="/become-expert">Teach on Skill Dev</Link></li>
             </ul>
           </div>
 

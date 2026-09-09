@@ -70,6 +70,7 @@ const LiveSummary      = lazy(() => import("../pages/LiveSummary"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
+const SkillIntro       = lazy(() => import("../pages/SkillIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
 const AboutUs          = lazy(() => import("./AboutUs"));
@@ -471,13 +472,23 @@ function App() {
             Faculty track and routes into the add-a-track signup
             (?add_track=academy). It renders WITHOUT the marketing <Page>
             chrome — it ships its own nav (see FacultyIntro.jsx).
-          • /expert-apply → adding the Skill (Guest) track. Faculty→Skill is
-            blocked by policy server-side, but we still send them into the
-            signup add-track flow so they get a clear in-product explanation
-            instead of a dead link.
+          • /become-expert → the SkillIntro landing page, the mirror of the
+            above. Added 2026-09-09; until then Skill Dev had NO landing page
+            and no public entry point at all, while Academy had both plus a
+            standalone wizard. Same self-contained shape as FacultyIntro.
+          • /expert-apply → kept as a permanent alias, because the teacher
+            app's TrackSwitcher has been sending Faculty teachers here for a
+            long time and those builds are already in the wild. It used to
+            <Navigate> straight into /become-a-teacher, which is a
+            ProtectedRoute — so a signed-out visitor was bounced to /login
+            with nothing explaining what they were signing in FOR. It now
+            lands on the intro page, which routes correctly for both.
+            (The Faculty→Skill policy block referred to in the old comment
+            here was removed on 2026-09-06 — both directions work now.)
         */}
         <Route path="/become-faculty" element={<FacultyIntro />} />
-        <Route path="/expert-apply"   element={<Navigate to="/become-a-teacher?track=skill" replace />} />
+        <Route path="/become-expert"  element={<SkillIntro />} />
+        <Route path="/expert-apply"   element={<Navigate to="/become-expert" replace />} />
 
         {/*
           Moderator Panel — ported from the internal Admin-dashboard app so

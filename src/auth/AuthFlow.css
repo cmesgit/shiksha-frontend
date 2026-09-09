@@ -286,13 +286,53 @@
   color: #26272e;
   transition: border-color .15s, box-shadow .15s, background .15s;
 }
-.af-field input::placeholder { color: #a4a4ac; }
+/* Textareas share the input skin but must NOT inherit its fixed 52px height —
+   ExpertDetails' introduction field is the first multi-line input in any auth
+   screen, and without this rule it rendered as a bare browser default sitting
+   between two styled fields. */
+.af-field textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1.5px solid #E7E7E4;
+  background: #FAFAF9;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #26272e;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.af-field input::placeholder,
+.af-field textarea::placeholder { color: #a4a4ac; }
 .af-field input:focus,
+.af-field textarea:focus,
 .af-field select:focus {
   outline: none;
   border-color: var(--a);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--a) 18%, transparent);
   background: #fff;
+}
+
+/* Photo picker (ExpertDetails). The file input needs its own rule because
+   `.af-field input` above would otherwise stretch it to a 52px-tall box with
+   a border, which reads as a broken text field rather than a picker. */
+.af-photo { display: flex; align-items: center; gap: 14px; }
+.af-photo__thumb {
+  width: 56px; height: 56px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  border: 1.5px solid #E7E7E4; background: #FAFAF9;
+}
+.af-photo__thumb--empty { display: block; }
+.af-photo__body { min-width: 0; }
+.af-field .af-photo input[type="file"] {
+  width: auto; height: auto; border: 0; background: transparent;
+  padding: 0; font-size: 13px; border-radius: 0;
+}
+.af-photo__hint {
+  display: block; margin-top: 4px;
+  font-size: 12px; color: #8a8d99;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 /* Password */

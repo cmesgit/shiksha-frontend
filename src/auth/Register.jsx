@@ -37,6 +37,14 @@ import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 ════════════════════════════════════════════════════════════════ */
 
 const INTENT_KEY = "post_verify_intent";
+// Which teaching track they asked for on the way in, if they said. Stashed
+// alongside the intent and for the same reason: registration ends in an email,
+// so the landing page is reached through a link that knows nothing about the
+// URL this form was opened with. Without it, someone who clicked "I want to
+// teach my craft" verifies and lands on a chooser asking which track — the
+// exact question they already answered.
+const TRACK_KEY = "post_verify_track";
+const TRACKS = ["skill", "academy"];
 // Where to return after verifying. Registration now ends in an EMAIL, so a
 // ?next= in the URL cannot simply be read on the landing page — the person
 // leaves the tab and comes back through a link that knows nothing about it.
@@ -68,6 +76,9 @@ export default function Register() {
   const rememberIntent = () => {
     try {
       if (intent) sessionStorage.setItem(INTENT_KEY, intent);
+      // Validated before storing, not after reading — this ends up in a URL.
+      const track = (params.get("track") || "").trim().toLowerCase();
+      if (TRACKS.includes(track)) sessionStorage.setItem(TRACK_KEY, track);
       const next = params.get("next");
       if (isSafeNext(next)) sessionStorage.setItem(NEXT_KEY, next);
     } catch { /* unavailable */ }
