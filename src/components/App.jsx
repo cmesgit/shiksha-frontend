@@ -7,8 +7,6 @@ import HomePage from "./HomePage";
 import useAnalytics from "../useAnalytics";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import RequireProfileComplete from "../routes/RequireProfileComplete";
-import ProfileFillupModal from "./ProfileFillupModal";
 import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../config/urls";
@@ -72,19 +70,22 @@ const LiveSummary      = lazy(() => import("../pages/LiveSummary"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
+const SkillIntro       = lazy(() => import("../pages/SkillIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
 const AboutUs          = lazy(() => import("./AboutUs"));
 const Contact          = lazy(() => import("./Contact"));
 const TermsCondition   = lazy(() => import("./TermsCondition"));
+const PrivacyPolicy    = lazy(() => import("./PrivacyPolicy"));
 const Faq              = lazy(() => import("./Faq"));
 const Feedback         = lazy(() => import("./Feedback"));
 const ProfilePicker    = lazy(() => import("../pages/ProfilePicker"));
 const ManageProfiles   = lazy(() => import("../pages/ManageProfiles"));
 const Login            = lazy(() => import("../auth/Login"));
-const Signup           = lazy(() => import("../auth/Signup"));
 const VerifyEmail      = lazy(() => import("../auth/VerifyEmail"));
 const EmailVerified    = lazy(() => import("../auth/EmailVerified"));
+const Register         = lazy(() => import("../auth/Register"));
+const BecomeTeacher    = lazy(() => import("../auth/BecomeTeacher"));
 const ResendVerification = lazy(() => import("./ResendVerification"));
 const ForgotPassword   = lazy(() => import("../auth/ForgotPassword"));
 // Forum (redesign) — a nested route tree under a shared ForumLayout.
@@ -222,6 +223,25 @@ function LoginRedirect() {
   return <Navigate to="/pick-profile" replace />;
 }
 
+/* /signup → /register, or → /become-a-teacher when the old link was one of the
+   add-a-track deep links. Those carried ?add_track= purely to bypass the
+   "signup is for logged-out visitors" guard, because adding a track used to
+   mean re-entering signup while already signed in. It doesn't any more. */
+function RetiredSignupRedirect() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const addTrack = params.get("add_track");
+  if (addTrack) {
+    return <Navigate to={`/become-a-teacher?track=${encodeURIComponent(addTrack)}`} replace />;
+  }
+  if (params.get("role") === "teacher") {
+    return <Navigate to="/register?intent=teach" replace />;
+  }
+  params.delete("role");
+  const qs = params.toString();
+  return <Navigate to={`/register${qs ? `?${qs}` : ""}`} replace />;
+}
+
 function App() {
   const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
   const location = useLocation();
@@ -233,12 +253,6 @@ function App() {
   // risk of a form loaded for one profile saving under another).
   const cKey = activeProfile?.id || "acct";
 
-  // Adding a teaching track to an already-signed-in account is the one signup
-  // flow allowed while authenticated (it skips email/username and just takes
-  // the track application + password). Detect it so the guard lets it through.
-  const isAddTrackSignup =
-    new URLSearchParams(location.search).get("add_track") != null;
-
   // Show spinner while bootstrap runs — but keep the route tree mounted
   // (do NOT return null, that unmounts Routes and causes remount loops)
   if (loading) return <RouteFallback />;
@@ -247,7 +261,6 @@ function App() {
     <ProfileModalProvider>
     <div className="app">
       <ScrollToTop />
-      <ProfileFillupModal />
 
       <Suspense fallback={<RouteFallback />}>
       <Routes>
@@ -256,11 +269,7 @@ function App() {
 
         {/* Protected app routes */}
         <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <RequireProfileComplete>
-              <Page><Dashboard /></Page>
-            </RequireProfileComplete>
-          </ProtectedRoute>
+          <ProtectedRoute><Page><Dashboard /></Page></ProtectedRoute>
         } />
 
         <Route path="/profile" element={
@@ -268,11 +277,7 @@ function App() {
         } />
 
         <Route path="/form-fillup" element={
-          <ProtectedRoute>
-            <RequireProfileComplete>
-              <Page><FormFillup /></Page>
-            </RequireProfileComplete>
-          </ProtectedRoute>
+          <ProtectedRoute><Page><FormFillup /></Page></ProtectedRoute>
         } />
 
         <Route path="/enroll/:courseId" element={
@@ -299,11 +304,25 @@ function App() {
             : <LoginRedirect />
         } />
 
-        <Route path="/signup" element={
-          (isAuthenticated && !isAddTrackSignup)
-            ? <Navigate to="/" replace />
-            : <Signup />
+        {/* Account-first registration. /signup below is the older role-first
+            flow, still mounted because it serves the add-a-track path until
+            Phase 8 retires it. New links should point here. */}
+        <Route path="/register" element={
+          isAuthenticated ? <Navigate to="/" replace /> : <Register />
         } />
+
+        {/* Adding a teaching identity from inside the product — the
+            replacement for re-entering signup to add a track. Requires a
+            session; that is the whole point. */}
+        <Route path="/become-a-teacher" element={
+          <ProtectedRoute><Page><BecomeTeacher /></Page></ProtectedRoute>
+        } />
+
+        {/* /signup is RETIRED (Phase 8). It redirects rather than 404s
+            because the path is in the wild — old emails, bookmarks, and
+            anything already indexed. The query string is preserved so
+            ?next= and ?intent= survive the hop. */}
+        <Route path="/signup" element={<RetiredSignupRedirect />} />
 
         <Route path="/verify-email"   element={<VerifyEmail />} />
         <Route path="/email-verified" element={<EmailVerified />} />
@@ -339,6 +358,9 @@ function App() {
         <Route path="/why-shiksha"     element={<Navigate to="/about#ap-why" replace />} />
         <Route path="/contact"         element={<Page><Contact /></Page>} />
         <Route path="/terms"           element={<Page><TermsCondition /></Page>} />
+        {/* Register.jsx has linked /privacy since launch; until now it 404'd. */}
+        <Route path="/privacy"         element={<Page><PrivacyPolicy /></Page>} />
+        <Route path="/privacy-policy"  element={<Navigate to="/privacy" replace />} />
         <Route path="/faq"             element={<Page><Faq /></Page>} />
         <Route path="/quiz"            element={<Page><QuizRoute /></Page>} />
         <Route path="/feedback"        element={<Page><Feedback /></Page>} />
@@ -449,13 +471,23 @@ function App() {
             Faculty track and routes into the add-a-track signup
             (?add_track=academy). It renders WITHOUT the marketing <Page>
             chrome — it ships its own nav (see FacultyIntro.jsx).
-          • /expert-apply → adding the Skill (Guest) track. Faculty→Skill is
-            blocked by policy server-side, but we still send them into the
-            signup add-track flow so they get a clear in-product explanation
-            instead of a dead link.
+          • /become-expert → the SkillIntro landing page, the mirror of the
+            above. Added 2026-09-09; until then Skill Dev had NO landing page
+            and no public entry point at all, while Academy had both plus a
+            standalone wizard. Same self-contained shape as FacultyIntro.
+          • /expert-apply → kept as a permanent alias, because the teacher
+            app's TrackSwitcher has been sending Faculty teachers here for a
+            long time and those builds are already in the wild. It used to
+            <Navigate> straight into /become-a-teacher, which is a
+            ProtectedRoute — so a signed-out visitor was bounced to /login
+            with nothing explaining what they were signing in FOR. It now
+            lands on the intro page, which routes correctly for both.
+            (The Faculty→Skill policy block referred to in the old comment
+            here was removed on 2026-09-06 — both directions work now.)
         */}
         <Route path="/become-faculty" element={<FacultyIntro />} />
-        <Route path="/expert-apply"   element={<Navigate to="/signup?role=teacher&add_track=skill" replace />} />
+        <Route path="/become-expert"  element={<SkillIntro />} />
+        <Route path="/expert-apply"   element={<Navigate to="/become-expert" replace />} />
 
         {/*
           Moderator Panel — ported from the internal Admin-dashboard app so

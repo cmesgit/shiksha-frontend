@@ -55,8 +55,20 @@ const DUO_META = [
   { cardClass: "learn", pill: "For Learners", btnClass: "btn-coral" },
 ];
 
+/* "Become a tutor" pointed at /faculty/signup — the academic-faculty wizard,
+   which wants a degree, an employment history, three uploads and a signed
+   agreement. A tutor wanting to list a skill met a full-time job application,
+   and this is the ONLY teaching CTA on the homepage (the navbar drawer and
+   footer offer "Become a Faculty", which is the other track by name), so there
+   was no unreviewed path in for someone who just wanted to list a skill.
+   Both kinds of teacher now start at the same account-first door and pick the
+   track afterwards on /become-a-teacher — the point of the account-first flow.
+
+   NOTE: cta_href is a DEFAULT. useHomeContent("teachers_students") lets a CMS
+   row override it, so fixing this in code does not fix an environment whose
+   CMS already stores /faculty/signup. Check the live row too. */
 const DEFAULT_ITEMS = [
-  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a tutor", cta_href: "/faculty/signup", tint: "violet" },
+  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a tutor", cta_href: "/register?intent=teach", tint: "violet" },
   { icon: "book", title: "Do you want to learn here?", body: "Preview courses as a guest, enrol in structured programs for your class or exam, and learn with live classes, recordings and doubt support.", cta_label: "Start learning", cta_href: "/courses", tint: "green" },
 ];
 

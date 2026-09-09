@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import "../css/TermsCondition.css";
+import React from "react";
+import LegalDocument from "./LegalDocument";
 
 const sections = [
   {
@@ -140,7 +140,7 @@ The following terms apply when you use a mobile application obtained from either
   {
     id: 12,
     title: "Privacy Policy",
-    content: `We care about data privacy and security. Please review our Privacy Policy: https://shikshacom.com. By using the Site, you agree to be bound by our Privacy Policy, which is incorporated into these Terms of Use. Please be advised the Site is hosted in India. If you access the Site from any other region of the world with laws or other requirements governing personal data collection, use, or disclosure that differ from applicable laws in India, then through your continued use of the Site, you are transferring your data to India, and you agree to have your data transferred to and processed in India.`,
+    content: `We care about data privacy and security. Please review our Privacy Policy: https://www.shikshacom.com/privacy. By using the Site, you agree to be bound by our Privacy Policy, which is incorporated into these Terms of Use. Please be advised the Site is hosted in India. If you access the Site from any other region of the world with laws or other requirements governing personal data collection, use, or disclosure that differ from applicable laws in India, then through your continued use of the Site, you are transferring your data to India, and you agree to have your data transferred to and processed in India.`,
   },
   {
     id: 13,
@@ -273,207 +273,12 @@ Eligibility Criteria:
   },
 ];
 
-const accentColors = [
-  "#1dcaab", "#60a5fa", "#fbbf24", "#a78bfa", "#f87171",
-  "#34d399", "#fb923c", "#e879f9", "#38bdf8", "#4ade80",
-  "#facc15", "#c084fc", "#f472b6", "#22d3ee", "#86efac",
-  "#fda4af", "#fdba74", "#a3e635", "#67e8f9", "#d8b4fe",
-  "#6ee7b7", "#fcd34d", "#93c5fd", "#f9a8d4", "#5eead4",
-  "#bbf7d0",
-];
-
-const TermsCondition = () => {
-  const [activeId, setActiveId] = useState(1);
-  const [animating, setAnimating] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const contentRef = useRef(null);
-
-  const activeSection = sections.find((s) => s.id === activeId);
-  const activeAccent = accentColors[(activeId - 1) % accentColors.length];
-
-  const handleSelect = (id) => {
-    if (id === activeId) {
-      setMobileNavOpen(false);
-      return;
-    }
-
-    setAnimating(true);
-    setTimeout(() => {
-      setActiveId(id);
-      setAnimating(false);
-      // The section text used to live in its own scrollbox, so resetting
-      // `scrollTop` was enough. It flows in the document now, which makes that
-      // a no-op — and without this, picking a section while scrolled down
-      // leaves you part-way into the new one. Bring the panel back into view
-      // instead. `?.` because this runs from a timeout that can outlive the
-      // component if someone navigates away mid-animation.
-      contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-    }, 220);
-
-    setMobileNavOpen(false);
-  };
-
-  return (
-    <div className="tc-root">
-      <div className="tc-bg-grid" />
-      <div className="tc-glow-1" />
-      <div className="tc-glow-2" />
-      <div className="tc-glow-3" />
-
-      <div className="tc-header">
-        <div className="tc-header-badge">
-          <div className="tc-header-dot" />
-          <span className="tc-header-badge-text">ShikshaCom LMS</span>
-        </div>
-        <h1>
-          Terms &amp; Conditions
-          <br />
-          and Privacy Policy
-        </h1>
-        <p className="tc-header-sub">CM Engineering Solution · Last reviewed 2024</p>
-      </div>
-
-      <div className="tc-layout">
-        <nav className="tc-nav">
-          <div className="tc-nav-header">
-            <div className="tc-nav-header-label">Table of Contents</div>
-          </div>
-
-          <div className="tc-nav-scroll">
-            {sections.map((s, i) => {
-              const acc = accentColors[i % accentColors.length];
-              const isActive = s.id === activeId;
-
-              return (
-                <button
-                  key={s.id}
-                  className={`tc-nav-item${isActive ? " active" : ""}`}
-                  onClick={() => handleSelect(s.id)}
-                >
-                  <span
-                    className="tc-nav-num"
-                    style={isActive ? { background: acc, color: "#0a1a0e" } : {}}
-                  >
-                    {s.id}
-                  </span>
-                  <span className="tc-nav-label">{s.title}</span>
-                  <span className="tc-nav-arrow">›</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="tc-content-wrap">
-          <div className={`tc-content-panel${animating ? " animating" : ""}`}>
-            <div className="tc-content-topbar">
-              <span
-                className="tc-section-num-badge"
-                style={{ background: activeAccent }}
-              >
-                {String(activeId).padStart(2, "0")}
-              </span>
-              <h2 className="tc-section-title-head">{activeSection?.title}</h2>
-            </div>
-
-            <div className="tc-progress-bar-wrap">
-              {sections.map((s) => (
-                <div
-                  key={s.id}
-                  className={`tc-progress-step${s.id < activeId ? " done" : ""}${s.id === activeId ? " current" : ""}`}
-                  style={s.id === activeId ? { background: activeAccent } : {}}
-                  onClick={() => handleSelect(s.id)}
-                  title={s.title}
-                />
-              ))}
-              <span className="tc-progress-label">
-                {activeId}/{sections.length}
-              </span>
-            </div>
-
-            <div className="tc-content-body" ref={contentRef}>
-              <p className="tc-content-text">{activeSection?.content}</p>
-            </div>
-
-            <div className="tc-nav-btns">
-              <button
-                className="tc-btn"
-                disabled={activeId === 1}
-                onClick={() => handleSelect(activeId - 1)}
-              >
-                ← Previous
-              </button>
-
-              <span className="tc-section-counter">
-                Section {activeId} of {sections.length}
-              </span>
-
-              <button
-                className="tc-btn tc-btn-next"
-                disabled={activeId === sections.length}
-                onClick={() => handleSelect(activeId + 1)}
-                style={{ background: activeAccent }}
-              >
-                Next →
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        className="tc-mobile-toggle"
-        onClick={() => setMobileNavOpen((prev) => !prev)}
-        aria-label={mobileNavOpen ? "Close table of contents" : "Open table of contents"}
-      >
-        {mobileNavOpen ? "✕" : "☰"}
-      </button>
-
-      <div className={`tc-mobile-drawer${mobileNavOpen ? " open" : ""}`}>
-        <div
-          className="tc-mobile-backdrop"
-          onClick={() => setMobileNavOpen(false)}
-        />
-
-        <div className="tc-mobile-panel">
-          <div className="tc-mobile-panel-top">
-            <div className="tc-mobile-handle" />
-            <button
-              type="button"
-              className="tc-mobile-close"
-              onClick={() => setMobileNavOpen(false)}
-              aria-label="Close table of contents"
-            >
-              ✕
-            </button>
-          </div>
-
-          {sections.map((s, i) => {
-            const acc = accentColors[i % accentColors.length];
-            const isActive = s.id === activeId;
-
-            return (
-              <button
-                key={s.id}
-                className={`tc-nav-item${isActive ? " active" : ""}`}
-                onClick={() => handleSelect(s.id)}
-              >
-                <span
-                  className="tc-nav-num"
-                  style={isActive ? { background: acc, color: "#0a1a0e" } : {}}
-                >
-                  {s.id}
-                </span>
-                <span className="tc-nav-label">{s.title}</span>
-                <span className="tc-nav-arrow">›</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
+const TermsCondition = () => (
+  <LegalDocument
+    sections={sections}
+    title={<>Terms &amp; Conditions</>}
+    subtitle="CM Engineering Solution · Last reviewed 2024"
+  />
+);
 
 export default TermsCondition;
