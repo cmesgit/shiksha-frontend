@@ -75,7 +75,10 @@ const DUO_META = [
    CMS already stores /faculty/signup. Check the live row too. */
 const DEFAULT_ITEMS = [
   { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a teacher", cta_href: "/become-a-teacher", tint: "violet" },
-  { icon: "book", title: "Do you want to learn here?", body: "Preview courses as a guest, enrol in structured programs for your class or exam, and learn with live classes, recordings and doubt support.", cta_label: "Start learning", cta_href: "/courses", tint: "green" },
+  // "Preview courses as a guest" was the same overpromise as the closing CTA's
+  // old "Browse as guest" label: a guest here is a signed-in but un-enrolled
+  // user, and the catalogue this links to needs no account at all.
+  { icon: "book", title: "Do you want to learn here?", body: "Browse the full course catalogue without an account, enrol in structured programs for your class or exam, and learn with live classes, recordings and doubt support.", cta_label: "Start learning", cta_href: "/courses", tint: "green" },
 ];
 
 export default function TeachersStudents() {
