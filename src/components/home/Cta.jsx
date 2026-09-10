@@ -16,8 +16,9 @@ const css = `.btn-white{background:#fff;color:var(--coral-dark)}
 .cta h2{color:#fff;font-size:clamp(30px,4.4vw,46px);font-weight:800}
 .cta p{margin:16px auto 0;max-width:520px;color:rgba(255,255,255,.92);font-size:16px}
 .cta-actions{margin-top:30px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
-.cta .btn-out{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
-.cta .btn-out:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
+.cta .btn-out{background:rgba(255,255,255,.10);color:#fff;border-color:rgba(255,255,255,.78);font-weight:700;backdrop-filter:blur(6px);transition:background .22s ease,border-color .22s ease,transform .22s ease,box-shadow .22s ease}
+.cta .btn-out:hover{background:rgba(255,255,255,.2);border-color:#fff;transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.18)}
+.cta .btn-out:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .cwm{position:absolute;opacity:.12;color:#fff}
 .cwm.a{top:-26px;left:-6px;width:120px}
 .cwm.b{bottom:-36px;right:-6px;width:140px}`;
@@ -26,10 +27,14 @@ const DEFAULTS = {
   eyebrow: "Start Your Journey",
   heading: "Your learning starts here",
   body:
-    "Create your free account, explore courses with Guest Preview, and begin your journey toward academic excellence.",
+    "Create your free account, or look through the full course catalogue first — no sign-up needed.",
   cta_primary_label: "Create free account",
   cta_primary_href: "/register",
-  cta_secondary_label: "Browse as guest",
+  // Was "Browse as guest". In this codebase a "guest" is a signed-in but
+  // un-enrolled user (GUEST_TRIAL_MINUTES and friends), so the label promised
+  // a guest mode that does not exist out here — the link simply opens the
+  // public catalogue, which needs no account at all.
+  cta_secondary_label: "Browse courses",
   cta_secondary_href: "/courses",
 };
 

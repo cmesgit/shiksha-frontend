@@ -21,7 +21,9 @@ const Footer = () => {
       <div className="ftr-wrap">
         {/* top row: brand + CTA */}
         <div className="ftr-top">
-          <div className="ftr-brand">
+          {/* Was a plain <div>, so clicking the footer logo did nothing —
+              the navbar wraps the same markup in a Link to "/". */}
+          <Link to="/" className="ftr-brand" aria-label="ShikshaCom — go to homepage">
             <span className="ftr-logo">
               <img src={logo} alt="" />
             </span>
@@ -29,7 +31,7 @@ const Footer = () => {
               <b>ShikshaCom</b>
               <small>Empowerment Through Education</small>
             </div>
-          </div>
+          </Link>
           <Link to="/register" className="ftr-cta">
             Start learning free
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

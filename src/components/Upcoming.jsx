@@ -1,11 +1,32 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../css/Upcoming.css';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Upcoming = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // `key` is the string "default" only on the first entry of a history stack,
+  // i.e. when this page was opened directly (deep link, new tab, shared URL).
+  // Calling navigate(-1) there either does nothing or throws the visitor off
+  // the site entirely, so fall back to the homepage.
+  const goBack = () => {
+    if (location.key && location.key !== 'default') navigate(-1);
+    else navigate('/');
+  };
+
+  // Placements leads this list on purpose: the footer link, the homepage
+  // "Placement & Opportunities" card and the navbar entry all land here, and
+  // until now the page never mentioned placements at all — so every one of
+  // those looked like a broken link to an unrelated roadmap.
   const upcomingFeatures = [
+    {
+      title: "Placements & Career Opportunities",
+      description:
+        "A dedicated placement board — openings, internships and career support for ShikshaCom learners.",
+      status: "Coming Soon",
+    },
     {
       title: "Teacher Registration Portal",
       description: "Complete registration system for educators to join our platform",
@@ -74,16 +95,22 @@ const Upcoming = () => {
           </div>
 
           <div className="upcoming-cta-section">
-            <h2>Stay Updated</h2>
-            <p>Be the first to know when these features launch!</p>
+            {/* Was "Stay Updated" + a Notify Me button. There is no notify
+                backend for this page, so the promise was never kept — the
+                button only navigated to /contact. Copy now matches what the
+                page can actually do. */}
+            <h2>Have something in mind?</h2>
+            <p>
+              Tell us what you would like us to build next, or ask about
+              anything on this roadmap.
+            </p>
+            <div className="upcoming-cta-links">
+              <Link className="upcoming-cta-link" to="/contact">
+                Contact us
+              </Link>
+            </div>
             <div className="upcoming-cta-buttons">
-              {/* Was a dead button — no onClick, no notify endpoint exists.
-                  Points at /contact so the intent goes somewhere real; swap
-                  back to a proper email capture when there's a backend for it. */}
-              <button className="upcoming-notify-btn" onClick={() => navigate("/contact")}>
-                Notify Me
-              </button>
-              <button className="upcoming-back-btn" onClick={() => window.history.back()}>
+              <button type="button" className="upcoming-back-btn" onClick={goBack}>
                 Back
               </button>
             </div>

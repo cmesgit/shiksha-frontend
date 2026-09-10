@@ -61,14 +61,20 @@ const DUO_META = [
    and this is the ONLY teaching CTA on the homepage (the navbar drawer and
    footer offer "Become a Faculty", which is the other track by name), so there
    was no unreviewed path in for someone who just wanted to list a skill.
-   Both kinds of teacher now start at the same account-first door and pick the
-   track afterwards on /become-a-teacher — the point of the account-first flow.
+   Both kinds of teacher now start at the same door and pick the track on
+   /become-a-teacher. That used to mean signing up FIRST (/register?intent=teach)
+   and only then seeing the two options — you had to commit to an account before
+   the page would tell you what you were choosing between. /become-a-teacher now
+   renders a public chooser when signed out, so the link goes straight there and
+   the decision comes before the form.
+
+   "Become a tutor" also read as Skill-Dev-only, which is half the offer.
 
    NOTE: cta_href is a DEFAULT. useHomeContent("teachers_students") lets a CMS
    row override it, so fixing this in code does not fix an environment whose
    CMS already stores /faculty/signup. Check the live row too. */
 const DEFAULT_ITEMS = [
-  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a tutor", cta_href: "/register?intent=teach", tint: "violet" },
+  { icon: "faculty", title: "Do you want to teach here?", body: "Share your knowledge, create and upload your own courses, teach live or record lessons, and reach learners across the country.", cta_label: "Become a teacher", cta_href: "/become-a-teacher", tint: "violet" },
   { icon: "book", title: "Do you want to learn here?", body: "Preview courses as a guest, enrol in structured programs for your class or exam, and learn with live classes, recordings and doubt support.", cta_label: "Start learning", cta_href: "/courses", tint: "green" },
 ];
 

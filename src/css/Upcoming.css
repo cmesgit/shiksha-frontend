@@ -187,7 +187,34 @@
    CTA SECTION
 ═══════════════════════════════════════════ */
 
+/* The base rules for this whole block were dropped in 6b37d0dc, which left
+   only the :hover rules behind. The h2/p below are near-white, so with the
+   dark panel gone they were white-on-white and the entire section was
+   invisible on the page. Restored to match .upcoming-feature-card. */
+.upcoming-cta-section {
+  position: relative;
+  overflow: hidden;
+  margin-top: 56px;
+  padding: 56px 32px;
+  border-radius: 22px;
+  text-align: center;
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%),
+    rgba(0, 50, 35, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
 /* Accent top bar */
+.upcoming-cta-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1dcaab 0%, #1b9c85 100%);
+}
 
 .upcoming-cta-section h2 {
   font-family: "Montserrat", sans-serif;
@@ -205,16 +232,73 @@
   line-height: 1.7;
 }
 
-.upcoming-notify-btn:hover {
+/* Primary action. Replaces the old "Notify Me" button, which had no notify
+   backend behind it and only navigated to /contact. */
+.upcoming-cta-links {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.upcoming-cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 32px;
+  border-radius: 12px;
+  background: #1b9c85;
+  border: 1.5px solid transparent;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(27, 156, 133, 0.35);
+  transition:
+    background 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.upcoming-cta-link:hover {
   background: #137261;
   box-shadow: 0 12px 36px rgba(27, 156, 133, 0.55);
   transform: translateY(-2px);
+}
+
+.upcoming-cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.upcoming-back-btn {
+  padding: 13px 32px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "Poppins", sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease;
 }
 
 .upcoming-back-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(29, 202, 171, 0.45);
   color: #fff;
+}
+
+.upcoming-cta-link:focus-visible,
+.upcoming-back-btn:focus-visible {
+  outline: 2px solid #1dcaab;
+  outline-offset: 3px;
 }
 
 /* ═══════════════════════════════════════════
@@ -621,7 +705,7 @@
     align-items: center;
   }
 
-  .upcoming-notify-btn,
+  .upcoming-cta-link,
   .upcoming-back-btn {
     width: 220px;
   }

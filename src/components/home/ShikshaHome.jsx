@@ -33,8 +33,17 @@ const SECTION_COMPONENTS = {
 // if the CMS order table is ever empty/unreachable, so admin-configurable
 // ordering can never take the homepage down.
 const DEFAULT_ORDER = [
-  "hero", "why_shiksha", "teachers_students", "browse_categories",
-  "featured_courses", "why_choose", "resources", "collaborate", "faq", "cta",
+  // Requested running order: hero → who it's for → live collaboration →
+  // what's on offer (featured, then categories) → support → why us → faq → cta.
+  //
+  // why_shiksha sits next to why_choose on purpose. They are two separate CMS
+  // sections that both answer "why ShikshaCom" ("Why learners choose Shiksha"
+  // and "Why choose ShikshaCom?"), and splitting them across the page read as
+  // the same pitch twice. Adjacent, they read as one block — and either can be
+  // hidden outright with its HomeSectionOrder.is_visible toggle in the admin
+  // page editor without touching this list.
+  "hero", "teachers_students", "collaborate", "featured_courses",
+  "browse_categories", "resources", "why_choose", "why_shiksha", "faq", "cta",
   // Appended last for the same reason content/0039 appends its
   // HomeSectionOrder row: this fallback must not reshuffle a homepage an
   // admin has already arranged. The band renders null when empty, so its

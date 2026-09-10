@@ -252,7 +252,11 @@ const RESOURCES_MENU = [
   // is reachable only inside the academy. Naming it "Mock Test" out here
   // promised something this page does not do.
   { title: "Quizzes", icon: IcHelp, to: "/quiz", desc: "Free practice quizzes with instant explanations." },
-  { title: "Placements", icon: IcBriefcase, soon: true, desc: "Career & placement support." },
+  // Was `soon: true`, which MenuLink renders as an inert <span> — while the
+  // footer and the homepage "Placement & Opportunities" card both linked to
+  // /upcoming. Three entry points with the same name, two behaviours. That
+  // page now leads with a Placements card, so this one links there too.
+  { title: "Placements", icon: IcBriefcase, to: "/upcoming", desc: "Career & placement support." },
 ];
 
 // "Vision & Mission" and "Why ShikshaCom" used to sit between About Us and

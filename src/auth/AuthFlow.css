@@ -735,3 +735,62 @@
   .af-tile:hover,
   .af-iconbtn:hover { transform: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   TeacherTrackIntro — the signed-out chooser at /become-a-teacher
+   ══════════════════════════════════════════════════════════════ */
+
+/* .af-btn was written for <button>; these cards use react-router <Link>, so
+   an anchor needs the box + centring a button gets for free. Scoped to a.*
+   so no existing button changes. */
+a.af-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+a.af-btn--block { display: flex; width: 100%; }
+
+.tti-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 520px;
+  margin: 22px 0 0;
+}
+
+.tti-card {
+  border: 1px solid #e3e5ea;
+  border-radius: 14px;
+  padding: 18px 18px 20px;
+  background: #fff;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.tti-card:hover {
+  border-color: var(--a);
+  box-shadow: 0 10px 26px -18px var(--a);
+}
+
+.tti-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #21222a;
+}
+.tti-card__lead {
+  font-size: 13.5px;
+  color: #4b4d57;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.tti-card__points {
+  font-size: 13px;
+  color: #5b5e69;
+  margin: 0 0 16px;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+.tti-foot { margin-top: 20px; font-size: 14px; }
+.tti-foot a { color: var(--a); font-weight: 600; }
