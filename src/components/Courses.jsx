@@ -6,6 +6,7 @@ import EnrollModal from './EnrollModal';
 import UnifiedCatalog from './courses/UnifiedCatalog';
 import CoursesHero from './courses/CoursesHero';
 import CoursesStrip from './courses/CoursesStrip';
+import CoursesTicker from './courses/CoursesTicker';
 import CoursesPromo, { CoursesFinalCta } from './courses/CoursesPromo';
 import Faq from './home/Faq';
 import { useAuth } from '../contexts/AuthContext';
@@ -431,6 +432,11 @@ const Courses = () => {
           all share, so the catalog's edges line up with them at every
           viewport width instead of drifting. */}
       <div className="wrap" ref={catalogRef}>
+        {/* Live ticker, courses slot. Renders nothing unless the flag is on
+            and something is queued here, so /courses is unchanged until
+            then. Sits above the catalog rather than beside it — /courses has
+            no sidebar; see CoursesTicker.jsx. */}
+        <CoursesTicker />
         <UnifiedCatalog
           boards={boards}
           selectedBoard={selectedBoard}

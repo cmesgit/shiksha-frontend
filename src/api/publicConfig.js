@@ -23,6 +23,10 @@ import { API_URL } from "../config/urls";
  * `false` — the same thing the server ships. */
 const DEFAULTS = {
   public_quiz_hub_enabled: false,
+  /* design_handoff_live_ticker. Public rather than on `feature_flags`
+     because two of the ticker's eight slots are the login and signup
+     screens, which render before anyone has logged in. */
+  live_ticker_enabled: false,
 };
 
 /* One in-flight request per page load, shared by every caller. Without this,

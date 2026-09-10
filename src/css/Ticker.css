@@ -1,0 +1,178 @@
+/* Live ticker cards (design_handoff_live_ticker Phase 4).
+ *
+ * Everything resolves through --sk-* from theme.css. Not shared/tokens.css:
+ * that file exists in this repo but is imported by nothing, and the real
+ * tokens here are --sk-*.
+ */
+
+.tk-rot { display: flex; flex-direction: column; gap: 14px; }
+
+.tk-rot__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.tk-rot__nav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+.tk-rot__arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--sk-line);
+  background: #fff;
+  color: var(--sk-ink);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tk-rot__arrow:hover { background: var(--sk-mint); }
+
+.tk-rot__dots { display: flex; align-items: center; gap: 6px; }
+
+.tk-rot__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sk-line);
+  cursor: pointer;
+}
+.tk-rot__dot.is-on { width: 18px; border-radius: 4px; background: var(--sk-green); }
+
+/* ── the card ───────────────────────────────────────────────────── */
+
+.tk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  text-decoration: none;
+  border: 1px solid var(--sk-line);
+  background: #fff;
+  box-shadow: var(--sk-sh-sm);
+}
+a.tk-card:hover { border-color: var(--sk-green); }
+
+.tk-card__metric { color: var(--sk-green); }
+.tk-card__metric b { font-size: 22px; font-weight: 800; }
+.tk-card__metric small { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.tk-card__eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--sk-body);
+}
+
+.tk-card__title { font-size: 14.5px; font-weight: 700; color: var(--sk-ink); line-height: 1.35; }
+.tk-card__body { font-size: 12.5px; color: var(--sk-body); line-height: 1.45; }
+
+/* ⚠ The footer is the ONE ticker slot on a dark background. The default
+   ink-on-white card would read as a hole punched in the footer, so the tone
+   is inverted rather than reused. Hairlines match .ftr-top's own
+   rgba(255,255,255,0.12) so the region does not look bolted on. */
+.tk-card--dark {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+.tk-card--dark .tk-card__title { color: #fff; }
+.tk-card--dark .tk-card__body,
+.tk-card--dark .tk-card__eyebrow { color: rgba(255, 255, 255, 0.72); }
+.tk-card--dark .tk-card__metric { color: var(--sk-gold); }
+a.tk-card--dark:hover { border-color: rgba(255, 255, 255, 0.4); }
+
+.tk-foot__nav .tk-rot__arrow {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.tk-foot__nav .tk-rot__dot { background: rgba(255, 255, 255, 0.28); }
+.tk-foot__nav .tk-rot__dot.is-on { background: var(--sk-gold); }
+
+/* ── the homepage band ──────────────────────────────────────────── */
+
+.tk-band { background: var(--sk-paper); }
+
+/* ── the footer region ──────────────────────────────────────────── */
+
+.tk-foot {
+  padding: 26px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.tk-foot__label {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-rot__dot { transition: none; }
+}
+
+/* ── the courses card ("Happening on ShikshaCom", Phase 8) ──────── */
+
+.ck {
+  width: 100%;
+  max-width: 360px;          /* the design's width; see CoursesTicker.jsx */
+  margin: 0 0 26px;
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--sk-sh);
+}
+.ck__head { display: flex; align-items: center; gap: 8px; padding: 13px 16px 0; }
+.ck__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sk-red);
+  animation: ck-pulse 1.8s infinite;
+}
+@keyframes ck-pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+@media (prefers-reduced-motion: reduce) { .ck__dot { animation: none } }
+
+.ck__title {
+  font-size: 11px; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--sk-body);
+}
+.ck__list { margin: 10px 0 0; padding: 0; list-style: none; }
+.ck__row { border-top: 1px solid var(--sk-line); }
+.ck__row:first-child { border-top: 0; }
+
+.ck__link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; text-decoration: none;
+}
+a.ck__link:hover { background: var(--sk-mint); }
+
+.ck__thumb { flex: none; width: 96px; height: 72px; border-radius: 10px; object-fit: cover; }
+.ck__thumb--empty { background: var(--sk-paper); border: 1px dashed var(--sk-line); }
+
+.ck__metric {
+  flex: none; min-width: 48px; padding: 6px 8px; border-radius: 11px;
+  text-align: center; display: grid; gap: 1px;
+}
+.ck__metric b { font-size: 17px; font-weight: 800; line-height: 1.1; }
+.ck__metric small { font-size: 8.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+/* Tone by kind, never a stored hex pair. */
+.ck__metric--brand  { background: var(--sk-mint);  color: var(--sk-green-dark); }
+.ck__metric--warn   { background: #fff4e0;         color: #a15c00; }
+.ck__metric--violet { background: #f1edff;         color: #5b3bc4; }
+.ck__metric--teal   { background: #e2f7f5;         color: #0b7d73; }
+
+.ck__meta { min-width: 0; display: grid; gap: 2px; }
+.ck__kind {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--sk-body);
+}
+.ck__text { font-size: 13px; font-weight: 600; line-height: 1.45; color: var(--sk-ink); text-wrap: pretty; }
+
+/* The design: "the band and the course rail don't appear on phones at all". */
+@media (max-width: 760px) { .ck { display: none; } }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthShell, Field, PasswordField, FooterLink } from "./AuthKit";
+import { AuthMentors } from "./AuthTicker";
 import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 
 /* ════════════════════════════════════════════════════════════════
@@ -222,6 +223,8 @@ export default function Register() {
       </form>
 
       <FooterLink>Already have an account? <Link to="/login">Sign in</Link></FooterLink>
+      {/* Mentor spotlight — form column, under the footer link. */}
+      <AuthMentors slot="auth_signup" />
     </AuthShell>
   );
 }

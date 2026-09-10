@@ -117,6 +117,22 @@ export async function getFaqs(pageKey) {
   }
 }
 
+/** Live ticker items for one slot (design_handoff_live_ticker).
+ *
+ * The server decides what belongs in a slot — `slots` is deliberately not in
+ * the public payload — so the only thing a caller passes is the slot name.
+ * Fails to [] like its neighbours: a ticker that cannot load must leave the
+ * page as it was, never render an empty shell.
+ */
+export async function getTickerItems(slot) {
+  try {
+    const { data } = await api.get("/content/announcements/", { params: { slot } });
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getAnnouncements() {
   try {
     const { data } = await api.get("/content/announcements/");

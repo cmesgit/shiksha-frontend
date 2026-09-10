@@ -1,5 +1,14 @@
+import { useEffect, useState } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import useTickerSlot from "../ticker/useTickerSlot";
 import CtaLink from "./CtaLink";
+
+// Mirrors content.models.TickerKind.
+const KIND_LABEL = {
+  new_course: "New course", enrolment: "Enrolment", new_mentor: "New mentor",
+  practice: "Practice", deadline: "Deadline", milestone: "Milestone",
+  current_affairs: "Current affairs", mentor_spotlight: "Mentors",
+};
 
 /* Section-scoped styles, ported from the design handoff's Hero.jsx —
    shared tokens (--wash, --brand, etc.) come from ShikshaHome.css,
@@ -148,6 +157,47 @@ const css = `.sh-hero{
     border-radius:inherit;
   }
 .sh-art{position:relative;z-index:2;width:min(96%,500px);margin:0}
+/* Live ticker grid inside the blob (design_handoff_live_ticker Phase 6).
+
+   ⚠ SIZED AS A PERCENTAGE OF THE BLOB, not in fixed px. The design specifies
+   168px cards with 14px gutters "fitting the 520px blob's square
+   inscription" — but the blob is min(112%,560px), and min(96%,470px) at
+   <=980px. 168+14+168 = 350px is exactly 62.5% of 560, so the design's
+   numbers are right for the real blob and only its 520px label was wrong.
+   Kept as 62.5% because a FIXED 350px overflows the smaller breakpoint: the
+   dashed ring there leaves a 310px safe square and 350 > 310.
+
+   The safe square is measured against .sh-blob::after (inset:16px), not the
+   blob edge, so no card crosses the dashed ring at either size — 23px of
+   margin at 560, 16px at 470 — which also absorbs the 18s sh-morph wobble. */
+.sh-tick{
+    position:relative;z-index:2;
+    /* ⚠ MUST MIRROR .sh-blob's OWN sizing expression, scaled by 0.625 — not
+       a bare 62.5%. The blob is absolutely positioned and the grid is a
+       sibling in normal flow, so a plain percentage resolves against the
+       PARENT, not the blob. Measured: at a 900px viewport the blob capped at
+       470px while 62.5% of the parent came out 523px — a grid wider than the
+       circle it sits in, overflowing the page sideways.
+       min(112%,560px) x 0.625 = min(70%,350px), which is 62.5% of the blob
+       at every width because both are the same function of the parent. */
+    width:min(70%,350px);aspect-ratio:1/1;
+    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+    gap:2.5%;
+  }
+.sh-tickcard{
+    display:flex;flex-direction:column;justify-content:center;gap:4px;
+    padding:12px 13px;border-radius:14px;
+    background:var(--white);border:1px solid var(--line);
+    box-shadow:var(--sh-card);text-decoration:none;overflow:hidden;
+  }
+a.sh-tickcard:hover{border-color:var(--brand)}
+.sh-tickcard b{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
+.sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.sh-tickcard .k{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
+.sh-tickcard .t{font-size:12.5px;font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty}
+.sh-tickdots{position:absolute;bottom:-2%;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:5px}
+.sh-tickdot{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:var(--line);cursor:pointer}
+.sh-tickdot.on{width:16px;border-radius:3px;background:var(--brand)}
 .sh-art svg{width:100%;height:auto}
 .sh-fl{
     position:absolute;z-index:3;
@@ -184,6 +234,8 @@ const css = `.sh-hero{
   .sh-hero-visual{order:2}
   .sh-art{width:min(86%,430px)}
   .sh-blob{width:min(96%,470px)}
+  /* 0.625 x the blob's own breakpoint value, for the reason above. */
+  .sh-tick{width:min(60%,294px)}
   .sh-dots.sh-b,.sh-ring.sh-a,.sh-squiggle{display:none}
 }
 @media (max-width:620px){
@@ -241,6 +293,32 @@ export default function Hero() {
   const ctaSecondaryLabel = block?.cta_secondary_label || DEFAULTS.cta_secondary_label;
   const ctaSecondaryHref = block?.cta_secondary_href || DEFAULTS.cta_secondary_href;
   const heroImg = block?.img || null;
+
+  /* Live ticker, hero slot (design_handoff_live_ticker Phase 6).
+   *
+   * ⚠ PRECEDENCE: the grid beats an admin-set hero image, which beats the
+   * built-in SVG. Deciding it the other way round would mean an admin who
+   * once uploaded a hero image finds the hero slot permanently dead with
+   * nothing on screen explaining why — a silent failure. This way round the
+   * failure is visible and self-correcting: you see cards instead of your
+   * picture, and unqueueing them brings it back. Ticker items are also
+   * time-bounded, so the image returns on its own when they expire. */
+  const { items: tickerItems } = useTickerSlot("hero");
+  const [tickPage, setTickPage] = useState(0);
+  const tickPages = Math.max(1, Math.ceil(tickerItems.length / 4));
+
+  useEffect(() => {
+    if (tickPages < 2) return undefined;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const id = setInterval(() => {
+      // "the pager advances all four together"
+      if (document.visibilityState === "visible") setTickPage((p) => (p + 1) % tickPages);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [tickPages]);
+
+  const page = tickPage < tickPages ? tickPage : 0;
+  const shown = tickerItems.slice(page * 4, page * 4 + 4);
 
   // Hero's floating chips are a fixed icon-only trio by design (no text slot
   // exists in the CSS) — CMS control here is deliberately limited to
@@ -309,7 +387,37 @@ export default function Hero() {
               </span>
             )}
 
-            {heroImg ? (
+            {shown.length > 0 ? (
+              <div className="sh-tick">
+                {shown.map((it) => {
+                  const inner = (
+                    <>
+                      {it.metric
+                        ? <span><b>{it.metric.value}</b> <span className="u">{it.metric.label}</span></span>
+                        : null}
+                      {it.kind && <span className="k">{KIND_LABEL[it.kind]}</span>}
+                      <span className="t">{it.message}</span>
+                    </>
+                  );
+                  return it.link_url
+                    ? <a key={it.id} className="sh-tickcard" href={it.link_url}>{inner}</a>
+                    : <div key={it.id} className="sh-tickcard">{inner}</div>;
+                })}
+                {tickPages > 1 && (
+                  <div className="sh-tickdots">
+                    {Array.from({ length: tickPages }, (_, i) => (
+                      <button
+                        key={i} type="button"
+                        className={`sh-tickdot${i === page ? " on" : ""}`}
+                        aria-label={`Updates ${i + 1} of ${tickPages}`}
+                        aria-current={i === page}
+                        onClick={() => setTickPage(i)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : heroImg ? (
               <img className="sh-art" src={heroImg} alt="Homepage hero illustration" />
             ) : (
               <figure
