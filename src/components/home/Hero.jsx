@@ -199,6 +199,24 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 .sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 .sh-tickcard .k{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
 .sh-tickcard .t{font-size:12.5px;font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty}
+/* One picture filling the whole circle. Used when the hero slot holds a
+   SINGLE item that has an image — an admin controls which they get purely
+   by how many items they queue here, with no extra switch to find:
+     1 item with a picture  -> the picture fills the blob
+     anything else          -> the 2x2 card grid
+   Clipped to the blob's own morphing border-radius via inherit, so it
+   follows the 18s sh-morph instead of sitting as a square on top of it. */
+.sh-ticksolo{position:relative;z-index:2;width:min(112%,560px);aspect-ratio:1/1;
+    border-radius:inherit;overflow:hidden;display:block}
+.sh-tickwrap{position:relative;z-index:2;width:min(112%,560px);aspect-ratio:1/1;
+    border-radius:58% 42% 47% 53% / 46% 52% 48% 54%;
+    animation:sh-morph 18s ease-in-out infinite;overflow:hidden}
+.sh-tickwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sh-tickcap{position:absolute;left:0;right:0;bottom:0;z-index:3;
+    padding:38px 26px 22px;color:#fff;text-align:center;
+    background:linear-gradient(to top,rgba(11,46,32,.82),transparent)}
+.sh-tickcap .k{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;opacity:.85}
+.sh-tickcap .t{display:block;margin-top:3px;font-size:15px;font-weight:700;line-height:1.35}
 .sh-tickdots{position:absolute;bottom:-2%;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:5px}
 .sh-tickdot{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:var(--line);cursor:pointer}
 .sh-tickdot.on{width:16px;border-radius:3px;background:var(--brand)}
@@ -391,7 +409,22 @@ export default function Hero() {
               </span>
             )}
 
-            {shown.length > 0 ? (
+            {shown.length === 1 && shown[0].img ? (
+              /* One queued item WITH a picture: it takes the whole circle. */
+              (() => {
+                const it = shown[0];
+                const art = (
+                  <div className="sh-tickwrap">
+                    <img src={it.img} alt="" />
+                    <span className="sh-tickcap">
+                      {it.kind && <span className="k">{KIND_LABEL[it.kind]}</span>}
+                      <span className="t">{it.message}</span>
+                    </span>
+                  </div>
+                );
+                return it.link_url ? <a href={it.link_url} className="sh-ticksolo">{art}</a> : art;
+              })()
+            ) : shown.length > 0 ? (
               <div className="sh-tick">
                 {shown.map((it) => {
                   const inner = (

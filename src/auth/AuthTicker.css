@@ -20,6 +20,18 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fff;
 }
+/* Banner variant: the picture bleeds to the card's edges (cancelling its
+   padding) and sits above the copy, so an uploaded banner reads as artwork
+   rather than a thumbnail pinned inside a box. */
+.aft--banner { padding-top: 0; overflow: hidden; }
+.aft__img {
+  display: block;
+  width: calc(100% + 32px);
+  margin: 0 -16px 12px;
+  height: 132px;
+  object-fit: cover;
+}
+
 .aft__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .aft__label {
   font-size: 10.5px;

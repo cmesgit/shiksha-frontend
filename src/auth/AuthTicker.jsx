@@ -75,7 +75,12 @@ export function AuthTickerCard({ slot, variant = "rotate" }) {
 
   const it = items[i < n ? i : 0];   // clamped at render, never via an effect
   return (
-    <div className="aft">
+    <div className={`aft${it.img ? " aft--banner" : ""}`}>
+      {/* A picture makes this a banner rather than a text card: it spans the
+          panel edge to edge above the copy, and rotates on the same timer as
+          everything else, so uploading N images to this slot gives N banners
+          cycling every 5s. Items with no picture keep the text treatment. */}
+      {it.img && <img className="aft__img" src={it.img} alt="" />}
       <div className="aft__head">
         <span className="aft__label">{KIND_LABEL[it.kind] || "Latest"}</span>
         {n > 1 && <span className="aft__count">{(i % n) + 1}/{n}</span>}
