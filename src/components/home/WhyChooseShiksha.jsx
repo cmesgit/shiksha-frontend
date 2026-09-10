@@ -32,6 +32,18 @@ const css = `.why{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(36px,5
 .check b{font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink)}
 .check p{font-size:13.5px;color:var(--body);margin-top:2px}
 .why-copy .btn{margin-top:30px}
+/* The three badges hang outside .why-vis on purpose (-4% to -6%), and on a
+   wide screen the page gutter absorbs the overhang. Below ~1200px the gutter
+   is narrower than the overhang, so .b-tr pushed 29px past the viewport and
+   gave the whole document a horizontal scrollbar — measured at 926px, where
+   it reached 955 against a 926 viewport.
+   Pulled flush at that breakpoint rather than clipped: the badges still
+   overlap the artwork and read the same, and nothing is cut off. */
+@media(max-width:1200px){
+  .b-tl{left:0}
+  .b-tr{right:0}
+  .b-bl{left:0}
+}
 @media(max-width:980px){
   .why{grid-template-columns:1fr}
   .why-copy{text-align:center}
