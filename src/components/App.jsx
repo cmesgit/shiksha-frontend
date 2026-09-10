@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState} from "react";
+import AlreadySignedIn from "../auth/AlreadySignedIn";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
@@ -196,6 +197,7 @@ function RedirectExternal({ to }) {
 function LoginRedirect() {
   const { isLearnerContext, isTeacherContext, teacherInfo } = useAuth();
   const location = useLocation();
+  const [showRedirect, setShowRedirect] = useState(false);
 
   const next = new URLSearchParams(location.search).get("next");
   let stored = null;
@@ -215,6 +217,15 @@ function LoginRedirect() {
   }, [isLocalTarget, stored]);
 
   if (isLocalTarget) return <Navigate to={target} replace />;
+
+  /* No pending destination means this wasn't the tail of a login — someone
+     navigated to /login while already signed in. Offer the choice instead of
+     bouncing them, so the page can actually be used to sign out or switch
+     account. `showRedirect` opts back into the old behaviour. */
+  if (!showRedirect) {
+    return <AlreadySignedIn onContinue={() => setShowRedirect(true)} />;
+  }
+
   if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
   if (isTeacherContext) {
     const track = teacherInfo?.active_track;
