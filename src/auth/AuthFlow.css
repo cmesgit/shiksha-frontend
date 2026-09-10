@@ -401,7 +401,10 @@
   align-items: center;
   gap: 12px;
   margin: 18px 0 4px;
-  max-width: 520px;
+  /* Was a hardcoded 520px, 60px wider than every other control in this
+     column, so the divider visibly overhung the form. Everything boxed in
+     here caps at --af-measure; this is no exception. */
+  max-width: var(--af-measure);
   color: #8a8d99;
   font-size: 12.5px;
   font-weight: 600;

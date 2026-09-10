@@ -85,7 +85,11 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
           size: "large",
           shape: "rectangular",
           text,
-          width: holder.current.offsetWidth || 320,
+          // Google caps the rendered button at 400px, so ask for at most
+          // that. Passing the raw holder width made it request a number GIS
+          // silently clamped, which is why the button never matched the
+          // column it sits in.
+          width: Math.min(holder.current.offsetWidth || 320, 400),
           logo_alignment: "center",
         });
       })
@@ -110,7 +114,16 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
       // Google's iframe ignores pointer-events set on itself, so a disabled
       // parent is the only way to stop a second click mid-request.
       style={{
-        display: "flex", justifyContent: "center", minHeight: 44,
+        display: "flex",
+        // ⚠ Was justifyContent:"center" with NO max-width, so the holder
+        // spanned the whole 62% form column and Google's 400px button was
+        // centred in THAT — landing well right of the email field and
+        // overhanging the divider. Cap it to the same measure as every other
+        // control and align left, so its left edge lines up with the
+        // heading, the label, the input and the submit button.
+        justifyContent: "flex-start",
+        maxWidth: "var(--af-measure)",
+        minHeight: 44,
         opacity: disabled ? 0.6 : 1,
         pointerEvents: disabled ? "none" : "auto",
       }}
