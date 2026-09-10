@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import useTickerSlot from "../components/ticker/useTickerSlot";
 import "./AuthTicker.css";
 
@@ -92,9 +91,17 @@ export function AuthTickerCard({ slot, variant = "rotate" }) {
 /** Form-column mentor spotlight — one at a time, with dots to step through.
  *
  * Fed by `mentor_spotlight` items on the same queue rather than a Mentor
- * model: name→message, subject→body, photo→img, and "Meet the mentors"→
- * link_url. That reuse is what gives it scheduling, status, revisions and the
- * media library's delete guard for free (README §5).
+ * model: name→message, subject→body, photo→img. That reuse is what gives it
+ * scheduling, status, revisions and the media library's delete guard for
+ * free (README §5).
+ *
+ * ⚠ **No "Meet the mentors" link, deliberately (2026-09-10).** The design
+ * put one here pointing at `/about` — but `/about` has no mentors section
+ * (its sections are hero / vision / mission / values / why-choose), so the
+ * CTA led nowhere. A link that goes somewhere irrelevant is worse than no
+ * link: it spends the visitor's attention and returns nothing. The card is
+ * the photo, the name and the subject. Restore the link when `/about`
+ * actually has people on it.
  *
  * ⚠ Manual only. It is NOT wired to TeacherProfile: no public endpoint
  * exposes teachers today, so feeding real staff here would newly publish real
@@ -119,11 +126,6 @@ export function AuthMentors({ slot }) {
         <div className="afm__meta">
           <b className="afm__name">{m.message}</b>
           {m.body && <span className="afm__subject">{m.body}</span>}
-          {m.link_url && (
-            <Link to={m.link_url} className="afm__link">
-              {m.link_label || "Meet the mentors"} →
-            </Link>
-          )}
         </div>
       </div>
       {n > 1 && (

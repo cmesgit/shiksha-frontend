@@ -84,15 +84,6 @@
 .afm__meta { min-width: 0; }
 .afm__name { display: block; font-size: 15.5px; font-weight: 700; line-height: 1.3; color: #191a20; }
 .afm__subject { display: block; margin-top: 4px; font-size: 12.5px; color: #6c6d76; }
-.afm__link {
-  display: inline-block;
-  margin-top: 9px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #138a6b;
-  text-decoration: none;
-}
-.afm__link:hover { text-decoration: underline; }
 
 .afm__dots { display: flex; gap: 6px; margin-top: 11px; }
 .afm__dot {
