@@ -10,6 +10,7 @@ import Resources from "./Resources";
 import Collaborate from "./Collaborate";
 import Faq from "./Faq";
 import Cta from "./Cta";
+import TickerBand from "./TickerBand";
 import { getHomeSectionOrder } from "../../api/contentApi";
 
 // Keys match content.HomeSection on the backend exactly.
@@ -24,6 +25,7 @@ const SECTION_COMPONENTS = {
   collaborate: Collaborate,
   faq: Faq,
   cta: Cta,
+  ticker_band: TickerBand,
 };
 
 // Same order as the current site and the design handoff's own composer —
@@ -33,6 +35,11 @@ const SECTION_COMPONENTS = {
 const DEFAULT_ORDER = [
   "hero", "why_shiksha", "teachers_students", "browse_categories",
   "featured_courses", "why_choose", "resources", "collaborate", "faq", "cta",
+  // Appended last for the same reason content/0039 appends its
+  // HomeSectionOrder row: this fallback must not reshuffle a homepage an
+  // admin has already arranged. The band renders null when empty, so its
+  // position only matters once there is something in it.
+  "ticker_band",
 ];
 
 export default function ShikshaHome() {

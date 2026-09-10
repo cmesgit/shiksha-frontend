@@ -11,6 +11,7 @@ import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import logo from "../assets/Shiksha.png";
 import "../css/theme.css";
 import "../css/FooterGreen.css";
+import FooterTicker from "./ticker/FooterTicker";
 
 const YEAR = new Date().getFullYear();
 
@@ -36,6 +37,11 @@ const Footer = () => {
             </svg>
           </Link>
         </div>
+
+        {/* Live ticker strip — renders nothing unless the flag is on and
+            the queue holds a footer item, so the footer is unchanged until
+            an admin puts something here. */}
+        <FooterTicker />
 
         {/* main grid */}
         <div className="ftr-grid">
