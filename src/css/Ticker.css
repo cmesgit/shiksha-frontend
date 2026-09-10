@@ -56,6 +56,17 @@
 }
 a.tk-card:hover { border-color: var(--sk-green); }
 
+/* Full-bleed: cancel the card's own padding so the picture meets its edges,
+   which is what "full-bleed" means here and why it is not just width:100%. */
+.tk-card__img {
+  width: calc(100% + 36px);
+  margin: -16px -18px 10px;
+  height: 132px;
+  object-fit: cover;
+  border-radius: 14px 14px 0 0;
+  display: block;
+}
+
 .tk-card__metric { color: var(--sk-green); }
 .tk-card__metric b { font-size: 22px; font-weight: 800; }
 .tk-card__metric small { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }

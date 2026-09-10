@@ -191,6 +191,10 @@ const css = `.sh-hero{
     box-shadow:var(--sh-card);text-decoration:none;overflow:hidden;
   }
 a.sh-tickcard:hover{border-color:var(--brand)}
+/* "the hero card puts the picture full width above the copy" — the card is
+   a flex column, so the image takes the top band and the text keeps the
+   rest. object-fit:cover so a wide CMS upload never distorts. */
+.sh-tickcard img{width:100%;height:52%;object-fit:cover;border-radius:9px;margin-bottom:6px;flex:none}
 .sh-tickcard b{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
 .sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 .sh-tickcard .k{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
@@ -392,6 +396,7 @@ export default function Hero() {
                 {shown.map((it) => {
                   const inner = (
                     <>
+                      {it.img && <img src={it.img} alt="" />}
                       {it.metric
                         ? <span><b>{it.metric.value}</b> <span className="u">{it.metric.label}</span></span>
                         : null}

@@ -115,6 +115,9 @@ export default function TickerCards({ items, perView = 1, renderCard }) {
 export function TickerCard({ item, tone = "light" }) {
   const inner = (
     <>
+      {/* "the band goes full-bleed for something you actually want people to
+          attend" — the picture spans the card's whole width above the copy. */}
+      {item.img && <img className="tk-card__img" src={item.img} alt="" />}
       {item.metric && (
         <span className="tk-card__metric">
           <b>{item.metric.value}</b> <small>{item.metric.label}</small>
