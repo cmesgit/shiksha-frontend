@@ -6,6 +6,7 @@
    across both. */
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
+import { AuthTickerCard } from "./AuthTicker";
 import shikshaLogo from "../assets/Shiksha.png";
 /* Lazy so screens that don't need them don't ship this artwork. */
 const IntroAnimation = lazy(() => import("./IntroAnimation.jsx"));
@@ -105,6 +106,16 @@ export function AuthShell({
           </p>
         </div>
         )}
+
+        {/* Live ticker, brand-panel slot. Last child of .af-brand, which is a
+            space-between column, so it settles below the illustration —
+            "one rotating card under the tagline". Renders nothing when the
+            flag is off or the slot is empty, so AuthShell is unchanged for
+            everyone until an admin queues something. */}
+        <AuthTickerCard
+          slot={intro ? "auth_signup" : "auth_login"}
+          variant={intro ? "list" : "rotate"}
+        />
       </div>
 
       {/* RIGHT — content panel */}

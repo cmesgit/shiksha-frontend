@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 import { AuthShell, Field, PasswordField, FooterLink } from "./AuthKit";
+import { AuthMentors } from "./AuthTicker";
 
 /* ════════════════════════════════════════════════════════════════
    Login — CLEAN single-account model (Netflix flow)
@@ -180,6 +181,11 @@ export default function Login() {
             </div>
           </form>
           <FooterLink>Don't have an account? <Link to={signupHref}>Create one</Link></FooterLink>
+        
+          {/* Mentor spotlight — form column, under the footer link, exactly
+              where the design places it. Renders nothing until an admin
+              queues a mentor_spotlight item for this slot. */}
+          <AuthMentors slot="auth_login" />
         </>
       )}
 

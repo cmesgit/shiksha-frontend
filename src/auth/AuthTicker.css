@@ -1,0 +1,122 @@
+/* Live ticker on the auth screens (design_handoff_live_ticker Phase 5).
+ *
+ * Two surfaces, two palettes. The brand-panel card sits on the accent colour
+ * (--a, set by AuthShell per role) so it is white-on-colour; the mentor block
+ * sits in the white form column and uses the same ink as the form.
+ *
+ * AuthFlow.css is a literal-hex file (it predates any token rule in this app
+ * and hardcodes its greys throughout), so these match its conventions rather
+ * than introducing a token system only this file would use.
+ */
+
+/* ── brand panel card ─────────────────────────────────────────── */
+
+.aft {
+  flex: none;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.aft__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.aft__label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+.aft__count { font-size: 11px; font-weight: 700; opacity: 0.6; }
+.aft__text {
+  margin: 7px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.aft__link { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; opacity: 0.9; }
+
+.aft__list { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.aft__line {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  padding-left: 14px;
+  position: relative;
+  text-wrap: pretty;
+}
+.aft__line::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 7px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* ── form-column mentor spotlight ─────────────────────────────── */
+
+.afm { margin-top: 22px; max-width: var(--af-measure, 460px); }
+.afm__label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f6b53;
+}
+.afm__card { display: flex; align-items: center; gap: 13px; margin-top: 10px; }
+
+/* 78px on login per the design; the signup column is wider and the file uses
+   86px there, but both screens render this same component, so one size keeps
+   them consistent rather than differing by a value nobody can perceive. */
+.afm__photo {
+  width: 78px; height: 78px;
+  flex: none;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #eef2f0;
+}
+.afm__photo--empty { display: block; border: 1px dashed #cdd8d3; }
+
+.afm__meta { min-width: 0; }
+.afm__name { display: block; font-size: 15.5px; font-weight: 700; line-height: 1.3; color: #191a20; }
+.afm__subject { display: block; margin-top: 4px; font-size: 12.5px; color: #6c6d76; }
+.afm__link {
+  display: inline-block;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #138a6b;
+  text-decoration: none;
+}
+.afm__link:hover { text-decoration: underline; }
+
+.afm__dots { display: flex; gap: 6px; margin-top: 11px; }
+.afm__dot {
+  width: 6px; height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #d3dcd8;
+  cursor: pointer;
+}
+.afm__dot.is-on { width: 16px; border-radius: 3px; background: #138a6b; }
+
+/* ⚠ VERIFIED, and not what the handoff assumed. Below 760px `.af-brand` is
+   NOT hidden — AuthFlow.css:537-560 turns it into a full-width horizontal
+   bar (`flex-direction: row`, 190px on illustrated screens) with the
+   artwork absolutely positioned across it and only the tagline hidden.
+   Dropping a block card into that row would fight the logo for space and
+   overlay the artwork, so the brand card is hidden here explicitly. The
+   queue still reaches mobile visitors through the navbar strip.
+
+   The mentor block is in the form column, which does survive, so it stays —
+   just smaller, so it cannot push the form off a phone screen. */
+@media (max-width: 760px) {
+  .aft { display: none; }
+  .afm { margin-top: 18px; }
+  .afm__photo { width: 60px; height: 60px; border-radius: 12px; }
+}
