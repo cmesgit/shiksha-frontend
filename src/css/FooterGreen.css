@@ -28,10 +28,22 @@
   padding-bottom: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
+/* Now an <a> to the homepage, so it needs the anchor resets a <div> did not. */
 .ftr-brand {
   display: flex;
   align-items: center;
   gap: 12px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 14px;
+  transition: opacity 0.2s ease;
+}
+.ftr-brand:hover {
+  opacity: 0.85;
+}
+.ftr-brand:focus-visible {
+  outline: 2px solid var(--sk-orange);
+  outline-offset: 4px;
 }
 .ftr-logo {
   width: 46px;

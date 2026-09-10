@@ -87,6 +87,7 @@ const VerifyEmail      = lazy(() => import("../auth/VerifyEmail"));
 const EmailVerified    = lazy(() => import("../auth/EmailVerified"));
 const Register         = lazy(() => import("../auth/Register"));
 const BecomeTeacher    = lazy(() => import("../auth/BecomeTeacher"));
+const TeacherTrackIntro = lazy(() => import("../auth/TeacherTrackIntro"));
 const ResendVerification = lazy(() => import("./ResendVerification"));
 const ForgotPassword   = lazy(() => import("../auth/ForgotPassword"));
 // Forum (redesign) — a nested route tree under a shared ForumLayout.
@@ -325,8 +326,15 @@ function App() {
         {/* Adding a teaching identity from inside the product — the
             replacement for re-entering signup to add a track. Requires a
             session; that is the whole point. */}
+        {/* SIGNED OUT it serves the public faculty-vs-Skill-Dev chooser
+            instead: every marketing "Become a teacher" entry point links
+            here, and those visitors have no account yet — a login wall is the
+            wrong first answer to "how do I teach here?". `loading` is already
+            handled above (RouteFallback), so this cannot flash the wrong one. */}
         <Route path="/become-a-teacher" element={
-          <ProtectedRoute><Page><BecomeTeacher /></Page></ProtectedRoute>
+          isAuthenticated
+            ? <Page><BecomeTeacher /></Page>
+            : <Page><TeacherTrackIntro /></Page>
         } />
 
         {/* /signup is RETIRED (Phase 8). It redirects rather than 404s
