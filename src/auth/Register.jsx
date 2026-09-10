@@ -170,6 +170,11 @@ export default function Register() {
             Back
           </button>
         </div>
+
+        {/* Same mentor block as the email path below. Arriving via Google is
+            still signing up, and without this the block appeared on one
+            signup route and not the other. */}
+        <AuthMentors slot="auth_signup" />
       </AuthShell>
     );
   }

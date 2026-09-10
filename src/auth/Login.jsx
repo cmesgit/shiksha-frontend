@@ -219,6 +219,11 @@ export default function Login() {
             </div>
           </form>
           <FooterLink>Don't have an account? <Link to={signupHref}>Create one</Link></FooterLink>
+
+          {/* Step 2 carries the same footer as step 1, so the block has to be
+              here too — otherwise it appeared on the email step and vanished
+              the moment you continued to the password. */}
+          <AuthMentors slot="auth_login" />
         </>
       )}
 
