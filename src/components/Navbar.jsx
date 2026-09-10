@@ -184,29 +184,53 @@ const STATIC_COURSES_MENU = [
   },
 ];
 
-// Merges the live /courses/public/nav-menu/ categories ("school",
-// "competitive") into the static menu shape. Only replaces the parts the API
-// actually covers: the school tabs wholesale, and the "Exam tracks" section's
-// links. Returns the static menu unchanged if the API has nothing usable yet.
+// Merges the live /courses/public/nav-menu/ categories into the static menu
+// shape. Two modes, and the API says which via `curated`:
 //
-// "Exam tracks" is now the only section under Competitive Exams (the static
-// "Prepare" section was removed), so this match is what keeps the menu
-// populated at all — renaming that heading would silently empty it.
+//   curated: false — the column is DERIVED from the catalogue, as it always
+//     has been. Only the parts the API covers are replaced: the school tabs
+//     wholesale, and the "Exam tracks" section's links.
+//   curated: true — an admin chose these links in the CMS (Courses menu).
+//     The column is replaced outright, headings and all.
+//
+// Returns the static menu unchanged if the API has nothing usable yet, which
+// is also what "Skill & Career" gets until somebody curates it — it has no
+// catalogue backing, so the API returns nothing for it at all.
 function mergeLiveNavMenu(categories) {
   if (!categories.length) return STATIC_COURSES_MENU;
-  const school = categories.find((c) => c.key === "school");
-  const competitive = categories.find((c) => c.key === "competitive");
+  const byKey = {
+    "School Education": categories.find((c) => c.key === "school"),
+    "Competitive Exams": categories.find((c) => c.key === "competitive"),
+    "Skill & Career": categories.find((c) => c.key === "skill"),
+  };
 
   return STATIC_COURSES_MENU.map((cat) => {
-    if (cat.title === "School Education" && school?.tabs?.length) {
-      return { ...cat, tabs: school.tabs };
+    const live = byKey[cat.title];
+    if (!live) return cat;
+
+    // A CURATED column was chosen link by link in the CMS and owns its own
+    // headings, so it replaces this column outright — including dropping
+    // sections the static menu has. Folding it into the static headings
+    // (what the derived path below does) would silently show only the
+    // first curated section.
+    if (live.curated) {
+      if (cat.tabs && live.tabs?.length) return { ...cat, tabs: live.tabs };
+      if (live.sections?.length) return { ...cat, sections: live.sections };
+      return cat;
     }
-    if (cat.title === "Competitive Exams" && competitive?.sections?.[0]?.links?.length) {
+
+    if (cat.title === "School Education" && live.tabs?.length) {
+      return { ...cat, tabs: live.tabs };
+    }
+    // Derived competitive is one unnamed section; it fills the static
+    // "Exam tracks" heading rather than renaming it. Renaming that heading
+    // in STATIC_COURSES_MENU would silently empty the menu.
+    if (cat.title === "Competitive Exams" && live.sections?.[0]?.links?.length) {
       return {
         ...cat,
         sections: cat.sections.map((sec) =>
           sec.heading === "Exam tracks"
-            ? { ...sec, links: competitive.sections[0].links }
+            ? { ...sec, links: live.sections[0].links }
             : sec
         ),
       };
