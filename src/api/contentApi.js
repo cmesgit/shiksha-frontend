@@ -190,6 +190,20 @@ export async function getHomeSectionOrder() {
   }
 }
 
+// The landing page's product-walkthrough clips, newest config first.
+// The backend already withholds rows that are unpublished or have no Bunny
+// video uploaded yet, so `length === 0` is the frontend's whole "is there
+// anything to show" test — DemoVideoButton renders nothing on an empty list
+// rather than a play button that opens an empty player.
+export async function getDemoVideos() {
+  try {
+    const { data } = await api.get("/content/demo-videos/");
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
 
 /* ── Contact page writes ───────────────────────────────────────── */
 //
