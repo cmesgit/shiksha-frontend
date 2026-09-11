@@ -134,6 +134,12 @@ const css = `.sh-hero{
     font-family:var(--display);font-size:14.5px;font-weight:700;
     color:var(--brand-deep);
     border-bottom:1.5px solid transparent;
+    /* .sh-blob is decorative but oversized: it spills well above its own
+       .sh-hero-visual box and, once the hero stacks at narrower widths, lands
+       right on top of this row — swallowing the click entirely. Measured at
+       948px: elementFromPoint over the link returned SPAN.sh-blob. Nothing
+       occupied that band before, which is why the hero never needed this. */
+    position:relative;z-index:2;
   }
 .sh-hero-demo svg{width:17px;height:17px;flex:0 0 auto}
 .sh-hero-demo:hover{border-bottom-color:currentColor}
