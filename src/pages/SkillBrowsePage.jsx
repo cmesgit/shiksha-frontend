@@ -291,6 +291,27 @@ export default function SkillBrowsePage() {
   const pickPopular = useCallback((term) => { changeSearch(term); gotoDirectory(); },
     [changeSearch, gotoDirectory]);
 
+  /* What the category rail offers to filter by.
+   *
+   * A filter list has to derive from the data; an input list cannot. The
+   * catalog behind `/skill/categories/` is deliberately wider than current
+   * coverage so an expert signing up can classify themselves — someone who
+   * teaches Dance has to be able to say so before any Dance expert exists
+   * (see the backend's seed_skill_categories). The signup picker therefore
+   * keeps every category. Here it is a filter, and offering a category that
+   * matches nobody is a dead end: the chip reads "Dance 0" and clicking it
+   * empties the page. Same rule the language filter already follows.
+   *
+   * The active category stays regardless of its count, or selecting one
+   * would make its own chip disappear from under the click. `categories`
+   * itself stays whole — `chips` below looks up the active label in it. */
+  const browsableCategories = useMemo(
+    () => categories.filter(
+      (c) => (c.expert_count ?? 0) > 0 || (c.slug || c.id) === filters.cat
+    ),
+    [categories, filters.cat]
+  );
+
   /** Removable chips above the results — one per non-default filter. */
   const chips = useMemo(() => {
     const out = [];
@@ -568,7 +589,7 @@ export default function SkillBrowsePage() {
 
                 <SkillFilters
                   filters={filters}
-                  categories={categories}
+                  categories={browsableCategories}
                   locations={locations}
                   onChange={setFilter}
                   onClear={clearAll}
