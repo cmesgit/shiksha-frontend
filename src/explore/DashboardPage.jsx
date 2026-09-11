@@ -3,9 +3,12 @@
 // "My Library Dashboard" — ported from ShikshaCom Explore Dashboard (standalone).
 // A personal overview of the user's Explore activity: stat cards, recently read,
 // my uploads, saved documents and collections, plus tabs to drill into each.
-// Backed by the client-side library store (viewed / myDocs / saved) resolved to
-// documents via getDocumentsByIds; collections come from the library. Guests see
-// a sign-in prompt. The shared site navbar (top) is kept as-is.
+// Reading History and Saved come from the client-side library store, resolved
+// to documents via getDocumentsByIds. My Uploads is server-derived (?mine=1),
+// and every collection surface here shows the user's OWN collections. Guests
+// get a sign-in prompt. The shared site navbar (top) is kept as-is; the header
+// carries no action buttons because the Explore toolbar directly above it
+// already does.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useMemo, useState } from "react";
@@ -15,8 +18,9 @@ import { useExplore } from "./ExploreStore";
 import {
   getDocumentsByIds, listCollections, parseCount, getMe, getAuthor,
   createCollection, deleteCollection, addDocumentToCollection,
+  getMyUploads, deleteDocument,
 } from "./exploreApi";
-import { fileGlyph, DocCard, CollectionCard, AuthorCard, Icon, Loading } from "./components/ui";
+import { fileGlyph, DocCard, CollectionCard, AuthorCard, Loading } from "./components/ui";
 import "./Explore.css";
 
 const TABS = ["Overview", "Reading History", "My Uploads", "Saved", "Following", "Collections"];
@@ -64,7 +68,7 @@ function PreviewCard({ title, onSeeAll, empty, children }) {
 
 export default function ExploreDashboardPage() {
   const nav = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const store = useExplore();
   const [tab, setTab] = useState("Overview");
   const [data, setData] = useState(null);
@@ -72,25 +76,39 @@ export default function ExploreDashboardPage() {
   const [collForm, setCollForm] = useState({ title: "", description: "", color: "#125027", visibility: "public" });
   const [collBusy, setCollBusy] = useState(false);
   const [collError, setCollError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
 
-  const savedIds = store.saved, viewedIds = store.viewed, myIds = store.myDocs;
+  const savedIds = store.saved, viewedIds = store.viewed;
 
   useEffect(() => {
     if (!isAuthenticated) return;
     let alive = true;
     Promise.all([
       getDocumentsByIds(viewedIds),
-      getDocumentsByIds(myIds),
+      // My Uploads comes from the server, not from `store.myDocs`. That was a
+      // list of ids written to localStorage at publish time, so the tab showed
+      // nothing on a different browser, after a cache clear, or for anything
+      // uploaded from another device — which is exactly how it presented: "I
+      // uploaded a document and My Uploads is empty".
+      getMyUploads(),
       getDocumentsByIds(savedIds),
       listCollections(),
       getMe(),
     ])
       .then(([reads, uploads, saved, collections, me]) => {
-        if (alive) setData({ reads, uploads, saved, collections, followingIds: me?.following?.authors || [] });
+        if (alive) setData({
+          reads, uploads, saved, collections,
+          followingIds: me?.following?.authors || [],
+          // The Explore-side identity. `me` spreads the same contributor badge
+          // that CollectionSerializer.get_curator emits, so `me.id` is the one
+          // value that can be compared against `collection.curator.id`.
+          meId: me?.id || null,
+        });
       })
-      .catch(() => alive && setData({ reads: [], uploads: [], saved: [], collections: [], followingIds: [] }));
+      .catch(() => alive && setData({ reads: [], uploads: [], saved: [], collections: [], followingIds: [], meId: null }));
     return () => { alive = false; };
-  }, [isAuthenticated, viewedIds, myIds, savedIds]);
+  }, [isAuthenticated, viewedIds, savedIds]);
 
   // Following tab — resolved from the backend's real per-user `following`
   // data (DocumentsMeView), not the client-only store, so it can't drift out
@@ -110,10 +128,16 @@ export default function ExploreDashboardPage() {
     [data]
   );
 
-  const myUsername = user?.username;
+  // This used to compare `collection.curator.id` against `user.username` from
+  // AuthContext — two different identity spaces, and AuthContext doesn't carry
+  // a `username` at all, so the result was ALWAYS empty. That single silent
+  // mismatch is why there was no way to add a document to a collection (the
+  // picker below is gated on this list being non-empty) and why the Delete
+  // button never appeared on a collection you owned.
+  const myId = data?.meId;
   const myCollections = useMemo(
-    () => (data?.collections || []).filter((c) => c.curator?.id && myUsername && c.curator.id === myUsername),
-    [data, myUsername]
+    () => (data?.collections || []).filter((c) => c.curator?.id && myId && c.curator.id === myId),
+    [data, myId]
   );
 
   async function handleCreateCollection(e) {
@@ -145,6 +169,25 @@ export default function ExploreDashboardPage() {
     } catch { /* leave it in place on failure */ }
   }
 
+  async function handleDeleteUpload(doc) {
+    if (!window.confirm(
+      `Delete "${doc.title}"? It will be removed from the library and the file itself is deleted. This can't be undone.`
+    )) return;
+    setDeletingId(doc.id);
+    setDeleteError("");
+    try {
+      await deleteDocument(doc.id);
+      setData((d) => ({ ...d, uploads: (d.uploads || []).filter((u) => u.id !== doc.id) }));
+      // Drop it from the local library lists too, or a deleted document keeps
+      // showing up under Reading History / Saved as an unresolvable id.
+      store.forget?.(doc.id);
+    } catch {
+      setDeleteError(`Couldn't delete "${doc.title}". Try again.`);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   async function handleAddToCollection(slug, documentId) {
     await addDocumentToCollection(slug, documentId);
     setData((d) => ({
@@ -169,33 +212,42 @@ export default function ExploreDashboardPage() {
 
   if (!data) return <div className="exp"><Loading /></div>;
 
-  const { reads, uploads, saved, collections } = data;
+  // `collections` is deliberately not destructured — every surface on this
+  // screen shows `myCollections`. Reaching for the full library list here is
+  // what made the Collections stat disagree with the user's own profile.
+  const { reads, uploads, saved } = data;
 
   const stats = [
     { l: "Documents Read", n: reads.length, s: `${reads.length} in library`, c: "#125027" },
-    { l: "My Uploads", n: myIds.length, s: uploadViews ? `${uploadViews.toLocaleString()} total views` : "Published by you", c: "#1b9c85" },
+    // Counts the documents the server actually returned, not the length of a
+    // client-side id list — those two diverged whenever a stored id no longer
+    // resolved to a live document.
+    { l: "My Uploads", n: uploads.length, s: uploadViews ? `${uploadViews.toLocaleString()} total views` : "Published by you", c: "#1b9c85" },
     { l: "Saved Documents", n: savedIds.length, s: "Bookmarked", c: "#e07900" },
-    { l: "Collections", n: collections.length, s: "In the library", c: "#6b58d3" },
+    // MY collections. This card used to count every collection in the whole
+    // library while sitting in a row of otherwise personal numbers, so it read
+    // as "my collections" and disagreed with the count on the same user's own
+    // profile page.
+    { l: "Collections", n: myCollections.length, s: "Created by you", c: "#6b58d3" },
   ];
 
   return (
     <div className="exp">
       <div className="exp-in exp-wrap" style={{ padding: "24px 24px 56px" }}>
-        {/* header */}
+        {/* Header, title only. The action buttons that used to sit here —
+            "Back to Explore" and "+ Upload Document" — were a second navigation
+            bar stacked directly under the Explore toolbar, which already
+            carries "+ Upload document" two rows above and is itself reachable
+            from every page. Two upload buttons within 60px of each other read
+            as a rendering bug. */}
         <div className="exp-dash-head">
           <div>
             <h1 className="exp-dash-title">My Library Dashboard</h1>
             <p className="exp-dash-sub">Welcome back — your Explore activity in one place.</p>
           </div>
-          <div className="exp-dash-acts">
-            <button className="exp-btn exp-btn-ghost" onClick={() => nav("/explore")}>
-              <Icon.back /> Back to Explore
-            </button>
-            <button className="exp-btn exp-btn-primary" onClick={() => nav("/explore/upload")}>
-              + Upload Document
-            </button>
-          </div>
         </div>
+
+        {deleteError && <div className="exp-upload-error" style={{ maxWidth: "none" }}>{deleteError}</div>}
 
         {/* tabs */}
         {/* Two anchors on purpose. `explore-dashboard.tabs` (the strip) is the
@@ -257,9 +309,9 @@ export default function ExploreDashboardPage() {
                 ))}
               </PreviewCard>
 
-              <PreviewCard title="Collections" onSeeAll={() => nav("/explore/collections")}
-                empty={collections.length ? null : "No collections yet."}>
-                {collections.slice(0, 4).map((c) => (
+              <PreviewCard title="Collections" onSeeAll={() => setTab("Collections")}
+                empty={myCollections.length ? null : "Create a collection to group documents."}>
+                {myCollections.slice(0, 4).map((c) => (
                   <div key={c.id} className="exp-doc-row" style={{ alignItems: "center" }} onClick={() => nav(`/explore/collections/${c.id}`)}>
                     <div className="exp-coll-ic" style={{ background: c.color || "#125027" }}>{(c.title || "?").slice(0, 1)}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -274,7 +326,36 @@ export default function ExploreDashboardPage() {
         )}
 
         {tab === "Reading History" && <TabGrid docs={reads} empty="You haven't opened any documents yet." />}
-        {tab === "My Uploads" && <TabGrid docs={uploads} empty="You haven't published anything yet." cta={{ label: "Upload a document", to: "/explore/upload" }} nav={nav} />}
+        {tab === "My Uploads" && (
+          uploads.length
+            ? (
+              <div className="exp-docgrid-3">
+                {uploads.map((d) => (
+                  <div key={d.id} style={{ position: "relative" }}>
+                    <DocCard doc={d} />
+                    {/* Only reachable on your own uploads, and only here —
+                        the server re-checks ownership regardless. */}
+                    <button
+                      className="exp-updel"
+                      title="Delete this upload"
+                      onClick={(e) => { e.stopPropagation(); handleDeleteUpload(d); }}
+                      disabled={deletingId === d.id}
+                    >
+                      {deletingId === d.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )
+            : (
+              <div className="exp-card exp-dash-empty">
+                You haven't published anything yet.
+                <div style={{ marginTop: 14 }}>
+                  <button className="exp-btn exp-btn-primary" onClick={() => nav("/explore/upload")}>Upload a document</button>
+                </div>
+              </div>
+            )
+        )}
         {tab === "Saved" && (
           saved.length
             ? (
@@ -337,26 +418,36 @@ export default function ExploreDashboardPage() {
               {collError && <div style={{ color: "#c0392b", font: "500 12px Poppins,sans-serif", marginTop: 8 }}>{collError}</div>}
             </div>
 
-            {collections.length ? (
+            {/* Mine only. This tab used to list every collection in the
+                library, most of them other people's and none of them
+                deletable, inside a screen called My Library. The public list
+                still lives at /explore/collections. */}
+            {myCollections.length ? (
               <div className="exp-colgrid">
-                {collections.map((c) => (
+                {myCollections.map((c) => (
                   <div key={c.id} style={{ position: "relative" }}>
                     <CollectionCard collection={c} />
-                    {myCollections.some((mc) => mc.id === c.id) && (
-                      <button
-                        className="exp-btn exp-btn-ghost"
-                        style={{ position: "absolute", top: 10, right: 10, padding: "4px 10px", font: "600 11px Poppins,sans-serif" }}
-                        onClick={(e) => { e.stopPropagation(); handleDeleteCollection(c.id); }}
-                      >
-                        Delete
-                      </button>
-                    )}
+                    <button
+                      className="exp-btn exp-btn-ghost"
+                      style={{ position: "absolute", top: 10, right: 10, padding: "4px 10px", font: "600 11px Poppins,sans-serif" }}
+                      onClick={(e) => { e.stopPropagation(); handleDeleteCollection(c.id); }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="exp-card exp-dash-empty">No collections in the library yet.</div>
+              <div className="exp-card exp-dash-empty">
+                You haven't created a collection yet. Make one above, then add documents
+                to it from any document page or from your saved list.
+              </div>
             )}
+            <div style={{ marginTop: 16, textAlign: "center" }}>
+              <button className="exp-btn exp-btn-ghost" onClick={() => nav("/explore/collections")}>
+                Browse everyone's collections
+              </button>
+            </div>
           </>
         )}
       </div>

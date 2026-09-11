@@ -6,7 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getFacets, searchDocuments } from "./exploreApi";
 import { DocCard, Icon, Loading } from "./components/ui";
 import "./Explore.css";
@@ -22,7 +22,6 @@ const FIELDS = [
 
 export default function ExploreBrowse() {
   const [params, setParams] = useSearchParams();
-  const nav = useNavigate();
   const [facets, setFacets] = useState(null);
   // `res === null` means "nothing has ever loaded" — the ONLY state that shows
   // the spinner. Once results exist they stay mounted across every subsequent
@@ -127,7 +126,9 @@ export default function ExploreBrowse() {
               <h1>{title}</h1>
               {res && <div className="exp-count">{res.count} {res.count === 1 ? "document" : "documents"} found</div>}
             </div>
-            <button className="exp-btn exp-btn-ghost" onClick={() => nav("/explore")}><Icon.back /> Back to Explore</button>
+            {/* "Back to Explore" removed — the toolbar's Home link one row
+                above goes to the same place, and a second button for it on the
+                right of the results header competed with the result count. */}
           </div>
 
           {activeChips.length > 0 && (

@@ -12,14 +12,13 @@ import { DocCard, CollectionCard, SectionHead, Icon, Loading } from "./component
 import "./Explore.css";
 
 export function CollectionsList() {
-  const nav = useNavigate();
   const [cols, setCols] = useState(null);
   useEffect(() => { listCollections().then(setCols); }, []);
 
   return (
     <div className="exp">
       <div className="exp-wrap exp-section exp-in">
-        <button className="exp-back" onClick={() => nav("/explore")}><Icon.back /> Back to Explore</button>
+        {/* "Back to Explore" removed — the toolbar's Home link covers it. */}
         <SectionHead eyebrow="Curated sets" title="All collections" />
         {!cols ? <Loading /> : (
           <div className="exp-colgrid">{cols.map((c) => <CollectionCard key={c.id} collection={c} />)}</div>
