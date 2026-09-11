@@ -205,11 +205,9 @@
 }
 .exp-doc-stats .exp-like-btn.mini:hover { background: transparent; color: var(--forest); }
 .exp-doc-stats .exp-like-btn.mini.on { color: var(--forest); }
-.exp-inforow-like { display: flex; align-items: center; }
 /* Wraps the heart SVG so it centres against the count instead of sitting on
    the text baseline the way the old ♥/♡ characters did. */
 .exp-like-glyph { display: inline-flex; align-items: center; font-size: 13px; }
-.exp-inforow .exp-like-btn { font-size: 13px; padding: 7px 14px; }
 
 /* ── author cards / chips ───────────────────────────────────────────────────── */
 .exp-authgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -284,17 +282,89 @@
 .exp-empty { text-align: center; padding: 70px 20px; color: var(--muted); }
 .exp-empty h3 { font: 800 18px Montserrat, sans-serif; color: var(--forest); margin-bottom: 6px; }
 
-/* ── document detail ────────────────────────────────────────────────────────── */
+/* ── document detail (Claude design: content left, sticky action rail right) ─── */
 .exp-docpage { padding: 30px 0 60px; }
 .exp-back { border: none; background: none; color: var(--forest); font: 600 13px Poppins, sans-serif; cursor: pointer; margin-bottom: 18px; display: inline-flex; gap: 6px; }
-.exp-doclayout { display: grid; grid-template-columns: 300px 1fr; gap: 30px; align-items: start; }
-.exp-bigcover {
-  border-radius: var(--r); aspect-ratio: 3 / 4; color: #fff; display: grid; place-items: center; position: relative;
-  overflow: hidden; box-shadow: var(--shadow);
+
+/* title block — sits above the two columns so the heading spans the full width
+   rather than being squeezed into the narrower content column */
+.exp-dochead { margin-bottom: 22px; }
+.exp-docbadges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.exp-typepill {
+  display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; border-radius: 7px;
+  padding: 4px 10px; font: 700 11px Poppins, sans-serif;
 }
-.exp-bigcover .ficon { font: 900 46px Montserrat, sans-serif; opacity: .92; display: flex; align-items: center; justify-content: center; }
-.exp-actions { display: grid; gap: 10px; margin-top: 16px; }
-.exp-actions .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.exp-filepill {
+  display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 7px; background: #f6f8f6;
+  padding: 4px 10px; font: 600 11px Poppins, sans-serif; color: var(--muted);
+}
+.exp-dochead h1 { font: 900 clamp(24px, 3.2vw, 34px)/1.15 Montserrat, sans-serif; }
+.exp-docmeta { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; font: 500 12.5px Poppins, sans-serif; color: var(--muted); }
+.exp-docmeta span { display: inline-flex; align-items: center; gap: 6px; }
+/* The like count is read-only here — the rail button is what writes. It still
+   turns on, so liking is visibly acknowledged in both places at once. */
+.exp-docmeta span.is-liked { color: var(--forest); font-weight: 700; }
+
+.exp-doclayout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 30px; align-items: start; }
+.exp-docmain { min-width: 0; }
+
+/* inline viewer */
+.exp-viewer { border: 1px solid var(--line); border-radius: var(--r); background: #fafbfa; overflow: hidden; }
+.exp-viewer-hd { padding: 12px 16px; border-bottom: 1px solid var(--line); font: 700 12px Poppins, sans-serif; color: var(--muted); background: #fff; }
+.exp-viewer-body { padding: 16px; }
+/* Height in px, not vh — vh units are banned in layout CSS here (mobile
+   browsers resize the viewport as the URL bar collapses, so the frame jumps
+   mid-scroll). */
+.exp-viewer-frame { width: 100%; height: 620px; border: 1px solid var(--line); border-radius: 10px; background: #fff; display: block; }
+.exp-viewer-empty { text-align: center; padding: 60px 24px; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+.exp-viewer-empty .ic { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; font-size: 20px; margin-bottom: 12px; }
+.exp-viewer-empty h3 { font: 800 15px Montserrat, sans-serif; margin-bottom: 6px; }
+.exp-viewer-empty p { font: 400 12.5px/1.7 Poppins, sans-serif; color: var(--muted); max-width: 46ch; margin: 0 auto; }
+
+/* body sections */
+.exp-docsect { margin-top: 30px; }
+.exp-docsect > h2 { font: 800 17px Montserrat, sans-serif; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.exp-docsect > p { font: 400 14px/1.8 Poppins, sans-serif; color: #29352b; margin: 0 0 12px; }
+
+/* "Document information" spec table */
+.exp-specgrid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 0;
+}
+.exp-specgrid > div { padding: 14px 16px; border-bottom: 1px solid var(--line); min-width: 0; }
+.exp-specgrid > div:nth-child(odd) { border-right: 1px solid var(--line); }
+/* Only the genuine last row loses its rule. With an odd field count the final
+   cell is alone on its row, so :nth-last-child(-n+2) would strip the border
+   from a cell that still has a neighbour below it. */
+.exp-specgrid > div:last-child,
+.exp-specgrid > div:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.exp-specgrid dt { font: 500 11px Poppins, sans-serif; color: var(--muted); margin-bottom: 4px; }
+.exp-specgrid dd { font: 700 13px Poppins, sans-serif; color: var(--ink); margin: 0; overflow-wrap: anywhere; }
+
+/* action rail */
+/* top must clear BOTH the fixed site header and the sticky Explore toolbar, or
+   the rail slides under the toolbar on scroll. */
+.exp-docrail { position: sticky; top: calc(var(--skn-header-h, 82px) + 62px); display: grid; gap: 14px; }
+.exp-railcard { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(14, 28, 15, .05); }
+.exp-railbtn { width: 100%; justify-content: center; padding: 11px 16px; font-size: 13px; }
+.exp-railbtn + .exp-railbtn { margin-top: 9px; }
+.exp-railgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 9px; }
+.exp-raileyebrow { font: 700 10px Poppins, sans-serif; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.exp-railauthor { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.exp-railauthor b { display: block; font: 700 13px Poppins, sans-serif; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exp-railauthor span { display: block; font: 400 11px Poppins, sans-serif; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.exp-railrecs { display: grid; gap: 4px; }
+.exp-railrec {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none;
+  cursor: pointer; padding: 8px; border-radius: 9px; transition: background .14s;
+}
+.exp-railrec:hover { background: #f8fcf8; }
+.exp-railrec .ic { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; font-size: 14px; }
+.exp-railrec .tx { min-width: 0; }
+.exp-railrec b { display: block; font: 600 12px/1.35 Poppins, sans-serif; color: #18261a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.exp-railrec em { display: block; font: 400 10.5px Poppins, sans-serif; color: var(--muted); font-style: normal; margin-top: 2px; }
+
 .exp-iconbtn {
   border: 1.5px solid var(--line); background: #fff; color: var(--forest); border-radius: 10px; padding: 10px;
   font: 600 12.5px Poppins, sans-serif; cursor: pointer; transition: background .16s, border-color .16s;
@@ -303,16 +373,9 @@
 }
 .exp-iconbtn:hover { border-color: var(--teal); background: rgba(27, 156, 133, .06); }
 .exp-iconbtn.on { border-color: var(--forest); background: #E4F3EC; }
-
-.exp-docmain h1 { font: 900 28px Montserrat, sans-serif; line-height: 1.15; }
-.exp-docmain .byline { display: flex; align-items: center; gap: 10px; margin: 14px 0; cursor: pointer; }
-.exp-docmain .byline b { font: 700 14px Poppins, sans-serif; color: var(--ink); }
-.exp-docmain .byline span { font-size: 12px; color: var(--muted); }
-.exp-inforow { display: flex; flex-wrap: wrap; gap: 22px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 18px 0; }
-.exp-inforow div { font-size: 12px; color: var(--muted); }
-.exp-inforow b { display: block; font: 700 14px Poppins, sans-serif; color: var(--ink); }
-.exp-abstract { font-size: 14.5px; line-height: 1.8; color: #29352b; }
-.exp-abstract h3 { font: 800 15px Montserrat, sans-serif; margin: 0 0 8px; }
+.exp-iconbtn.danger { color: #a33224; }
+.exp-iconbtn.danger:hover { border-color: #a33224; background: #fdf0ee; }
+.exp-iconbtn:disabled { opacity: .6; cursor: default; }
 
 /* ── author page ────────────────────────────────────────────────────────────── */
 .exp-authbanner {
@@ -485,6 +548,35 @@
 .exp-coll-ic { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font: 800 14px Montserrat, sans-serif; color: #fff; }
 .exp-dash-empty { padding: 26px 16px; text-align: center; font: 400 12.5px Poppins, sans-serif; color: rgba(14, 28, 15, .5); }
 
+/* Delete control on a My Uploads card. Sits over the card's cover, which is a
+   dark gradient — hence the translucent-dark treatment rather than the usual
+   white ghost button, which disappeared against half the category colours. */
+.exp-updel {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  border: 1px solid rgba(255, 255, 255, .35); background: rgba(14, 28, 15, .55); color: #fff;
+  border-radius: 8px; padding: 4px 10px; font: 700 11px Poppins, sans-serif; cursor: pointer;
+  backdrop-filter: blur(3px); transition: background .15s, border-color .15s;
+}
+.exp-updel:hover { background: #a33224; border-color: #a33224; }
+.exp-updel:disabled { opacity: .7; cursor: default; }
+
+/* Collection picker rows in the add-to-collection dialog. */
+.exp-collpick { display: grid; gap: 6px; max-height: 260px; overflow-y: auto; }
+.exp-collpick-row {
+  display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 11px;
+  transition: border-color .15s, background .15s;
+}
+.exp-collpick-row:hover { border-color: var(--teal); background: rgba(27, 156, 133, .06); }
+.exp-collpick-row:disabled { opacity: .6; cursor: default; }
+.exp-collpick-row .ic {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; color: #fff;
+  display: flex; align-items: center; justify-content: center; font: 800 13px Montserrat, sans-serif;
+}
+.exp-collpick-row .tx { min-width: 0; }
+.exp-collpick-row b { display: block; font: 600 13px Poppins, sans-serif; color: #18261a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exp-collpick-row em { display: block; font: 400 11px Poppins, sans-serif; color: var(--muted); font-style: normal; margin-top: 2px; }
+
 /* ── responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .exp-stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -495,13 +587,25 @@
   .exp-docgrid, .exp-docgrid-3 { grid-template-columns: repeat(3, 1fr); }
   .exp-authgrid, .exp-colgrid { grid-template-columns: repeat(2, 1fr); }
   .exp-browse { grid-template-columns: 220px 1fr; }
+  /* Rail stacks under the content. It must also stop being sticky — a sticky
+     block in normal flow below the content pins itself to the top of the
+     viewport and covers the document you scrolled down to read. */
+  .exp-doclayout { grid-template-columns: 1fr; }
+  .exp-docrail { position: static; }
+  .exp-docsect .exp-docgrid-3 { grid-template-columns: repeat(3, 1fr); }
+  .exp-viewer-frame { height: 520px; }
 }
 @media (max-width: 760px) {
   .exp-wrap { padding: 0 16px; }
   .exp-catgrid, .exp-docgrid, .exp-docgrid-3 { grid-template-columns: repeat(2, 1fr); }
   .exp-authgrid, .exp-colgrid { grid-template-columns: 1fr; }
-  .exp-doclayout { grid-template-columns: 1fr; }
-  .exp-bigcover { aspect-ratio: 16 / 10; }
+  .exp-specgrid { grid-template-columns: 1fr; }
+  /* One column, so no cell ever has a right-hand neighbour and every cell but
+     the last needs its bottom rule back — both of the two-column exceptions
+     above have to be undone, not just the nth-child one. */
+  .exp-specgrid > div:nth-child(odd) { border-right: none; }
+  .exp-specgrid > div:nth-last-child(2):nth-child(odd) { border-bottom: 1px solid var(--line); }
+  .exp-specgrid > div:last-child { border-bottom: none; }
   .exp-browse { grid-template-columns: 1fr; }
   .exp-filters { position: static; }
   .exp-typegrid { grid-template-columns: repeat(2, 1fr); }

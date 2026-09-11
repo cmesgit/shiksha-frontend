@@ -286,6 +286,25 @@ export async function getDocumentsByIds(ids = []) {
   return data.results || data;
 }
 
+// ── my own uploads ────────────────────────────────────────────────────────────
+// The authoritative answer to "what have I published", straight from the
+// server. My Uploads used to be resolved from a list of ids kept in
+// localStorage at publish time, so it read as empty on any other browser,
+// after a cache clear, or for anything uploaded from another device.
+export async function getMyUploads() {
+  if (USE_MOCK) { await wait(120); return []; }
+  const { data } = await api.get("/explore/documents/", { params: { mine: 1 } });
+  return data.results || [];
+}
+
+// Takes the caller's own document out of the library. Owner (or staff) only;
+// soft-removes the row and deletes the stored file server-side.
+export async function deleteDocument(id) {
+  if (USE_MOCK) { await wait(120); return true; }
+  await api.delete(`/explore/documents/${id}/`);
+  return true;
+}
+
 // ── write actions (real endpoints; mock is a no-op that echoes) ────────────────
 export async function saveDocument(id, saved) {
   if (USE_MOCK) { await wait(80); return { saved }; }

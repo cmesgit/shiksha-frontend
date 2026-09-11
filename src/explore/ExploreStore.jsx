@@ -107,13 +107,27 @@ export function ExploreProvider({ children }) {
     setLib((s) => ({ ...s, myDocs: [id, ...s.myDocs.filter((x) => x !== id)] }));
   }, []);
 
+  // Drop a document from every local list. Called after it is deleted server-
+  // side: without this its id lingers in saved/viewed/likes, and every list
+  // that resolves ids through `?ids=` silently comes back one item short with
+  // nothing explaining the gap.
+  const forget = useCallback((id) => {
+    setLib((s) => ({
+      ...s,
+      saved: s.saved.filter((x) => x !== id),
+      likes: s.likes.filter((x) => x !== id),
+      viewed: s.viewed.filter((x) => x !== id),
+      myDocs: s.myDocs.filter((x) => x !== id),
+    }));
+  }, []);
+
   const value = useMemo(() => ({
     ...lib,
     isSaved: (id) => lib.saved.includes(id),
     isFollowing: (id) => lib.following.includes(id),
     isLiked: (id) => lib.likes.includes(id),
-    toggleSave, toggleFollow, toggleLike, recordView, addMyDoc,
-  }), [lib, toggleSave, toggleFollow, toggleLike, recordView, addMyDoc]);
+    toggleSave, toggleFollow, toggleLike, recordView, addMyDoc, forget,
+  }), [lib, toggleSave, toggleFollow, toggleLike, recordView, addMyDoc, forget]);
 
   return <ExploreCtx.Provider value={value}>{children}</ExploreCtx.Provider>;
 }
