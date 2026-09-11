@@ -145,7 +145,7 @@ const DEFAULT_FLOATERS = {
 
 export default function Collaborate() {
   const rootRef = useRef(null);
-  const { block, items, floaters } = useHomeContent("collaborate");
+  const { block, items, floaters, cmsOwnsFloaters } = useHomeContent("collaborate");
 
   const eyebrow = block?.eyebrow || DEFAULTS_BLOCK.eyebrow;
   const heading = block?.heading || DEFAULTS_BLOCK.heading;
@@ -167,8 +167,12 @@ export default function Collaborate() {
   // reduced-motion media query above hides via :nth-child(2).
   const chipCopies = [0, 1];
 
-  const topFloater = floaters.top?.is_active !== false ? floaters.top || DEFAULT_FLOATERS.top : null;
-  const bottomFloater = floaters.bottom?.is_active !== false ? floaters.bottom || DEFAULT_FLOATERS.bottom : null;
+  // Once this section has any badge rows the CMS owns both slots, so a slot
+  // that isn't in the response was deliberately removed and renders nothing.
+  // With no rows at all (empty CMS, or the API unreachable) the two designed
+  // badges stand, which is what DEFAULT_FLOATERS is for. See useHomeContent.
+  const topFloater = cmsOwnsFloaters ? floaters.top || null : DEFAULT_FLOATERS.top;
+  const bottomFloater = cmsOwnsFloaters ? floaters.bottom || null : DEFAULT_FLOATERS.bottom;
 
   useEffect(() => {
     const root = rootRef.current;

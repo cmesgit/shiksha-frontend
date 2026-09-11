@@ -304,7 +304,7 @@ const DEFAULTS = {
 };
 
 export default function Hero() {
-  const { block, floaters } = useHomeContent("hero");
+  const { block, floaters, cmsOwnsFloaters } = useHomeContent("hero");
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
@@ -344,10 +344,16 @@ export default function Hero() {
 
   // Hero's floating chips are a fixed icon-only trio by design (no text slot
   // exists in the CSS) — CMS control here is deliberately limited to
-  // show/hide per slot (is_active), not icon swap or label text.
-  const showCap = floaters.cap?.is_active !== false;
-  const showBook = floaters.book?.is_active !== false;
-  const showPlay = floaters.play?.is_active !== false;
+  // show/hide per slot, not icon swap or label text.
+  //
+  // The row's mere PRESENCE is the switch: these slots carry no label or icon
+  // that this component reads, so a hero floater row exists only to be there
+  // or not. Removing it in the CMS hides the chip. Until the section reports
+  // any rows at all (still loading, empty table, or the API down) all three
+  // show, which is the original static look. See useHomeContent.
+  const showCap = cmsOwnsFloaters ? Boolean(floaters.cap) : true;
+  const showBook = cmsOwnsFloaters ? Boolean(floaters.book) : true;
+  const showPlay = cmsOwnsFloaters ? Boolean(floaters.play) : true;
 
   return (
     <>
