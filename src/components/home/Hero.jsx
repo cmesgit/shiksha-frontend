@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { getDemoVideos } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import useTickerSlot from "../ticker/useTickerSlot";
 import CtaLink from "./CtaLink";
+import { PLAY_DEMO_EVENT } from "./DemoVideoButton";
 
 // Mirrors content.models.TickerKind.
 const KIND_LABEL = {
@@ -122,6 +124,20 @@ const css = `.sh-hero{
     font-size:clamp(15.5px,1.1vw,17px);color:var(--body);
   }
 .sh-cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+/* Secondary route to the demo, for visitors who never notice the floating
+   button. A real <button>, not a link: it opens a player in place and goes
+   nowhere, so an <a href="#"> would lie to the status bar and to assistive
+   tech. Renders only when a demo actually exists. */
+.sh-hero-demo{
+    display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+    padding:0;border:0;background:none;cursor:pointer;
+    font-family:var(--display);font-size:14.5px;font-weight:700;
+    color:var(--brand-deep);
+    border-bottom:1.5px solid transparent;
+  }
+.sh-hero-demo svg{width:17px;height:17px;flex:0 0 auto}
+.sh-hero-demo:hover{border-bottom-color:currentColor}
+.sh-hero-demo:focus-visible{outline:2px solid var(--brand-deep);outline-offset:3px;border-radius:3px}
 .sh-btn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
     font-family:var(--display);font-size:15px;font-weight:700;
@@ -329,6 +345,29 @@ export default function Hero() {
   const [tickPage, setTickPage] = useState(0);
   const tickPages = Math.max(1, Math.ceil(tickerItems.length / 4));
 
+  /* Same source the floating button reads, so the two cannot disagree about
+     whether a demo exists. The endpoint is cached server-side and withholds
+     anything unplayable, so an empty list here means "render no link" rather
+     than "render a link that opens nothing". */
+  const [demo, setDemo] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getDemoVideos().then((rows) => {
+      const first = (Array.isArray(rows) ? rows : []).find((v) => v?.embed_url);
+      if (alive) setDemo(first || null);
+    });
+    return () => { alive = false; };
+  }, []);
+
+  /* "Watch the 53s sign up demo". The seconds come from Bunny via
+     duration_seconds — the design mockup hardcoded "40s" for a clip that is
+     really 53s, which is the drift this whole feature avoids. With no duration
+     synced yet the label simply omits it. */
+  const demoLabel = demo
+    ? `Watch the ${demo.duration_seconds ? `${demo.duration_seconds}s ` : ""}`
+      + `${(demo.title || "demo").toLowerCase()}`
+    : "";
+
   useEffect(() => {
     if (tickPages < 2) return undefined;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
@@ -394,6 +433,22 @@ export default function Hero() {
                 {ctaSecondaryLabel}
               </CtaLink>
             </div>
+
+            {demo && (
+              <button
+                type="button"
+                className="sh-hero-demo sh-rise sh-d4"
+                onClick={() => window.dispatchEvent(new CustomEvent(
+                  PLAY_DEMO_EVENT, { detail: { key: demo.key } },
+                ))}
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.7" />
+                  <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
+                </svg>
+                {demoLabel}
+              </button>
+            )}
           </div>
 
           <div className="sh-hero-visual sh-rise sh-d5">

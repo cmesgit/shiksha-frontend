@@ -56,13 +56,22 @@ const css = `.dvb{
     width:56px;height:56px;
     display:grid;place-items:center;
     border:0;border-radius:50%;
-    background:linear-gradient(140deg,var(--dvb-brand-2),var(--dvb-brand-deep));
+    background:var(--dvb-brand-deep);
     color:#fff;cursor:pointer;
     box-shadow:0 10px 26px -6px rgba(11,91,62,.45);
-    transition:transform .18s ease, box-shadow .18s ease;
+    transition:box-shadow .18s ease, scale .18s ease;
+    /* The design's "gentle bob". It animates the transform property, so the
+       hover response uses the independent scale property rather than a second
+       transform — otherwise whichever lands last wins and the bob stops.
+       (No backticks in this block: it lives inside a JS template literal.) */
+    animation:dvb-bob 3.6s ease-in-out infinite;
   }
-.dvb-fab svg{width:22px;height:22px;margin-left:2px}
-.dvb-fab:hover{transform:scale(1.05)}
+.dvb-fab svg{width:26px;height:26px}
+.dvb-fab:hover{scale:1.05;animation-play-state:paused}
+@keyframes dvb-bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+  }
 .dvb-fab:focus-visible{outline:3px solid var(--dvb-brand);outline-offset:3px}
 /* Attention ring. Purely decorative, so it sits behind the button and is
    pointer-events:none — an expanding pseudo-element that swallowed clicks
@@ -107,6 +116,11 @@ const css = `.dvb{
     color:var(--dvb-brand-deep);
   }
 .dvb-sub{margin:0 0 10px;padding:0 6px;font-size:12.5px;line-height:1.45;color:var(--dvb-body)}
+/* Hairline rules under the header and between rows, per the design. Drawn
+   with a border rather than a gap so the rows stay flush and the hover wash
+   reads as one continuous band. */
+.dvb-sub{border-bottom:1px solid var(--dvb-line);padding-bottom:11px}
+.dvb-item + .dvb-item{border-top:1px solid var(--dvb-line)}
 .dvb-item{
     display:flex;align-items:center;gap:11px;width:100%;
     padding:9px 6px;border:0;border-radius:11px;
@@ -169,8 +183,25 @@ const css = `.dvb{
 }
 @media (prefers-reduced-motion:reduce){
   .dvb-fab::before{animation:none}
+  .dvb-fab{animation:none}
   .dvb-panel{animation:none}
 }`;
+
+/* The FAB's mark in the design is a ringed play glyph, distinct from the bare
+   triangle on the menu rows — so it is local here rather than replacing the
+   shared IcPlay, which those rows (and other home sections) still use. */
+function IcPlayRing() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Asks the mounted DemoVideoButton to open its player. Exported so the hero's
+ *  text link and this button cannot drift apart on the event name. */
+export const PLAY_DEMO_EVENT = "shiksha:play-demo";
 
 /** "0:54" from 54. Null/0 means Bunny hasn't reported a length yet, in which
  *  case the caller omits the runtime rather than printing "0:00". */
@@ -309,6 +340,24 @@ export default function DemoVideoButton() {
 
   const close = useCallback(() => setOpen(false), []);
 
+  /* The hero carries a text link to the same demo, for visitors who never
+     notice a floating button. It lives in another section of another tree, so
+     it asks for playback by event rather than by prop — the alternative was
+     hoisting this state to HomePage and threading it through ShikshaHome,
+     which would put a video player's open/closed state in the layout root.
+     `detail.key` picks a clip; omitting it plays the first. */
+  useEffect(() => {
+    const onPlay = (e) => {
+      const key = e.detail?.key;
+      const pick = (key && videos.find((v) => v.key === key)) || videos[0];
+      if (!pick) return;
+      setPlaying(pick);
+      setOpen(false);   // don't leave the menu sitting open behind the player
+    };
+    window.addEventListener(PLAY_DEMO_EVENT, onPlay);
+    return () => window.removeEventListener(PLAY_DEMO_EVENT, onPlay);
+  }, [videos]);
+
   // Click-outside and Escape. Without these the panel stays open after a
   // hover-open on a touch device, where there is no mouseleave.
   useEffect(() => {
@@ -349,7 +398,7 @@ export default function DemoVideoButton() {
                click undoing their own hover. Escape and mouseleave close. */
             onClick={() => setOpen((v) => (canHover ? true : !v))}
           >
-            <IcPlay />
+            <IcPlayRing />
           </button>
 
           {open && (
