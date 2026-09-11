@@ -72,7 +72,7 @@ function Stars({ value }) {
   );
 }
 
-export default function TeacherCard({ expert: e }) {
+export default function TeacherCard({ expert: e, onPlayIntro }) {
   const pal      = paletteFor(e.id || "");
   const verified = Array.isArray(e.badges) && e.badges.includes("Verified");
   const rating   = e.rating == null ? 0 : Number(e.rating);
@@ -99,6 +99,22 @@ export default function TeacherCard({ expert: e }) {
             ? <img src={e.img} alt="" loading="lazy" />
             : <b aria-hidden="true">{initial(e.name)}</b>}
           <span className="sk-ava__ring" aria-hidden="true" />
+          {/* Only ever rendered when the URL is non-null, which the serializer
+              withholds below Bunny status 4 — so a still-processing clip shows
+              no play button rather than one that opens an empty player. */}
+          {e.intro_video_embed_url && (
+            <button
+              type="button"
+              className="sk-play"
+              onClick={() => onPlayIntro?.(e)}
+              aria-label={`Play ${e.name}'s intro video`}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.1-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z" />
+              </svg>
+              Intro
+            </button>
+          )}
           {verified && (
             <span className="sk-verify" title="Verified expert">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"

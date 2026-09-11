@@ -319,8 +319,8 @@ export default function ExpertProfilePage() {
                 )}
               </div>
               <div className="ep-hero__badges">
-                {expert.badges?.includes("Verified")  && <span className="er-badge er-badge--verified">✓ Verified</span>}
-                {expert.badges?.includes("Top-rated") && <span className="er-badge er-badge--top">TOP RATED</span>}
+                {expert.badges?.includes("Verified")  && <span className="ep-badge ep-badge--verified">✓ Verified</span>}
+                {expert.badges?.includes("Top-rated") && <span className="ep-badge ep-badge--top">TOP RATED</span>}
               </div>
               {showIntro && expert.intro_video_embed_url && (
                 <div className="ep-hero__introFrame">

@@ -37,6 +37,7 @@ import Footer from "../components/Footer";
 import SkillHeroArt from "../components/skill/skillArt";
 import SkillFilters from "../components/skill/SkillFilters";
 import TeacherCard from "../components/skill/TeacherCard";
+import IntroVideoModal from "../components/skill/IntroVideoModal";
 import {
   DEFAULT_FILTERS, MODE_TEXT, PRICE_ANY, SORTS,
   activeFilterCount, toParams, fromUrl,
@@ -221,6 +222,9 @@ export default function SkillBrowsePage() {
   const [sheetOpen, setSheet]   = useState(false);
   const [openFaq, setOpenFaq]   = useState(-1);
   const [retryTick, setRetry]   = useState(0);
+  /* The expert whose intro clip is open, or null. Holds the whole object, not
+     an id, so the overlay keeps playing if a refetch reorders the list. */
+  const [introExpert, setIntroExpert] = useState(null);
 
   useHeaderOffset(rootRef);
 
@@ -659,7 +663,7 @@ export default function SkillBrowsePage() {
                   <>
                     <div className="sk-list" id="sk-list">
                       {teachers.map((t) => (
-                        <TeacherCard key={t.id} expert={t} />
+                        <TeacherCard key={t.id} expert={t} onPlayIntro={setIntroExpert} />
                       ))}
                     </div>
 
@@ -766,6 +770,10 @@ export default function SkillBrowsePage() {
         </section>
 
       </main>
+
+      {introExpert && (
+        <IntroVideoModal expert={introExpert} onClose={() => setIntroExpert(null)} />
+      )}
 
       <Footer />
     </>

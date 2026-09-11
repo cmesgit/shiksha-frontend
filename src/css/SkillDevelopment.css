@@ -364,6 +364,24 @@
   border-radius:50%;background:var(--sk-emerald);display:grid;place-items:center;
   box-shadow:0 6px 14px rgba(11,46,32,.22),0 0 0 3px #fff}
 .skills-page .sk-verify svg{width:15px;height:15px;color:#fff}
+/* Bottom-left so it never collides with .sk-verify at bottom-right. Always
+   visible rather than revealed on hover — a hover-only affordance is invisible
+   on touch, which is most of this directory's traffic. */
+.skills-page .sk-play{position:absolute;left:6px;bottom:6px;z-index:2;
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:#fff;background:rgba(11,46,32,.66);border:0;border-radius:999px;
+  padding:5px 9px 5px 7px;cursor:pointer;
+  transition:background .22s,transform .22s}
+.skills-page .sk-play svg{width:11px;height:11px}
+.skills-page .sk-play:hover{background:var(--sk-emerald);transform:translateY(-1px)}
+.skills-page .sk-play:focus-visible{outline:2px solid var(--sk-emerald);outline-offset:2px}
+/* Invisible 44px tap target around the pill. The mobile rule below shrinks the
+   visual to a 22px glyph, which is half the minimum touch size; the card is an
+   <article> with no click handler of its own, so nothing competes for the
+   overflow. Keep this AFTER the shrink or the padding wins. */
+.skills-page .sk-play::after{content:"";position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);width:max(100%,44px);height:max(100%,44px)}
 
 .skills-page .sk-tname{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .skills-page .sk-tname h3{font-size:19.5px;font-weight:700;letter-spacing:-.02em;word-break:break-word}
@@ -508,6 +526,9 @@
   .skills-page .sk-tcard__id{display:grid;grid-template-columns:76px minmax(0,1fr);gap:15px;align-items:center}
   .skills-page .sk-ava{width:76px;height:76px;border-radius:20px}
   .skills-page .sk-ava b{font-size:27px}
+  /* The full pill does not fit a 76px avatar — drop the word, keep the glyph. */
+  .skills-page .sk-play{left:4px;bottom:4px;gap:0;padding:5px;font-size:0;letter-spacing:0}
+  .skills-page .sk-play svg{width:12px;height:12px}
   .skills-page .sk-rail .sk-btn{flex:1 1 100%;min-width:0}
   .skills-page .sk-toolbar{align-items:flex-start}
   .skills-page .sk-sort{width:100%}
@@ -646,3 +667,38 @@
   .skills-page .sk-badge i,
   .skills-page .sk-tcard.sk-skel { animation: none; }
 }
+
+/* ============================================================================
+   Intro-video lightbox
+
+   NOT scoped to .skills-page. IntroVideoModal portals to <body> to escape
+   .sk-tcard's hover transform, so it renders outside the page wrapper and a
+   .skills-page prefix here would match nothing. The reduced-motion rule above
+   is scoped the same way and cannot reach it either, hence its own below.
+
+   For the same reason these use the :root layer in theme.css, NOT the
+   --sk-emerald* names used everywhere above: that trio is declared on
+   .skills-page itself, so outside the wrapper it resolves to nothing and the
+   rule is silently dropped. --sk-green / --sk-green-dark / --sk-mint are the
+   globally-declared names, and carry byte-identical values. Same for
+   --sk-font: the page wrapper sets Poppins, <body> does not.
+   ========================================================================= */
+.sk-vmodal{position:fixed;inset:0;z-index:10200;display:grid;place-items:center;
+  padding:20px;background:rgba(11,46,32,.72);animation:sk-vfade .2s ease-out;
+  font-family:var(--sk-font)}
+.sk-vmodal__card{width:min(860px,100%);background:#fff;border-radius:20px;
+  overflow:hidden;box-shadow:0 30px 80px rgba(11,46,32,.4)}
+.sk-vmodal__head{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:13px 16px;border-bottom:1px solid var(--sk-line)}
+.sk-vmodal__name{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--sk-ink)}
+.sk-vmodal__close{width:30px;height:30px;border-radius:50%;border:1px solid var(--sk-line);
+  background:#fff;color:var(--sk-ink-2);font-size:13px;line-height:1;cursor:pointer;
+  display:grid;place-items:center;transition:background .2s,color .2s}
+.sk-vmodal__close:hover{background:var(--sk-mint);color:var(--sk-green-dark)}
+.sk-vmodal__close:focus-visible{outline:2px solid var(--sk-green);outline-offset:2px}
+/* Black, not white: it is what shows in the letterbox bars of a portrait clip
+   filmed on a phone, which is what these intros actually are. */
+.sk-vmodal__frame{aspect-ratio:16/9;background:#000}
+.sk-vmodal__frame iframe{width:100%;height:100%;border:0;display:block}
+@keyframes sk-vfade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.sk-vmodal{animation:none}}
