@@ -156,16 +156,15 @@ export const tourRegistry = [
         body: "Filter by category, subject, level, or file type to find what you need faster.",
       },
       {
-        target: '[data-tour="explore-toolbar.collections"]',
-        placement: "bottom",
-        title: "Collections",
-        body: "Curated sets of documents grouped around a topic.",
-      },
-      {
+        // Was `explore-toolbar.collections`, which no longer exists — the
+        // toolbar's Collections link was removed because collections are
+        // created and managed inside My Library. A step pointing at a missing
+        // anchor is a tour that stalls, so this now points at the entry that
+        // actually leads there.
         target: '[data-tour="explore-toolbar.library"]',
         placement: "bottom",
         title: "Your library",
-        body: "Everything you've saved or uploaded lives here.",
+        body: "Everything you've read, saved or uploaded — and the collections you group them into.",
       },
     ],
   },

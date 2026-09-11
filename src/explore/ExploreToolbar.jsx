@@ -11,10 +11,14 @@ import { useAuth } from "../contexts/AuthContext";
 import TourHeaderButton from "../tour/TourHeaderButton";
 import "./Explore.css";
 
+// Collections deliberately absent. It lives in My Library, which is where a
+// user's own collections are created and managed, so a second top-level entry
+// to a mostly-empty public list was duplicate navigation. The /explore/
+// collections routes still exist and are still linked from My Library and from
+// an author's profile — only the toolbar entry is gone.
 const LINKS = [
   { label: "Home", to: "/explore", match: (p) => p === "/explore" },
   { label: "Browse", to: "/explore/browse", match: (p) => p.startsWith("/explore/browse") },
-  { label: "Collections", to: "/explore/collections", match: (p) => p.startsWith("/explore/collections") },
 ];
 
 export default function ExploreToolbar() {
