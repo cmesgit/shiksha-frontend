@@ -198,6 +198,12 @@ const FormFillup = ({ onSuccess } = {}) => {
           getStates(),
         ]);
 
+        // profile_photo is destructured only to keep it OUT of `fields` — it
+        // is a URL on read and a File on write, so letting it through would
+        // put a string into the form state that the submit path then sends
+        // back as if it were an upload. Same omit-a-key idiom, and same
+        // disable, as the two draft serialisers below.
+        // eslint-disable-next-line no-unused-vars
         const { form_type, email: userEmail, username: uname, profile_photo, ...fields } = formRes.data;
         setFormType(form_type);
         setEmail(userEmail);
