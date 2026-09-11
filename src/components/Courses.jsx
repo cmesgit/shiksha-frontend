@@ -128,7 +128,7 @@ const Courses = () => {
 
   // Default axis once boards have loaded and nothing is selected yet: a
   // navbar/homepage deep-link wins (a specific board, or — from the navbar's
-  // "View All Central/State Boards" link — just a board_type group, in which
+  // "View All National Boards" link — just a board_type group, in which
   // case the first unlocked board in that group stands in for it), then the
   // remembered last board, then ALL BOARDS.
   //
@@ -271,7 +271,7 @@ const Courses = () => {
   // one reads wrong — "NEET Board" is not a thing. Unknown types still fall
   // through to undefined so the label is simply omitted rather than guessed.
   const BOARD_GROUP_LABELS = {
-    CENTRAL: 'Central Board',
+    CENTRAL: 'National Board',
     STATE: 'State Board',
     COMPETITIVE: 'Competitive Exam',
   };

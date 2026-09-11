@@ -112,8 +112,13 @@ function boardLabelFor(cls, fallbackBoard, hideKindLabel) {
   return fallbackBoard?.name || '';
 }
 
+// `type` is the stored Board.board_type and stays CENTRAL — it is lowercased
+// into the public `?group=` deep link, so it is baked into shared URLs and
+// into homepage CMS rows already saved in the database. Only the label reads
+// "National", matching the navbar (which derives its wording from
+// Board.TYPE_CHOICES server-side) and the admin.
 const BOARD_TABS = [
-  { type: 'CENTRAL', label: 'Central' },
+  { type: 'CENTRAL', label: 'National' },
   { type: 'STATE', label: 'State' },
 ];
 
@@ -345,7 +350,7 @@ const UnifiedCatalog = ({
   const [notifyBoard, setNotifyBoard] = useState(null);
   const [notifyCourse, setNotifyCourse] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  // Which Central/State tab the board list shows, and the "find a board"
+  // Which National/State tab the board list shows, and the "find a board"
   // query that narrows it — the design reference's board-picker shape.
   const [boardCategory, setBoardCategory] = useState('CENTRAL');
   const [boardQuery, setBoardQuery] = useState('');
@@ -363,7 +368,7 @@ const UnifiedCatalog = ({
 
   // Keep the board tab following whichever board is actually selected (a
   // navbar/homepage deep-link can select a State board while the panel is
-  // still on Central). Adjusted synchronously during render, the same
+  // still on National). Adjusted synchronously during render, the same
   // pattern the class/stream reset below already uses, rather than an
   // effect that would cost an extra render cascade.
   const [prevBoardForTab, setPrevBoardForTab] = useState(null);
@@ -391,7 +396,7 @@ const UnifiedCatalog = ({
   const crossMatches = useCrossBoardMatches(boards, debouncedSearch, selectedBoard);
   const currentBoard = boards?.find((b) => b.slug === selectedBoard) || null;
 
-  // Boards in the active Central/State tab, narrowed by the panel's own
+  // Boards in the active National/State tab, narrowed by the panel's own
   // "find a board" box (matches name or slug, so "wb" finds WBBSE).
   const bq = boardQuery.trim().toLowerCase();
   const tabBoards = useMemo(() => {

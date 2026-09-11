@@ -92,9 +92,14 @@ const STATIC_COURSES_MENU = [
     icon: IcBook,
     tabs: [
       {
+        // `id` is the stored board_type lowercased and is the deep-link wire
+        // value (CBSE_STATE below, and `?group=`) — it must stay "central".
+        // The label/heading match what mergeLiveNavMenu swaps in from the API
+        // ("National Boards"), so the first paint no longer renames itself
+        // the moment the live menu arrives.
         id: "central",
-        label: "CBSE Board",
-        heading: "Central Board (CBSE)",
+        label: "National Boards",
+        heading: "National Board Courses",
         links: [
           { label: "Class 8", to: "/courses", state: CBSE_STATE },
           { label: "Class 9", to: "/courses", state: CBSE_STATE },

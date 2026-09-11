@@ -252,7 +252,7 @@
 .uc-ftitle:disabled { cursor: default; }
 .uc-fbody { padding-bottom: 15px; }
 
-/* Central/State segmented control + "find a board" box (design reference's
+/* National/State segmented control + "find a board" box (design reference's
    filter panel). These replace the old two-accordion + "+N more" board
    layout: with 32 boards that grew the panel taller than the results
    column, which is exactly what the capped, scrollable .uc-flist below
