@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { getFormFillupData, submitFormFillup, getStates, getDistricts, getFacultyChoices } from "../api/formFillupApi";
 import { useAuth } from "../contexts/AuthContext";
 import extractError from "../utils/extractError";
+import { skillFileError } from "../utils/skillFileRules";
 import "../css/FormFillup.css";
 
 const STUDENT_FIELDS = {
@@ -140,7 +141,7 @@ function ffSignature({ form, courseApps, skillApps, teacherFormType }) {
     teacherFormType: teacherFormType || null,
     form: safe,
     courseApps: courseApps || [],
-    skillApps: (skillApps || []).map(({ skill_file, ...rest }) => rest),  // eslint-disable-line no-unused-vars
+    skillApps: (skillApps || []).map(({ skill_file, file_error, ...rest }) => rest),  // eslint-disable-line no-unused-vars
   });
 }
 
@@ -364,7 +365,7 @@ const FormFillup = ({ onSuccess } = {}) => {
         email, formType, teacherFormType, currentStep,
         form: safeForm,
         courseApps,
-        skillApps: skillApps.map(({ skill_file, ...rest }) => rest),  // eslint-disable-line no-unused-vars
+        skillApps: skillApps.map(({ skill_file, file_error, ...rest }) => rest),  // eslint-disable-line no-unused-vars
         fileNames: { ...staleFileNames, ...fileNames },
       }));
     } catch { /* private mode / quota — carry on without a draft */ }
@@ -487,6 +488,23 @@ if (
   /* ── Skill App helpers ── */
   const updateSkillApp = (idx, field, value) => {
     setSkillApps((prev) => prev.map((app, i) => i === idx ? { ...app, [field]: value } : app));
+  };
+
+  // Size rule lives in utils/skillFileRules.js so it can be tested; the
+  // server enforces the same number and is authoritative. See that file for
+  // why the limit had to be added on both sides.
+  const handleSkillFile = (idx, file, inputEl) => {
+    const fileError = skillFileError(file);
+    if (fileError) {
+      // Clear the input so its filename does not sit there implying the
+      // oversized file was accepted.
+      if (inputEl) inputEl.value = "";
+      setSkillApps((prev) => prev.map((app, i) => i === idx
+        ? { ...app, skill_file: null, file_error: fileError } : app));
+      return;
+    }
+    setSkillApps((prev) => prev.map((app, i) => i === idx
+      ? { ...app, skill_file: file, file_error: "" } : app));
   };
 
   const addSkillApp = () => {
@@ -1477,7 +1495,8 @@ if (
                           <div className="ff-field">
                             <label>File Related to Skill (max 50MB)</label>
                             <input type="file" accept="image/*,video/*,.pdf" className="ff-file-input"
-                              onChange={(e) => updateSkillApp(idx, "skill_file", e.target.files[0] || null)} />
+                              onChange={(e) => handleSkillFile(idx, e.target.files[0] || null, e.target)} />
+                            {app.file_error && <span className="ff-file-error">{app.file_error}</span>}
                             {app.skill_file && <span className="ff-file-name">{app.skill_file.name}</span>}
                             {app.existing_file && !app.skill_file && <span className="ff-file-existing">File already uploaded</span>}
                           </div>

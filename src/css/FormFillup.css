@@ -399,6 +399,16 @@
   font-style: italic;
 }
 
+/* Rejected at pick time — too large. Same red as .ff-error-msg. */
+.ff-file-error {
+  display: block;
+  font-size: 11px;
+  color: #f87171;
+  font-family: "Poppins", sans-serif;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 /* ── character count ── */
 .ff-char-count {
   display: block;
