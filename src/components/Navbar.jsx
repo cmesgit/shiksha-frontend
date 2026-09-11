@@ -113,11 +113,16 @@ const STATIC_COURSES_MENU = [
         id: "state",
         label: "State Boards",
         heading: "State Boards",
+        // A representative few, not all 28 — this list only paints until the
+        // nav-menu API answers, and mergeLiveNavMenu then replaces the tabs
+        // wholesale. What matters is that the LABEL FORMAT matches what the
+        // API sends ("<abbr> · <state>", per BOARD_SEED), so the first paint
+        // doesn't visibly reformat itself a moment later.
         links: [
-          { label: "MBSE Mizoram", to: "/courses", state: MBSE_STATE },
-          { label: "BSEAP Andhra Pradesh", soon: true },
-          { label: "ASSEB Assam", soon: true },
-          { label: "BSEB Bihar", soon: true },
+          { label: "MBSE · Mizoram", to: "/courses", state: MBSE_STATE },
+          { label: "BSEAP · Andhra Pradesh", soon: true },
+          { label: "ASSEB · Assam", soon: true },
+          { label: "BSEB · Bihar", soon: true },
         ],
         viewAll: { label: "View all boards", to: "/courses" },
       },
