@@ -61,7 +61,7 @@ export const FEATURED_COURSES = [
   { cats: ["class8-12"], lvl: "Commerce", ribbon: null, title: "Class 12 · Commerce", fact: CLASS_FACT, free: true, grad: "rgba(255,178,29,0.72),rgba(224,139,18,0.88)", icon: "calc" },
   { cats: ["class8-12"], lvl: "Arts", ribbon: null, title: "Class 12 · Arts", fact: CLASS_FACT, free: true, grad: "rgba(59,130,246,0.72),rgba(29,78,216,0.88)", icon: "book" },
   // ── Boards ──
-  { cats: ["boards"], lvl: "National Board", ribbon: null, title: "CBSE (Central Board)", fact: "Expert Faculty · Classes 8–12", explore: true, grad: "rgba(15,157,107,0.72),rgba(11,91,62,0.88)", icon: "book", to: "/courses", state: { selectedBoardGroup: "central", selectedBoard: "cbse" } },
+  { cats: ["boards"], lvl: "National Board", ribbon: null, title: "CBSE (National Board)", fact: "Expert Faculty · Classes 8–12", explore: true, grad: "rgba(15,157,107,0.72),rgba(11,91,62,0.88)", icon: "book", to: "/courses", state: { selectedBoardGroup: "central", selectedBoard: "cbse" } },
   { cats: ["boards"], lvl: "Regional", ribbon: null, title: "Regional Boards", fact: "MBSE & more", explore: true, grad: "rgba(20,184,160,0.72),rgba(11,91,62,0.88)", icon: "compass", to: "/courses", state: { selectedBoardGroup: "state", selectedBoard: "mbse" } },
   // ── Competitive (launching soon) ──
   { cats: ["competitive"], lvl: "Medical", ribbon: null, title: "NEET Preparation", fact: SOON_FACT, soon: true, grad: "rgba(236,78,134,0.72),rgba(193,58,104,0.88)", icon: "pulse" },
