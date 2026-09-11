@@ -87,6 +87,19 @@ const css = `.dvb{
     padding:14px 12px 10px;
     animation:dvb-in .16s ease-out;
   }
+/* Bridges the 12px offset above. The panel is absolutely positioned, so it
+   contributes nothing to .dvb-wrap's box and that offset belonged to the page
+   behind it — hit-testing there returned the hero section. Moving the mouse
+   from the button down to the menu therefore left .dvb-wrap, fired mouseleave
+   and closed the menu before it could be reached: on a pointer device the
+   items were only reachable by a flick fast enough to skip the gap in a single
+   mousemove sample. Transparent, and a child of the panel, so hovering it
+   still counts as being inside the wrap. Do not close the gap instead — the
+   visual separation is wanted. */
+.dvb-panel::before{
+    content:"";position:absolute;
+    top:-12px;left:0;right:0;height:12px;
+  }
 @keyframes dvb-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .dvb-eyebrow{
     margin:0 0 2px;padding:0 6px;
