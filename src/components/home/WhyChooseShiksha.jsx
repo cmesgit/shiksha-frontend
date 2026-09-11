@@ -124,7 +124,7 @@ const BADGE_SLOTS = {
 
 export default function WhyChooseShiksha() {
   const rootRef = useRef(null);
-  const { block, items, floaters } = useHomeContent("why_choose");
+  const { block, items, floaters, cmsOwnsFloaters } = useHomeContent("why_choose");
 
   const eyebrow = block?.eyebrow || "Why ShikshaCom";
   const heading = block?.heading || "Why choose ShikshaCom?";
@@ -195,7 +195,10 @@ export default function WhyChooseShiksha() {
                 </div>
                 {Object.entries(BADGE_SLOTS).map(([slot, def]) => {
                   const f = floaters[slot];
-                  if (f?.is_active === false) return null;
+                  // Absent means hidden, but only once the CMS has spoken for
+                  // this section — otherwise an outage would strip all three
+                  // badges. See useHomeContent.
+                  if (cmsOwnsFloaters && !f) return null;
                   const icon = f?.icon || def.icon;
                   const label = f?.label || def.label;
                   const sublabel = f?.sublabel ?? def.sublabel;
