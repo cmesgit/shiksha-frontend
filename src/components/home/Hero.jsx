@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import useTickerSlot from "../ticker/useTickerSlot";
 import CtaLink from "./CtaLink";
+import { useDemoVideos } from "./demoVideoContext";
+/* The demo link below the CTAs uses `.sh-demo-link*`, which live in this
+   stylesheet. Imported here rather than relied on from DemoVideoProvider: a
+   class used by a component that doesn't import its CSS is unstyled on a hard
+   refresh the moment the two end up in different lazy chunks. */
+import "../../css/DemoVideo.css";
 
 // Mirrors content.models.TickerKind.
 const KIND_LABEL = {
@@ -305,6 +311,11 @@ const DEFAULTS = {
 
 export default function Hero() {
   const { block, floaters, cmsOwnsFloaters } = useHomeContent("hero");
+  /* Second way into the demo clips, for visitors who never notice the
+     floating button. Empty unless a clip is configured, so the link and the
+     button appear and disappear together. */
+  const { demos, openDemo } = useDemoVideos();
+  const signupDemo = demos.find((d) => d.key === "signup") || demos[0] || null;
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
@@ -394,6 +405,21 @@ export default function Hero() {
                 {ctaSecondaryLabel}
               </CtaLink>
             </div>
+
+            {signupDemo && (
+              <button
+                type="button"
+                className="sh-demo-link"
+                onClick={() => openDemo(signupDemo.key)}
+              >
+                <span className="sh-demo-link-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M15.6 10.3a2 2 0 010 3.4l-6.1 3.6A2 2 0 016.5 15.6V8.4a2 2 0 013-1.7z" />
+                  </svg>
+                </span>
+                New here? Watch the {signupDemo.linkLabel}
+              </button>
+            )}
           </div>
 
           <div className="sh-hero-visual sh-rise sh-d5">

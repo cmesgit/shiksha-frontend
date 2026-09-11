@@ -8,12 +8,17 @@
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ShikshaHome from "./home/ShikshaHome";
+import DemoVideoProvider from "./home/DemoVideoProvider";
 
 const HomePage = () => {
   return (
     <div className="page-content">
       <Navbar />
-      <ShikshaHome />
+      {/* Wraps the sections rather than sitting beside them so Hero can offer
+          the same clips inline; renders nothing until a clip has a URL. */}
+      <DemoVideoProvider>
+        <ShikshaHome />
+      </DemoVideoProvider>
       <Footer />
     </div>
   );

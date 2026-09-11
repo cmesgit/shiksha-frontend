@@ -1,0 +1,321 @@
+/* ============================================================
+   DemoVideo.css — the landing page's floating demo-video button,
+   its hover menu, and the modal player.
+
+   Every colour in the design file resolved to a token that already
+   exists in theme.css, because the mockup was built from this repo's
+   palette in the first place:
+
+     #0F9D6B → --sk-green        #0B5B3E → --sk-green-dark
+     #0B2E20 → --sk-ink          #5E7469 → --sk-body
+     #EDF3EE → --sk-line         #F6FAF7 → --sk-paper
+     #E7F6EE → --sk-mint
+
+   Two of its hexes had no token — #F2F7F3 (the row divider, a hair
+   lighter than --sk-line) and #DDEFE5 (a pill border used elsewhere in
+   the mockup, not here). The divider uses --sk-line rather than adding
+   a near-duplicate token for a 2-value difference.
+   ============================================================ */
+
+/* ── Floating button ─────────────────────────────────────────
+   `top` is set from JS, not here: the header is `position: fixed`
+   and its height changes with the CMS announcement bar (78px vs
+   118px), the 640px breakpoint (72/112), and nav wrapping. The
+   design was revised specifically so the button "sits 20px below
+   it at any width", which only a measurement can honour.
+
+   z-index sits BELOW the header's 1000 on purpose — the mega menu
+   drops out of that header and must cover this button, not duck
+   under it. The modal, which has to cover the header, is 10200. */
+.sh-demo {
+  position: fixed;
+  right: 28px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  font-family: var(--sk-font);
+}
+
+.sh-demo-fab {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--sk-green);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 14px 34px rgba(11, 91, 62, 0.3);
+  animation: sh-demo-bob 5s ease-in-out infinite;
+}
+.sh-demo-fab:hover,
+.sh-demo-fab:focus-visible {
+  background: var(--sk-green-dark);
+}
+.sh-demo-fab:focus-visible {
+  outline: none;
+  box-shadow: 0 14px 34px rgba(11, 91, 62, 0.3), 0 0 0 3px rgba(15, 157, 107, 0.35);
+}
+
+/* The play glyph has to sit above the expanding ring. */
+.sh-demo-fab svg {
+  position: relative;
+  z-index: 1;
+  height: 25px;
+}
+
+.sh-demo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--sk-green);
+  animation: sh-demo-ring 2.4s cubic-bezier(0.4, 0, 0.2, 1) 1.2s infinite;
+}
+
+@keyframes sh-demo-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+@keyframes sh-demo-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+/* ── Hover menu ───────────────────────────────────────────── */
+.sh-demo-menu {
+  width: 288px;
+  background: #fff;
+  border: 1px solid var(--sk-line);
+  border-radius: 18px;
+  box-shadow: 0 26px 60px rgba(11, 46, 32, 0.18);
+  overflow: hidden;
+  transform-origin: top right;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  pointer-events: none;
+}
+.sh-demo-menu.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.sh-demo-menu-head {
+  background: var(--sk-paper);
+  padding: 13px 16px;
+}
+.sh-demo-menu-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sk-ink);
+}
+.sh-demo-menu-sub {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--sk-body);
+  line-height: 1.45;
+}
+
+.sh-demo-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 13px 16px;
+  background: #fff;
+  border: none;
+  border-top: 1px solid var(--sk-line);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.sh-demo-row:hover,
+.sh-demo-row:focus-visible {
+  background: var(--sk-paper);
+  outline: none;
+}
+
+.sh-demo-thumb {
+  flex: none;
+  width: 62px;
+  height: 42px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--sk-green), var(--sk-green-dark));
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.sh-demo-thumb svg {
+  height: 18px;
+}
+
+.sh-demo-rowtx {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sh-demo-rowtitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sk-ink);
+}
+.sh-demo-rowmeta {
+  font-size: 12.5px;
+  color: var(--sk-body);
+}
+
+/* ── Hero secondary link ──────────────────────────────────────
+   For visitors who never notice the floating button. Lives inside
+   Hero's copy column, under the CTA row. */
+.sh-demo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 26px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sk-ink);
+}
+.sh-demo-link:hover {
+  color: var(--sk-green-dark);
+}
+.sh-demo-link-badge {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sk-mint);
+  display: grid;
+  place-items: center;
+  color: var(--sk-green-dark);
+}
+.sh-demo-link-badge svg {
+  height: 13px;
+}
+
+/* ── Modal player ────────────────────────────────────────────
+   Above the header (1000) and its announcement strip (1001). */
+.sh-demo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: var(--sk-font);
+}
+.sh-demo-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 46, 32, 0.62);
+}
+.sh-demo-card {
+  position: relative;
+  width: min(880px, 92vw);
+  background: #fff;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 40px 90px rgba(11, 46, 32, 0.4);
+}
+.sh-demo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.sh-demo-eyebrow {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sk-body);
+}
+.sh-demo-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--sk-ink);
+}
+.sh-demo-close {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--sk-line);
+  background: #fff;
+  cursor: pointer;
+  font-size: 17px;
+  color: var(--sk-body);
+  display: grid;
+  place-items: center;
+}
+.sh-demo-close:hover {
+  background: var(--sk-paper);
+  color: var(--sk-ink);
+}
+
+/* 16:9 so the player never letterboxes against the dark panel. */
+.sh-demo-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--sk-ink);
+}
+.sh-demo-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 640px) {
+  .sh-demo {
+    right: 16px;
+  }
+  .sh-demo-menu {
+    width: min(288px, calc(100vw - 32px));
+  }
+}
+
+/* The bob and the pulse are decoration; the button must still be there
+   and still open its menu without them. Declared at the top level, not
+   scoped to a wrapper, so the body-portalled modal is covered too. */
+@media (prefers-reduced-motion: reduce) {
+  .sh-demo-fab {
+    animation: none;
+  }
+  .sh-demo-ring {
+    display: none;
+  }
+  .sh-demo-menu {
+    transition: none;
+  }
+}
