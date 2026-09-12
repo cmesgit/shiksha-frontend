@@ -297,12 +297,17 @@ export async function getMyUploads() {
   return data.results || [];
 }
 
-// Takes the caller's own document out of the library. Owner (or staff) only;
-// soft-removes the row and deletes the stored file server-side.
+// Takes the caller's own document out of the library. Owner (or staff) only.
+// Soft-removes the row and deletes the stored file from Bunny Edge Storage.
+//
+// Returns {deleted, file_purged}. `file_purged: false` means the file left
+// storage but is STILL SERVABLE from the CDN edge cache — purging needs an
+// account-level Bunny API key that isn't configured yet. Callers must not
+// describe the delete as complete when that flag is false.
 export async function deleteDocument(id) {
-  if (USE_MOCK) { await wait(120); return true; }
-  await api.delete(`/explore/documents/${id}/`);
-  return true;
+  if (USE_MOCK) { await wait(120); return { deleted: true, file_purged: true }; }
+  const { data } = await api.delete(`/explore/documents/${id}/`);
+  return data || { deleted: true, file_purged: true };
 }
 
 // ── write actions (real endpoints; mock is a no-op that echoes) ────────────────

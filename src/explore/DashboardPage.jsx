@@ -170,13 +170,25 @@ export default function ExploreDashboardPage() {
   }
 
   async function handleDeleteUpload(doc) {
+    // Deliberately does NOT promise the file is destroyed. Deleting from Bunny
+    // Edge Storage makes the origin 404, but the CDN keeps serving its cached
+    // copy until the URL is purged, and purging needs an account API key that
+    // is not configured yet. The server reports that as `file_purged: false`;
+    // saying "the file is deleted" here would be a promise we can't keep to
+    // someone taking down something they regret publishing.
     if (!window.confirm(
-      `Delete "${doc.title}"? It will be removed from the library and the file itself is deleted. This can't be undone.`
+      `Delete "${doc.title}"? It will be removed from the library. This can't be undone.`
     )) return;
     setDeletingId(doc.id);
     setDeleteError("");
     try {
-      await deleteDocument(doc.id);
+      const res = await deleteDocument(doc.id);
+      if (res && res.file_purged === false) {
+        setDeleteError(
+          `"${doc.title}" was removed from the library, but the file may stay reachable ` +
+          `from its old direct link for a while. Contact an admin if it was sensitive.`
+        );
+      }
       setData((d) => ({ ...d, uploads: (d.uploads || []).filter((u) => u.id !== doc.id) }));
       // Drop it from the local library lists too, or a deleted document keeps
       // showing up under Reading History / Saved as an unresolvable id.
