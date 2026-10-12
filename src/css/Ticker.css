@@ -53,6 +53,15 @@
   border: 1px solid var(--sk-line);
   background: #fff;
   box-shadow: var(--sk-sh-sm);
+  /* Grid's own stretch already equalizes cards within one row, but the
+     band's TOTAL height still wasn't fixed: auto-fit drops to fewer, wider
+     columns on a page with fewer items, which wraps titles over fewer
+     lines and shrinks every card, and optional fields (metric/body) add or
+     remove a line outright. Either one changes how tall the section is,
+     which moves everything below it. min-height plus the line-clamps below
+     make every card the same height regardless of column count or which
+     optional fields a given item has. */
+  min-height: 244px;
 }
 a.tk-card:hover { border-color: var(--sk-green); }
 
@@ -79,8 +88,20 @@ a.tk-card:hover { border-color: var(--sk-green); }
   color: var(--sk-body);
 }
 
-.tk-card__title { font-size: 14.5px; font-weight: 700; color: var(--sk-ink); line-height: 1.35; }
-.tk-card__body { font-size: 12.5px; color: var(--sk-body); line-height: 1.45; }
+/* Clamped rather than left to wrap freely, so a long CMS message can't push
+   a card past the min-height above — the two work as a pair, floor and
+   ceiling, to make every card's height the same no matter what the content
+   is. */
+.tk-card__title {
+  font-size: 14.5px; font-weight: 700; color: var(--sk-ink); line-height: 1.35;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.tk-card__body {
+  font-size: 12.5px; color: var(--sk-body); line-height: 1.45;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 
 /* ⚠ The footer is the ONE ticker slot on a dark background. The default
    ink-on-white card would read as a hole punched in the footer, so the tone
