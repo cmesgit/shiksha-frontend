@@ -165,13 +165,23 @@ const css = `.sh-hero{
 .sh-hero-visual{
     position:relative;min-width:0;
     display:flex;align-items:center;justify-content:center;
+    /* The single animated shape .sh-blob, .sh-tickwrap and .sh-ticksolo all
+       track via border-radius:inherit. They sit side by side in the DOM, not
+       nested inside one another, so each one running its own copy of
+       sh-morph used to drift out of phase with the others — the blob mounts
+       immediately, the ticker image only once CMS data arrives, so their
+       18s clocks never lined up. One animation on the common ancestor keeps
+       every layer on the exact same frame. The actual animation shorthand is
+       set below, on .sh-hero-visual.sh-rise — this element also carries the
+       .sh-rise fade-in class, and a second same-specificity animation
+       declaration here would just lose the cascade to that rule. */
+    border-radius:58% 42% 47% 53% / 46% 52% 48% 54%;
   }
 .sh-blob{
     position:absolute;z-index:0;
     width:min(112%,560px);aspect-ratio:1/1;
     background:linear-gradient(150deg,var(--wash) 5%, var(--wash-2) 95%);
-    border-radius:58% 42% 47% 53% / 46% 52% 48% 54%;
-    animation:sh-morph 18s ease-in-out infinite;
+    border-radius:inherit;
   }
 .sh-blob::after{
     content:"";position:absolute;inset:16px;
@@ -231,8 +241,7 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 .sh-ticksolo{position:relative;z-index:2;width:min(112%,560px);aspect-ratio:1/1;
     border-radius:inherit;overflow:hidden;display:block}
 .sh-tickwrap{position:relative;z-index:2;width:min(112%,560px);aspect-ratio:1/1;
-    border-radius:58% 42% 47% 53% / 46% 52% 48% 54%;
-    animation:sh-morph 18s ease-in-out infinite;overflow:hidden}
+    border-radius:inherit;overflow:hidden}
 .sh-tickwrap img{width:100%;height:100%;object-fit:cover;display:block}
 .sh-tickcap{position:absolute;left:0;right:0;bottom:0;z-index:3;
     padding:38px 26px 22px;color:#fff;text-align:center;
@@ -257,6 +266,10 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 .sh-fl.sh-play{top:34%;right:-2%;width:46px;height:46px;animation-delay:.6s;animation-duration:6s}
 .sh-fl.sh-play svg{width:20px;height:20px}
 .sh-rise{opacity:0;transform:translateY(18px);animation:sh-rise .7s cubic-bezier(.22,.61,.36,1) forwards}
+/* .sh-hero-visual also carries .sh-rise — two classes beats one, so this is
+   what actually runs on it, combining its fade-in with the shared sh-morph
+   clock every blob-shaped descendant inherits border-radius from. */
+.sh-hero-visual.sh-rise{animation:sh-rise .7s cubic-bezier(.22,.61,.36,1) forwards, sh-morph 18s ease-in-out infinite}
 .sh-d1{animation-delay:.05s}
 .sh-d2{animation-delay:.15s}
 .sh-d3{animation-delay:.27s}
