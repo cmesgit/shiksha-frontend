@@ -165,6 +165,11 @@ const css = `.sh-hero{
 .sh-hero-visual{
     position:relative;min-width:0;
     display:flex;align-items:center;justify-content:center;
+    /* Lets a vertical page-scroll pass straight through a swipe that starts
+       here, while a horizontal drag stays ours to turn into a page change —
+       otherwise a touch swipe to flip ticker pages also tries to scroll the
+       page sideways, and the browser's own scroll gesture fights the JS one. */
+    touch-action:pan-y;
     /* .sh-blob is position:absolute, so it contributes nothing to this
        box's own flow-height — only whatever ticker content is in flow
        does. A 2x2 grid (350px) and a solo image (500px) size this
@@ -398,9 +403,23 @@ export default function Hero() {
      the new ones on the same tick, with no transition, which read as a
      hard instant cut every 5s. fadeOut now runs first and the page only
      advances once that's had time to play, so the content is invisible at
-     the moment it changes and reappears already on the new page. */
+     the moment it changes and reappears already on the new page.
+
+     fadeToPage is the one place that drives it, so the auto-timer and a
+     manual swipe (below) can't fall out of sync with each other — e.g. a
+     swipe landing mid-fade from the timer, or vice versa, double-firing the
+     transition. */
   const [fadeOut, setFadeOut] = useState(false);
   const fadeTimeoutRef = useRef(null);
+
+  const fadeToPage = (next) => {
+    setFadeOut(true);
+    clearTimeout(fadeTimeoutRef.current);
+    fadeTimeoutRef.current = setTimeout(() => {
+      setTickPage(next);
+      setFadeOut(false);
+    }, 220);
+  };
 
   useEffect(() => {
     if (tickPages < 2) return undefined;
@@ -408,17 +427,45 @@ export default function Hero() {
     const id = setInterval(() => {
       // "the pager advances all four together"
       if (document.visibilityState !== "visible") return;
-      setFadeOut(true);
-      fadeTimeoutRef.current = setTimeout(() => {
-        setTickPage((p) => (p + 1) % tickPages);
-        setFadeOut(false);
-      }, 220);
+      fadeToPage((p) => (p + 1) % tickPages);
     }, 5000);
     return () => {
       clearInterval(id);
       clearTimeout(fadeTimeoutRef.current);
     };
   }, [tickPages]);
+
+  /* Swipe/drag between pages, on top of the dots and the timer — none of
+     the three can get out of sync since all three only ever call
+     fadeToPage. Pointer events unify touch, mouse and pen in one handler.
+     A short drag is still a tap: onClickCapture on the same element swallows
+     the click that would otherwise follow a real drag, so dragging across a
+     ticker card doesn't also open its link. */
+  const dragRef = useRef({ active: false, startX: 0, moved: false });
+
+  const handleDragStart = (e) => {
+    if (tickPages < 2) return;
+    dragRef.current = { active: true, startX: e.clientX, moved: false };
+  };
+  const handleDragMove = (e) => {
+    if (!dragRef.current.active) return;
+    if (Math.abs(e.clientX - dragRef.current.startX) > 8) dragRef.current.moved = true;
+  };
+  const handleDragEnd = (e) => {
+    if (!dragRef.current.active) return;
+    const dx = e.clientX - dragRef.current.startX;
+    dragRef.current.active = false;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0) fadeToPage((p) => (p + 1) % tickPages);
+    else fadeToPage((p) => (p - 1 + tickPages) % tickPages);
+  };
+  const handleDragClickCapture = (e) => {
+    if (dragRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.moved = false;
+    }
+  };
 
   const page = tickPage < tickPages ? tickPage : 0;
   const shown = tickerItems.slice(page * 4, page * 4 + 4);
@@ -494,7 +541,14 @@ export default function Hero() {
             )}
           </div>
 
-          <div className="sh-hero-visual sh-rise sh-d5">
+          <div
+            className="sh-hero-visual sh-rise sh-d5"
+            onPointerDown={handleDragStart}
+            onPointerMove={handleDragMove}
+            onPointerUp={handleDragEnd}
+            onPointerCancel={handleDragEnd}
+            onClickCapture={handleDragClickCapture}
+          >
             <span className="sh-blob" aria-hidden="true"></span>
 
             {showCap && (
