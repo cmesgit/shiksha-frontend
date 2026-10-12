@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDemoVideos } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import useTickerSlot from "../ticker/useTickerSlot";
@@ -165,6 +165,16 @@ const css = `.sh-hero{
 .sh-hero-visual{
     position:relative;min-width:0;
     display:flex;align-items:center;justify-content:center;
+    /* .sh-blob is position:absolute, so it contributes nothing to this
+       box's own flow-height — only whatever ticker content is in flow
+       does. A 2x2 grid (350px) and a solo image (500px) size this
+       container differently, and an empty ticker leaves it at 0, so the
+       560px blob (centered, absolute) used to overflow above and below by
+       a different amount each time, reading as the hero's padding
+       changing. aspect-ratio ties this box to its OWN width (set by the
+       grid column, not by whichever ticker variant happens to be inside),
+       so it always reserves exactly the blob's footprint. */
+    aspect-ratio:1/1;
     /* The single animated shape .sh-blob, .sh-tickwrap and .sh-ticksolo all
        track via border-radius:inherit. They sit side by side in the DOM, not
        nested inside one another, so each one running its own copy of
@@ -214,7 +224,12 @@ const css = `.sh-hero{
     width:min(70%,350px);aspect-ratio:1/1;
     display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
     gap:2.5%;
+    transition:opacity .22s ease;
   }
+/* The pager fades the batch out, swaps it, then fades the new one in — see
+   the fadeOut state in the component. Applies to whichever ticker variant
+   is actually on screen. */
+.sh-tick-fade{opacity:0}
 .sh-tickcard{
     display:flex;flex-direction:column;justify-content:center;gap:4px;
     padding:12px 13px;border-radius:14px;
@@ -243,7 +258,7 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 .sh-ticksolo{position:relative;z-index:2;width:min(96%,500px);aspect-ratio:1/1;
     border-radius:inherit;overflow:hidden;display:block}
 .sh-tickwrap{position:relative;z-index:2;width:min(96%,500px);aspect-ratio:1/1;
-    border-radius:inherit;overflow:hidden}
+    border-radius:inherit;overflow:hidden;transition:opacity .22s ease}
 .sh-tickwrap img{width:100%;height:100%;object-fit:cover;display:block}
 .sh-tickcap{position:absolute;left:0;right:0;bottom:0;z-index:3;
     padding:38px 26px 22px;color:#fff;text-align:center;
@@ -378,18 +393,36 @@ export default function Hero() {
       + `${(demo.title || "demo").toLowerCase()}`
     : "";
 
+  /* The pager used to swap `shown` straight from one batch of 4 (or the
+     solo item) to the next — React just unmounts the old cards and mounts
+     the new ones on the same tick, with no transition, which read as a
+     hard instant cut every 5s. fadeOut now runs first and the page only
+     advances once that's had time to play, so the content is invisible at
+     the moment it changes and reappears already on the new page. */
+  const [fadeOut, setFadeOut] = useState(false);
+  const fadeTimeoutRef = useRef(null);
+
   useEffect(() => {
     if (tickPages < 2) return undefined;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
     const id = setInterval(() => {
       // "the pager advances all four together"
-      if (document.visibilityState === "visible") setTickPage((p) => (p + 1) % tickPages);
+      if (document.visibilityState !== "visible") return;
+      setFadeOut(true);
+      fadeTimeoutRef.current = setTimeout(() => {
+        setTickPage((p) => (p + 1) % tickPages);
+        setFadeOut(false);
+      }, 220);
     }, 5000);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      clearTimeout(fadeTimeoutRef.current);
+    };
   }, [tickPages]);
 
   const page = tickPage < tickPages ? tickPage : 0;
   const shown = tickerItems.slice(page * 4, page * 4 + 4);
+  const tickFadeClass = fadeOut ? " sh-tick-fade" : "";
 
   // Hero's floating chips are a fixed icon-only trio by design (no text slot
   // exists in the CSS) — CMS control here is deliberately limited to
@@ -485,7 +518,7 @@ export default function Hero() {
               (() => {
                 const it = shown[0];
                 const art = (
-                  <div className="sh-tickwrap">
+                  <div className={`sh-tickwrap${tickFadeClass}`}>
                     <img src={it.img} alt="" />
                     <span className="sh-tickcap">
                       {it.kind && <span className="k">{KIND_LABEL[it.kind]}</span>}
@@ -496,7 +529,7 @@ export default function Hero() {
                 return it.link_url ? <a href={it.link_url} className="sh-ticksolo">{art}</a> : art;
               })()
             ) : shown.length > 0 ? (
-              <div className="sh-tick">
+              <div className={`sh-tick${tickFadeClass}`}>
                 {shown.map((it) => {
                   const inner = (
                     <>
