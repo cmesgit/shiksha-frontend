@@ -130,14 +130,18 @@ const tickerFeeds = new Map();
 export function getTickerItems(slot, { force = false } = {}) {
   const previous = tickerFeeds.get(slot);
   if (previous && (previous.pending || (!force && previous.expires > Date.now()))) return previous.request;
-  const entry = { expires: 0, pending: true, request: null };
-  entry.request = api.get("/content/announcements/", { params: { slot } })
-    .then(({ data }) => Array.isArray(data) ? data : [])
-    .catch(() => {
-      if (tickerFeeds.get(slot) === entry) tickerFeeds.delete(slot);
-      return previous?.request || [];
+  const entry = { expires: 0, pending: true, request: null, value: previous?.value ?? null, failed: false };
+  entry.request = api.get("/content/announcements/", { params: { slot }, timeout: 8000 })
+    .then(({ data }) => {
+      if (!Array.isArray(data)) throw new Error("Unexpected advertisement response");
+      entry.value = data;
+      return data;
     })
-    .finally(() => { entry.pending = false; entry.expires = Date.now() + 30000; });
+    .catch(() => {
+      entry.failed = true;
+      return entry.value || [];
+    })
+    .finally(() => { entry.pending = false; entry.expires = entry.failed ? 0 : Date.now() + 30000; });
   tickerFeeds.set(slot, entry);
   return entry.request;
 }
@@ -160,17 +164,18 @@ const homeCollections = new Map();
 function getHomeCollection(resource, { force = false } = {}) {
   const previous = homeCollections.get(resource);
   if (previous && (previous.pending || (!force && previous.expires > Date.now()))) return previous.request;
-  const entry = { pending: true, expires: 0, request: null };
+  const entry = { pending: true, expires: 0, request: null, value: previous?.value ?? null, failed: false };
   entry.request = api.get(`/content/${resource}/`, { timeout: 8000 })
     .then(({ data }) => {
       if (!Array.isArray(data)) throw new Error("Unexpected homepage response");
+      entry.value = data;
       return data;
     })
     .catch(() => {
-      if (homeCollections.get(resource) === entry) homeCollections.delete(resource);
-      return previous?.request || [];
+      entry.failed = true;
+      return entry.value || [];
     })
-    .finally(() => { entry.pending = false; entry.expires = Date.now() + 30000; });
+    .finally(() => { entry.pending = false; entry.expires = entry.failed ? 0 : Date.now() + 30000; });
   homeCollections.set(resource, entry);
   return entry.request;
 }
