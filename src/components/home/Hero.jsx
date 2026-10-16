@@ -76,7 +76,16 @@ const css = `.sh-hero{
     align-items:center;
     padding-block:clamp(52px,7.5vh,96px);
   }
-.sh-hero-copy{min-width:0}
+.sh-hero-copy{min-width:0;position:relative}
+.sh-hero-copy-content{transition:opacity .2s ease}
+.sh-hero-copy[aria-busy="true"] .sh-hero-copy-content{opacity:0}
+.sh-hero-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:18px;pointer-events:none}
+.sh-hero-placeholder span{height:32px;width:85%;border-radius:8px;background:var(--wash-2)}
+.sh-hero-placeholder span:first-child{height:20px;width:30%}
+.sh-hero-placeholder span:last-child{width:60%}
+.sh-hero-demo-slot{min-height:44px}
+@media(max-width:980px){.sh-hero-placeholder{align-items:center}}
+
 .sh-badge{
     display:inline-flex;align-items:center;gap:9px;
     background:var(--wash);color:var(--brand-deep);
@@ -356,7 +365,7 @@ const DEFAULTS = {
 };
 
 export default function Hero() {
-  const { block, floaters, cmsOwnsFloaters } = useHomeContent("hero");
+  const { block, floaters, cmsOwnsFloaters, loading: contentLoading } = useHomeContent("hero");
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
@@ -380,11 +389,15 @@ export default function Hero() {
      anything unplayable, so an empty list here means "render no link" rather
      than "render a link that opens nothing". */
   const [demo, setDemo] = useState(null);
+  const [demoLoading, setDemoLoading] = useState(true);
   useEffect(() => {
     let alive = true;
     getDemoVideos().then((rows) => {
       const first = (Array.isArray(rows) ? rows : []).find((v) => v?.embed_url);
-      if (alive) setDemo(first || null);
+      if (alive) {
+        setDemo(first || null);
+        setDemoLoading(false);
+      }
     });
     return () => { alive = false; };
   }, []);
@@ -393,6 +406,10 @@ export default function Hero() {
      duration_seconds — the design mockup hardcoded "40s" for a clip that is
      really 53s, which is the drift this whole feature avoids. With no duration
      synced yet the label simply omits it. */
+  // CMS text and the demo used to replace already-animating fallback copy.
+  // Reveal one settled group instead of staggering every line independently.
+  const copyLoading = contentLoading || demoLoading;
+
   const demoLabel = demo
     ? `Watch the ${demo.duration_seconds ? `${demo.duration_seconds}s ` : ""}`
       + `${(demo.title || "demo").toLowerCase()}`
@@ -500,45 +517,50 @@ export default function Hero() {
         </div>
 
         <div className="sh-wrap sh-hero-grid">
-          <div className="sh-hero-copy">
-            <p className="sh-badge sh-rise sh-d1">
-              <i aria-hidden="true"></i>
-              {eyebrow}
-            </p>
+          <div className="sh-hero-copy" aria-busy={copyLoading}>
+            {copyLoading && <div className="sh-hero-placeholder" aria-hidden="true"><span /><span /><span /></div>}
+            <div className="sh-hero-copy-content" style={{ visibility: copyLoading ? "hidden" : undefined }}>
+              <p className="sh-badge">
+                <i aria-hidden="true"></i>
+                {eyebrow}
+              </p>
 
-            <h1 id="sh-hero-title" className="sh-hero-title sh-rise sh-d2">
-              <span className="sh-lead">{heading}</span>
-              <span className="sh-punch">{headingSecondary}</span>
-            </h1>
+              <h1 id="sh-hero-title" className="sh-hero-title">
+                <span className="sh-lead">{heading}</span>
+                <span className="sh-punch">{headingSecondary}</span>
+              </h1>
 
-            <p className="sh-hero-sub sh-rise sh-d3">{subhead}</p>
+              <p className="sh-hero-sub">{subhead}</p>
 
-            <div className="sh-cta-row sh-rise sh-d4">
-              <CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
-                {ctaPrimaryLabel}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
-              </CtaLink>
-              <CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
-                {ctaSecondaryLabel}
-              </CtaLink>
+              <div className="sh-cta-row">
+                <CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
+                  {ctaPrimaryLabel}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                </CtaLink>
+                <CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
+                  {ctaSecondaryLabel}
+                </CtaLink>
+              </div>
+
+              <div className="sh-hero-demo-slot">
+                {demo && (
+                  <button
+                    type="button"
+                    className="sh-hero-demo"
+                    onClick={() => window.dispatchEvent(new CustomEvent(
+                      PLAY_DEMO_EVENT, { detail: { key: demo.key } },
+                    ))}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.7" />
+                      <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
+                    </svg>
+                    {demoLabel}
+                  </button>
+                )}
+              </div>
             </div>
-
-            {demo && (
-              <button
-                type="button"
-                className="sh-hero-demo sh-rise sh-d4"
-                onClick={() => window.dispatchEvent(new CustomEvent(
-                  PLAY_DEMO_EVENT, { detail: { key: demo.key } },
-                ))}
-              >
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.7" />
-                  <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
-                </svg>
-                {demoLabel}
-              </button>
-            )}
           </div>
 
           <div
@@ -611,7 +633,7 @@ export default function Hero() {
                       />
                     ))}
                   </div>
-                )}
+                  )}
               </div>
             ) : null}
           </div>
