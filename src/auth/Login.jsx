@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import GoogleButton, { googleSignInConfigured } from "./GoogleButton";
 import { AuthShell, Field, PasswordField, FooterLink } from "./AuthKit";
-import { AuthMentors } from "./AuthTicker";
+import { AuthFormUpdates } from "./AuthTicker";
 
 /* ════════════════════════════════════════════════════════════════
    Login — CLEAN single-account model (Netflix flow)
@@ -142,7 +142,7 @@ export default function Login() {
   const signupHref = `/register${location.search}`;
 
   return (
-    <AuthShell role="student" flowLabel="Log in" loginIntro entry stepKey={step} dir={dir}>
+    <AuthShell role="student" flowLabel="Log in" loginIntro entry formUpdates stepKey={step} dir={dir}>
 
 
 
@@ -182,10 +182,7 @@ export default function Login() {
           </form>
           <FooterLink>Don't have an account? <Link to={signupHref}>Create one</Link></FooterLink>
         
-          {/* Mentor spotlight — form column, under the footer link, exactly
-              where the design places it. Renders nothing until an admin
-              queues a mentor_spotlight item for this slot. */}
-          <AuthMentors slot="auth_login" />
+          <AuthFormUpdates slot="auth_login" />
         </>
       )}
 
@@ -220,10 +217,7 @@ export default function Login() {
           </form>
           <FooterLink>Don't have an account? <Link to={signupHref}>Create one</Link></FooterLink>
 
-          {/* Step 2 carries the same footer as step 1, so the block has to be
-              here too — otherwise it appeared on the email step and vanished
-              the moment you continued to the password. */}
-          <AuthMentors slot="auth_login" />
+          <AuthFormUpdates slot="auth_login" />
         </>
       )}
 

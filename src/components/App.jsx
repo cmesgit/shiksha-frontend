@@ -212,21 +212,18 @@ function LoginRedirect() {
   const isLocalTarget = !!target;
 
   useEffect(() => {
-    if (isLocalTarget && stored) {
+    if (showRedirect && isLocalTarget && stored) {
       try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
     }
-  }, [isLocalTarget, stored]);
+  }, [showRedirect, isLocalTarget, stored]);
 
-  if (isLocalTarget) return <Navigate to={target} replace />;
-
-  /* No pending destination means this wasn't the tail of a login — someone
-     navigated to /login while already signed in. Offer the choice instead of
-     bouncing them, so the page can actually be used to sign out or switch
-     account. `showRedirect` opts back into the old behaviour. */
+  // A pending destination still belongs to the signed-in account. Always
+  // offer the account choice before following it, including ?next= links.
   if (!showRedirect) {
     return <AlreadySignedIn onContinue={() => setShowRedirect(true)} />;
   }
 
+  if (isLocalTarget) return <Navigate to={target} replace />;
   if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
   if (isTeacherContext) {
     const track = teacherInfo?.active_track;

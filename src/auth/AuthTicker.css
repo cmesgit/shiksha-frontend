@@ -160,3 +160,13 @@ a.aft__linecontent:hover .aft__linetext > span { text-decoration: underline; }
   .afm { margin-top: 18px; }
   .afm__photo { width: 60px; height: 60px; border-radius: 12px; }
 }
+
+.afm--updates { padding: 16px; border: 1px solid #e0e9e4; border-radius: 14px; background: #f8fbf9; }
+.afm--updates .afm__card { align-items: flex-start; }
+.afm--updates .afm__photo { width: 64px; height: 64px; border-radius: 10px; }
+.afm--updates .afm__name, .afm--updates .afm__subject { overflow-wrap: anywhere; }
+.afm__link { display: inline-block; margin-top: 8px; color: #0f6b53; font-size: 13px; font-weight: 700; text-decoration: none; }
+.afm__link:hover { text-decoration: underline; }
+.afm__pager { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 12px; font-size: 12px; color: #52665b; }
+.afm__pager button { width: 32px; height: 32px; border: 1px solid #d3dcd8; border-radius: 8px; background: #fff; color: #0f6b53; font-size: 20px; cursor: pointer; }
+.afm__pager button:focus-visible, .afm__link:focus-visible { outline: 2px solid #138a6b; outline-offset: 3px; }
