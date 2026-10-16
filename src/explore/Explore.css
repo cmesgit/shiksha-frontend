@@ -642,3 +642,21 @@
   font: 500 13px/1.5 "Poppins", sans-serif;
 }
 .exp-upload-error button { flex-shrink: 0; }
+
+/* Browse search and dependent subject filters. */
+.exp-browse > main { min-width: 0; }
+.exp-browse-search { grid-column: 1 / -1; width: 100%; max-width: none; margin: 0; flex-wrap: wrap; box-shadow: none; }
+.exp-browse-search input { flex-basis: 180px; }
+.exp-search-label { width: 100%; font: 600 12px Poppins, sans-serif; color: var(--forest); padding-top: 6px; }
+.exp-filter-hint, .exp-facet-error { margin-top: 8px; font: 400 12px/1.5 Poppins, sans-serif; color: var(--muted); }
+.exp-select:disabled { opacity: .65; cursor: not-allowed; }
+.exp-pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+
+.exp-upload-classification { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.exp-upload-classification .exp-field { min-width: 0; }
+.exp-mobile-filter-toggle { display: none; }
+@media (max-width: 720px) {
+  .exp-upload-classification { grid-template-columns: 1fr; }
+  .exp-mobile-filter-toggle { display: inline-flex; justify-self: start; }
+  .exp-browse .exp-filters:not(.is-open) { display: none; }
+}
