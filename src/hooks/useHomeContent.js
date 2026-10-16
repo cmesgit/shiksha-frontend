@@ -51,27 +51,43 @@ export function useHomeContent(section) {
 
   useEffect(() => {
     let alive = true;
+    let sequence = 0;
+    let lastRefresh = 0;
     setLoading(true);
     setBlockLoading(true);
-    Promise.all([
-      getHomeContent(section).then((row) => {
-        if (alive) {
-          setBlock(row);
-          setBlockLoading(false);
-        }
-        return row;
-      }),
-      getHomeListItems(section),
-      getHomeFloaters(section),
-    ]).then(([blockRow, itemRows, floaterRows]) => {
-      if (!alive) return;
-      setBlock(blockRow);
-      setItems(itemRows);
-      setFloaters(Object.fromEntries(floaterRows.map((f) => [f.slot, f])));
-      setLoading(false);
-    });
+    const load = (force = false) => {
+      const current = ++sequence;
+      const options = { force };
+      Promise.all([
+        getHomeContent(section, options).then((row) => {
+          if (alive && current === sequence) {
+            setBlock(row);
+            setBlockLoading(false);
+          }
+          return row;
+        }),
+        getHomeListItems(section, options),
+        getHomeFloaters(section, options),
+      ]).then(([blockRow, itemRows, floaterRows]) => {
+        if (!alive || current !== sequence) return;
+        setBlock(blockRow);
+        setItems(itemRows);
+        setFloaters(Object.fromEntries(floaterRows.map((f) => [f.slot, f])));
+        setLoading(false);
+      });
+    };
+    const refresh = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastRefresh < 1000) return;
+      lastRefresh = Date.now();
+      load(true);
+    };
+    load();
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
     return () => {
       alive = false;
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
     };
   }, [section]);
 
