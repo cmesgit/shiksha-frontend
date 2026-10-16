@@ -64,12 +64,12 @@ export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.
 ════════════════════════════════════════════ */
 export function AuthShell({
   role = "neutral", flowLabel, brandIcon = "spark",
-  intro = false, loginIntro = false, stepKey, dir = 1, children,
+  intro = false, loginIntro = false, entry = false, stepKey, dir = 1, children,
 }) {
   const pal = PALETTE[role] || PALETTE.neutral;
   const illustrated = intro || loginIntro;
   return (
-    <div className={`af${illustrated ? " af--intro" : ""}`} style={{ "--a": pal.a, "--soft": pal.soft }}>
+    <div className={`af${illustrated ? " af--intro" : ""}${entry ? " af--entry" : ""}`} role="main" aria-label={flowLabel} style={{ "--a": pal.a, "--soft": pal.soft }}>
       {/* LEFT — brand panel */}
       <div className="af-brand">
         <Link to="/" className="af-brand__logo">
@@ -129,6 +129,11 @@ export function AuthShell({
           key={stepKey}
         >
           {children}
+          {entry && (
+            <div className="af-mobile-updates">
+              <AuthTickerCard slot={intro ? "auth_signup" : "auth_login"} variant="compact" />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -162,7 +167,8 @@ export function PasswordField({ label, show, onToggle, ...props }) {
       <label htmlFor={props.id}>{label}</label>
       <div className="af-pw">
         <input type={show ? "text" : "password"} {...props} />
-        <button type="button" className="af-pw__toggle" tabIndex={-1} onClick={onToggle}
+        <button type="button" className="af-pw__toggle" onClick={onToggle} disabled={props.disabled}
+          aria-pressed={show}
           aria-label={show ? "Hide password" : "Show password"}>
           <Icon name={show ? "eyeOff" : "eye"} size={18} />
         </button>

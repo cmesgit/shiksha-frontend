@@ -124,13 +124,18 @@ export async function getFaqs(pageKey) {
  * Fails to [] like its neighbours: a ticker that cannot load must leave the
  * page as it was, never render an empty shell.
  */
-export async function getTickerItems(slot) {
-  try {
-    const { data } = await api.get("/content/announcements/", { params: { slot } });
-    return data || [];
-  } catch {
-    return [];
-  }
+// The brand panel, mobile preview and mentor block share a slot. Coalesce
+// their requests and keep the result briefly across auth step changes.
+const tickerFeeds = new Map();
+export function getTickerItems(slot) {
+  const previous = tickerFeeds.get(slot);
+  if (previous && previous.expires > Date.now()) return previous.request;
+  const entry = { expires: Date.now() + 30000, request: null };
+  entry.request = api.get("/content/announcements/", { params: { slot } })
+    .then(({ data }) => Array.isArray(data) ? data : [])
+    .catch(() => { if (tickerFeeds.get(slot) === entry) tickerFeeds.delete(slot); return []; });
+  tickerFeeds.set(slot, entry);
+  return entry.request;
 }
 
 export async function getAnnouncements() {

@@ -111,6 +111,7 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
   return (
     <div
       ref={holder}
+      className="af-google"
       // Google's iframe ignores pointer-events set on itself, so a disabled
       // parent is the only way to stop a second click mid-request.
       style={{
