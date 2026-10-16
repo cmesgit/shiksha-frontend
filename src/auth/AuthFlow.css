@@ -36,6 +36,7 @@
      height, so when its content is taller, the auto overflow is real and
      scrolls the panel (not the whole page) to reveal the rest. */
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: stretch;
   background: #fff;
@@ -126,6 +127,7 @@
 @keyframes af-icon-halo  { 0%, 100% { transform: scale(1); opacity: .55; } 50% { transform: scale(1.28); opacity: .15; } }
 
 .af-brand__headline {
+  color: inherit;
   font-size: 25px;
   font-weight: 800;
   line-height: 1.25;
@@ -534,6 +536,27 @@
 }
 .af-footer a:hover { text-decoration: underline; }
 
+/* Entry forms share Google's maximum button width so every control aligns. */
+.af--entry { --af-measure: 400px; }
+.af--entry .af-panel { min-width: 0; align-items: center; padding: 48px clamp(28px, 4vw, 56px); }
+.af--entry .af-panel__inner { width: 100%; max-width: var(--af-measure); }
+.af--entry .af-heading { margin-top: 0; }
+.af--entry .af-sub { max-width: var(--af-measure); }
+.af--entry .af-google { width: 100%; margin-top: 24px; }
+.af--entry .af-or { margin: 20px 0 0; }
+.af--entry .af-actions { margin-top: 24px; }
+.af--entry .af-footer { margin-top: 20px; }
+.af--entry .af-checkbox { max-width: var(--af-measure); }
+.af--entry .af-brand { padding: 32px 28px; }
+.af--entry .af-brand__body--intro { margin-top: 24px; }
+.af--entry .af-login-anim,
+.af--entry .af-intro { min-height: 0; }
+.af-mobile-updates { display: none; }
+
+@media (min-width: 761px) and (max-height: 640px) {
+  .af--entry .af-login-anim, .af--entry .af-intro { display: none; }
+}
+
 /* ══════════════════════════════
    Mobile (≤ 760px) — phone frame from the design
 ══════════════════════════════ */
@@ -561,6 +584,13 @@
   .af--intro .af-brand { min-height: 190px; }
   .af-brand__body--intro { position: absolute; inset: 0; margin: 0; }
   .af-brand__tagline { display: none; }
+
+  .af--entry .af-brand { min-height: 140px; height: 140px; padding: 20px 22px; }
+  .af--entry .af-brand__body--intro { margin: 0; }
+  .af--entry .af-panel { padding: 28px 24px 32px; }
+  .af--entry .af-field input { font-size: 16px; }
+  .af--entry .af-google { margin-top: 24px; }
+  .af--entry .af-mobile-updates { display: block; margin-top: 24px; }
 
   .af-panel {
     flex: 1;

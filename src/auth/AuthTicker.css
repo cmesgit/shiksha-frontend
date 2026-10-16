@@ -28,9 +28,21 @@
   display: block;
   width: calc(100% + 32px);
   margin: 0 -16px 12px;
-  height: 132px;
-  object-fit: cover;
+  height: 100px;
+  object-fit: contain;
+  flex: none;
+  background: rgba(255, 255, 255, .06);
 }
+.aft--rotate { height: 280px; display: flex; flex-direction: column; }
+.aft__text, .aft__body { overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.aft__body { margin: 5px 0 0; font-size: 12px; line-height: 1.45; opacity: .86; }
+.aft__footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 10px; }
+.aft__footer .aft__link { margin-top: 0; color: inherit; text-decoration: none; }
+.aft__link:hover { text-decoration: underline; }
+.aft__controls { display: flex; gap: 4px; margin-left: auto; flex: none; }
+.aft__control { min-width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); background: transparent; color: inherit; font: inherit; font-size: 20px; cursor: pointer; }
+.aft__control--pause { padding: 0 7px; font-size: 10px; }
+.aft a:focus-visible, .aft button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
 .aft__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .aft__label {
@@ -67,6 +79,29 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.7);
 }
+
+/* A list line carrying a picture. The thumbnail takes the bullet's job, so
+   the dot is cancelled and the 14px it reserved becomes the flex gap —
+   otherwise the copy sits indented past an image that is already marking the
+   line. Sized well under the rotate variant's 132px banner because up to
+   three of these stack inside a panel that also holds the signup form. */
+.aft__line--thumb {
+  padding-left: 0;
+}
+.aft__line--thumb::before { content: none; }
+.aft__thumb {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 9px;
+  object-fit: contain;
+  background: rgba(255,255,255,.12);
+}
+/* Lets a long message wrap instead of forcing the flex row wider. */
+.aft__linetext { min-width: 0; }
+.aft__linecontent { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+a.aft__linecontent:hover .aft__linetext > span { text-decoration: underline; }
+.aft__linebody { display: block; margin-top: 3px; font-size: 11px; font-weight: 400; line-height: 1.45; opacity: .82; }
+.aft__linearrow { flex: none; margin-left: auto; opacity: .8; }
 
 /* ── form-column mentor spotlight ─────────────────────────────── */
 
@@ -120,6 +155,8 @@
    just smaller, so it cannot push the form off a phone screen. */
 @media (max-width: 760px) {
   .aft { display: none; }
+  .af-mobile-updates .aft { display: block; margin-top: 0; padding: 14px; background: var(--soft); border-color: transparent; color: #164c3c; }
+  .af-mobile-updates .aft__thumb { background: rgba(255,255,255,.7); }
   .afm { margin-top: 18px; }
   .afm__photo { width: 60px; height: 60px; border-radius: 12px; }
 }
