@@ -154,37 +154,40 @@ export async function getAnnouncements() {
 /* ── Homepage content (Hero/WhyShiksha/etc. heading+copy, list items,
    decorative floaters) ───────────────────────────────────────────── */
 
-export async function getHomeContent(section) {
-  try {
-    const { data } = await api.get("/content/home-content/", {
-      params: { section },
-    });
-    return (data && data[0]) || null;
-  } catch {
-    return null;
-  }
+// All homepage sections share three collections. Fetch each collection once,
+// rather than issuing three requests for every rendered section.
+const homeCollections = new Map();
+function getHomeCollection(resource, { force = false } = {}) {
+  const previous = homeCollections.get(resource);
+  if (previous && (previous.pending || (!force && previous.expires > Date.now()))) return previous.request;
+  const entry = { pending: true, expires: 0, request: null };
+  entry.request = api.get(`/content/${resource}/`, { timeout: 8000 })
+    .then(({ data }) => {
+      if (!Array.isArray(data)) throw new Error("Unexpected homepage response");
+      return data;
+    })
+    .catch(() => {
+      if (homeCollections.get(resource) === entry) homeCollections.delete(resource);
+      return previous?.request || [];
+    })
+    .finally(() => { entry.pending = false; entry.expires = Date.now() + 30000; });
+  homeCollections.set(resource, entry);
+  return entry.request;
 }
 
-export async function getHomeListItems(section) {
-  try {
-    const { data } = await api.get("/content/home-list-items/", {
-      params: { section },
-    });
-    return data || [];
-  } catch {
-    return [];
-  }
+export async function getHomeContent(section, options) {
+  const rows = await getHomeCollection("home-content", options);
+  return rows.find((row) => row.section === section) || null;
 }
 
-export async function getHomeFloaters(section) {
-  try {
-    const { data } = await api.get("/content/home-floaters/", {
-      params: { section },
-    });
-    return data || [];
-  } catch {
-    return [];
-  }
+export async function getHomeListItems(section, options) {
+  const rows = await getHomeCollection("home-list-items", options);
+  return rows.filter((row) => row.section === section);
+}
+
+export async function getHomeFloaters(section, options) {
+  const rows = await getHomeCollection("home-floaters", options);
+  return rows.filter((row) => row.section === section);
 }
 
 // Ordered, visible-only list of homepage sections — lets an admin reorder/
@@ -204,13 +207,15 @@ export async function getHomeSectionOrder() {
 // video uploaded yet, so `length === 0` is the frontend's whole "is there
 // anything to show" test — DemoVideoButton renders nothing on an empty list
 // rather than a play button that opens an empty player.
-export async function getDemoVideos() {
-  try {
-    const { data } = await api.get("/content/demo-videos/");
-    return data || [];
-  } catch {
-    return [];
-  }
+let demoFeed = null;
+export function getDemoVideos() {
+  if (demoFeed && demoFeed.expires > Date.now()) return demoFeed.request;
+  const entry = { expires: Date.now() + 30000, request: null };
+  entry.request = api.get("/content/demo-videos/", { timeout: 8000 })
+    .then(({ data }) => Array.isArray(data) ? data : [])
+    .catch(() => { if (demoFeed === entry) demoFeed = null; return []; });
+  demoFeed = entry;
+  return entry.request;
 }
 
 
