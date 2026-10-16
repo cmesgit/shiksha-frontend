@@ -107,18 +107,12 @@ export function AuthShell({
         </div>
         )}
 
-        {/* Live ticker, brand-panel slot. Last child of .af-brand, which is a
-            space-between column, so it settles below the illustration —
-            "one rotating card under the tagline". Renders nothing when the
-            flag is off or the slot is empty, so AuthShell is unchanged for
-            everyone until an admin queues something. Login uses the form
-            placement instead, so an advertisement is not repeated in both columns. */}
-        {!formUpdates && (
-          <AuthTickerCard
-            slot={intro ? "auth_signup" : "auth_login"}
-            variant={intro ? "list" : "rotate"}
-          />
-        )}
+        {/* Desktop promotions share the Login/Signup queue with the form.
+            CSS hides this card in the compact mobile brand header. */}
+        <AuthTickerCard
+          slot={intro ? "auth_signup" : "auth_login"}
+          variant={intro ? "list" : "rotate"}
+        />
       </div>
 
       {/* RIGHT — content panel */}
