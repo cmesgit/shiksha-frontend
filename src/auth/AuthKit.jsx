@@ -64,7 +64,7 @@ export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.
 ════════════════════════════════════════════ */
 export function AuthShell({
   role = "neutral", flowLabel, brandIcon = "spark",
-  intro = false, loginIntro = false, entry = false, stepKey, dir = 1, children,
+  intro = false, loginIntro = false, entry = false, formUpdates = false, stepKey, dir = 1, children,
 }) {
   const pal = PALETTE[role] || PALETTE.neutral;
   const illustrated = intro || loginIntro;
@@ -129,7 +129,7 @@ export function AuthShell({
           key={stepKey}
         >
           {children}
-          {entry && (
+          {entry && !formUpdates && (
             <div className="af-mobile-updates">
               <AuthTickerCard slot={intro ? "auth_signup" : "auth_login"} variant="compact" />
             </div>
