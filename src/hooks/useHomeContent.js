@@ -11,6 +11,7 @@
 import { useEffect, useState } from "react";
 import { getHomeContent, getHomeFloaters, getHomeListItems } from "../api/contentApi";
 
+// Explicit display choices distinguish an empty custom collection from defaults.
 export function useHomeContent(section) {
   const [block, setBlock] = useState(null);
   const [items, setItems] = useState([]);
@@ -60,5 +61,8 @@ export function useHomeContent(section) {
     };
   }, [section]);
 
-  return { block, items, floaters, loading, blockLoading };
+  const mode = block?.display_settings?.floaters;
+  const cmsOwnsFloaters = mode === "custom" || mode === "hidden" || (!mode && Object.keys(floaters).length > 0);
+  const shownFloaters = mode === "hidden" || mode === "default" ? {} : floaters;
+  return { block, items, floaters: shownFloaters, cmsOwnsFloaters, loading, blockLoading };
 }

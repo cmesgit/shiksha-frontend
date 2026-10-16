@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import { useAuth } from "../../contexts/AuthContext";
@@ -43,17 +44,17 @@ export default function Cta() {
   const { block } = useHomeContent("cta");
   const { isAuthenticated } = useAuth();
 
-  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
-  const heading = block?.heading || DEFAULTS.heading;
-  const body = block?.body || DEFAULTS.body;
-  const ctaPrimaryLabel = block?.cta_primary_label || DEFAULTS.cta_primary_label;
+  const eyebrow = homeField("cta", block, "eyebrow");
+  const heading = homeField("cta", block, "heading");
+  const body = homeField("cta", block, "body");
+  const ctaPrimaryLabel = homeField("cta", block, "cta_primary_label");
   // "Create free account" only makes sense to a signed-out visitor; someone
   // already signed in is sent back to the homepage instead of a signup form.
   const ctaPrimaryHref = isAuthenticated
     ? "/"
-    : block?.cta_primary_href || DEFAULTS.cta_primary_href;
-  const ctaSecondaryLabel = block?.cta_secondary_label || DEFAULTS.cta_secondary_label;
-  const ctaSecondaryHref = block?.cta_secondary_href || DEFAULTS.cta_secondary_href;
+    : homeField("cta", block, "cta_primary_href");
+  const ctaSecondaryLabel = homeField("cta", block, "cta_secondary_label");
+  const ctaSecondaryHref = homeField("cta", block, "cta_secondary_href");
 
   useEffect(() => {
     const root = rootRef.current;
@@ -84,19 +85,19 @@ export default function Cta() {
                 <path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5" />
               </svg>
 
-              <span className="eyebrow"><u>{eyebrow}</u></span>
+              {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
               <h2>{heading}</h2>
-              <p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />
+              {(body) && (<p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />)}
 
               <div className="cta-actions">
-                <CtaLink className="btn btn-white" to={ctaPrimaryHref}>
+                {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="btn btn-white" to={ctaPrimaryHref}>
                   {ctaPrimaryLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                </CtaLink>
-                <CtaLink className="btn btn-out" to={ctaSecondaryHref}>
+                </CtaLink>)}
+                {(ctaSecondaryLabel && ctaSecondaryHref) && (<CtaLink className="btn btn-out" to={ctaSecondaryHref}>
                   {ctaSecondaryLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
-                </CtaLink>
+                </CtaLink>)}
               </div>
             </div>
           </div>

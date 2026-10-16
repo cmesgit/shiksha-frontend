@@ -549,3 +549,5 @@
    .ap-noparallax and the cards go `position: static`, so the offset above stops
    applying on its own. Nothing to do here — noted so the next reader does not
    "fix" a rule that is already correct. */
+
+.ap-split:not(:has(.ap-media)) { grid-template-columns: minmax(0, 1fr); }

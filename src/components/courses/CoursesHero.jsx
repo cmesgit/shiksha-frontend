@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 // PLACEMENT: src/components/courses/CoursesHero.jsx
 //
 // The two-column hero from ShikshaCourses.html/.jsx (`.chero`), rebuilt as a
@@ -29,7 +30,8 @@ import CoursesHeroArt from './CoursesHeroArt';
 // e.g. [{ value: '12', label: 'Structured courses' }]
 const FACTS = [];
 
-const css = `
+const css = `.ch-grid:not(:has(.ch-vis)){grid-template-columns:minmax(0,1fr)}
+
 .ch-hero{position:relative;overflow:hidden;
   padding:clamp(44px,6vw,84px) 0 clamp(30px,4vw,54px);
   background:
@@ -147,15 +149,14 @@ const CHIPS = [
 export default function CoursesHero({ onBrowse, onBrowseCategories }) {
   const { block } = useHomeContent('courses_hero');
 
-  const eyebrow = block?.eyebrow || 'Courses';
-  const heading = block?.heading || 'Discover the Right Course for Your';
-  const headingSecondary = block?.heading_secondary || 'Learning Journey.';
-  const subhead = block?.subhead ||
-    'Explore expertly designed courses with structured lessons, live classes, quizzes, assignments and progress tracking — all in one place.';
-  const ctaPrimaryLabel = block?.cta_primary_label || 'Explore Courses';
-  const ctaSecondaryLabel = block?.cta_secondary_label || 'Browse Categories';
+  const eyebrow = homeField("courses_hero", block, "eyebrow");
+  const heading = homeField("courses_hero", block, "heading");
+  const headingSecondary = homeField("courses_hero", block, "heading_secondary");
+  const subhead = homeField("courses_hero", block, "subhead");
+  const ctaPrimaryLabel = homeField("courses_hero", block, "cta_primary_label");
+  const ctaSecondaryLabel = homeField("courses_hero", block, "cta_secondary_label");
   // Serializer field is named `img` (content/serializers.py), not `image`.
-  const image = block?.img || '';
+  const image = homeField("courses_hero", block, "img");
 
   return (
     <>
@@ -164,17 +165,17 @@ export default function CoursesHero({ onBrowse, onBrowseCategories }) {
         <div className="wrap">
           <div className="ch-grid">
             <div className="ch-copy">
-              <span className="ch-badge"><i aria-hidden="true" />{eyebrow}</span>
+              {(eyebrow) && (<span className="ch-badge"><i aria-hidden="true" />{eyebrow}</span>)}
               <h1>{heading} <em>{headingSecondary}</em></h1>
-              <p className="ch-sub">{subhead}</p>
+              {(subhead) && (<p className="ch-sub">{subhead}</p>)}
 
               <div className="ch-cta-row">
-                <button type="button" className="ch-cta ch-cta--primary" onClick={onBrowse}>
+                {(ctaPrimaryLabel) && (<button type="button" className="ch-cta ch-cta--primary" onClick={onBrowse}>
                   {ctaPrimaryLabel} <ArrowIcon />
-                </button>
-                <button type="button" className="ch-cta ch-cta--ghost" onClick={onBrowseCategories}>
+                </button>)}
+                {(ctaSecondaryLabel) && (<button type="button" className="ch-cta ch-cta--ghost" onClick={onBrowseCategories}>
                   {ctaSecondaryLabel}
-                </button>
+                </button>)}
               </div>
 
               {FACTS.length > 0 && (
@@ -188,7 +189,7 @@ export default function CoursesHero({ onBrowse, onBrowseCategories }) {
               )}
             </div>
 
-            <div className="ch-vis">
+            {block?.display_settings?.image !== "hidden" && (<div className="ch-vis">
               <div className="ch-disc">
                 <div className="ch-art">
                   {image ? <img src={image} alt="" /> : <CoursesHeroArt />}
@@ -205,7 +206,7 @@ export default function CoursesHero({ onBrowse, onBrowseCategories }) {
                   <span><b>{c.title}</b><span>{c.note}</span></span>
                 </div>
               ))}
-            </div>
+            </div>)}
           </div>
         </div>
       </section>

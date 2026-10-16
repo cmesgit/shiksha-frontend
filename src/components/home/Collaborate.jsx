@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { cloneElement, useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
@@ -145,20 +146,20 @@ const DEFAULT_FLOATERS = {
 
 export default function Collaborate() {
   const rootRef = useRef(null);
-  const { block, items, floaters } = useHomeContent("collaborate");
+  const { block, items, floaters, cmsOwnsFloaters } = useHomeContent("collaborate");
 
-  const eyebrow = block?.eyebrow || DEFAULTS_BLOCK.eyebrow;
-  const heading = block?.heading || DEFAULTS_BLOCK.heading;
-  const subhead = block?.subhead || DEFAULTS_BLOCK.subhead;
-  const ctaPrimaryLabel = block?.cta_primary_label || DEFAULTS_BLOCK.cta_primary_label;
-  const ctaPrimaryHref = block?.cta_primary_href || DEFAULTS_BLOCK.cta_primary_href;
-  const ctaSecondaryLabel = block?.cta_secondary_label || DEFAULTS_BLOCK.cta_secondary_label;
-  const ctaSecondaryHref = block?.cta_secondary_href || DEFAULTS_BLOCK.cta_secondary_href;
+  const eyebrow = homeField("collaborate", block, "eyebrow");
+  const heading = homeField("collaborate", block, "heading");
+  const subhead = homeField("collaborate", block, "subhead");
+  const ctaPrimaryLabel = homeField("collaborate", block, "cta_primary_label");
+  const ctaPrimaryHref = homeField("collaborate", block, "cta_primary_href");
+  const ctaSecondaryLabel = homeField("collaborate", block, "cta_secondary_label");
+  const ctaSecondaryHref = homeField("collaborate", block, "cta_secondary_href");
 
   const marqueeChips = items.filter((it) => it.variant === "marquee_chip");
   const statChips = items.filter((it) => it.variant === "stat_chip");
-  const chips = marqueeChips.length ? marqueeChips : DEFAULT_MARQUEE_CHIPS;
-  const stats = statChips.length ? statChips : DEFAULT_STAT_CHIPS;
+  const chips = homeCollection(block, "items", marqueeChips, DEFAULT_MARQUEE_CHIPS);
+  const stats = homeCollection(block, "items", statChips, DEFAULT_STAT_CHIPS);
 
   // The design handoff's marquee is a CSS-only infinite loop (`chipscroll`
   // animates translateX(0) -> translateX(-50%)) that only looks seamless
@@ -167,8 +168,12 @@ export default function Collaborate() {
   // reduced-motion media query above hides via :nth-child(2).
   const chipCopies = [0, 1];
 
-  const topFloater = floaters.top?.is_active !== false ? floaters.top || DEFAULT_FLOATERS.top : null;
-  const bottomFloater = floaters.bottom?.is_active !== false ? floaters.bottom || DEFAULT_FLOATERS.bottom : null;
+  // Once this section has any badge rows the CMS owns both slots, so a slot
+  // that isn't in the response was deliberately removed and renders nothing.
+  // With no rows at all (empty CMS, or the API unreachable) the two designed
+  // badges stand, which is what DEFAULT_FLOATERS is for. See useHomeContent.
+  const topFloater = cmsOwnsFloaters ? floaters.top || null : DEFAULT_FLOATERS.top;
+  const bottomFloater = cmsOwnsFloaters ? floaters.bottom || null : DEFAULT_FLOATERS.bottom;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -195,9 +200,9 @@ export default function Collaborate() {
 
               {/* LEFT: copy */}
               <div className="collab-copy rv">
-                <span className="eyebrow"><u>{eyebrow}</u></span>
+                {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
                 <h2>{heading}</h2>
-                <p className="sub">{subhead}</p>
+                {(subhead) && (<p className="sub">{subhead}</p>)}
 
                 <div className="chip-marquee">
                   <div className="chip-track">
@@ -224,14 +229,14 @@ export default function Collaborate() {
                 </div>
 
                 <div className="collab-actions">
-                  <CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
+                  {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
                     {ctaPrimaryLabel}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                  </CtaLink>
-                  <CtaLink className="btn btn-ghost" to={ctaSecondaryHref}>
+                  </CtaLink>)}
+                  {(ctaSecondaryLabel && ctaSecondaryHref) && (<CtaLink className="btn btn-ghost" to={ctaSecondaryHref}>
                     {ctaSecondaryLabel}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-                  </CtaLink>
+                  </CtaLink>)}
                 </div>
 
                 <div className="stats">

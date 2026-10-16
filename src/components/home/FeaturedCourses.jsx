@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -113,10 +114,10 @@ export default function FeaturedCourses() {
   // replaced by the CMS rows the featured payload carries.
   const [tabs, setTabs] = useState(COURSE_TABS);
 
-  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
-  const heading = block?.heading || DEFAULTS.heading;
-  const headingSecondary = block?.heading_secondary || DEFAULTS.heading_secondary;
-  const subhead = block?.subhead || DEFAULTS.subhead;
+  const eyebrow = homeField("featured_courses", block, "eyebrow");
+  const heading = homeField("featured_courses", block, "heading");
+  const headingSecondary = homeField("featured_courses", block, "heading_secondary");
+  const subhead = homeField("featured_courses", block, "subhead");
 
   // Paint immediately with the curated fallback (homeData.js), then swap in
   // real CMS showcase rows if the backend has any active ones — see
@@ -251,9 +252,9 @@ export default function FeaturedCourses() {
       <section className="sec" id="courses" ref={rootRef}>
         <div className="wrap">
           <div className="sec-head rv">
-            <span className="eyebrow"><u>{eyebrow}</u></span>
+            {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
             <h2>{heading}{headingSecondary ? <> <span className="em">{headingSecondary}</span></> : null}</h2>
-            <p>{subhead}</p>
+            {(subhead) && (<p>{subhead}</p>)}
           </div>
 
           <div className="fc-tabs rv" role="tablist" aria-label="Filter courses">

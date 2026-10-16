@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
@@ -85,8 +86,8 @@ export default function TeachersStudents() {
   const rootRef = useRef(null);
   const { block, items } = useHomeContent("teachers_students");
 
-  const eyebrow = block?.eyebrow || "Teachers & Students";
-  const heading = block?.heading || "What are you looking for?";
+  const eyebrow = homeField("teachers_students", block, "eyebrow");
+  const heading = homeField("teachers_students", block, "heading");
 
   useEffect(() => {
     const root = rootRef.current;
@@ -131,12 +132,11 @@ export default function TeachersStudents() {
         <section className="sec peach">
           <div className="wrap">
             <div className="sec-head rv">
-              <span className="eyebrow"><u>{eyebrow}</u></span>
+              {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
               <h2>{heading}</h2>
             </div>
             <div className="duo">
-              {[0, 1].map((i) => {
-                const item = items[i] || DEFAULT_ITEMS[i];
+              {homeCollection(block, "items", items, DEFAULT_ITEMS).slice(0, 2).map((item, i) => {
                 const meta = DUO_META[i];
                 return (
                   <div className={`duo-card ${meta.cardClass} rv`} key={item.id ?? i}>
