@@ -172,7 +172,7 @@ export default function Login() {
             <Field id="lf-email" label="Email" type="email" value={email}
               onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
               required autoFocus autoComplete="email" />
-            {error && <div className="af-error">{error}</div>}
+            {error && <div className="af-error" role="alert">{error}</div>}
             <div className="af-spacer" />
             <div className="af-actions">
               <button type="submit" className="af-btn af-btn--block" disabled={submitting}>
@@ -197,7 +197,7 @@ export default function Login() {
               required autoFocus autoComplete="current-password"
               show={showPw} onToggle={() => setShowPw((v) => !v)} />
             <Link to="/forgot-password" className="af-note">Forgot password?</Link>
-            {error && <div className="af-error">{error}</div>}
+            {error && <div className="af-error" role="alert">{error}</div>}
             {error && /verif/i.test(error) && (
               <Link to="/resend-verification" className="af-note" style={{ display: "block", marginTop: 4 }}>
                 Email not verified? Resend verification link
