@@ -127,13 +127,17 @@ export async function getFaqs(pageKey) {
 // The brand panel, mobile preview and mentor block share a slot. Coalesce
 // their requests and keep the result briefly across auth step changes.
 const tickerFeeds = new Map();
-export function getTickerItems(slot) {
+export function getTickerItems(slot, { force = false } = {}) {
   const previous = tickerFeeds.get(slot);
-  if (previous && previous.expires > Date.now()) return previous.request;
-  const entry = { expires: Date.now() + 30000, request: null };
+  if (previous && (previous.pending || (!force && previous.expires > Date.now()))) return previous.request;
+  const entry = { expires: 0, pending: true, request: null };
   entry.request = api.get("/content/announcements/", { params: { slot } })
     .then(({ data }) => Array.isArray(data) ? data : [])
-    .catch(() => { if (tickerFeeds.get(slot) === entry) tickerFeeds.delete(slot); return []; });
+    .catch(() => {
+      if (tickerFeeds.get(slot) === entry) tickerFeeds.delete(slot);
+      return previous?.request || [];
+    })
+    .finally(() => { entry.pending = false; entry.expires = Date.now() + 30000; });
   tickerFeeds.set(slot, entry);
   return entry.request;
 }

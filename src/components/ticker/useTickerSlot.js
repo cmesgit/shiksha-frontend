@@ -19,19 +19,35 @@ export default function useTickerSlot(slot) {
 
   useEffect(() => {
     let alive = true;
-    getPublicConfig()
-      .then((cfg) => {
-        if (!alive) return [];
-        if (!cfg.live_ticker_enabled) return [];
-        return getTickerItems(slot);
-      })
-      .then((rows) => {
-        if (!alive) return;
-        setItems(Array.isArray(rows) ? rows : []);
-        setReady(true);
-      })
-      .catch(() => { if (alive) setReady(true); });
-    return () => { alive = false; };
+    let request = 0;
+    let lastRefresh = 0;
+    const load = (force = false) => {
+      const current = ++request;
+      getPublicConfig()
+        .then((cfg) => {
+          if (!alive || !cfg.live_ticker_enabled) return [];
+          return getTickerItems(slot, { force });
+        })
+        .then((rows) => {
+          if (!alive || current !== request) return;
+          setItems(Array.isArray(rows) ? rows : []);
+          setReady(true);
+        })
+        .catch(() => { if (alive && current === request) setReady(true); });
+    };
+    const refresh = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastRefresh < 1000) return;
+      lastRefresh = Date.now();
+      load(true);
+    };
+    load();
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      alive = false;
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [slot]);
 
   return { items, ready };
