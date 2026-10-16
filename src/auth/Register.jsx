@@ -186,7 +186,7 @@ export default function Register() {
       <p className="af-sub">
         {intent === "teach"
           ? "First, your account. You’ll set up teaching right after."
-          : "One account for everything — courses, Skill Dev, and teaching if you want it later."}
+          : "Learn, practise and explore with one account."}
       </p>
 
       {googleSignInConfigured() && (

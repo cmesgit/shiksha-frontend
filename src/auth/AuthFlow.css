@@ -538,7 +538,7 @@
 
 /* Entry forms share Google's maximum button width so every control aligns. */
 .af--entry { --af-measure: 400px; }
-.af--entry .af-panel { min-width: 0; align-items: center; padding: 48px clamp(28px, 4vw, 56px); }
+.af--entry .af-panel { min-width: 0; align-items: center; padding: 48px clamp(28px, 4vw, 56px); overflow-x: hidden; scrollbar-gutter: stable; }
 .af--entry .af-panel__inner { width: 100%; max-width: var(--af-measure); }
 .af--entry .af-heading { margin-top: 0; }
 .af--entry .af-sub { max-width: var(--af-measure); }
@@ -585,8 +585,8 @@
   .af-brand__body--intro { position: absolute; inset: 0; margin: 0; }
   .af-brand__tagline { display: none; }
 
-  .af--entry .af-brand { min-height: 140px; height: 140px; padding: 20px 22px; }
-  .af--entry .af-brand__body--intro { margin: 0; }
+  .af--entry .af-brand { min-height: 120px; height: 120px; padding: 20px 22px; }
+  .af--entry .af-brand__body--intro { margin: 0; left: auto; right: 8px; width: clamp(80px, 26vw, 120px); }
   .af--entry .af-panel { padding: 28px 24px 32px; }
   .af--entry .af-field input { font-size: 16px; }
   .af--entry .af-google { margin-top: 24px; }

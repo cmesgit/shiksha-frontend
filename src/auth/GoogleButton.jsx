@@ -66,6 +66,7 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
   useEffect(() => {
     if (!CLIENT_ID) return;
     let cancelled = false;
+    let observer;
 
     loadGis()
       .then(() => {
@@ -79,8 +80,14 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
           auto_select: false,
           cancel_on_tap_outside: true,
         });
-        holder.current.innerHTML = "";
-        window.google.accounts.id.renderButton(holder.current, {
+        let renderedWidth = 0;
+        const render = () => {
+          if (cancelled || !holder.current) return;
+          const width = Math.min(holder.current.clientWidth || 320, 400);
+          if (width === renderedWidth) return;
+          renderedWidth = width;
+          holder.current.innerHTML = "";
+          window.google.accounts.id.renderButton(holder.current, {
           theme: "outline",
           size: "large",
           shape: "rectangular",
@@ -89,13 +96,19 @@ export default function GoogleButton({ onCredential, text = "continue_with", dis
           // that. Passing the raw holder width made it request a number GIS
           // silently clamped, which is why the button never matched the
           // column it sits in.
-          width: Math.min(holder.current.offsetWidth || 320, 400),
+          width,
           logo_alignment: "center",
-        });
+          });
+        };
+        render();
+        if (typeof ResizeObserver !== "undefined") {
+          observer = new ResizeObserver(render);
+          observer.observe(holder.current);
+        }
       })
       .catch(() => { if (!cancelled) setFailed(true); });
 
-    return () => { cancelled = true; };
+    return () => { cancelled = true; observer?.disconnect(); };
   }, [text]);
 
   if (!CLIENT_ID) return null;
