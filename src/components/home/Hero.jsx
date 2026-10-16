@@ -365,7 +365,7 @@ const DEFAULTS = {
 };
 
 export default function Hero() {
-  const { block, floaters, cmsOwnsFloaters, loading: contentLoading } = useHomeContent("hero");
+  const { block, floaters, cmsOwnsFloaters, blockLoading: contentLoading } = useHomeContent("hero");
 
   const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
   const heading = block?.heading || DEFAULTS.heading;
@@ -389,14 +389,12 @@ export default function Hero() {
      anything unplayable, so an empty list here means "render no link" rather
      than "render a link that opens nothing". */
   const [demo, setDemo] = useState(null);
-  const [demoLoading, setDemoLoading] = useState(true);
   useEffect(() => {
     let alive = true;
     getDemoVideos().then((rows) => {
       const first = (Array.isArray(rows) ? rows : []).find((v) => v?.embed_url);
       if (alive) {
         setDemo(first || null);
-        setDemoLoading(false);
       }
     });
     return () => { alive = false; };
@@ -406,9 +404,9 @@ export default function Hero() {
      duration_seconds — the design mockup hardcoded "40s" for a clip that is
      really 53s, which is the drift this whole feature avoids. With no duration
      synced yet the label simply omits it. */
-  // CMS text and the demo used to replace already-animating fallback copy.
+  // CMS text used to replace already-animating fallback copy.
   // Reveal one settled group instead of staggering every line independently.
-  const copyLoading = contentLoading || demoLoading;
+  const copyLoading = contentLoading;
 
   const demoLabel = demo
     ? `Watch the ${demo.duration_seconds ? `${demo.duration_seconds}s ` : ""}`

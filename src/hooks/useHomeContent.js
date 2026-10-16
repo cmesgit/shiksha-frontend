@@ -47,12 +47,20 @@ export function useHomeContent(section) {
   const [items, setItems] = useState([]);
   const [floaters, setFloaters] = useState({});
   const [loading, setLoading] = useState(true);
+  const [blockLoading, setBlockLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setBlockLoading(true);
     Promise.all([
-      getHomeContent(section),
+      getHomeContent(section).then((row) => {
+        if (alive) {
+          setBlock(row);
+          setBlockLoading(false);
+        }
+        return row;
+      }),
       getHomeListItems(section),
       getHomeFloaters(section),
     ]).then(([blockRow, itemRows, floaterRows]) => {
@@ -67,10 +75,6 @@ export function useHomeContent(section) {
     };
   }, [section]);
 
-  // See the note above the hook. While loading this is false, so a section
-  // renders its defaults until the real answer lands — the same thing it
-  // already does for `block` and `items`.
   const cmsOwnsFloaters = Object.keys(floaters).length > 0;
-
-  return { block, items, floaters, cmsOwnsFloaters, loading };
+  return { block, items, floaters, cmsOwnsFloaters, loading, blockLoading };
 }
