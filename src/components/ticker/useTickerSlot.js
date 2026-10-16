@@ -41,10 +41,12 @@ export default function useTickerSlot(slot) {
       load(true);
     };
     load();
+    const timer = setInterval(refresh, 60000);
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {
       alive = false;
+      clearInterval(timer);
       window.removeEventListener("focus", refresh);
       document.removeEventListener("visibilitychange", refresh);
     };
