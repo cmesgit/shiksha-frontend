@@ -3,36 +3,24 @@ import { Link } from "react-router-dom";
 import { AuthShell } from "./AuthKit";
 import { useAuth } from "../contexts/AuthContext";
 
-/* Reaching /login while already signed in.
- *
- * This used to be an unconditional hard bounce to the dashboard, which meant
- * the login page could never be seen by someone who already had a session —
- * so there was NO way to log out from it, and no way to sign in as somebody
- * else. On a shared or family device that is the common case, not the edge
- * case. It also made the page a dead end whenever the dashboard host was
- * unreachable: the redirect fired and left you staring at an error.
- *
- * The automatic redirect is KEPT for the case it was written for — finishing
- * a login with a pending destination (?next= or post_auth_redirect). This
- * screen only appears when someone navigates to /login with no such
- * destination, which is a deliberate act and almost always means "let me in
- * as a different person".
- */
+// Keep the account controls reachable even when the login link has a pending
+// destination. Continuing follows that destination; signing out keeps it for
+// the next account to use after authentication.
 export default function AlreadySignedIn({ onContinue }) {
   const { user, logout } = useAuth();
   const [busy, setBusy] = useState(false);
   const who = user?.email || user?.full_name || "this account";
 
   return (
-    <AuthShell role="student" flowLabel="Log in" loginIntro>
+    <AuthShell role="student" flowLabel="Log in" loginIntro entry>
       <h1 className="af-heading">You’re already signed in</h1>
       <p className="af-sub">
-        This browser is signed in as <strong>{who}</strong>.
+        This browser is signed in as <strong className="af-session-account">{who}</strong>.
       </p>
 
-      <div className="af-actions">
-        <button type="button" className="af-btn af-btn--block" onClick={onContinue}>
-          Continue as {who}
+      <div className="af-actions af-session-actions">
+        <button type="button" className="af-btn af-btn--block" onClick={onContinue} disabled={busy}>
+          Continue
         </button>
         <button
           type="button"
@@ -50,7 +38,8 @@ export default function AlreadySignedIn({ onContinue }) {
         </button>
       </div>
 
-      <p className="af-note" style={{ marginTop: 14 }}>
+      <p className="af-note af-session-note"><Link to="/pick-profile">Switch profile</Link></p>
+      <p className="af-note af-session-note">
         Signing out here only affects this browser. <Link to="/">Back to the site</Link>
       </p>
     </AuthShell>

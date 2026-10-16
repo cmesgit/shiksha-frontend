@@ -176,3 +176,33 @@ export function AuthMentors({ slot }) {
     </div>
   );
 }
+
+/** Admin-managed content directly below the login form, across screen sizes. */
+export function AuthFormUpdates({ slot }) {
+  const { items } = useTickerSlot(slot);
+  const [index, setIndex] = useState(0);
+  if (!items.length) return null;
+  const current = index < items.length ? index : 0;
+  const item = items[current];
+  const href = promoHref(item);
+  return (
+    <aside className="afm afm--updates" aria-label="From ShikshaCom">
+      <span className="afm__label">{KIND_LABEL[item.kind] || "From ShikshaCom"}</span>
+      <div className="afm__card">
+        {item.img && <img className="afm__photo" src={item.img} alt="" width="64" height="64" loading="lazy" />}
+        <div className="afm__meta">
+          <b className="afm__name">{item.message}</b>
+          {item.body && <span className="afm__subject">{item.body}</span>}
+          {href && <a className="afm__link" href={href} target="_blank" rel="noopener noreferrer">{item.link_label || "Explore"} ↗</a>}
+        </div>
+      </div>
+      {items.length > 1 && (
+        <div className="afm__pager">
+          <button type="button" aria-label="Previous advertisement" onClick={() => setIndex((current + items.length - 1) % items.length)}>‹</button>
+          <span>{current + 1} / {items.length}</span>
+          <button type="button" aria-label="Next advertisement" onClick={() => setIndex((current + 1) % items.length)}>›</button>
+        </div>
+      )}
+    </aside>
+  );
+}
