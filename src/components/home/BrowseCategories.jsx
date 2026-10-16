@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
@@ -99,12 +100,12 @@ export default function BrowseCategories() {
   const rootRef = useRef(null);
   const { block, items } = useHomeContent("browse_categories");
 
-  const eyebrow = block?.eyebrow || "Browse Categories";
-  const heading = block?.heading || "Explore our learning categories";
-  const subhead = block?.subhead || "Choose the path that matches your academic goals — programs designed by experienced educators.";
-  const ctaPrimaryLabel = block?.cta_primary_label || "All categories";
-  const ctaPrimaryHref = block?.cta_primary_href || "/courses";
-  const cards = items.length ? items : DEFAULT_ITEMS;
+  const eyebrow = homeField("browse_categories", block, "eyebrow");
+  const heading = homeField("browse_categories", block, "heading");
+  const subhead = homeField("browse_categories", block, "subhead");
+  const ctaPrimaryLabel = homeField("browse_categories", block, "cta_primary_label");
+  const ctaPrimaryHref = homeField("browse_categories", block, "cta_primary_href");
+  const cards = homeCollection(block, "items", items, DEFAULT_ITEMS);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -147,9 +148,9 @@ export default function BrowseCategories() {
         <section className="sec peach" id="programs" style={{ paddingTop: 0 }}>
           <div className="wrap">
             <div className="sec-head rv">
-              <span className="eyebrow"><u>{eyebrow}</u></span>
+              {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
               <h2>{heading}</h2>
-              <p>{subhead}</p>
+              {(subhead) && (<p>{subhead}</p>)}
             </div>
             <div className="cats">
               {cards.map((c, i) => (
@@ -193,10 +194,10 @@ export default function BrowseCategories() {
               ))}
             </div>
             <div className="center rv">
-              <CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
+              {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="btn btn-coral" to={ctaPrimaryHref}>
                 {ctaPrimaryLabel}
                 {ARROW_ICON}
-              </CtaLink>
+              </CtaLink>)}
             </div>
           </div>
         </section>

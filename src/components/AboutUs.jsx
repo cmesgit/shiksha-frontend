@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../css/AboutUs.css";
@@ -215,7 +216,10 @@ function mergeRow(row, fallback) {
    the design's is honoured as-is (four initiative cards if an editor deleted
    one); rows beyond the design's length merge onto the last card's styling so
    a sixth card still gets a colour rather than rendering unstyled. */
-function mergeList(rows, defaults) {
+function mergeList(rows, defaults, block) {
+  if (block?.display_settings?.items === "hidden") return [];
+  if (block?.display_settings?.items === "custom" && !rows.length) return [];
+  if (block?.display_settings?.items === "default") return defaults.map((d, i) => ({ ...d, key: `d${i}` }));
   if (!rows.length) return defaults.map((d, i) => ({ ...d, key: `d${i}` }));
   return rows.map((row, i) => mergeRow(row, defaults[i] || defaults[defaults.length - 1]));
 }
@@ -491,69 +495,69 @@ export default function AboutUs() {
   const cta = useHomeContent("about_cta");
 
   /* ── Hero ── */
-  const heroBadge = hero.block?.eyebrow || HERO_DEFAULTS.badge;
-  const heroHeading = hero.block?.heading || HERO_DEFAULTS.heading;
-  const heroHeadingSecondary = hero.block?.heading_secondary ?? HERO_DEFAULTS.heading_secondary;
-  const heroSubhead = hero.block?.subhead || HERO_DEFAULTS.subhead;
+  const heroBadge = homeField("about_hero", hero.block, "eyebrow");
+  const heroHeading = homeField("about_hero", hero.block, "heading");
+  const heroHeadingSecondary = homeField("about_hero", hero.block, "heading_secondary");
+  const heroSubhead = homeField("about_hero", hero.block, "subhead");
   const heroCtaPrimary = {
-    label: hero.block?.cta_primary_label || HERO_DEFAULTS.cta_primary_label,
-    href: hero.block?.cta_primary_href || HERO_DEFAULTS.cta_primary_href,
+    label: homeField("about_hero", hero.block, "cta_primary_label"),
+    href: homeField("about_hero", hero.block, "cta_primary_href"),
   };
   const heroCtaSecondary = {
-    label: hero.block?.cta_secondary_label || HERO_DEFAULTS.cta_secondary_label,
-    href: hero.block?.cta_secondary_href || HERO_DEFAULTS.cta_secondary_href,
+    label: homeField("about_hero", hero.block, "cta_secondary_label"),
+    href: homeField("about_hero", hero.block, "cta_secondary_href"),
   };
   /* The five sticker rows on production hold an image and nothing else, and
      this design's nodes are icon + label + sublabel with no image slot. So the
      CMS only takes over once someone gives those rows titles — otherwise every
      node would render blank. */
   const heroCmsNodes = hero.items.filter((i) => i.variant === "sticker" && i.title);
-  const heroNodes = mergeList(heroCmsNodes, HERO_NODES_DEFAULT);
+  const heroNodes = mergeList(heroCmsNodes, HERO_NODES_DEFAULT, hero.block);
 
   /* ── Vision ── */
-  const visionEyebrow = vision.block?.eyebrow || VISION_DEFAULTS.eyebrow;
-  const visionHeading = vision.block?.heading || VISION_DEFAULTS.heading;
-  const visionHeadingSecondary = vision.block?.heading_secondary ?? VISION_DEFAULTS.heading_secondary;
-  const visionSubhead = vision.block?.subhead || VISION_DEFAULTS.subhead;
+  const visionEyebrow = homeField("about_vision", vision.block, "eyebrow");
+  const visionHeading = homeField("about_vision", vision.block, "heading");
+  const visionHeadingSecondary = homeField("about_vision", vision.block, "heading_secondary");
+  const visionSubhead = homeField("about_vision", vision.block, "subhead");
   const visionListLabel = vision.block?.extra?.list_label || VISION_DEFAULTS.list_label;
   /* The handoff marks its inline scene as the swap point for a real photo, and
      HomeContentBlock has carried the field all along. A CMS upload wins. */
-  const visionImage = vision.block?.img || null;
+  const visionImage = homeField("about_vision", vision.block, "img");
   const initiatives = mergeList(
     vision.items.filter((i) => i.variant === "default"),
-    INITIATIVES_DEFAULT
+    INITIATIVES_DEFAULT, vision.block
   );
 
   /* ── Mission ── */
-  const missionEyebrow = mission.block?.eyebrow || MISSION_DEFAULTS.eyebrow;
-  const missionHeading = mission.block?.heading || MISSION_DEFAULTS.heading;
-  const missionHeadingSecondary = mission.block?.heading_secondary ?? MISSION_DEFAULTS.heading_secondary;
-  const missionSubhead = mission.block?.subhead || MISSION_DEFAULTS.subhead;
+  const missionEyebrow = homeField("about_mission", mission.block, "eyebrow");
+  const missionHeading = homeField("about_mission", mission.block, "heading");
+  const missionHeadingSecondary = homeField("about_mission", mission.block, "heading_secondary");
+  const missionSubhead = homeField("about_mission", mission.block, "subhead");
   const missionCards = mergeList(
     mission.items.filter((i) => i.variant === "pillar"),
-    MISSION_CARDS_DEFAULT
+    MISSION_CARDS_DEFAULT, mission.block
   );
 
   /* ── Values ── */
-  const valuesEyebrow = values.block?.eyebrow || VALUES_DEFAULTS.eyebrow;
-  const valuesHeading = values.block?.heading || VALUES_DEFAULTS.heading;
-  const valuesHeadingSecondary = values.block?.heading_secondary ?? VALUES_DEFAULTS.heading_secondary;
-  const valuesSubhead = values.block?.subhead || VALUES_DEFAULTS.subhead;
+  const valuesEyebrow = homeField("about_values", values.block, "eyebrow");
+  const valuesHeading = homeField("about_values", values.block, "heading");
+  const valuesHeadingSecondary = homeField("about_values", values.block, "heading_secondary");
+  const valuesSubhead = homeField("about_values", values.block, "subhead");
   const valuesListLabel = values.block?.extra?.list_label || VALUES_DEFAULTS.list_label;
-  const valuesImage = values.block?.img || null;
+  const valuesImage = homeField("about_values", values.block, "img");
   const valuesList = mergeList(
     values.items.filter((i) => i.variant === "default"),
-    VALUES_DEFAULT
+    VALUES_DEFAULT, values.block
   );
 
   /* ── Why ── */
-  const whyEyebrow = why.block?.eyebrow || WHY_DEFAULTS.eyebrow;
-  const whyHeading = why.block?.heading || WHY_DEFAULTS.heading;
-  const whyHeadingSecondary = why.block?.heading_secondary ?? WHY_DEFAULTS.heading_secondary;
-  const whySubhead = why.block?.subhead || WHY_DEFAULTS.subhead;
+  const whyEyebrow = homeField("about_why", why.block, "eyebrow");
+  const whyHeading = homeField("about_why", why.block, "heading");
+  const whyHeadingSecondary = homeField("about_why", why.block, "heading_secondary");
+  const whySubhead = homeField("about_why", why.block, "subhead");
   const whyCards = mergeList(
     why.items.filter((i) => i.variant === "numbered"),
-    WHY_CARDS_DEFAULT
+    WHY_CARDS_DEFAULT, why.block
   );
 
   /* ── Closing CTA ── */
@@ -563,16 +567,16 @@ export default function AboutUs() {
      cta_secondary_ columns, the same ones the hero uses, rather than inventing
      fields. (Written out longhand on purpose: a `cta_primary_*` glob here
      closes this comment at the slash and the file stops parsing.) */
-  const ctaEyebrow = cta.block?.eyebrow || CTA_DEFAULTS.eyebrow;
-  const ctaHeading = cta.block?.heading || CTA_DEFAULTS.heading;
-  const ctaSubhead = cta.block?.subhead || CTA_DEFAULTS.subhead;
+  const ctaEyebrow = homeField("about_cta", cta.block, "eyebrow");
+  const ctaHeading = homeField("about_cta", cta.block, "heading");
+  const ctaSubhead = homeField("about_cta", cta.block, "subhead");
   const ctaPrimary = {
-    label: cta.block?.cta_primary_label || CTA_DEFAULTS.primary.label,
-    to: cta.block?.cta_primary_href || CTA_DEFAULTS.primary.to,
+    label: homeField("about_cta", cta.block, "cta_primary_label"),
+    to: homeField("about_cta", cta.block, "cta_primary_href"),
   };
   const ctaSecondary = {
-    label: cta.block?.cta_secondary_label || CTA_DEFAULTS.secondary.label,
-    to: cta.block?.cta_secondary_href || CTA_DEFAULTS.secondary.to,
+    label: homeField("about_cta", cta.block, "cta_secondary_label"),
+    to: homeField("about_cta", cta.block, "cta_secondary_href"),
   };
 
   useHeaderOffset(rootRef);
@@ -592,17 +596,17 @@ export default function AboutUs() {
           <div className="ap-hero-grid">
 
             <div className="ap-hero-copy ap-rv">
-              <span className="ap-badge"><i></i>{heroBadge}</span>
+              {(heroBadge) && (<span className="ap-badge"><i></i>{heroBadge}</span>)}
               <h1>
                 {withBreaks(heroHeading)}
                 {heroHeadingSecondary ? <> <span className="ap-em">{heroHeadingSecondary}</span></> : null}
               </h1>
-              <RichText className="ap-hero-sub" html={hero.block?.body}>{heroSubhead}</RichText>
+              {(homeField("about_hero", hero.block, "body") || heroSubhead) && (<RichText className="ap-hero-sub" html={homeField("about_hero", hero.block, "body")}>{heroSubhead}</RichText>)}
               <div className="ap-hero-cta">
-                <a className="ap-btn ap-btn--solid" href={heroCtaPrimary.href}>{heroCtaPrimary.label}
-                  {ICONS.arrow}</a>
-                <a className="ap-btn ap-btn--ghost" href={heroCtaSecondary.href}>{heroCtaSecondary.label}
-                  {ICONS.eye}</a>
+                {(heroCtaPrimary.label && heroCtaPrimary.href) && (<a className="ap-btn ap-btn--solid" href={heroCtaPrimary.href}>{heroCtaPrimary.label}
+                  {ICONS.arrow}</a>)}
+                {(heroCtaSecondary.label && heroCtaSecondary.href) && (<a className="ap-btn ap-btn--ghost" href={heroCtaSecondary.href}>{heroCtaSecondary.label}
+                  {ICONS.eye}</a>)}
               </div>
             </div>
 
@@ -639,16 +643,16 @@ export default function AboutUs() {
           <div className="ap-split">
 
             <div className="ap-copy ap-rv">
-              <span className="ap-eyebrow"><u>{visionEyebrow}</u></span>
+              {visionEyebrow && (<span className="ap-eyebrow"><u>{visionEyebrow}</u></span>)}
               <h2>
                 {withBreaks(visionHeading)}
                 {visionHeadingSecondary ? <> <span className="ap-em">{visionHeadingSecondary}</span></> : null}
               </h2>
-              <RichText html={vision.block?.body}>{visionSubhead}</RichText>
+              {(homeField("about_vision", vision.block, "body") || visionSubhead) && (<RichText html={homeField("about_vision", vision.block, "body")}>{visionSubhead}</RichText>)}
               <span className="ap-sublabel">{visionListLabel}</span>
             </div>
 
-            <div className="ap-media ap-rv ap-d2">
+            {vision.block?.display_settings?.image !== "hidden" && (<div className="ap-media ap-rv ap-d2">
               <span className="ap-media__shape"></span>
               <div className="ap-media__frame">
                 {visionImage
@@ -662,7 +666,7 @@ export default function AboutUs() {
               <div className="ap-chip br">
                 <span className="ap-dot"></span>Reaching remote areas
               </div>
-            </div>
+            </div>)}
 
           </div>
 
@@ -686,7 +690,7 @@ export default function AboutUs() {
                   <span className="ap-scard__ic">{icon(card.glyph, ICONS.init1)}</span>
                   <span className="ap-scard__k">{card.subtitle || `Initiative ${String(i + 1).padStart(2, "0")}`}</span>
                   <h4>{card.title}</h4>
-                  <RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>
+                  {(card.bodyIsHtml ? card.body : null) && (<RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>)}
                 </article>
               ))}
             </div>
@@ -707,12 +711,12 @@ export default function AboutUs() {
 
             {/* LEFT: copy */}
             <div className="ap-mission-copy ap-rv">
-              <span className="ap-eyebrow"><u>{missionEyebrow}</u></span>
+              {missionEyebrow && (<span className="ap-eyebrow"><u>{missionEyebrow}</u></span>)}
               <h2>
                 {withBreaks(missionHeading)}
                 {missionHeadingSecondary ? <> <span className="ap-em">{missionHeadingSecondary}</span></> : null}
               </h2>
-              <RichText html={mission.block?.body}>{missionSubhead}</RichText>
+              {(homeField("about_mission", mission.block, "body") || missionSubhead) && (<RichText html={homeField("about_mission", mission.block, "body")}>{missionSubhead}</RichText>)}
             </div>
 
             {/* RIGHT: rotating stacked cards */}
@@ -728,7 +732,7 @@ export default function AboutUs() {
                     <MissionGhost />
                     <span className="ap-card-ic">{icon(card.glyph, ICONS.users)}</span>
                     <h3>{card.title}</h3>
-                    <RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>
+                    {(card.bodyIsHtml ? card.body : null) && (<RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>)}
                   </article>
                 ))}
               </div>
@@ -763,7 +767,7 @@ export default function AboutUs() {
         <div className="ap-wrap">
           <div className="ap-split rev">
 
-            <div className="ap-media on-dark ap-rv">
+            {values.block?.display_settings?.image !== "hidden" && (<div className="ap-media on-dark ap-rv">
               <span className="ap-media__shape tl"></span>
               <div className="ap-media__frame">
                 {valuesImage
@@ -774,15 +778,15 @@ export default function AboutUs() {
                 <span className="ap-chip-ic" style={{ background: 'var(--ap-emerald)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
                 {VALUES_DEFAULTS.chip}
               </div>
-            </div>
+            </div>)}
 
             <div className="ap-copy ap-rv ap-d2">
-              <span className="ap-eyebrow"><u>{valuesEyebrow}</u></span>
+              {valuesEyebrow && (<span className="ap-eyebrow"><u>{valuesEyebrow}</u></span>)}
               <h2>
                 {withBreaks(valuesHeading)}
                 {valuesHeadingSecondary ? <><br /><span className="ap-mark">{valuesHeadingSecondary}</span></> : null}
               </h2>
-              <RichText html={values.block?.body}>{valuesSubhead}</RichText>
+              {(homeField("about_values", values.block, "body") || valuesSubhead) && (<RichText html={homeField("about_values", values.block, "body")}>{valuesSubhead}</RichText>)}
 
               <span className="ap-sublabel">{valuesListLabel}</span>
               <ol className="ap-vtl">
@@ -798,7 +802,7 @@ export default function AboutUs() {
                     </span>
                     <div className="ap-vtl-body">
                       <b>{item.title}</b>
-                      <RichText html={item.bodyIsHtml ? item.body : null}>{item.body}</RichText>
+                      {(item.bodyIsHtml ? item.body : null) && (<RichText html={item.bodyIsHtml ? item.body : null}>{item.body}</RichText>)}
                     </div>
                   </li>
                 ))}
@@ -815,12 +819,12 @@ export default function AboutUs() {
         <span className="ap-dots"></span>
         <div className="ap-wrap">
           <div className="ap-head ap-rv">
-            <span className="ap-eyebrow"><u>{whyEyebrow}</u></span>
+            {whyEyebrow && (<span className="ap-eyebrow"><u>{whyEyebrow}</u></span>)}
             <h2>
               {withBreaks(whyHeading)}
               {whyHeadingSecondary ? <> <span className="ap-em">{whyHeadingSecondary}</span></> : null}
             </h2>
-            <RichText html={why.block?.body}>{whySubhead}</RichText>
+            {(homeField("about_why", why.block, "body") || whySubhead) && (<RichText html={homeField("about_why", why.block, "body")}>{whySubhead}</RichText>)}
           </div>
 
           <div className="ap-why">
@@ -833,7 +837,7 @@ export default function AboutUs() {
                 <span className="ap-wnum">{String(i + 1).padStart(2, "0")}</span>
                 <span className="ap-card-ic">{icon(card.glyph, ICONS.layers)}</span>
                 <h3>{card.title}</h3>
-                <RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>
+                {(card.bodyIsHtml ? card.body : null) && (<RichText html={card.bodyIsHtml ? card.body : null}>{card.body}</RichText>)}
               </article>
             ))}
           </div>
@@ -846,15 +850,15 @@ export default function AboutUs() {
           <div className="ap-cta ap-rv">
             <svg className="ap-cwm a" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
             <svg className="ap-cwm b" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5"/></svg>
-            <span className="ap-eyebrow"><u>{ctaEyebrow}</u></span>
+            {ctaEyebrow && (<span className="ap-eyebrow"><u>{ctaEyebrow}</u></span>)}
             <h2>{withBreaks(ctaHeading)}</h2>
-            <RichText html={cta.block?.body}>{ctaSubhead}</RichText>
+            {(homeField("about_cta", cta.block, "body") || ctaSubhead) && (<RichText html={homeField("about_cta", cta.block, "body")}>{ctaSubhead}</RichText>)}
             <div className="ap-cta-actions">
               {/* The handoff left both of these as href="#". */}
-              <CtaLink className="ap-btn ap-btn--white" to={ctaPrimary.to}>{ctaPrimary.label}
-                {ICONS.arrow}</CtaLink>
-              <CtaLink className="ap-btn ap-btn--outline" to={ctaSecondary.to}>{ctaSecondary.label}
-                {ICONS.userPlus}</CtaLink>
+              {(ctaPrimary.label && ctaPrimary.to) && (<CtaLink className="ap-btn ap-btn--white" to={ctaPrimary.to}>{ctaPrimary.label}
+                {ICONS.arrow}</CtaLink>)}
+              {(ctaSecondary.label && ctaSecondary.to) && (<CtaLink className="ap-btn ap-btn--outline" to={ctaSecondary.to}>{ctaSecondary.label}
+                {ICONS.userPlus}</CtaLink>)}
             </div>
           </div>
         </div>

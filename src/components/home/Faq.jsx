@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef, useState } from "react";
 import { getFaqs } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
@@ -67,9 +68,9 @@ export default function Faq() {
   // Keeping the class in React's hands makes that unfixable-by-accident.
   const [revealed, setRevealed] = useState(() => new Set());
 
-  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
-  const heading = block?.heading || DEFAULTS.heading;
-  const headingSecondary = block?.heading_secondary || DEFAULTS.heading_secondary;
+  const eyebrow = homeField("faq", block, "eyebrow");
+  const heading = homeField("faq", block, "heading");
+  const headingSecondary = homeField("faq", block, "heading_secondary");
 
   useEffect(() => {
     let alive = true;
@@ -133,7 +134,7 @@ export default function Faq() {
       <section className="sec" ref={rootRef}>
         <div className="wrap">
           <div className="sec-head rv">
-            <span className="eyebrow"><u>{eyebrow}</u></span>
+            {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
             <h2>{heading}{headingSecondary ? <> <span className="em">{headingSecondary}</span></> : null}</h2>
           </div>
           <div className="faq">

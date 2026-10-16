@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
@@ -124,10 +125,10 @@ export default function Resources() {
   const rootRef = useRef(null);
   const { block, items } = useHomeContent("resources");
 
-  const eyebrow = block?.eyebrow || "Resources & Support";
-  const heading = block?.heading || "Beyond the classroom";
-  const subhead = block?.subhead || "Extra resources, guidance and opportunities to support students throughout their academic journey.";
-  const cards = items.length ? items : DEFAULT_ITEMS;
+  const eyebrow = homeField("resources", block, "eyebrow");
+  const heading = homeField("resources", block, "heading");
+  const subhead = homeField("resources", block, "subhead");
+  const cards = homeCollection(block, "items", items, DEFAULT_ITEMS);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -196,9 +197,9 @@ export default function Resources() {
         <section className="sec" id="resources">
           <div className="wrap">
             <div className="sec-head rv">
-              <span className="eyebrow"><u>{eyebrow}</u></span>
+              {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
               <h2>{heading}</h2>
-              <p>{subhead}</p>
+              {(subhead) && (<p>{subhead}</p>)}
             </div>
 
             <div className="res-rail">
