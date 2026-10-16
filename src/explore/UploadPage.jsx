@@ -62,7 +62,7 @@ export default function UploadPage() {
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    title: "", description: "", category: "", subject: "", institution: "", language: "English", tags: "",
+    title: "", description: "", category: "", subject: "", topic: "", institution: "", language: "English", tags: "",
   });
 
   useEffect(() => { getFacets().then(setFacets); }, []);
@@ -181,28 +181,40 @@ export default function UploadPage() {
         {step === 2 && (
           <>
             <div className="exp-field" data-tour="explore-upload.title">
-              <label>Title</label>
-              <input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Thermodynamics — Solved Problems" />
+              <label htmlFor="upload-title">Title</label>
+              <input id="upload-title" maxLength={300} value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Thermodynamics — Solved Problems" />
             </div>
             <div className="exp-field">
               <label>Description</label>
               <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
                 placeholder="What's inside and who it's for." />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div className="exp-upload-classification">
               <div className="exp-field">
-                <label>Category</label>
-                <select value={form.category} onChange={(e) => set("category", e.target.value)}>
+                <label htmlFor="upload-category">Document type</label>
+                <select id="upload-category" value={form.category} onChange={(e) => set("category", e.target.value)}>
                   <option value="">Select…</option>
                   {(facets?.categories || []).map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}
                 </select>
               </div>
               <div className="exp-field">
-                <label>Subject</label>
-                <select value={form.subject} onChange={(e) => set("subject", e.target.value)}>
-                  <option value="">Select…</option>
-                  {(facets?.subjects || []).map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
+                <label htmlFor="upload-subject">Main subject</label>
+                <input id="upload-subject" list="upload-subject-options" maxLength={120} value={form.subject}
+                  onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value, topic: "" }))}
+                  placeholder="Choose a subject or type your own" />
+                <datalist id="upload-subject-options">
+                  {(facets?.subjects || []).filter((s) => s !== "All").map((s) => <option key={s} value={s} />)}
+                </datalist>
+              </div>
+              <div className="exp-field">
+                <label htmlFor="upload-topic">Subcategory (optional)</label>
+                <input id="upload-topic" list="upload-topic-options" maxLength={120} value={form.topic}
+                  disabled={!form.subject.trim()}
+                  onChange={(e) => set("topic", e.target.value)} placeholder="Choose a topic or type your own" />
+                <datalist id="upload-topic-options">
+                  {(facets?.subjectGroups?.find((g) => g.subject.toLowerCase() === form.subject.trim().toLowerCase())?.topics || []).map((t) => <option key={t} value={t} />)}
+                </datalist>
+                <p className="exp-filter-hint">Custom subjects and subcategories appear in Browse after you publish. No approval is needed.</p>
               </div>
               <div className="exp-field">
                 <label>Institution</label>
@@ -211,7 +223,7 @@ export default function UploadPage() {
               <div className="exp-field">
                 <label>Language</label>
                 <select value={form.language} onChange={(e) => set("language", e.target.value)}>
-                  {(facets?.languages || ["English"]).map((l) => <option key={l} value={l}>{l}</option>)}
+                  {(facets?.languages || ["English"]).filter((l) => l !== "All").map((l) => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
             </div>

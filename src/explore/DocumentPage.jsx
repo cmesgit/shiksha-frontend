@@ -190,7 +190,8 @@ export default function DocumentPage() {
 
   const info = [
     ["Category", meta.name || doc.type],
-    ["Subject", doc.subject],
+    ["Main subject", doc.subject],
+    ["Subcategory", doc.topic],
     ["Education level", doc.level],
     ["Language", doc.language],
     ["Institution", doc.institution],
