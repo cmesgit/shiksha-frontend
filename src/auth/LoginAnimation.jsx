@@ -44,8 +44,9 @@ export default function LoginAnimation({ beat = -1, loopSeconds = 21 }) {
   useEffect(() => {
     clearInterval(timer.current);
     if (beat >= 0) { setN(Math.min(2, beat)); return undefined; }
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
     timer.current = setInterval(
-      () => setN((s) => (s + 1) % 3),
+      () => { if (document.visibilityState === "visible" && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) setN((s) => (s + 1) % 3); },
       (loopSeconds * 1000) / 3,
     );
     return () => clearInterval(timer.current);

@@ -137,7 +137,7 @@ export default function Register() {
   /* ── Google returned a new address: one checkbox, then done ── */
   if (pendingGoogle) {
     return (
-      <AuthShell role="neutral" flowLabel="Create account" brandIcon="spark" intro>
+      <AuthShell role="neutral" flowLabel="Create account" brandIcon="spark" intro entry>
         <h1 className="af-heading">One last thing</h1>
         <p className="af-sub">
           We’ll create your ShikshaCom account for <b>{pendingGoogle.email}</b>.
@@ -181,7 +181,7 @@ export default function Register() {
 
   /* ── The one screen ── */
   return (
-    <AuthShell role="neutral" flowLabel="Create account" brandIcon="spark" intro>
+    <AuthShell role="neutral" flowLabel="Create account" brandIcon="spark" intro entry>
       <h1 className="af-heading">Create your account</h1>
       <p className="af-sub">
         {intent === "teach"

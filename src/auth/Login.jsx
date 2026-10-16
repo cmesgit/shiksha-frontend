@@ -142,15 +142,15 @@ export default function Login() {
   const signupHref = `/register${location.search}`;
 
   return (
-    <AuthShell role="student" flowLabel="Log in" loginIntro stepKey={step} dir={dir}>
+    <AuthShell role="student" flowLabel="Log in" loginIntro entry stepKey={step} dir={dir}>
 
 
 
-      <div className="af-toprow">
-        {step !== STEP_EMAIL
-          ? <button className="af-iconbtn" onClick={back} aria-label="Back">‹ Back</button>
-          : <span />}
-      </div>
+      {step !== STEP_EMAIL && (
+        <div className="af-toprow">
+          <button className="af-iconbtn" onClick={back} aria-label="Back">‹ Back</button>
+        </div>
+      )}
 
       {/* ── Step 1: email ── */}
       {step === STEP_EMAIL && (

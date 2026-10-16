@@ -69,8 +69,9 @@ export default function IntroAnimation({
   useEffect(() => {
     clearInterval(timer.current);
     if (station >= 0) { setI(Math.min(2, station)); return undefined; }
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
     timer.current = setInterval(
-      () => setI((s) => (s + 1) % 3),
+      () => { if (document.visibilityState === "visible" && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) setI((s) => (s + 1) % 3); },
       (loopSeconds * 1000) / 3,
     );
     return () => clearInterval(timer.current);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useTickerSlot from "../components/ticker/useTickerSlot";
 import "./AuthTicker.css";
 
@@ -26,7 +26,7 @@ const KIND_LABEL = {
   current_affairs: "Current affairs", mentor_spotlight: "Mentor spotlight",
 };
 
-const ROTATE_MS = 5000;
+const ROTATE_MS = 7000;
 
 const reduced = () =>
   typeof window !== "undefined"
@@ -40,56 +40,82 @@ const reduced = () =>
  * creating an account". Two behaviours, one component, because they are the
  * same queue rendered at two densities.
  */
+// Promotions open alongside the form, so browsing never discards entered fields.
+const promoHref = (item) => /^\/(?!\/)|^https?:\/\//i.test(item.link_url || "")
+  ? item.link_url : null;
+
+function PromoLine({ item }) {
+  const href = promoHref(item);
+  const Tag = href ? "a" : "span";
+  return (
+    <Tag className="aft__linecontent" {...(href ? { href, target: "_blank", rel: "noopener noreferrer" } : {})}>
+      {item.img && <img className="aft__thumb" src={item.img} alt="" width="44" height="44" loading="lazy" decoding="async" />}
+      <span className="aft__linetext">
+        <span>{item.message}</span>
+        {item.body && <small className="aft__linebody">{item.body}</small>}
+      </span>
+      {href && <span className="aft__linearrow" aria-hidden="true">↗</span>}
+    </Tag>
+  );
+}
+
 export function AuthTickerCard({ slot, variant = "rotate" }) {
   const { items: all } = useTickerSlot(slot);
   const [i, setI] = useState(0);
-
-  /* Mentor items are consumed by <AuthMentors> in the form column, so they
-     are excluded here — otherwise the same mentor appears twice on one
-     screen, once as a ticker line and once as their own card. Both
-     components read the same slot; this is what divides it between them. */
+  const [paused, setPaused] = useState(false);
+  const root = useRef(null);
   const items = all.filter((it) => it.kind !== "mentor_spotlight");
   const n = items.length;
+  const index = i < n ? i : 0;
+
   useEffect(() => {
-    if (variant !== "rotate" || n < 2 || reduced()) return undefined;
+    if (variant !== "rotate" || n < 2 || paused || reduced()) return undefined;
     const id = setInterval(() => {
-      if (document.visibilityState === "visible") setI((x) => (x + 1) % n);
+      if (document.visibilityState === "visible" && !root.current?.matches(":hover, :focus-within")) {
+        setI((x) => (x + 1) % n);
+      }
     }, ROTATE_MS);
     return () => clearInterval(id);
-  }, [variant, n]);
+  }, [variant, n, paused]);
 
   if (!n) return null;
-
-  if (variant === "list") {
+  if (variant === "list" || variant === "compact") {
     return (
-      <div className="aft">
-        <span className="aft__label">Happening now</span>
+      <aside className={`aft aft--${variant}`} aria-label="Explore ShikshaCom">
+        <span className="aft__label">{variant === "compact" ? "Explore ShikshaCom" : "More to explore"}</span>
         <ul className="aft__list">
-          {items.slice(0, 3).map((it) => (
-            <li key={it.id} className="aft__line">{it.message}</li>
+          {items.slice(0, variant === "compact" ? 1 : 3).map((it) => (
+            <li key={it.id} className={`aft__line${it.img ? " aft__line--thumb" : ""}`}>
+              <PromoLine item={it} />
+            </li>
           ))}
         </ul>
-      </div>
+      </aside>
     );
   }
 
-  const it = items[i < n ? i : 0];   // clamped at render, never via an effect
+  const it = items[index];
+  const href = promoHref(it);
   return (
-    <div className={`aft${it.img ? " aft--banner" : ""}`}>
-      {/* A picture makes this a banner rather than a text card: it spans the
-          panel edge to edge above the copy, and rotates on the same timer as
-          everything else, so uploading N images to this slot gives N banners
-          cycling every 5s. Items with no picture keep the text treatment. */}
-      {it.img && <img className="aft__img" src={it.img} alt="" />}
+    <aside ref={root} className={`aft aft--rotate${it.img ? " aft--banner" : ""}`} aria-label="Explore ShikshaCom" aria-live="off">
+      {it.img && <img className="aft__img" src={it.img} alt="" width="360" height="100" loading="lazy" decoding="async" />}
       <div className="aft__head">
-        <span className="aft__label">{KIND_LABEL[it.kind] || "Latest"}</span>
-        {n > 1 && <span className="aft__count">{(i % n) + 1}/{n}</span>}
+        <span className="aft__label">{KIND_LABEL[it.kind] || "Discover"}</span>
+        {n > 1 && <span className="aft__count">{index + 1}/{n}</span>}
       </div>
       <p className="aft__text">{it.message}</p>
-      {it.link_url && it.link_label && (
-        <span className="aft__link">{it.link_label} →</span>
-      )}
-    </div>
+      {it.body && <p className="aft__body">{it.body}</p>}
+      <div className="aft__footer">
+        {href && <a className="aft__link" href={href} target="_blank" rel="noopener noreferrer">{it.link_label || "Explore"} ↗</a>}
+        {n > 1 && (
+          <div className="aft__controls">
+            <button type="button" className="aft__control" onClick={() => setI((index + n - 1) % n)} aria-label="Previous update">‹</button>
+            <button type="button" className="aft__control aft__control--pause" onClick={() => setPaused((p) => !p)} aria-label={paused ? "Resume updates" : "Pause updates"}>{paused ? "Play" : "Pause"}</button>
+            <button type="button" className="aft__control" onClick={() => setI((index + 1) % n)} aria-label="Next update">›</button>
+          </div>
+        )}
+      </div>
+    </aside>
   );
 }
 
