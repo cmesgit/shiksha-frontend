@@ -157,6 +157,7 @@ export function AuthMentors({ slot }) {
         <div className="afm__meta">
           <b className="afm__name">{m.message}</b>
           {m.body && <span className="afm__subject">{m.body}</span>}
+          {promoHref(m) && <a className="afm__link" href={promoHref(m)} target="_blank" rel="noopener noreferrer">{m.link_label || "View profile"} ↗</a>}
         </div>
       </div>
       {n > 1 && (
