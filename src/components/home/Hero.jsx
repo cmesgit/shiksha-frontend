@@ -246,7 +246,7 @@ const css = `.sh-hero{
 .sh-tick-fade{opacity:0}
 .sh-tickcard{
     display:flex;flex-direction:column;justify-content:center;gap:4px;
-    padding:12px 13px;border-radius:14px;
+    min-width:0;min-height:0;padding:clamp(7px,1vw,12px);border-radius:14px;
     background:var(--white);border:1px solid var(--line);
     box-shadow:var(--sh-card);text-decoration:none;overflow:hidden;
   }
@@ -254,11 +254,11 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 /* "the hero card puts the picture full width above the copy" — the card is
    a flex column, so the image takes the top band and the text keeps the
    rest. object-fit:cover so a wide CMS upload never distorts. */
-.sh-tickcard img{width:100%;height:52%;object-fit:cover;border-radius:9px;margin-bottom:6px;flex:none}
+.sh-tickcard img{width:100%;height:40%;min-height:0;object-fit:cover;object-position:center 25%;border-radius:9px;margin-bottom:6px;flex:none}
 .sh-tickcard b{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
 .sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 .sh-tickcard .k{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
-.sh-tickcard .t{font-size:12.5px;font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty}
+.sh-tickcard .t{font-size:12.5px;font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 /* One picture filling the whole circle. Used when the hero slot holds a
    SINGLE item that has an image — an admin controls which they get purely
    by how many items they queue here, with no extra switch to find:
@@ -426,6 +426,7 @@ export default function Hero() {
      transition. */
   const [fadeOut, setFadeOut] = useState(false);
   const fadeTimeoutRef = useRef(null);
+  const visualRef = useRef(null);
 
   const fadeToPage = (next) => {
     setFadeOut(true);
@@ -441,7 +442,7 @@ export default function Hero() {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
     const id = setInterval(() => {
       // "the pager advances all four together"
-      if (document.visibilityState !== "visible") return;
+      if (document.visibilityState !== "visible" || visualRef.current?.matches(":hover, :focus-within")) return;
       fadeToPage((p) => (p + 1) % tickPages);
     }, 5000);
     return () => {
@@ -556,6 +557,7 @@ export default function Hero() {
           </div>
 
           <div
+            ref={visualRef}
             className="sh-hero-visual sh-rise sh-d5"
             onPointerDown={handleDragStart}
             onPointerMove={handleDragMove}
@@ -621,7 +623,7 @@ export default function Hero() {
                         className={`sh-tickdot${i === page ? " on" : ""}`}
                         aria-label={`Updates ${i + 1} of ${tickPages}`}
                         aria-current={i === page}
-                        onClick={() => setTickPage(i)}
+                        onClick={() => fadeToPage(i)}
                       />
                     ))}
                   </div>
