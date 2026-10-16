@@ -27,6 +27,19 @@ api.interceptors.response.use(
     }
 
     const isUnauthorized = error.response.status === 401;
+    // Public content must remain browsable when a stale cookie is rejected.
+    // Retry those GETs without account cookies instead of redirecting to login.
+    const publicGet = (originalRequest.method || "get").toLowerCase() === "get"
+      && /^\/(?:content\/(?!admin(?:\/|$))|courses\/public\/|skill\/teachers\/)/.test(originalRequest.url || "");
+    if (isUnauthorized && publicGet) {
+      return axios.get(originalRequest.url, {
+        baseURL: API_URL,
+        params: originalRequest.params,
+        timeout: originalRequest.timeout || 8000,
+        signal: originalRequest.signal,
+        withCredentials: false,
+      });
+    }
     const isRefreshCall = originalRequest.url?.includes("/refresh/");
     const isMeCall = originalRequest.url?.includes("/me/");
     const isPublicEndpoint = originalRequest.url?.includes("/accounts/signup/") ||
