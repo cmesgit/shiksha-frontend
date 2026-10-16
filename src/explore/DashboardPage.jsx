@@ -72,6 +72,8 @@ export default function ExploreDashboardPage() {
   const store = useExplore();
   const [tab, setTab] = useState("Overview");
   const [data, setData] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const [attempt, setAttempt] = useState(0);
   const [authors, setAuthors] = useState(null);
   const [collForm, setCollForm] = useState({ title: "", description: "", color: "#125027", visibility: "public" });
   const [collBusy, setCollBusy] = useState(false);
@@ -84,6 +86,7 @@ export default function ExploreDashboardPage() {
   useEffect(() => {
     if (!isAuthenticated) return;
     let alive = true;
+    setLoadError("");
     Promise.all([
       getDocumentsByIds(viewedIds),
       // My Uploads comes from the server, not from `store.myDocs`. That was a
@@ -93,7 +96,7 @@ export default function ExploreDashboardPage() {
       // uploaded a document and My Uploads is empty".
       getMyUploads(),
       getDocumentsByIds(savedIds),
-      listCollections(),
+      listCollections({ mine: true }),
       getMe(),
     ])
       .then(([reads, uploads, saved, collections, me]) => {
@@ -106,9 +109,9 @@ export default function ExploreDashboardPage() {
           meId: me?.id || null,
         });
       })
-      .catch(() => alive && setData({ reads: [], uploads: [], saved: [], collections: [], followingIds: [], meId: null }));
+      .catch(() => alive && setLoadError("Couldn’t load your library. Your collections have not been deleted. Please try again."));
     return () => { alive = false; };
-  }, [isAuthenticated, viewedIds, savedIds]);
+  }, [isAuthenticated, viewedIds, savedIds, attempt]);
 
   // Following tab — resolved from the backend's real per-user `following`
   // data (DocumentsMeView), not the client-only store, so it can't drift out
@@ -201,10 +204,10 @@ export default function ExploreDashboardPage() {
   }
 
   async function handleAddToCollection(slug, documentId) {
-    await addDocumentToCollection(slug, documentId);
+    const updated = await addDocumentToCollection(slug, documentId);
     setData((d) => ({
       ...d,
-      collections: (d.collections || []).map((c) => (c.id === slug ? { ...c, count: (c.count || 0) + 1 } : c)),
+      collections: (d.collections || []).map((c) => (c.id === slug ? { ...c, ...updated } : c)),
     }));
   }
 
@@ -222,6 +225,10 @@ export default function ExploreDashboardPage() {
     );
   }
 
+  if (loadError) return <div className="exp"><div className="exp-wrap exp-empty" role="alert">
+    <p>{loadError}</p>
+    <button className="exp-btn exp-btn-primary" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+  </div></div>;
   if (!data) return <div className="exp"><Loading /></div>;
 
   // `collections` is deliberately not destructured — every surface on this
@@ -399,7 +406,7 @@ export default function ExploreDashboardPage() {
               <form onSubmit={handleCreateCollection} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                 <div className="exp-field" style={{ margin: 0, flex: "1 1 180px" }}>
                   <input
-                    type="text" placeholder="Title" value={collForm.title} required
+                    type="text" placeholder="Title" aria-label="Collection title" maxLength={180} value={collForm.title} required
                     onChange={(e) => setCollForm((f) => ({ ...f, title: e.target.value }))}
                   />
                 </div>
@@ -416,6 +423,7 @@ export default function ExploreDashboardPage() {
                 />
                 <div className="exp-field" style={{ margin: 0 }}>
                   <select
+                    aria-label="Collection visibility"
                     value={collForm.visibility}
                     onChange={(e) => setCollForm((f) => ({ ...f, visibility: e.target.value }))}
                   >
@@ -427,6 +435,7 @@ export default function ExploreDashboardPage() {
                   {collBusy ? "Creating…" : "+ New Collection"}
                 </button>
               </form>
+              <p className="exp-sub">Private collections stay in My Library and are visible only to you. Add documents from a document page or your Saved tab.</p>
               {collError && <div style={{ color: "#c0392b", font: "500 12px Poppins,sans-serif", marginTop: 8 }}>{collError}</div>}
             </div>
 

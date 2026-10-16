@@ -445,10 +445,13 @@ function AddToCollectionModal({ doc, onClose, onDone, onNeedsAuth }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [newTitle, setNewTitle] = useState("");
+  const [visibility, setVisibility] = useState("private");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
-    Promise.all([getMe(), listCollections()])
+    setError("");
+    Promise.all([getMe(), listCollections({ mine: true })])
       .then(([me, cols]) => {
         if (!alive) return;
         if (!me?.id) { onNeedsAuth(); return; }
@@ -456,7 +459,7 @@ function AddToCollectionModal({ doc, onClose, onDone, onNeedsAuth }) {
       })
       .catch(() => alive && setError("Couldn't load your collections."));
     return () => { alive = false; };
-  }, [onNeedsAuth]);
+  }, [onNeedsAuth, attempt]);
 
   const add = async (col) => {
     setBusy(true);
@@ -476,12 +479,17 @@ function AddToCollectionModal({ doc, onClose, onDone, onNeedsAuth }) {
     if (!title || busy) return;
     setBusy(true);
     setError("");
+    let created;
     try {
-      const created = await createCollection({ title, description: "", color: "#125027", visibility: "public" });
+      created = await createCollection({ title, description: "", color: "#125027", visibility });
+      setMine((cols) => [created, ...(cols || [])]);
+      setNewTitle("");
       await addDocumentToCollection(created.id, doc.id);
       onDone(created.title || title);
     } catch {
-      setError("Couldn't create that collection. Try a different name.");
+      setError(created
+        ? `“${created.title}” was created, but the document wasn’t added. Select the collection above to try again.`
+        : "Couldn't create that collection. Please try again.");
       setBusy(false);
     }
   };
@@ -495,7 +503,7 @@ function AddToCollectionModal({ doc, onClose, onDone, onNeedsAuth }) {
           Group <b>{doc.title}</b> with other documents in your library.
         </p>
 
-        {mine === null ? <Loading /> : (
+        {mine === null ? (error ? <button className="exp-btn exp-btn-ghost" onClick={() => setAttempt((n) => n + 1)}>Try again</button> : <Loading />) : (
           <>
             {mine.length > 0 && (
               <div className="exp-collpick">
@@ -515,9 +523,13 @@ function AddToCollectionModal({ doc, onClose, onDone, onNeedsAuth }) {
 
             <form onSubmit={createAndAdd} className="exp-field" style={{ marginTop: mine.length ? 18 : 0, marginBottom: 0 }}>
               <label>{mine.length ? "Or create a new one" : "Create your first collection"}</label>
+              <select aria-label="New collection visibility" value={visibility} onChange={(e) => setVisibility(e.target.value)} disabled={busy}>
+                <option value="private">Private — only you</option>
+                <option value="public">Public — visible to everyone</option>
+              </select>
               <div style={{ display: "flex", gap: 8 }}>
                 <input
-                  type="text" placeholder="Collection name" value={newTitle}
+                  type="text" placeholder="Collection name" aria-label="Collection name" maxLength={180} value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                 />
                 <button type="submit" className="exp-btn exp-btn-primary" disabled={busy || !newTitle.trim()}>
