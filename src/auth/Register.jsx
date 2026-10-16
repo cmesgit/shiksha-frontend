@@ -90,6 +90,7 @@ export default function Register() {
     setError("");
     if (!email.trim())  { setError("Enter your email address."); return; }
     if (!password)      { setError("Choose a password."); return; }
+    if (password.length < 8) { setError("Choose a password with at least 8 characters."); return; }
     if (!terms)         { setError("Please accept the Terms of Use to continue."); return; }
 
     setBusy(true);
@@ -147,12 +148,12 @@ export default function Register() {
         <label className="af-checkbox">
           <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
           <span>
-            I agree to the <Link to="/terms">Terms of Use</Link> and{" "}
-            <Link to="/privacy">Privacy Policy</Link>.
+            I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" aria-label="Terms of Use (opens in a new tab)">Terms of Use</Link> and{" "}
+            <Link to="/privacy" target="_blank" rel="noopener noreferrer" aria-label="Privacy Policy (opens in a new tab)">Privacy Policy</Link>.
           </span>
         </label>
 
-        {error && <p className="af-error">{error}</p>}
+        {error && <p className="af-error" role="alert">{error}</p>}
 
         <div className="af-actions">
           <button
@@ -199,12 +200,12 @@ export default function Register() {
 
       <form onSubmit={submit}>
         <Field
-          id="reg-email" label="Email" type="email" autoComplete="email"
+          id="reg-email" label="Email" type="email" autoComplete="email" required
           placeholder="you@example.com" value={email} autoFocus
           onChange={(e) => setEmail(e.target.value)} disabled={busy}
         />
         <PasswordField
-          id="reg-password" label="Password" autoComplete="new-password"
+          id="reg-password" label="Password" autoComplete="new-password" required minLength={8}
           placeholder="At least 8 characters" value={password}
           show={showPw} onToggle={() => setShowPw((v) => !v)}
           onChange={(e) => setPassword(e.target.value)} disabled={busy}
@@ -213,12 +214,12 @@ export default function Register() {
         <label className="af-checkbox">
           <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} disabled={busy} />
           <span>
-            I agree to the <Link to="/terms">Terms of Use</Link> and{" "}
-            <Link to="/privacy">Privacy Policy</Link>.
+            I agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" aria-label="Terms of Use (opens in a new tab)">Terms of Use</Link> and{" "}
+            <Link to="/privacy" target="_blank" rel="noopener noreferrer" aria-label="Privacy Policy (opens in a new tab)">Privacy Policy</Link>.
           </span>
         </label>
 
-        {error && <p className="af-error">{error}</p>}
+        {error && <p className="af-error" role="alert">{error}</p>}
 
         <div className="af-actions">
           <button type="submit" className="af-btn af-btn--block" disabled={busy}>
@@ -227,7 +228,7 @@ export default function Register() {
         </div>
       </form>
 
-      <FooterLink>Already have an account? <Link to="/login">Sign in</Link></FooterLink>
+      <FooterLink>Already have an account? <Link to={`/login${params.toString() ? `?${params.toString()}` : ""}`}>Sign in</Link></FooterLink>
       {/* Mentor spotlight — form column, under the footer link. */}
       <AuthMentors slot="auth_signup" />
     </AuthShell>
