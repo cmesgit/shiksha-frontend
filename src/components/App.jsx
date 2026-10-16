@@ -4,14 +4,14 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
 import RequireRole from "../routes/RequireRole";
-import HomePage from "./HomePage";
+const HomePage = lazy(() => import("./HomePage"));
 import useAnalytics from "../useAnalytics";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { ProfileModalProvider } from "../contexts/ProfileModalContext";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../config/urls";
-import Profile from "../pages/Profile";
+const Profile = lazy(() => import("../pages/Profile"));
 import { ExploreProvider } from "../explore/ExploreStore";
 import ExploreToolbar from "../explore/ExploreToolbar";
 
