@@ -257,8 +257,8 @@ a.sh-tickcard:hover{border-color:var(--brand)}
 .sh-tickcard img{width:100%;height:40%;min-height:0;object-fit:cover;object-position:center 25%;border-radius:9px;margin-bottom:6px;flex:none}
 .sh-tickcard b{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
 .sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
-.sh-tickcard .k{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
-.sh-tickcard .t{font-size:12.5px;font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.sh-tickcard .k{font-size:clamp(7px,.8vw,9px);font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
+.sh-tickcard .t{font-size:clamp(10px,1.1vw,12.5px);font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 /* One picture filling the whole circle. Used when the hero slot holds a
    SINGLE item that has an image — an admin controls which they get purely
    by how many items they queue here, with no extra switch to find:
