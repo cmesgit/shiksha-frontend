@@ -209,7 +209,7 @@ export async function getMe() {
 }
 
 // ── collections ────────────────────────────────────────────────────────────────
-export async function listCollections() {
+export async function listCollections({ mine = false } = {}) {
   if (USE_MOCK) {
     await wait();
     return COLLECTIONS.map((c) => ({
@@ -218,7 +218,7 @@ export async function listCollections() {
       count: c.docIds.length,
     }));
   }
-  const { data } = await api.get("/explore/collections/");
+  const { data } = await api.get("/explore/collections/", { params: mine ? { mine: 1 } : undefined });
   return data;
 }
 

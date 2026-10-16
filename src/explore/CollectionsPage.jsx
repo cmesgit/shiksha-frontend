@@ -6,7 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { listCollections, getCollection } from "./exploreApi";
 import { DocCard, CollectionCard, SectionHead, Icon, Loading } from "./components/ui";
 import "./Explore.css";
@@ -32,15 +32,28 @@ export function CollectionPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const [col, setCol] = useState(null);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setCol(null);
-    getCollection(id).then((c) => alive && setCol(c));
+    setError("");
+    getCollection(id)
+      .then((c) => alive && setCol(c))
+      .catch((e) => {
+        if (!alive) return;
+        if (e.response?.status === 404) setCol(false);
+        else setError("Couldn’t load this collection. Please try again.");
+      });
     window.scrollTo(0, 0);
     return () => { alive = false; };
-  }, [id]);
+  }, [id, attempt]);
 
+  if (error) return <div className="exp"><div className="exp-wrap exp-empty" role="alert">
+    <p>{error}</p>
+    <button className="exp-btn exp-btn-primary" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+  </div></div>;
   if (col === null) return <div className="exp"><Loading /></div>;
   if (!col) return (
     <div className="exp"><div className="exp-wrap exp-empty">
@@ -69,7 +82,14 @@ export function CollectionPage() {
           </div>
         </div>
 
-        <div className="exp-docgrid">{col.docs.map((d) => <DocCard key={d.id} doc={d} />)}</div>
+        {col.docs.length ? <div className="exp-docgrid">{col.docs.map((d) => <DocCard key={d.id} doc={d} />)}</div> : (
+          <div className="exp-empty">
+            <h3>No documents yet</h3>
+            <p>The owner can add documents from any document page using “Add to collection”, or from the Saved tab in My Library.</p>
+            <Link className="exp-btn exp-btn-primary" to="/explore/browse">Find documents</Link>
+          </div>
+        )}
+        <Link className="exp-btn exp-btn-ghost" to="/explore/dashboard">My Library</Link>
       </div>
     </div>
   );
