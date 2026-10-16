@@ -264,7 +264,9 @@ function App() {
 
   // Show spinner while bootstrap runs — but keep the route tree mounted
   // (do NOT return null, that unmounts Routes and causes remount loops)
-  if (loading) return <RouteFallback />;
+  // The public homepage can render while the account probe runs. Other
+  // routes retain their existing loading and authentication gates.
+  if (loading && location.pathname !== "/") return <RouteFallback />;
 
   return (
     <ProfileModalProvider>

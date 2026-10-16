@@ -1,11 +1,13 @@
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const AuthLoader = ({ children }) => {
   const { loading } = useAuth();
+  const { pathname } = useLocation();
 
-  if (loading) {
+  if (loading && pathname !== "/") {
     return (
-      <div style={styles.wrapper}>
+      <div style={styles.wrapper} role="status" aria-label="Checking your session">
         <div style={styles.spinner} />
       </div>
     );
