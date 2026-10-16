@@ -16,12 +16,20 @@ export function useHomeContent(section) {
   const [items, setItems] = useState([]);
   const [floaters, setFloaters] = useState({});
   const [loading, setLoading] = useState(true);
+  const [blockLoading, setBlockLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setBlockLoading(true);
     Promise.all([
-      getHomeContent(section),
+      getHomeContent(section).then((row) => {
+        if (alive) {
+          setBlock(row);
+          setBlockLoading(false);
+        }
+        return row;
+      }),
       getHomeListItems(section),
       getHomeFloaters(section),
     ]).then(([blockRow, itemRows, floaterRows]) => {
@@ -36,5 +44,5 @@ export function useHomeContent(section) {
     };
   }, [section]);
 
-  return { block, items, floaters, loading };
+  return { block, items, floaters, loading, blockLoading };
 }
