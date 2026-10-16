@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../content/homeDisplay";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -769,11 +770,11 @@ export default function Contact() {
   const [openFaq, setOpenFaq] = useState(null);
   const tabRefs = useRef([]);
 
-  const heroEyebrow = block?.eyebrow || HERO_DEFAULTS.eyebrow;
-  const heroHeading = block?.heading || HERO_DEFAULTS.heading;
+  const heroEyebrow = homeField("contact_hero", block, "eyebrow");
+  const heroHeading = homeField("contact_hero", block, "heading");
   const heroSecondary =
-    block?.heading_secondary || (block?.heading ? "" : HERO_DEFAULTS.heading_secondary);
-  const heroSub = block?.subhead || HERO_DEFAULTS.subhead;
+    homeField("contact_hero", block, "heading_secondary");
+  const heroSub = homeField("contact_hero", block, "subhead");
 
   /* Being list items rather than four fixed slots is the point: an editor can
      add a third office or retire a phone line without a deploy. Merge is
@@ -784,7 +785,8 @@ export default function Contact() {
     [items]
   );
   const cards = useMemo(() => {
-    if (!cmsCards.length) return CARDS_DEFAULT.map((c, i) => ({ ...c, key: `d${i}` }));
+    if (block?.display_settings?.items === "hidden" || (block?.display_settings?.items === "custom" && !cmsCards.length)) return [];
+    if (!cmsCards.length || block?.display_settings?.items === "default") return CARDS_DEFAULT.map((c, i) => ({ ...c, key: `d${i}` }));
     return cmsCards.map((row, i) => {
       const fallback = CARDS_DEFAULT[i % CARDS_DEFAULT.length];
       return {
@@ -796,7 +798,7 @@ export default function Contact() {
         note: row.subtitle || "",
       };
     });
-  }, [cmsCards]);
+  }, [cmsCards, block?.display_settings?.items]);
 
   useHeaderOffset(rootRef);
   useRevealOnScroll(
@@ -824,12 +826,12 @@ export default function Contact() {
           <div className="cp-hero-grid">
 
             <div className="cp-hero-copy cp-rv">
-              <span className="cp-badge"><i></i>{heroEyebrow}</span>
+              {(heroEyebrow) && (<span className="cp-badge"><i></i>{heroEyebrow}</span>)}
               <h1>
                 {withBreaks(heroHeading)}
                 {heroSecondary ? <> <span className="cp-em">{heroSecondary}</span></> : null}
               </h1>
-              <p className="cp-hero-sub">{heroSub}</p>
+              {(heroSub) && (<p className="cp-hero-sub">{heroSub}</p>)}
 
               <div className="cp-hero-cta">
                 <a className="cp-btn cp-btn--solid" href="#cp-message">Send a message{ICONS.arrow}</a>
@@ -988,7 +990,7 @@ export default function Contact() {
                         <div className="cp-row" key={r.label}>{inner}</div>
                       );
                     })}
-                    <a className="cp-btn cp-btn--solid" href={d.cta.href}>{d.cta.label}{ICONS.arrow}</a>
+                    {(d.cta.label) && (<a className="cp-btn cp-btn--solid" href={d.cta.href}>{d.cta.label}{ICONS.arrow}</a>)}
                   </div>
                 </div>
               </div>

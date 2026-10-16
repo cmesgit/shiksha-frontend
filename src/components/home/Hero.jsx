@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef, useState } from "react";
 import { getDemoVideos } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
@@ -367,14 +368,14 @@ const DEFAULTS = {
 export default function Hero() {
   const { block, floaters, cmsOwnsFloaters, blockLoading: contentLoading } = useHomeContent("hero");
 
-  const eyebrow = block?.eyebrow || DEFAULTS.eyebrow;
-  const heading = block?.heading || DEFAULTS.heading;
-  const headingSecondary = block?.heading_secondary || DEFAULTS.heading_secondary;
-  const subhead = block?.subhead || DEFAULTS.subhead;
-  const ctaPrimaryLabel = block?.cta_primary_label || DEFAULTS.cta_primary_label;
-  const ctaPrimaryHref = block?.cta_primary_href || DEFAULTS.cta_primary_href;
-  const ctaSecondaryLabel = block?.cta_secondary_label || DEFAULTS.cta_secondary_label;
-  const ctaSecondaryHref = block?.cta_secondary_href || DEFAULTS.cta_secondary_href;
+  const eyebrow = homeField("hero", block, "eyebrow");
+  const heading = homeField("hero", block, "heading");
+  const headingSecondary = homeField("hero", block, "heading_secondary");
+  const subhead = homeField("hero", block, "subhead");
+  const ctaPrimaryLabel = homeField("hero", block, "cta_primary_label");
+  const ctaPrimaryHref = homeField("hero", block, "cta_primary_href");
+  const ctaSecondaryLabel = homeField("hero", block, "cta_secondary_label");
+  const ctaSecondaryHref = homeField("hero", block, "cta_secondary_href");
 
   /* Live ticker, hero slot (design_handoff_live_ticker Phase 6). The hero
    * visual only ever renders ticker content now — no admin-image or
@@ -519,27 +520,27 @@ export default function Hero() {
           <div className="sh-hero-copy" aria-busy={copyLoading}>
             {copyLoading && <div className="sh-hero-placeholder" aria-hidden="true"><span /><span /><span /></div>}
             <div className="sh-hero-copy-content" style={{ visibility: copyLoading ? "hidden" : undefined }}>
-              <p className="sh-badge">
+              {(eyebrow) && (<p className="sh-badge">
                 <i aria-hidden="true"></i>
                 {eyebrow}
-              </p>
+              </p>)}
 
               <h1 id="sh-hero-title" className="sh-hero-title">
                 <span className="sh-lead">{heading}</span>
-                <span className="sh-punch">{headingSecondary}</span>
+                {(headingSecondary) && (<span className="sh-punch">{headingSecondary}</span>)}
               </h1>
 
-              <p className="sh-hero-sub">{subhead}</p>
+              {(subhead) && (<p className="sh-hero-sub">{subhead}</p>)}
 
               <div className="sh-cta-row">
-                <CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
+                {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
                   {ctaPrimaryLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
-                </CtaLink>
-                <CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
+                </CtaLink>)}
+                {(ctaSecondaryLabel && ctaSecondaryHref) && (<CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
                   {ctaSecondaryLabel}
-                </CtaLink>
+                </CtaLink>)}
               </div>
 
               <div className="sh-hero-demo-slot">

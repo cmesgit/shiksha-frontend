@@ -1,3 +1,4 @@
+import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
@@ -6,7 +7,8 @@ import { sanitizeInline } from "../../utils/sanitizeInline";
 /* Section-scoped styles, ported from the design handoff's WhyChooseShiksha.jsx —
    shared tokens (--coral, --violet, --green, etc.) come from ShikshaHome.css,
    imported once by the homepage composer. */
-const css = `.why{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(36px,5vw,70px);align-items:center}
+const css = `.why:not(:has(.why-vis)){grid-template-columns:minmax(0,1fr)}
+.why{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(36px,5vw,70px);align-items:center}
 .why-vis{position:relative;display:grid;place-items:center;padding:14px}
 .why-panel{position:relative;width:min(400px,96%);aspect-ratio:1/1.02;border-radius:34px;background:linear-gradient(150deg,var(--coral),var(--coral-dark));display:grid;place-items:center;box-shadow:var(--sh)}
 .why-art{width:92%;filter:drop-shadow(0 20px 30px rgba(0,0,0,.12))}
@@ -126,14 +128,13 @@ export default function WhyChooseShiksha() {
   const rootRef = useRef(null);
   const { block, items, floaters, cmsOwnsFloaters } = useHomeContent("why_choose");
 
-  const eyebrow = block?.eyebrow || "Why ShikshaCom";
-  const heading = block?.heading || "Why choose ShikshaCom?";
+  const eyebrow = homeField("why_choose", block, "eyebrow");
+  const heading = homeField("why_choose", block, "heading");
   const body =
-    block?.body ||
-    "ShikshaCom brings structured learning, expert mentorship and flexible digital education together — an engaging way to learn for school and everything after it.";
-  const ctaLabel = block?.cta_primary_label || "More details";
-  const ctaHref = block?.cta_primary_href || "/why-shiksha";
-  const checks = items.length ? items : DEFAULT_ITEMS;
+    homeField("why_choose", block, "body");
+  const ctaLabel = homeField("why_choose", block, "cta_primary_label");
+  const ctaHref = homeField("why_choose", block, "cta_primary_href");
+  const checks = homeCollection(block, "items", items, DEFAULT_ITEMS);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -174,14 +175,14 @@ export default function WhyChooseShiksha() {
         <section className="sec peach">
           <div className="wrap">
             <div className="why">
-              <div className="why-vis rv">
+              {block?.display_settings?.image !== "hidden" && (<div className="why-vis rv">
                 <div className="why-panel">
                   {/* The section's illustration. ART_SVG is inlined (it was
                       extracted from src/assets/home/why-illustration.svg during
                       the homepage rebuild) and stays the fallback, so this looks
                       unchanged until an editor uploads something. */}
-                  {block?.img ? (
-                    <img className="why-photo" src={block.img} alt="" />
+                  {homeField("why_choose", block, "img") ? (
+                    <img className="why-photo" src={homeField("why_choose", block, "img")} alt="" />
                   ) : (
                     <div className="why-art" dangerouslySetInnerHTML={{ __html: ART_SVG }} />
                   )}
@@ -212,11 +213,11 @@ export default function WhyChooseShiksha() {
                     </div>
                   );
                 })}
-              </div>
+              </div>)}
               <div className="why-copy rv">
-                <span className="eyebrow"><u>{eyebrow}</u></span>
+                {eyebrow && (<span className="eyebrow"><u>{eyebrow}</u></span>)}
                 <h2>{heading}</h2>
-                <p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />
+                {(body) && (<p dangerouslySetInnerHTML={{ __html: sanitizeInline(body) }} />)}
                 <div className="checks">
                   {checks.map((c, i) => (
                     <div className="check" key={c.id ?? i}>
@@ -230,10 +231,10 @@ export default function WhyChooseShiksha() {
                     </div>
                   ))}
                 </div>
-                <CtaLink className="btn btn-coral" to={ctaHref}>
+                {(ctaLabel && ctaHref) && (<CtaLink className="btn btn-coral" to={ctaHref}>
                   {ctaLabel}
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                </CtaLink>
+                </CtaLink>)}
               </div>
             </div>
           </div>
