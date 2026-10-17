@@ -1,98 +1,178 @@
-import React, { useEffect, useState } from "react";
-import { getAllBlogCards } from "../api/contentApi";
-import BlogCard from "./BlogCard";
-import "./BlogCard.css";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, BookOpen, Search, X } from "lucide-react";
+import { getBlogCardsPage } from "../api/contentApi";
+import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
 import "../css/Blogs.css";
 
-const Blogs = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [allBlogs, setAllBlogs] = useState([]);
-  // Without these two, the page rendered its "No blog posts yet" empty state
-  // both while the request was still in flight AND permanently whenever the
-  // API failed — getAllBlogCards resolves to [] on error either way.
+// Study-specific cards leave the shared dashboard BlogCard contract intact.
+function StudyCard({ post, priority }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  return (
+    <article className="study-card">
+      <Link to={`/blogs/${post.slug}`} className="study-card-link">
+        <div className="study-card-cover">
+          {post.thumbnail && !imageFailed ? (
+            <img src={post.thumbnail} alt="" width="640" height="360"
+              loading={priority ? "eager" : "lazy"} decoding="async"
+              fetchPriority={priority ? "high" : "auto"} onError={() => setImageFailed(true)} />
+          ) : <div className="study-card-placeholder" aria-hidden="true"><BookOpen size={42} /><span>{post.category || "Study guide"}</span></div>}
+        </div>
+        <div className="study-card-body">
+          <div className="study-card-meta">
+            <span>{post.category || "General"}</span>
+            {post.classLevel && post.classLevel !== "general" && <span>Class {post.classLevel}</span>}
+            {post.chapterNumber > 0 && <span>Chapter {post.chapterNumber}</span>}
+          </div>
+          <h3>{post.title}</h3>
+          {post.subtitle && <p className="study-card-excerpt">{post.subtitle}</p>}
+          <div className="study-card-footer">
+            <span>Read article <ArrowRight size={16} aria-hidden="true" /></span>
+            {post.readingMinutes > 0 && <span className="study-card-time">{post.readingMinutes} min read</span>}
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+export default function Blogs() {
+  useEffect(() => { document.title = "Blogs & study guides · ShikshaCom"; }, []);
+  const [params, setParams] = useSearchParams();
+  const paramsRef = useRef(params);
+  useEffect(() => { paramsRef.current = params; }, [params]);
+  // React Router's search-param callbacks do not queue like React state.
+  // Merge rapid changes against the latest intended URL, not a stale render.
+  const updateParams = useCallback((mutate, options) => {
+    const next = new URLSearchParams(paramsRef.current);
+    mutate(next);
+    paramsRef.current = next;
+    setParams(next, options);
+  }, [setParams]);
+  const { q, subject, class_level, page } = blogFilters(params);
+  const [search, setSearch] = useState(q);
+  const [result, setResult] = useState({ items: [], count: 0, hasNext: false });
   const [loading, setLoading] = useState(true);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const resultsRef = useRef(null);
+  const queryKey = JSON.stringify([q, subject, class_level, page]);
+  const [loadedKey, setLoadedKey] = useState("");
+  const pending = loading || queryKey !== loadedKey;
+  const filtered = Boolean(q || subject || class_level);
+
+  useEffect(() => { setSearch(q); }, [q]);
 
   useEffect(() => {
-    let alive = true;
-    getAllBlogCards().then((cards) => {
-      if (!alive) return;
-      setAllBlogs(cards);
-      setLoadFailed(!!cards.__failed);
-      setLoading(false);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
+    const timer = setTimeout(() => {
+      if (search.trim() === q) return;
+      updateParams((next) => {
+        if (search.trim()) next.set("q", search.trim()); else next.delete("q");
+        next.delete("page");
+      }, { replace: true });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, q, updateParams]);
 
-  const filtered = searchQuery.trim()
-    ? allBlogs.filter((blog) => {
-        const q = searchQuery.trim().toLowerCase();
-        return (
-          blog.title?.toLowerCase().includes(q) ||
-          blog.category?.toLowerCase().includes(q) ||
-          blog.classLevel?.toString().includes(q) ||
-          blog.slug?.toLowerCase().includes(q)
-        );
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+    getBlogCardsPage({ q, subject, class_level, page }, { signal: controller.signal })
+      .then((data) => { if (!controller.signal.aborted) setResult(data); })
+      .catch((failure) => {
+        if (controller.signal.aborted) return;
+        setError(failure.response?.status === 404
+          ? "This results page is no longer available. Return to the first page to continue."
+          : "We couldn’t load the articles. Check your connection and try again.");
       })
-    : allBlogs;
+      .finally(() => {
+        if (!controller.signal.aborted) { setLoading(false); setLoadedKey(queryKey); }
+      });
+    return () => controller.abort();
+  }, [q, subject, class_level, page, queryKey, retry]);
+
+  function updateFilter(name, value) {
+    updateParams((next) => {
+      if (value) next.set(name, value); else next.delete(name);
+      next.delete("page");
+    });
+  }
+
+  function reset() {
+    setSearch("");
+    paramsRef.current = new URLSearchParams();
+    setParams({});
+  }
+
+  function changePage(nextPage) {
+    updateParams((next) => {
+      if (nextPage > 1) next.set("page", String(nextPage)); else next.delete("page");
+    });
+    resultsRef.current?.focus({ preventScroll: true });
+    resultsRef.current?.scrollIntoView({ block: "start" });
+  }
 
   return (
-    <div className="blogs-list-page">
-      <div className="blogs-list-header">
-        <span className="blogs-list-badge">General Studies</span>
-        <h1>Our Blogs</h1>
-        <p>Explore Geography and Polity blogs with interactive quizzes.</p>
+    <main className="blogs-list-page">
+      <header className="blogs-list-header">
+        <span className="blogs-list-badge"><BookOpen size={16} aria-hidden="true" /> ShikshaCom blogs</span>
+        <h1>Make your next chapter clearer.</h1>
+        <p>Explore chapter notes and explainers in science, social science and more. Choose a subject or class to find what you need.</p>
+      </header>
 
-        <div className="blogs-search-box">
-          <svg className="blogs-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="text"
-            className="blogs-search-input"
-            placeholder="Search by title, category or class…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button className="blogs-search-clear" onClick={() => setSearchQuery("")} aria-label="Clear">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          )}
+      <section className="blogs-filters" aria-label="Find articles">
+        <div className="blogs-search-field">
+          <label htmlFor="blogs-search">Search articles</label>
+          <div className="blogs-search-box">
+            <Search size={19} aria-hidden="true" />
+            <input id="blogs-search" type="search" autoComplete="off" maxLength={200}
+              placeholder="Try motion, rivers or democracy" value={search}
+              onChange={(event) => setSearch(event.target.value)} />
+            {search && <button type="button" className="blogs-clear-search" aria-label="Clear article search" onClick={() => setSearch("")}><X size={18} aria-hidden="true" /></button>}
+          </div>
         </div>
+        <div className="blogs-filter-field">
+          <label htmlFor="blogs-subject">Subject</label>
+          <select id="blogs-subject" value={subject} onChange={(event) => updateFilter("subject", event.target.value)}>
+            <option value="">All subjects</option>
+            {BLOG_SUBJECTS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+          </select>
+        </div>
+        <div className="blogs-filter-field">
+          <label htmlFor="blogs-class">Class</label>
+          <select id="blogs-class" value={class_level} onChange={(event) => updateFilter("class_level", event.target.value)}>
+            <option value="">All classes</option>
+            {BLOG_CLASSES.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+          </select>
+        </div>
+        {filtered && <button type="button" className="blogs-reset" onClick={reset}>Clear filters</button>}
+      </section>
 
-        {searchQuery.trim() && (
-          <p className="blogs-search-count">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{searchQuery.trim()}&rdquo;
-          </p>
+      <section className="blogs-results" aria-labelledby="blogs-results-heading" aria-busy={pending}>
+        <div className="blogs-results-bar">
+          <h2 id="blogs-results-heading" ref={resultsRef} tabIndex={-1}>{filtered ? "Matching articles" : "Explore the articles"}</h2>
+          <p role="status">{pending ? "Finding articles…" : error ? "Articles unavailable" : `${result.count} article${result.count === 1 ? "" : "s"}${q ? ` for “${q}”` : ""}`}</p>
+        </div>
+        {pending ? (
+          <div className="study-grid" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <div className="study-card study-card-skeleton" key={index}><div /><span /><span /></div>)}</div>
+        ) : error ? (
+          <div className="blogs-state" role="alert"><BookOpen size={28} aria-hidden="true" /><h3>Let’s try that again</h3><p>{error}</p>
+            <button type="button" onClick={() => page > 1 ? changePage(1) : setRetry((value) => value + 1)}>{page > 1 ? "Return to first page" : "Try again"}</button>
+          </div>
+        ) : result.items.length ? (
+          <>
+            <div className="study-grid">{result.items.map((post, index) => <StudyCard key={post.id} post={post} priority={index === 0} />)}</div>
+            {result.count > BLOG_PAGE_SIZE && <nav className="blogs-pagination" aria-label="Article pages">
+              <button type="button" disabled={page <= 1} onClick={() => changePage(page - 1)}><ArrowLeft size={17} aria-hidden="true" /> Previous</button>
+              <span>Page {page} of {Math.ceil(result.count / BLOG_PAGE_SIZE)}</span>
+              <button type="button" disabled={!result.hasNext} onClick={() => changePage(page + 1)}>Next <ArrowRight size={17} aria-hidden="true" /></button>
+            </nav>}
+          </>
+        ) : (
+          <div className="blogs-state"><Search size={28} aria-hidden="true" /><h3>{filtered ? "No articles match these filters" : "New articles are on their way"}</h3><p>{filtered ? "Try a shorter search or choose another subject or class." : "Check back soon for new notes and explainers."}</p>{filtered && <button type="button" onClick={reset}>Show all articles</button>}</div>
         )}
-      </div>
-
-      {filtered.length > 0 ? (
-        <div className="blg-grid">
-          {filtered.map((blog) => (
-            <BlogCard key={blog.id} post={blog} to={blog.slug ? `/blogs/${blog.slug}` : "#"} />
-          ))}
-        </div>
-      ) : (
-        <p className="blogs-empty">
-          {loading
-            ? "Loading blogs…"
-            : loadFailed
-              ? "Couldn’t load the blogs just now. Check your connection and refresh."
-              : searchQuery.trim()
-                ? <>No blogs found for &ldquo;{searchQuery.trim()}&rdquo;</>
-                : "No blog posts yet — check back soon."}
-        </p>
-      )}
-    </div>
+      </section>
+    </main>
   );
-};
-
-export default Blogs;
+}

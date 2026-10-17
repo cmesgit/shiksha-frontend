@@ -8,6 +8,7 @@
 // transport error (caller may retry).
 
 import api from "./apiClient";
+import { BLOG_PAGE_SIZE, blogText } from "../utils/blogBrowse";
 
 /* ── Blogs ─────────────────────────────────────────────────────── */
 
@@ -18,12 +19,26 @@ export const toBlogCard = (post) => ({
   slug: post.slug,
   category: post.category || post.subject || "",
   classLevel: post.class_level,
-  title: post.title,
-  subtitle: post.excerpt || undefined,
+  title: blogText(post.title),
+  subtitle: post.excerpt ? blogText(post.excerpt) : undefined,
   thumbnail: post.thumbnail || undefined,
   tags: post.tags || [],
+  chapterNumber: post.chapter_number,
+  readingMinutes: post.reading_minutes,
   fromCms: true,
 });
+
+// Fetch one cancellable page, never the entire catalogue. The caller handles
+// errors distinctly from zero results and offers a retry.
+export async function getBlogCardsPage(filters, { signal } = {}) {
+  const { data } = await api.get("/content/blogs/", {
+    params: { ...filters, page_size: BLOG_PAGE_SIZE }, signal, timeout: 12000,
+  });
+  if (!Array.isArray(data.results) || !Number.isFinite(data.count)) {
+    throw new Error("Unexpected blog response");
+  }
+  return { items: data.results.map(toBlogCard), count: data.count, hasNext: Boolean(data.next) };
+}
 
 /**
  * Fetch every published CMS post (walks pagination, capped defensively).
