@@ -218,7 +218,7 @@ export default function DocumentPage() {
             )}
           </div>
           <h1>{doc.title}</h1>
-          {doc.research && <aside className="exp-upload-error" aria-label="Research review information"><strong>Reviewed on Shiksha · v{doc.research.version}</strong><p>Authors: {doc.research.authors}</p><p>{doc.research.review_scope}</p>{doc.research.original_url && <a href={doc.research.original_url} target="_blank" rel="noreferrer">Original publication</a>}</aside>}
+          {doc.research && <aside className="exp-upload-error" aria-label="Research review information"><strong>Reviewed on Shiksha · v{doc.research.version}</strong><p>Authors: {doc.research.authors}</p><p>{doc.research.review_scope}</p>{doc.research.corrections?.map(c => <p key={c.version}><strong>Correction · version {c.version}:</strong> {c.public_note}</p>)}{doc.research.original_url && <a href={doc.research.original_url} target="_blank" rel="noreferrer">Original publication</a>}</aside>}
           {/* The read-only half of the like pair — reflects the same state the
               rail button writes, so the number moves the moment you like. */}
           <div className="exp-docmeta">
