@@ -178,32 +178,55 @@ export function AuthMentors({ slot }) {
   );
 }
 
-/** Admin-managed content directly below the login form, across screen sizes. */
+/** Admin-managed content below login. The stage reserves the tallest card's
+ * space, so vertical rotation never shifts the form or its buttons. */
 export function AuthFormUpdates({ slot }) {
   const { items } = useTickerSlot(slot);
   const [index, setIndex] = useState(0);
-  if (!items.length) return null;
+  const [paused, setPaused] = useState(false);
+  const [motionReduced, setMotionReduced] = useState(reduced);
+  const root = useRef(null);
   const current = index < items.length ? index : 0;
-  const item = items[current];
-  const href = promoHref(item);
+  useEffect(() => {
+    const media = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const update = () => setMotionReduced(!!media?.matches);
+    media?.addEventListener("change", update);
+    return () => media?.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (items.length < 2 || paused || motionReduced) return undefined;
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible" && !root.current?.matches(":hover, :focus-within")) {
+        setIndex(i => (i + 1) % items.length);
+      }
+    }, ROTATE_MS);
+    return () => clearInterval(timer);
+  }, [items.length, paused, motionReduced]);
+  if (!items.length) return null;
   return (
-    <aside className="afm afm--updates" aria-label="From ShikshaCom">
-      <span className="afm__label">{KIND_LABEL[item.kind] || "From ShikshaCom"}</span>
-      <div className="afm__card">
-        {item.img && <img className="afm__photo" src={item.img} alt="" width="64" height="64" loading="lazy" />}
-        <div className="afm__meta">
-          <b className="afm__name">{item.message}</b>
-          {item.body && <span className="afm__subject">{item.body}</span>}
-          {href && <a className="afm__link" href={href} target="_blank" rel="noopener noreferrer">{item.link_label || "Explore"} ↗</a>}
-        </div>
+    <aside ref={root} className="afm afm--updates afm--vertical" aria-label="From ShikshaCom" aria-roledescription="carousel">
+      <div className="afm__stage" aria-live="off">
+        {items.map((item, position) => {
+          const href = promoHref(item);
+          const active = position === current;
+          return <div key={item.id} className={`afm__slide${active ? " is-active" : ""}`} aria-hidden={!active} inert={!active}>
+            <span className="afm__label">{KIND_LABEL[item.kind] || "From ShikshaCom"}</span>
+            <div className="afm__card">
+              {item.img && <img className="afm__photo" src={item.img} alt="" width="160" height="130" loading="lazy" decoding="async" />}
+              <div className="afm__meta"><b className="afm__name">{item.message}</b>
+                {item.body && <span className="afm__subject">{item.body}</span>}
+                {href && <a className="afm__link" href={href} target="_blank" rel="noopener noreferrer">{item.link_label || "Explore"} ↗</a>}
+              </div>
+            </div>
+          </div>;
+        })}
       </div>
-      {items.length > 1 && (
-        <div className="afm__pager">
-          <button type="button" aria-label="Previous advertisement" onClick={() => setIndex((current + items.length - 1) % items.length)}>‹</button>
-          <span>{current + 1} / {items.length}</span>
-          <button type="button" aria-label="Next advertisement" onClick={() => setIndex((current + 1) % items.length)}>›</button>
-        </div>
-      )}
+      {items.length > 1 && <div className="afm__pager">
+        <button type="button" aria-label="Previous advertisement" onClick={() => setIndex((current + items.length - 1) % items.length)}>↑</button>
+        <span>{current + 1} / {items.length}</span>
+        {!motionReduced && <button type="button" className="afm__pause" aria-label={paused ? "Resume advertisements" : "Pause advertisements"} onClick={() => setPaused(value => !value)}>{paused ? "Play" : "Pause"}</button>}
+        <button type="button" aria-label="Next advertisement" onClick={() => setIndex((current + 1) % items.length)}>↓</button>
+      </div>}
     </aside>
   );
 }

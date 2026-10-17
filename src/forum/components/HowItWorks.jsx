@@ -1,4 +1,5 @@
 import React from "react";
+import StepIllustration from "./StepIllustration";
 import { useNavigate } from "react-router-dom";
 import { useForum } from "../ForumContext";
 
@@ -17,7 +18,7 @@ const STEPS = [
   {
     n: "Step 2",
     t: "Get helpful answers",
-    d: "People from every field share trusted insights, first-hand experience, and advice.",
+    d: "Community members share explanations, experience, and ideas. Check sources and ask follow-up questions.",
     bg: "linear-gradient(150deg,#fdf0dd,#ffe4c2)",
     delay: ".15s",
   },
@@ -51,9 +52,9 @@ export default function HowItWorks() {
           <p className="fm2-how-sub">Four simple steps to join the conversation on any topic.</p>
         </div>
         <div className="fm2-how-body">
-          {STEPS.map((s) => (
+          {STEPS.map((s, index) => (
             <div key={s.n} className="fm2-step" style={{ animationDelay: s.delay }}>
-              <div className="fm2-step-img" style={{ background: s.bg }} />
+              <div className="fm2-step-img" style={{ background: s.bg }}><StepIllustration step={index} /></div>
               <div className="fm2-step-n">{s.n}</div>
               <p className="fm2-step-t">{s.t}</p>
               <p className="fm2-step-d">{s.d}</p>
