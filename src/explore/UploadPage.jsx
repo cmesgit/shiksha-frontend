@@ -138,7 +138,7 @@ export default function UploadPage() {
         <button className="exp-back" onClick={() => nav(-1)}><Icon.back /> Back</button>
         <p className="exp-eyebrow">Contribute</p>
         <h1 style={{ font: "800 26px Montserrat, sans-serif", color: "var(--forest)", marginBottom: 6 }}>Upload a document</h1>
-        <p className="exp-sub" style={{ marginBottom: 22 }}>Share notes, papers, slides or question papers with other learners.</p>
+        <p className="exp-sub" style={{ marginBottom: 22 }}>Share notes, slides or question papers with other learners. Research papers go through Research Hub for review.</p>
 
         <div className="exp-steps">
           <div className={`exp-step${step >= 1 ? " on" : ""}`} />
@@ -151,7 +151,7 @@ export default function UploadPage() {
               <label>What are you uploading?</label>
               <div className="exp-typegrid">
                 {(facets?.uploadTypes || []).map((t) => (
-                  <button key={t} className={`exp-typebtn${docType === t ? " on" : ""}`} onClick={() => setDocType(t)}>{t}</button>
+                  <button key={t} className={`exp-typebtn${docType === t ? " on" : ""}`} onClick={() => t === "Research Paper" ? nav("/explore/research") : setDocType(t)}>{t}</button>
                 ))}
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function UploadPage() {
             <div className="exp-upload-classification">
               <div className="exp-field">
                 <label htmlFor="upload-category">Document type</label>
-                <select id="upload-category" value={form.category} onChange={(e) => set("category", e.target.value)}>
+                <select id="upload-category" value={form.category} onChange={(e) => e.target.value === "research-papers" ? nav("/explore/research") : set("category", e.target.value)}>
                   <option value="">Select…</option>
                   {(facets?.categories || []).map((c) => <option key={c.key} value={c.key}>{c.name}</option>)}
                 </select>

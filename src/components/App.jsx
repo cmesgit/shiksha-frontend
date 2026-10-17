@@ -55,6 +55,7 @@ const AuthorPage       = lazy(() => import("../explore/AuthorPage"));
 const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionsList })));
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
+const ResearchHub = lazy(() => import("../explore/ResearchHub"));
 const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
@@ -434,6 +435,7 @@ function App() {
         {/* Orphaned page (no in-app link); DashboardPage.jsx is its superset. Redirect protects any bookmarked links. */}
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
+        <Route path="/explore/research" element={<ExplorePage><ResearchHub /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
             (distinct from the forum's /moderator). Renders the shared site
