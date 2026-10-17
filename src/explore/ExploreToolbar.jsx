@@ -17,6 +17,7 @@ import "./Explore.css";
 // collections routes still exist and are still linked from My Library and from
 // an author's profile — only the toolbar entry is gone.
 const LINKS = [
+  { label: "Research", to: "/explore/research", match: (p) => p.startsWith("/explore/research") },
   { label: "Home", to: "/explore", match: (p) => p === "/explore" },
   { label: "Browse", to: "/explore/browse", match: (p) => p.startsWith("/explore/browse") },
 ];
