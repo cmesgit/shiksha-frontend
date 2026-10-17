@@ -5,10 +5,11 @@ export const researchDetail = async (id) => (await api.get(`${root}${id}/`)).dat
 export const researchAction = async (id, body) => (await api.post(`${root}${id}/`, body)).data;
 export const reviewerProfile = async () => (await api.get(`${root}reviewers/`)).data;
 export const applyReviewer = async (body) => (await api.post(`${root}reviewers/`, body)).data;
-export async function submitResearch(body, id) {
+export const setReviewerAvailability = async available => (await api.patch(`${root}reviewers/`, { available })).data;
+export async function submitResearch(body, id, correction = false) {
   const form = new FormData();
   Object.entries(body).forEach(([key, value]) => value != null && form.append(key, value));
-  return (await api.post(id ? `${root}${id}/revisions/` : root, form, { headers: { "Content-Type": "multipart/form-data" } })).data;
+  return (await api.post(id ? `${root}${id}/${correction ? "corrections" : "revisions"}/` : root, form, { headers: { "Content-Type": "multipart/form-data" } })).data;
 }
 export async function downloadManuscript(path, version) {
   const { data } = await api.get(path, { responseType: "blob" });
