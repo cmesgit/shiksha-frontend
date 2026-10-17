@@ -177,6 +177,7 @@ const Courses = () => {
         desc: detail.description,
         price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
         thumbnail: detail.thumbnail,
+        promoVideoUrl: detail.promo_video_url,
         highlights: detail.details?.highlights,
         includes: detail.details?.includes,
         topics: (detail.subjects || []).map((s) => ({
@@ -304,6 +305,7 @@ const Courses = () => {
       desc: detail.description,
       price: `₹${Math.round(detail.price / 100).toLocaleString('en-IN')}`,
       thumbnail: detail.thumbnail,
+      promoVideoUrl: detail.promo_video_url,
       highlights: detail.details?.highlights,
       includes: detail.details?.includes,
       topics: (detail.subjects || []).map((s) => ({
@@ -383,6 +385,7 @@ const Courses = () => {
     return (
       <>
         <SubjectList
+          key={activeCourseId}
           course={activeCourse}
           courseId={activeCourseId}
           enrollmentStatus={enrollmentStatusByCourseId[activeCourseId]}

@@ -172,6 +172,34 @@
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
 }
 
+.course-demo__heading p { margin: -8px 0 18px; color: #52635d; }
+.course-demo__play, .course-demo__media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.course-demo__play {
+  background: #003223 center / cover no-repeat;
+  color: #fff;
+  cursor: pointer;
+  font: 600 1rem "Montserrat", sans-serif;
+}
+.course-demo__play-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #ff8f01;
+  color: #003223;
+  font-size: 24px;
+}
+.course-demo__open { display: inline-block; margin-top: 12px; color: #006b50; font-weight: 700; }
+
 /* ── PURCHASE CARD ── */
 .purchase-card {
   position: sticky;
@@ -727,4 +755,3 @@
     padding: 0;
   }
 }
-
