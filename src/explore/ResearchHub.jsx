@@ -59,9 +59,15 @@ export default function ResearchHub() {
     finally { setBusy(false); }
   };
   const action = (name, body = {}) => run(async () => {
-    await researchAction(paper.id, { action: name, version: paper.current_version, ...body });
-    if (name === "decline" || (name === "review" && body.decision === "changes")) select(null);
-  }, name === "review" ? "Review submitted." : "Submission updated.");
+    const updated = await researchAction(paper.id, { action: name, version: paper.current_version, ...body });
+    const ending = name === "decline" || (name === "review" && body.decision === "changes");
+    setList(previous => previous ? { ...previous,
+      results: ending ? previous.results.filter(item => item.id !== paper.id) : previous.results.map(item => item.id === paper.id ? updated : item),
+      count: ending && previous.results.some(item => item.id === paper.id) ? Math.max(0, previous.count - 1) : previous.count,
+    } : previous);
+    if (ending) { select(null); setTab("reviews"); }
+    else setPaper(updated);
+  }, name === "review" ? "Review submitted." : "Submission updated.", false);
   const select = id => { setError(""); setSuccess(""); setParams(id ? { paper: id } : {}); };
   const changeTab = next => { setTab(next); setPage(1); select(null); };
   const chooseFile = value => {
