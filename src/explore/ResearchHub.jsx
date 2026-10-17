@@ -58,7 +58,10 @@ export default function ResearchHub() {
     catch (e) { setError(researchError(e)); }
     finally { setBusy(false); }
   };
-  const action = (name, body = {}) => run(() => researchAction(paper.id, { action: name, version: paper.current_version, ...body }), "Submission updated.");
+  const action = (name, body = {}) => run(async () => {
+    await researchAction(paper.id, { action: name, version: paper.current_version, ...body });
+    if (name === "decline" || (name === "review" && body.decision === "changes")) select(null);
+  }, name === "review" ? "Review submitted." : "Submission updated.");
   const select = id => { setError(""); setSuccess(""); setParams(id ? { paper: id } : {}); };
   const changeTab = next => { setTab(next); setPage(1); select(null); };
   const chooseFile = value => {
@@ -78,7 +81,7 @@ export default function ResearchHub() {
     {error && <div className="rh-alert" role="alert">{error} <button type="button" className="exp-btn exp-btn-ghost" onClick={() => setRefresh(n => n+1)}>Retry loading</button></div>}
     {success && <p role="status" className="rh-success">{success}</p>}
 
-    {selectedId ? !paper ? <p role="status">Loading submission…</p> : <section className="rh-panel">
+    {selectedId ? !paper ? <section className="rh-panel"><p role="status">{error ? "This submission is unavailable. It may have been closed or reassigned." : "Loading submission…"}</p>{error && <button className="exp-btn exp-btn-ghost" onClick={() => select(null)}>Back to list</button>}</section> : <section className="rh-panel">
       <button className="exp-btn exp-btn-ghost" onClick={() => select(null)}>Back to list</button>
       <h2>{paper.title}</h2><p className="rh-status">{paper.status_label} · Version {paper.current_version}</p>
       <p>{paper.authors} · {paper.subject}{paper.topic ? ` / ${paper.topic}` : ""}</p><p className="rh-text">{paper.abstract}</p>
