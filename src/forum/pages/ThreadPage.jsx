@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getThread, postComment, acceptAnswer, deleteThread } from "../../api/forum";
 import { useAuth } from "../../contexts/AuthContext";
 import { useForum } from "../ForumContext";
+import PostAttachments from "../components/PostAttachments";
 import AnswerCard from "../components/AnswerCard";
 import CommentThread from "../components/CommentThread";
 import { normAuthor, timeAgo } from "../utils";
@@ -89,11 +90,7 @@ export default function ThreadPage() {
         </h1>
         {q.body ? <p style={{ font: "400 14px/1.8 Poppins,sans-serif", color: "#4a5e3a", margin: "0 0 14px", whiteSpace: "pre-line" }}>{q.body}</p> : null}
 
-        {q.attachments?.length ? (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-            {q.attachments.map((a) => <a key={a.id} className="fm2-tag" href={a.url} target="_blank" rel="noreferrer">{a.original_name || a.kind}</a>)}
-          </div>
-        ) : null}
+        <PostAttachments attachments={q.attachments} />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 0", borderTop: "1px solid #e4edd8", borderBottom: "1px solid #e4edd8", marginBottom: 14, flexWrap: "wrap" }}>
           <div onClick={() => navigate(`/forum/u/${asker.username}`)} className="fm2-avatar-sm" style={{ width: 34, height: 34, background: asker.color, cursor: "pointer" }}>{asker.initials}</div>
