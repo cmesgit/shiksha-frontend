@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PostAttachments from "./PostAttachments";
 import { useNavigate } from "react-router-dom";
 import { useForum } from "../ForumContext";
 import { normAuthor, timeAgo } from "../utils";
@@ -31,6 +32,8 @@ export default function QuestionCard({ q, onDeleted }) {
           {q.kind === "post" && <span className="fm2-kind-tag">Post</span>}
           {q.is_solved && <span className="fm2-solved-tag">✓ Solved</span>}
         </h3>
+        {q.body && <p className="fm2-post-excerpt">{q.body}</p>}
+        <PostAttachments attachments={q.attachments} />
         {q.tags?.length ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 9 }}>
             {q.tags.slice(0, 4).map((t) => (

@@ -523,3 +523,15 @@ img,svg,image-slot{max-width:100%}
 .fm2-tabline{background:#fff;border:1px solid #d8e6c8;border-radius:12px;display:flex;padding:4px;gap:6px;box-shadow:0 1px 3px rgba(14,28,15,.04);overflow-x:auto}
 .fm2-tabline button{flex:0 0 auto;background:none;color:#5a6e55;border:none;border-radius:9px;padding:9px 16px;font:700 13px Poppins,sans-serif;cursor:pointer;white-space:nowrap}
 .fm2-tabline button.on{background:#125027;color:#fff}
+
+/* Post images stay visible in both the feed and the full discussion. */
+.fm2-thread-body { min-width: 0; }
+.fm2-attachments { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin: 14px 0; width: 100%; }
+.fm2-attachment { margin: 0; width: 100%; border: 1px solid #d8e6c8; border-radius: 10px; overflow: hidden; background: #f4f8ee; }
+.fm2-attachment > a { display: block; }
+.fm2-attachment img { display: block; width: 100%; height: auto; object-fit: contain; }
+.fm2-attachment figcaption { padding: 8px 12px; font: 400 11px/1.6 Poppins,sans-serif; overflow-wrap: anywhere; }
+.fm2-attachment-fallback { display: block; padding: 20px; font: 500 13px/1.6 Poppins,sans-serif; }
+.fm2-post-excerpt { font: 400 13px/1.7 Poppins,sans-serif; color: #4a5e3a; white-space: pre-line; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+.fm2-step-art { display: block; width: 100%; height: 100%; color: #125027; }
+@media (max-width: 600px) { .fm2-attachment figcaption { font-size: 10px; } }
