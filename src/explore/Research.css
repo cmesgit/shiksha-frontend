@@ -20,3 +20,6 @@
 .rh-page input, .rh-page textarea, .rh-page select { max-width: 100%; }
 .rh-page .exp-field { display: flex; flex-direction: column; gap: 8px; }
 @media (max-width: 600px) { .rh-grid { grid-template-columns: 1fr; } .rh-tabs .exp-btn { flex: 1 1 40%; } }
+.rh-progress { padding: 16px; margin-block: 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--cream, white); }
+.rh-progress p:last-child { margin-bottom: 0; }
+.rh-case { padding: 14px 0; border-bottom: 1px solid var(--border); }
