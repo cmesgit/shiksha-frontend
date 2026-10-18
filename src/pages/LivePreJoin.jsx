@@ -40,7 +40,13 @@ function initials(name) {
 export default function LivePreJoin() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user && id) {
+      navigate(`/live?join=${encodeURIComponent(id)}`, { replace: true });
+    }
+  }, [authLoading, user, id, navigate]);
 
   const [preflight, setPreflight] = useState(null);
   const [loadError, setLoadError] = useState("");
@@ -71,7 +77,7 @@ export default function LivePreJoin() {
   // ── Preflight ────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    if (!id) return undefined;
+    if (!id || authLoading || !user) return undefined;
     setLoading(true);
     setLoadError("");
     groupSessionService
@@ -83,7 +89,7 @@ export default function LivePreJoin() {
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, authLoading, user]);
 
   // ── Local media preview helpers ──────────────────────────────────────
   const stopStream = useCallback(() => {

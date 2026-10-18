@@ -3,13 +3,13 @@
  * design handoff (design_handoff_live_sessions/design-reference/
  * Live Sessions.dc.html, data-screen-label="01").
  *
- * Visitors may read the page. Hosting and joining require an account. The
- * host chooses an instant collaboration's duration before creation; the
- * backend owns the actual end time shown again in the lobby.
+ * Hosts sign in; instant-collaboration guests can request access with a code.
+ * The host chooses the room duration before creation.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import groupSessionService, { extractApiError } from "../api/groupSessionService";
+import instantGuestService, { guestPassKey } from "../api/instantGuestService";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -28,7 +28,8 @@ export default function LiveLanding() {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(() => params.get("join") || "");
+  const [guestName, setGuestName] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [starting, setStarting] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -72,8 +73,23 @@ export default function LiveLanding() {
       codeInputRef.current?.focus();
       return;
     }
-    const room = `/live/room/${encodeURIComponent(trimmed)}/lobby`;
-    if (!isAuthenticated) return requireLogin(room);
+    if (!isAuthenticated) {
+      if (guestName.trim().length < 2) {
+        setError("Enter your name to ask the host for access.");
+        return;
+      }
+      setJoining(true);
+      setError("");
+      try {
+        const guest = await instantGuestService.request(trimmed, guestName.trim());
+        sessionStorage.setItem(guestPassKey(guest.session_id), guest.credential);
+        navigate(`/live/guest/${guest.session_id}`);
+      } catch (err) {
+        setError(err?.response?.data?.detail || "Could not request guest access. Check the code.");
+        setJoining(false);
+      }
+      return;
+    }
 
     setJoining(true);
     setError("");
@@ -85,7 +101,7 @@ export default function LiveLanding() {
       setError(extractApiError(err, "No room found for that code."));
       setJoining(false);
     }
-  }, [code, isAuthenticated, navigate, requireLogin]);
+  }, [code, guestName, isAuthenticated, navigate]);
 
   const focusCodeInput = () => codeInputRef.current?.focus();
 
@@ -110,8 +126,8 @@ export default function LiveLanding() {
             <div className="live-eyebrow">Live sessions</div>
             <h1>Host or join a live session — in seconds</h1>
             <p className="live-lede">
-              Classes, doubt-clearing, study groups and mentoring, all on one room. Every seat is
-              tied to a real ShikshaCom account, so hosts always know who is in the room.
+              Classes, doubt-clearing, study groups and mentoring, all in one room.
+              Guests can ask to join without creating an account; the host approves each request.
             </p>
 
             <label className="live-duration-field" htmlFor="live-duration">
@@ -158,11 +174,19 @@ export default function LiveLanding() {
               </button>
             </div>
 
+            {!isAuthenticated && (
+              <div className="live-join-row">
+                <input value={guestName} onChange={(e) => setGuestName(e.target.value)}
+                  aria-label="Your name for the host"
+                  maxLength={80} autoComplete="name" placeholder="Your name for the host" />
+              </div>
+            )}
+
             {error && <p className="live-error">{error}</p>}
 
             <p className="live-helper">
               <IcLock width={14} height={14} />
-              Sign-in required for hosting and joining. Share the room code with anyone who has an account.
+              Sign in to host. Guests can join an instant collaboration with a code after host approval.
             </p>
 
             <div className="live-pill-row">
@@ -229,7 +253,7 @@ export default function LiveLanding() {
             <div className="live-how-card">
               <div className="live-how-num">1</div>
               <div className="live-how-title">Sign in</div>
-              <p>Use your ShikshaCom account. Course enrolment is not required for an instant collaboration.</p>
+              <p>Sign in to host, or enter your name and code to ask the host for guest access. Course enrolment is not required.</p>
             </div>
             <div className="live-how-card">
               <div className="live-how-num">2</div>

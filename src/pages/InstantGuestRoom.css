@@ -1,0 +1,11 @@
+.guest-wait { min-height: 100vh; background: #f2f8f7; color: #163c40; }
+.guest-wait main { max-width: 520px; margin: 8vh auto; padding: 32px; text-align: center; }
+.guest-wait button, .guest-room-controls button { border: 0; border-radius: 8px; background: #006d78; color: white; padding: 11px 18px; margin: 5px; cursor: pointer; }
+.guest-room { min-height: 100vh; background: #10282c; color: white; display: flex; flex-direction: column; }
+.guest-room-header { display: flex; justify-content: space-between; gap: 12px; padding: 18px; }
+.guest-room-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; padding: 12px; }
+.guest-room-tile { min-height: 190px; background: #21454a; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.guest-room-tile video { max-width: 100%; max-height: 100%; }
+.guest-room-tile span { position: absolute; bottom: 8px; left: 10px; background: #10282ccc; padding: 3px 7px; border-radius: 5px; }
+.guest-room-avatar { font-size: 54px; }
+.guest-room-controls { display: flex; justify-content: center; flex-wrap: wrap; padding: 12px; }
