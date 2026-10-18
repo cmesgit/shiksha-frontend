@@ -81,6 +81,27 @@ export default function EndingSoonModal({
     onDismiss?.();
   };
 
+  if (variant === "collaboration") {
+    return (
+      <div className="gs-eos-overlay" role="dialog" aria-modal="true" aria-label="Collaboration ending soon">
+        <div className="gs-eos-scrim" />
+        <div className={"gs-eos-card" + (urgent ? " gs-eos-card--urgent" : "")}>
+          <div className="gs-eos-head">
+            <div className="gs-eos-headline">
+              <div className="gs-eos-eyebrow">{clock} left</div>
+              <h3>Collaboration ending soon</h3>
+              <p>The host-selected room time is nearly up. Everyone will be disconnected when it ends.</p>
+            </div>
+          </div>
+          <div className="gs-eos-footer">
+            <span>You can start a new timed room after this one ends.</span>
+            {!urgent && <button type="button" className="gs-eos-link" onClick={handleDismiss}>Remind me later</button>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="gs-eos-overlay" role="dialog" aria-modal="true" aria-label="Session ending soon">
       <div className="gs-eos-scrim" />

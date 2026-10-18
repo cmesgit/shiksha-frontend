@@ -814,6 +814,15 @@ const Navbar = () => {
                   <IcChevronDown />
                 </button>
               ))}
+              <Link
+                to="/live"
+                className={`skn-navbtn skn-navlink${location.pathname.startsWith("/live") ? " skn-on" : ""}`}
+                aria-current={location.pathname.startsWith("/live") ? "page" : undefined}
+                onMouseEnter={closeAll}
+                onClick={closeAll}
+              >
+                Collab
+              </Link>
             </div>
 
           </nav>
@@ -962,6 +971,9 @@ const Navbar = () => {
         </div>
 
         <div className="skn-drawer-body">
+          <Link to="/live" className="skn-mlink skn-strong" onClick={closeAll}>
+            <span>Collab</span>
+          </Link>
           <DrawerAccordion
             title="Courses"
             open={openAcc === "courses"}

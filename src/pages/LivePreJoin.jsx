@@ -231,6 +231,7 @@ export default function LivePreJoin() {
   }
 
   const { session, host, entitlement, limits, admit_mode, is_enrolled } = preflight;
+  const isInstant = session?.session_type === "instant";
   // entitlement.reason can't be used to detect the host: live_rules.entitlement()
   // checks live_launch_free_mode FIRST, so reason comes back "launch_free" for
   // everyone (host included) whenever that admin toggle is on, same pattern as
@@ -239,7 +240,7 @@ export default function LivePreJoin() {
   const isLocked = admit_mode === "lobby" && !isHost;
   const title = session.topic || session.course_title || session.subject_name || "Live session";
   const retentionDays = limits?.file_retention_days ?? 2;
-  const capMinutes = limits?.cap_minutes ?? 90;
+  const capMinutes = isInstant ? session.duration_minutes : (limits?.cap_minutes ?? 90);
   const maxParticipants = limits?.max_participants ?? 40;
   const participantsNow = limits?.participants_now ?? 0;
   const minutesUsedToday = entitlement?.minutes_used_today ?? 0;
@@ -365,17 +366,21 @@ export default function LivePreJoin() {
                 <div className="lobby-note lobby-note-good">
                   <div className="lobby-note-head">
                     <IcCheck width={15} height={15} />
-                    {is_enrolled ? "Enrolled in this course" : "No time cap for you"}
+                    {isInstant ? "Your room time is set by the host" : is_enrolled ? "Enrolled in this course" : "No personal time cap"}
                   </div>
                   <p>
                     {/* isHost takes priority over entitlement.reason: launch-free mode
                         makes reason "launch_free" for the host too (see isHost's own
                         comment above), which would otherwise hide this correct copy. */}
-                    {isHost ? "You're hosting — hosts are never time-capped." : null}
-                    {!isHost && entitlement.reason === "teacher" && "Teachers are never time-capped."}
-                    {!isHost && entitlement.reason === "enrolled" && "No time cap for you in this course's sessions."}
-                    {!isHost && entitlement.reason === "subscribed" && "Your all-access subscription covers this room."}
-                    {!isHost && entitlement.reason === "launch_free" && "Free-launch mode is on — nobody is time-capped right now."}
+                    {isInstant ? `This collaboration ends for everyone after ${capMinutes} minutes.` : (
+                      <>
+                        {isHost ? "You're hosting — hosts are never personally time-capped." : null}
+                        {!isHost && entitlement.reason === "teacher" && "Teachers are never personally time-capped."}
+                        {!isHost && entitlement.reason === "enrolled" && "No personal time cap for you in this course's sessions."}
+                        {!isHost && entitlement.reason === "subscribed" && "Your all-access subscription covers this room."}
+                        {!isHost && entitlement.reason === "launch_free" && "Free-launch mode is on — nobody is personally time-capped right now."}
+                      </>
+                    )}
                   </p>
                 </div>
               ) : (
@@ -394,10 +399,10 @@ export default function LivePreJoin() {
 
               <div className="lobby-stats">
                 <div>
-                  <span>Session hard cap</span>
-                  <b>{capMinutes} min · set by admin</b>
+                  <span>{isInstant ? "Room duration" : "Session hard cap"}</span>
+                  <b>{capMinutes} min · {isInstant ? "selected by host" : "set by admin"}</b>
                 </div>
-                {dailyMinutes > 0 && (
+                {!isInstant && dailyMinutes > 0 && (
                   <div>
                     <span>Your minutes today</span>
                     <b>{minutesUsedToday} of {dailyMinutes} used</b>
@@ -415,7 +420,7 @@ export default function LivePreJoin() {
               <div className="lobby-rules-list">
                 <div><IcCheck width={13} height={13} /><span>You join muted, camera off. The host can allow your mic.</span></div>
                 <div><IcCheck width={13} height={13} /><span>Files you share are visible to everyone and deleted after {retentionDays} day{retentionDays === 1 ? "" : "s"}.</span></div>
-                {limits?.features?.remote_access && (
+                {!isInstant && limits?.features?.remote_access && (
                   <div><IcCheck width={13} height={13} /><span>A teacher may ask to control your shared screen. You approve each time.</span></div>
                 )}
               </div>

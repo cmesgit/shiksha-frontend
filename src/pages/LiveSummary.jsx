@@ -104,10 +104,9 @@ function NextStepCard({ session }) {
       ) : (
         <>
           <div className="ls-next-title">Host your own room any time</div>
-          <p>This was a free instant room — hosts are never time-capped. Open a new one from /live whenever you like, or go all-access to remove the joiner cap everywhere.</p>
+          <p>Start another collaboration, choose its duration, and share the new room code.</p>
           <div className="ls-next-actions">
             <Link to="/live" className="ls-next-btn ls-next-btn--solid">Host a room</Link>
-            <a href={ACADEMY_BROWSE_URL} className="ls-next-btn ls-next-btn--outline">See plans</a>
           </div>
         </>
       )}
