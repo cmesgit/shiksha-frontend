@@ -93,7 +93,7 @@ function TourRingIcon() {
   );
 }
 
-function buildSteps(retentionDays) {
+function buildSteps(retentionDays, instant) {
   const days = retentionDays ?? 2;
   return [
     {
@@ -112,7 +112,9 @@ function buildSteps(retentionDays) {
     {
       eyebrow: "Step 2",
       title: "Share your screen for doubts",
-      copy: "Show your worksheet instead of describing it. Your teacher can then ask to point and type on it.",
+      copy: instant
+        ? "Show your screen to everyone in the room. Remote control is coming later."
+        : "Show your worksheet instead of describing it. Your teacher can then ask to point and type on it.",
       media: (
         <div className="gs-tour-media">
           <span className="gs-tour-screen">
@@ -137,7 +139,9 @@ function buildSteps(retentionDays) {
     {
       eyebrow: "Step 4",
       title: "Watch the clock, top of the stage",
-      copy: "Everyone sees the remaining time. The host can extend it; enrolled learners are never cut off.",
+      copy: instant
+        ? "Everyone sees the remaining time. The room closes when the host-selected duration ends."
+        : "Everyone sees the remaining time. The host can extend it; enrolled learners are never cut off.",
       media: (
         <div className="gs-tour-media">
           <TourRingIcon />
@@ -151,6 +155,7 @@ function buildSteps(retentionDays) {
 export default function FirstVisitTour({
   storageKey = "live.tour.v1",
   retentionDays,
+  instant = false,
   // Controlled mode (standalone, manual trigger from LiveLanding): pass
   // `open` + `onClose`. Omit both for the uncontrolled, auto-shown-once
   // in-room mode, which checks/writes localStorage itself.
@@ -226,7 +231,7 @@ export default function FirstVisitTour({
     else setAutoVisible(false);
   };
 
-  const steps = buildSteps(retentionDays);
+  const steps = buildSteps(retentionDays, instant);
 
   return (
     <div className="gs-tour-overlay" role="dialog" aria-modal="true" aria-label="First-visit tour">

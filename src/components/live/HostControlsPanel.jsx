@@ -111,6 +111,7 @@ export default function HostControlsPanel({
   const capMinutes = limits?.cap_minutes ?? 90;
   const extensionMinutes = limits?.extension_minutes ?? 15;
   const scheduledMinutes = session?.durationMinutes || session?.duration_minutes || capMinutes;
+  const isInstant = session?.sessionType === "instant" || session?.session_type === "instant";
   const exhausted = extensionsUsed >= extensionsAllowed;
 
   const pct = remainingMs != null ? Math.min(1, Math.max(0, remainingMs / (capMinutes * 60_000))) : 1;
@@ -181,26 +182,28 @@ export default function HostControlsPanel({
                   <div className="gs-hc-stat"><span>Started</span><strong>{formatStarted(session?.roomStartedAt || session?.room_started_at)}</strong></div>
                   <div className="gs-hc-stat"><span>Scheduled length</span><strong>{scheduledMinutes} min</strong></div>
                   <div className="gs-hc-stat"><span>Hard cap</span><strong>{capMinutes} min</strong></div>
-                  <div className="gs-hc-stat"><span>Extensions used</span><strong>{extensionsUsed} of {extensionsAllowed}</strong></div>
+                  {!isInstant && <div className="gs-hc-stat"><span>Extensions used</span><strong>{extensionsUsed} of {extensionsAllowed}</strong></div>}
                 </div>
               </div>
 
-              <button
+              {!isInstant && <button
                 type="button"
                 className="gs-hc-extend-btn"
                 onClick={handleExtend}
                 disabled={busy || exhausted}
               >
                 {exhausted ? "No extensions left" : `Extend +${extensionMinutes} min`}
-              </button>
+              </button>}
               {error ? <p className="gs-hc-error">{error}</p> : null}
 
               <div className="gs-hc-note">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                 <p>
-                  You can extend up to the {capMinutes}-minute cap set by the admin
-                  ({extensionsAllowed} extension{extensionsAllowed === 1 ? "" : "s"} of{" "}
-                  {extensionMinutes} min each). Everyone sees the new time immediately.
+                  {isInstant
+                    ? `This room closes after the ${capMinutes} minutes selected before hosting.`
+                    : <>You can extend up to the {capMinutes}-minute cap set by the admin
+                      ({extensionsAllowed} extension{extensionsAllowed === 1 ? "" : "s"} of{" "}
+                      {extensionMinutes} min each). Everyone sees the new time immediately.</>}
                 </p>
               </div>
             </div>
@@ -227,7 +230,7 @@ export default function HostControlsPanel({
               </div>
 
               <FeatureRow label="Chat" hint="Set platform-wide by the admin" on={!!features?.chat} />
-              <FeatureRow label="Remote access (teacher → student)" hint="Each student approves every time" on={!!features?.remote_access} />
+              {!isInstant && <FeatureRow label="Remote access (teacher → student)" hint="Each student approves every time" on={!!features?.remote_access} />}
               <FeatureRow label="Recording" hint="Turned off platform-wide by the admin" on={!!features?.recording} />
 
               <div className="gs-hc-rules__footer">

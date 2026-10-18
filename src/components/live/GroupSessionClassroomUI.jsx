@@ -190,7 +190,9 @@ export default function GroupSessionClassroomUI({
     setExtensionsAllowed(liveLimits?.extensions_allowed ?? 0);
   }, [liveLimits?.extensions_allowed]);
 
-  const remainingMs = useRemainingTime(capEndsAt, liveEntitlement);
+  const remainingMs = useRemainingTime(capEndsAt, liveEntitlement, {
+    ignoreEntitlement: session?.sessionType === "instant",
+  });
 
   // Ending-soon upsell (screens 08/13) + the single T-0 disconnect path for
   // the ROOM's cap-based countdown — 01-FLOW.md section C. This is
@@ -667,7 +669,7 @@ export default function GroupSessionClassroomUI({
                           <div className="gs-ppl-role">{p.role}</div>
                         </div>
                         <div className="gs-ppl-actions">
-                          {!p.isMe && (() => {
+                          {!p.isMe && session?.sessionType !== "instant" && (() => {
                             // Entry point for teacher→student remote control
                             // (design screen 06, 01-FLOW.md section E). Only
                             // the affordance + its gating ship in this phase —
@@ -759,7 +761,7 @@ export default function GroupSessionClassroomUI({
               <div className="gs-info-header"><h3>Session Information</h3></div>
               <div className="gs-info-body">
                 <div className="gs-info-field"><span className="gs-info-label">Session ID:</span><span className="gs-info-value">{session?.shortCode || session?.id || "—"}</span></div>
-                <div className="gs-info-field"><span className="gs-info-label">Session Type:</span><span className="gs-info-value">{session?.sessionType === "instant" ? "Instant Group" : "Study Group"}</span></div>
+                <div className="gs-info-field"><span className="gs-info-label">Session Type:</span><span className="gs-info-value">{session?.sessionType === "instant" ? "Live Collaboration" : "Study Group"}</span></div>
                 <div className="gs-info-field"><span className="gs-info-label">Host:</span><span className="gs-info-value">{session?.hostName || localName || "—"}</span></div>
                 <div className="gs-info-gap" />
                 <div className="gs-info-field"><span className="gs-info-label">Subject:</span><span className="gs-info-value">{session?.subject || session?.subjectName || "—"}</span></div>
@@ -800,7 +802,7 @@ export default function GroupSessionClassroomUI({
 
       {endingSoon && (
         <EndingSoonModal
-          variant={session?.courseId ? "course" : "general"}
+          variant={session?.sessionType === "instant" ? "collaboration" : session?.courseId ? "course" : "general"}
           session={session}
           remainingMs={remainingMs}
           limits={liveLimits}
@@ -812,7 +814,7 @@ export default function GroupSessionClassroomUI({
           show_tour flag (this check) AND, inside the component itself, on
           localStorage["live.tour.v1"] (01-FLOW.md section C). */}
       {liveFeatures.show_tour && (
-        <FirstVisitTour storageKey="live.tour.v1" retentionDays={liveLimits?.file_retention_days} />
+        <FirstVisitTour storageKey="live.tour.v1" retentionDays={liveLimits?.file_retention_days} instant={session?.sessionType === "instant"} />
       )}
     </div>
   );

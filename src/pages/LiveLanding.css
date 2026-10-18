@@ -80,6 +80,34 @@
 
 .live-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
+.live-duration-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  max-width: 300px;
+  margin-top: 20px;
+  color: var(--sk-ink);
+  font: 700 13px var(--sk-font);
+}
+.live-duration-field select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--sk-line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--sk-ink);
+  font: 600 14px var(--sk-font);
+}
+.live-duration-field select:focus-visible {
+  outline: 3px solid var(--sk-green);
+  outline-offset: 2px;
+}
+.live-duration-field small {
+  color: var(--sk-body);
+  font: 400 12px var(--sk-font);
+}
+
 .live-btn {
   display: inline-flex;
   align-items: center;

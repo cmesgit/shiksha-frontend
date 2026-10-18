@@ -129,7 +129,7 @@ const groupSessionService = {
   // ─────────────────────────────────────────────
   // Instant Meeting + host controls (Google-Meet-style flow)
   // ─────────────────────────────────────────────
-  async createInstant({ duration_minutes = 180, topic = "" } = {}) {
+  async createInstant({ duration_minutes = 60, topic = "" } = {}) {
     const res = await api.post("/sessions/group-sessions/instant/", {
       duration_minutes,
       topic,
