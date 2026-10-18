@@ -68,6 +68,7 @@ const QuizRoute        = lazy(() => import("./QuizRoute"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
 const LivePreJoin      = lazy(() => import("../pages/LivePreJoin"));
+const InstantGuestRoom = lazy(() => import("../pages/InstantGuestRoom"));
 const LiveSummary      = lazy(() => import("../pages/LiveSummary"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
@@ -464,9 +465,8 @@ function App() {
             specific static "/lobby" segment above the param-only route
             regardless of order, but declaring it first keeps the intent
             readable, same precedent as the /blogs/hi/* comment above). */}
-        <Route path="/live/room/:id/lobby" element={
-          <ProtectedRoute><LivePreJoin /></ProtectedRoute>
-        } />
+        <Route path="/live/room/:id/lobby" element={<LivePreJoin />} />
+        <Route path="/live/guest/:id" element={<InstantGuestRoom />} />
         <Route path="/live/room/:id" element={
           <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
         } />

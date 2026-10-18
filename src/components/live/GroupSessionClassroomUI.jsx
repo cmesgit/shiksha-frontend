@@ -235,12 +235,9 @@ export default function GroupSessionClassroomUI({
     navigate(`/live/session/${session?.id}/summary?reason=timeout`);
   }, [capEndsAt, remainingMs, room, navigate, session?.id]);
 
-  // Poll pending join requests while the host has the requests tab open —
-  // admit/deny is low-frequency, so a short poll is simpler and lower-risk
-  // than a dedicated realtime channel (the guest has no LiveKit room yet to
-  // receive a data-channel nudge on).
+  // Poll while hosting so account-free visitors do not wait unnoticed.
   useEffect(() => {
-    if (!isHost || admitMode !== "lobby" || activePanel !== "people" || peopleTab !== "requests") {
+    if (!isHost || admitMode !== "lobby") {
       return undefined;
     }
     let cancelled = false;
@@ -253,7 +250,7 @@ export default function GroupSessionClassroomUI({
     load();
     const interval = setInterval(load, 3000);
     return () => { cancelled = true; clearInterval(interval); };
-  }, [isHost, admitMode, activePanel, peopleTab, session?.id]);
+  }, [isHost, admitMode, session?.id]);
 
   // Single source of truth for admit_mode — GroupSessionControlBar's "Lock
   // Session" toggle calls this same setter (via the onSetAdmitMode prop)
@@ -498,6 +495,7 @@ export default function GroupSessionClassroomUI({
     const roleLabel = participantIsHost
       ? "Host"
       : rawRole.includes("teacher") ? "Teacher"
+        : rawRole.includes("guest") ? "Guest"
         : rawRole.includes("student") ? "Student" : "Student";
     return { isHost: participantIsHost, rawRole, roleLabel };
   };
@@ -616,6 +614,12 @@ export default function GroupSessionClassroomUI({
           </div>
         )}
 
+        {isHost && joinRequests.length > 0 && (
+          <button type="button" className="gs-guest-request-alert" onClick={() => {
+            setActivePanel("people");
+            setPeopleTab("requests");
+          }}>{joinRequests.length} waiting to join · Review requests</button>
+        )}
         <GroupSessionControlBar
           onLeave={onLeave} role={role} activePanel={activePanel}
           onTogglePanel={togglePanel} session={session} isHost={isHost}
@@ -669,6 +673,13 @@ export default function GroupSessionClassroomUI({
                           <div className="gs-ppl-role">{p.role}</div>
                         </div>
                         <div className="gs-ppl-actions">
+                          {isHost && session?.sessionType === "instant" && p.identity?.startsWith("guest_") && (
+                            <button type="button" className="gs-btn-deny" onClick={async () => {
+                              try {
+                                await groupSessionService.removeGuest(session.id, p.identity.slice(6));
+                              } catch (e) { console.error("remove guest failed", e); }
+                            }}>Remove</button>
+                          )}
                           {!p.isMe && session?.sessionType !== "instant" && (() => {
                             // Entry point for teacher→student remote control
                             // (design screen 06, 01-FLOW.md section E). Only
@@ -730,14 +741,14 @@ export default function GroupSessionClassroomUI({
                     </label>
                   )}
                   {admitMode !== "lobby" ? (
-                    <p className="gs-ppl-empty">Approval is off — anyone with the link joins directly.</p>
+                    <p className="gs-ppl-empty">Account guests join directly. Visitors without an account still need host approval.</p>
                   ) : joinRequests.length === 0 ? (
                     <p className="gs-ppl-empty">No join requests yet.</p>
                   ) : (
                     joinRequests.map((r) => (
                       <div key={r.id} className="gs-ppl-card">
                         <div className="gs-ppl-avatar">{(r.name || "?").charAt(0).toUpperCase()}</div>
-                        <div className="gs-ppl-info"><div className="gs-ppl-name">{r.name}</div></div>
+                        <div className="gs-ppl-info"><div className="gs-ppl-name">{r.name}{r.guest ? " · Guest (unverified name)" : ""}</div></div>
                         <div className="gs-ppl-actions" style={{ gap: 8 }}>
                           <button type="button" className="gs-btn-admit" onClick={() => admitRequest(r.id)}
                             style={{ background: "#006d78", color: "#fff", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>

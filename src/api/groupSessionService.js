@@ -212,6 +212,11 @@ const groupSessionService = {
     return res.data;
   },
 
+  async removeGuest(sessionId, guestId) {
+    const res = await api.post(`/sessions/group-sessions/${sessionId}/guest/${guestId}/remove/`);
+    return res.data;
+  },
+
   // ─────────────────────────────────────────────
   // History cleanup (per-user soft delete)
   // ─────────────────────────────────────────────
