@@ -409,11 +409,12 @@ function CollegesTab({ career, onComingSoon }) {
             The dataset is engineering-only, so Medical/Law/Business keep the
             coming-soon modal rather than deep-linking into a list of IITs. */}
         {indiaLink ? (
-          <Link className="sc-btn green" to={indiaLink}>Explore colleges in India →</Link>
+          <Link className="sc-btn green" to={indiaLink}>Explore engineering colleges in India →</Link>
         ) : (
           <button className="sc-btn ghost" onClick={() => onComingSoon("india")}>Explore colleges in India →</button>
         )}
         <button className="sc-btn ghost" onClick={() => onComingSoon("abroad")}>Explore colleges abroad →</button>
+        <Link className="sc-btn ghost" to="/counselling/guides/study-in-india">Read the India admissions guide →</Link>
       </div>
     </section>
   );

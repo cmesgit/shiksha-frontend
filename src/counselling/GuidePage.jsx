@@ -367,6 +367,9 @@ function GuideReader({ slug }) {
           </div>}
 
           <div style={{ marginTop: 30, display: "flex", gap: 10, flexWrap: "wrap", borderTop: "1px solid rgba(9,62,5,.1)", paddingTop: 22 }}>
+            {["study-in-india", "after-12-science"].includes(canonicalSlug) && (
+              <Link className="sc-btn green" to="/admission/india">Explore engineering colleges in India →</Link>
+            )}
             <Link className="sc-btn" to="/counselling/counsellors">Find counsellors for this →</Link>
             <Link className="sc-btn ghost" to="/counselling/guides">All guides</Link>
           </div>

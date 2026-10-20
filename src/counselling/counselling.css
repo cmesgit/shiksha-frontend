@@ -495,6 +495,13 @@
 .ai-hero { background: #fff; border: 1px solid rgba(18,45,30,.07); border-radius: 20px; padding: clamp(24px,3.2vw,40px); margin-bottom: clamp(16px,2vw,22px) }
 .ai-hero .sc-h1 { margin-bottom: 10px }
 .ai-stats { margin-top: 20px }
+.ai-journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px }
+.ai-journey-card { padding: 20px }
+.ai-journey-card h2 { font: 700 17px/1.35 'Montserrat', sans-serif; margin: 10px 0 6px; color: #14201a }
+.ai-journey-card p { font: 400 12.8px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.68); margin: 0 0 14px }
+.ai-journey-card a { font: 600 12.5px 'Poppins', sans-serif; color: #125027; text-decoration: none }
+.ai-journey-card a:hover { text-decoration: underline }
+.ai-journey-links { display: flex; gap: 8px 16px; flex-wrap: wrap }
 .ai-resultline { margin: 0 }
 .ai-active { margin-bottom: 14px }
 .ai-list { display: grid; gap: 10px }
@@ -517,6 +524,7 @@
 .ai-cta p { margin: 0; max-width: 460px }
 .ai-foot { margin-top: 18px; text-align: center }
 @media (max-width: 760px) {
+  .ai-journey { grid-template-columns: 1fr }
   .ai-row { flex-wrap: wrap }
   .ai-row-meta { flex-direction: row; align-items: center; gap: 10px; text-align: left; width: 100%; padding-left: 50px }
   .ai-row-exam { max-width: none }
