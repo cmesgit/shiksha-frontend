@@ -35,6 +35,8 @@ const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
+const CounsellingCareer     = lazy(() => import("../counselling/CareerDetailPage"));
+const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -254,7 +256,7 @@ function RetiredSignupRedirect() {
 }
 
 function App() {
-  const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
+  const { isAuthenticated, loading, activeProfile } = useAuth();
   const location = useLocation();
   useAnalytics();
 
@@ -404,6 +406,8 @@ function App() {
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
         <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
         <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
+        <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
+        <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
