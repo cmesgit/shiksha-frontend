@@ -117,6 +117,17 @@
 .sc-toc button { display: block; width: 100%; text-align: left; background: none; border: none; padding: 7px 9px; border-radius: 8px; font: 500 12px 'Poppins', sans-serif; color: rgba(14,28,15,.65); cursor: pointer }
 .sc-toc button:hover { background: rgba(18,80,39,.06); color: #125027 }
 .sc-toc button.on { background: rgba(18,80,39,.09); color: #125027; font-weight: 700 }
+.sc-toc-search { width: 100%; padding: 9px 10px; margin-bottom: 8px; border: 1px solid rgba(18,80,39,.18); border-radius: 8px; font: 400 12px 'Poppins',sans-serif }
+.sc-toc-empty { padding: 0 9px; font: 400 12px 'Poppins',sans-serif; color: rgba(14,28,15,.6) }
+.sc-reading-progress { margin: 14px 0 20px; font: 500 12px 'Poppins',sans-serif; color: rgba(14,28,15,.65) }
+.sc-reading-progress strong { color: #125027 }
+.sc-reading-track { width: 100%; height: 7px; margin-top: 8px; border-radius: 100px; background: rgba(18,80,39,.1); overflow: hidden }
+.sc-reading-track span { display: block; height: 100%; border-radius: inherit; background: #1b9c85 }
+.sc-progress-error { margin: 6px 0 0; color: #a3352f }
+.sc-on-page { display: flex; flex-wrap: wrap; gap: 7px 12px; padding: 12px 14px; margin-bottom: 18px; border: 1px solid rgba(18,80,39,.1); border-radius: 10px; background: #f7faf6 }
+.sc-on-page strong { width: 100%; font: 700 11px 'Poppins',sans-serif; text-transform: uppercase; color: #125027 }
+.sc-on-page a { font: 500 11px 'Poppins',sans-serif; color: #1b9c85; text-decoration: none }
+.sc-prose section, .sc-prose h2 { scroll-margin-top: 94px }
 
 /* chapter kind tabs (Content / Worksheets / Action plan / For parents / FAQ / References) */
 .sc-tabs { display: flex; gap: 4px; margin: 6px 0 18px; border-bottom: 1px solid rgba(18,45,30,.1) }
@@ -191,6 +202,12 @@
 
 /* my path */
 .sc-path-card { border-left: 4px solid #1b9c85 }
+.sc-meaning { margin-top: 26px }
+.sc-meaning-card { display: flex; flex-direction: column; gap: 8px }
+.sc-meaning-card h3 { margin: 0; font: 700 15px 'Montserrat',sans-serif; color: #14201a }
+.sc-meaning-card p { margin: 0; flex: 1; font: 400 13px/1.6 'Poppins',sans-serif; color: rgba(20,32,26,.72) }
+.sc-meaning-card a { font: 700 12px 'Poppins',sans-serif; color: #125027; text-decoration: none }
+.sc-meaning-number { font: 800 11px 'Poppins',sans-serif; color: #1b9c85; letter-spacing: .08em }
 .sc-why li { color: rgba(14,28,15,.72) }
 .sc-next { counter-reset: step; list-style: none; padding: 0; margin: 10px 0 0 }
 .sc-next li { counter-increment: step; display: flex; gap: 11px; font: 500 13px/1.6 'Poppins', sans-serif; color: rgba(14,28,15,.78); margin-bottom: 9px }
@@ -277,4 +294,230 @@
   .sc-toc, .sc-subbar, .sc-btn { display: none !important }
   .sc-prose { border: none; padding: 0 }
   .sc-worksheet { break-inside: avoid }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Career Detail page (workflow §7a) — CareerDetailPage.jsx + RoleDrawer.jsx
+ * Same token family as the rest of this file: cream canvas, deep green
+ * (#125027), orange accent (#ff8f01), Montserrat headings / Poppins body.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+.cf-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px }
+.cf-back { appearance: none; background: #fff; border: 1.5px solid rgba(9,62,5,.14); border-radius: 10px; padding: 8px 14px; font: 600 12.5px 'Poppins', sans-serif; color: #125027; cursor: pointer; flex: none }
+.cf-back:hover { border-color: #125027; background: #ebf5e8 }
+.cf-title { margin: 0; flex: 1 1 auto; min-width: 0 }
+.cf-head-cta { margin-left: auto }
+/* top matches .sc-toc's 84px: the site header is position:fixed at 72px, so
+ * a sticky top:0 parks the tab strip underneath it and it disappears. */
+.cf-tabs { position: sticky; top: 84px; z-index: 5; background: #edf2e8; overflow-x: auto; scrollbar-width: none; padding-top: 4px }
+.cf-tabs::-webkit-scrollbar { display: none }
+
+.cf-sec { margin: 0 0 28px }
+.cf-sec .sc-h2 { margin-bottom: 10px }
+.cf-sec-h3 { font: 700 15px 'Montserrat', sans-serif; color: #125027; margin: 0 0 10px }
+.cf-sec-h4 { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5); text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 8px }
+.cf-p { font: 400 13.5px/1.75 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin: 0 0 12px }
+.cf-tagline { font: 600 15px/1.6 'Montserrat', sans-serif; color: #125027; margin: 0 0 10px }
+.cf-list { margin: 0 0 4px; padding-left: 20px }
+.cf-list li { font: 400 13px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin-bottom: 7px }
+.cf-deflist { margin: 0; padding-left: 20px }
+.cf-deflist li { font: 400 13px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.7); margin-bottom: 7px }
+.cf-deflist strong { color: #14201a; font-weight: 700 }
+
+/* key/value pairs — used on the overview facts card, exam grid, drawer */
+.cf-kvlabel { display: block; font: 500 10px 'Poppins', sans-serif; color: rgba(20,32,26,.45); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px }
+.cf-kvvalue { display: block; font: 700 13px 'Montserrat', sans-serif; color: #14201a; line-height: 1.45 }
+.cf-kvrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 18px }
+
+.cf-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 16px }
+.cf-stat { background: #fff; border: 1px solid #d8e6c8; border-radius: 12px; padding: 14px 16px }
+.cf-stat-label { display: block; font: 500 10px 'Poppins', sans-serif; color: rgba(20,32,26,.45); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px }
+.cf-stat-value { display: block; font: 700 15px 'Montserrat', sans-serif; color: #125027 }
+.cf-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px }
+
+.cf-proscons { align-items: start; margin-bottom: 28px }
+.cf-pros { border-left: 3px solid #1b9c85 }
+.cf-cons { border-left: 3px solid #ff8f01 }
+
+/* degree accordion */
+.cf-degree { padding: 0; margin-bottom: 10px; overflow: hidden }
+.cf-degree-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; background: none; border: none; cursor: pointer; text-align: left }
+.cf-degree-head:hover { background: rgba(18,80,39,.03) }
+.cf-degree-head strong { display: block; font: 700 14.5px 'Montserrat', sans-serif; color: #14201a }
+.cf-degree-head em { display: block; font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); font-style: normal; margin-top: 3px }
+.cf-chev { font-size: 13px; color: #125027; flex: none }
+.cf-degree-body { padding: 0 20px 18px; border-top: 1px solid rgba(9,62,5,.08) }
+.cf-degree-body .cf-p:first-child { margin-top: 14px }
+
+/* specialisation branch cards */
+.cf-branch { margin-bottom: 14px }
+.cf-branch-head { display: flex; gap: 13px; align-items: flex-start; margin-bottom: 10px }
+.cf-branch-icon { font-size: 22px; line-height: 1.3; flex: none }
+.cf-branch-title strong { display: block; font: 700 15.5px 'Montserrat', sans-serif; color: #14201a; letter-spacing: -.2px }
+.cf-branch-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 5px }
+.cf-branch-meta .sc-badge { color: #0d7a67; background: rgba(27,156,133,.11) }
+.cf-branch-salary { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+
+/* clickable job roles */
+.cf-roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 9px }
+.cf-role { text-align: left; background: #fff; border: 1.5px solid rgba(9,62,5,.12); border-radius: 11px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .1s }
+.cf-role:hover { border-color: #125027; box-shadow: 0 4px 14px rgba(18,80,39,.1); transform: translateY(-1px) }
+.cf-role strong { display: block; font: 700 13px 'Montserrat', sans-serif; color: #14201a; margin-bottom: 3px }
+.cf-role span { display: block; font: 400 11.5px/1.55 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+
+/* exams */
+.cf-exam { margin-bottom: 14px }
+.cf-exam-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 12px }
+.cf-exam-head strong { display: block; font: 700 15.5px 'Montserrat', sans-serif; color: #14201a }
+.cf-exam-head em { display: block; font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); font-style: normal; margin-top: 3px }
+.cf-exam-head .sc-badge { color: #b06000; background: rgba(255,143,1,.12) }
+.cf-exam-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 13px 0; border-top: 1px solid rgba(9,62,5,.08); border-bottom: 1px solid rgba(9,62,5,.08); margin-bottom: 13px }
+.cf-exam .cf-p { margin-bottom: 9px }
+.cf-exam .sc-tip { display: block; margin: 12px 0 0; font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(14,28,15,.72) }
+
+/* numbered admission steps */
+.cf-steps { list-style: none; margin: 0; padding: 0 }
+.cf-steps li { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(9,62,5,.08) }
+.cf-steps li:last-child { border-bottom: none }
+.cf-stepnum { flex: none; width: 27px; height: 27px; border-radius: 50%; background: #125027; color: #fff; font: 700 12px 'Montserrat', sans-serif; display: grid; place-items: center }
+.cf-steps strong { display: block; font: 700 14px 'Montserrat', sans-serif; color: #14201a; margin-bottom: 4px }
+.cf-steps p { margin: 0; font: 400 12.8px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.7) }
+
+.cf-phase { margin-bottom: 10px }
+.cf-phase-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px }
+.cf-phase-head strong { font: 700 14px 'Montserrat', sans-serif; color: #14201a }
+.cf-phase-head .sc-badge { color: #125027; background: rgba(18,80,39,.08) }
+
+/* colleges */
+.cf-coll-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 16px }
+.cf-sort { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); display: inline-flex; align-items: center; gap: 8px }
+.cf-sort select { font: 600 12.5px 'Poppins', sans-serif; color: #125027; background: #fff; border: 1.5px solid rgba(9,62,5,.14); border-radius: 9px; padding: 8px 11px; cursor: pointer }
+.cf-colleges { display: grid; gap: 11px }
+.cf-college-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 4px }
+.cf-college-head strong { display: block; font: 700 15px 'Montserrat', sans-serif; color: #14201a }
+.cf-college-head em { display: block; font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); font-style: normal; margin-top: 3px }
+.cf-college .sc-badge { color: rgba(20,32,26,.6); background: rgba(9,62,5,.07) }
+.cf-college .sc-badge.cf-gov { color: #125027; background: rgba(18,80,39,.1) }
+.cf-college .cf-exam-grid { border-bottom: none; margin-bottom: 0; padding-bottom: 0 }
+.cf-coll-cta { display: flex; gap: 11px; flex-wrap: wrap; margin-top: 20px; justify-content: center }
+
+.cf-ladder { margin: 0; padding-left: 20px }
+.cf-ladder li { font: 600 13px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.75); margin-bottom: 7px }
+.cf-wide-cta { width: 100%; justify-content: center; margin-top: 10px }
+
+/* ── role drawer + coming-soon modal ── */
+.cf-drawer-mask { position: fixed; inset: 0; background: rgba(10,20,14,.45); z-index: 200; display: flex; justify-content: flex-end }
+.cf-drawer { width: min(460px, 100%); height: 100%; background: #fff; display: flex; flex-direction: column; box-shadow: -8px 0 32px rgba(10,20,14,.18); animation: cf-slide .22s ease }
+@keyframes cf-slide { from { transform: translateX(26px); opacity: .6 } to { transform: translateX(0); opacity: 1 } }
+.cf-drawer-head { display: flex; gap: 12px; align-items: flex-start; padding: 20px 22px 16px; border-bottom: 1px solid rgba(9,62,5,.1) }
+.cf-drawer-icon { font-size: 22px; line-height: 1.3; flex: none }
+.cf-drawer-kicker { font: 600 10px 'Poppins', sans-serif; color: rgba(20,32,26,.4); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 4px }
+.cf-drawer-title { font: 700 19px 'Montserrat', sans-serif; color: #14201a; letter-spacing: -.3px; margin: 0 }
+.cf-drawer-x { flex: none; margin-left: auto; width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(18,45,30,.14); background: none; color: rgba(20,32,26,.5); font: 600 16px sans-serif; cursor: pointer; line-height: 1 }
+.cf-drawer-x:hover { background: #ebf5e8; color: #125027 }
+.cf-drawer-body { flex: 1; overflow-y: auto; padding: 20px 22px 28px }
+.cf-drawer-summary { font: 400 13.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.68); margin: 0 0 20px }
+.cf-drawer-sec { margin-bottom: 20px }
+.cf-drawer-sec h3 { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5); text-transform: uppercase; letter-spacing: .08em; margin: 0 0 8px }
+.cf-drawer-sec p { font: 400 13px/1.75 'Poppins', sans-serif; color: rgba(20,32,26,.68); margin: 0 }
+.cf-timeline { list-style: none; margin: 0; padding: 0 }
+.cf-timeline li { position: relative; padding: 0 0 14px 20px; border-left: 2px solid rgba(18,80,39,.15); margin-left: 4px }
+.cf-timeline li:last-child { border-left-color: transparent; padding-bottom: 0 }
+.cf-timeline li::before { content: ""; position: absolute; left: -6px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #125027 }
+.cf-timeline strong { display: block; font: 700 13px 'Montserrat', sans-serif; color: #14201a; margin-bottom: 3px }
+.cf-timeline span { display: block; font: 400 12.5px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.65) }
+.cf-related { display: grid; gap: 7px }
+.cf-related-btn { text-align: left; background: #fff; border: 1.5px solid rgba(9,62,5,.12); border-radius: 10px; padding: 10px 13px; font: 600 12.5px 'Poppins', sans-serif; color: #125027; cursor: pointer }
+.cf-related-btn:hover { border-color: #125027; background: #ebf5e8 }
+.cf-drawer-cta { width: 100%; justify-content: center; margin-top: 6px }
+
+.cf-modal { width: min(440px, calc(100% - 32px)); margin: auto; text-align: center; padding: 28px }
+.cf-modal .sc-h2 { margin-bottom: 12px }
+.cf-modal .cf-p { margin-bottom: 18px }
+
+@media (max-width: 760px) {
+  .cf-facts, .cf-kvrow { grid-template-columns: 1fr }
+  .cf-proscons { grid-template-columns: 1fr }
+  .cf-head-cta { margin-left: 0; width: 100% ; justify-content: center }
+  .cf-drawer { width: 100% }
+}
+
+.sc-btn-sm-top { margin-top: 14px; padding: 9px 18px; font-size: 12.5px }
+
+/* ── Spark Finder (workflow §5) — 12 statements, 3-point scale, 8 personas ── */
+.sp-count { margin: 0 0 10px }
+.sp-qcard { padding: 28px clamp(20px, 4vw, 34px) }
+.sp-q { font: 700 clamp(17px, 2.2vw, 21px)/1.45 'Montserrat', sans-serif; color: #14201a; margin: 0 0 22px; letter-spacing: -.3px }
+.sp-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px }
+.sp-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 12px; background: #fff; border: 1.5px solid rgba(9,62,5,.14); border-radius: 13px; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .1s }
+.sp-opt:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(18,80,39,.12) }
+.sp-opt strong { font: 700 13.5px 'Montserrat', sans-serif; color: #14201a }
+.sp-opt em { font: 400 11px/1.4 'Poppins', sans-serif; color: rgba(20,32,26,.55); font-style: normal; text-align: center }
+.sp-opt-icon { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 14px sans-serif; margin-bottom: 3px }
+.sp-opt.no .sp-opt-icon { background: rgba(163,53,47,.09); color: #a3352f }
+.sp-opt.no:hover { border-color: #a3352f }
+.sp-opt.mid .sp-opt-icon { background: rgba(255,143,1,.13); color: #b06000 }
+.sp-opt.mid:hover { border-color: #ff8f01 }
+.sp-opt.yes .sp-opt-icon { background: rgba(18,80,39,.1); color: #125027 }
+.sp-opt.yes:hover { border-color: #125027 }
+
+.sp-result { text-align: center; padding: 32px clamp(20px, 4vw, 38px) }
+.sp-result-emoji { font-size: 44px; line-height: 1; display: block; margin-bottom: 10px }
+.sp-result-label { font: 700 clamp(24px, 3vw, 32px) 'Montserrat', sans-serif; color: #125027; margin: 4px 0 10px; letter-spacing: -.5px }
+.sp-result-blurb { font: 400 14.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.7); margin: 0 auto 14px; max-width: 460px }
+.sp-result-meta { display: inline-block; padding: 12px 20px; background: rgba(18,80,39,.05); border-radius: 11px; margin: 10px 0 20px }
+.sp-result .cf-sec-h4 { text-align: center }
+.sp-result .sc-tags { justify-content: center }
+.sp-chip-link { color: #125027; border-color: rgba(18,80,39,.3); text-decoration: none; font-weight: 700 }
+.sp-chip-link:hover { background: #ebf5e8; border-color: #125027 }
+.sp-foot { margin: 16px 0 0; text-align: center }
+.sp-foot a { color: #125027; font-weight: 700 }
+.sp-resnav { justify-content: center; gap: 11px }
+
+@media (max-width: 560px) {
+  .sp-opts { grid-template-columns: 1fr }
+  .sp-opt { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 14px 16px }
+  .sp-opt em { text-align: left }
+  .sp-opt-icon { margin-bottom: 0; flex: none }
+}
+
+/* ── Profile wizard (workflow §6) — Step 0 + adaptive level steps ── */
+.pw-steptitle { font: 700 18px 'Montserrat', sans-serif; color: #14201a; margin: 0 0 18px; letter-spacing: -.3px }
+.pw-count { margin: 8px 0 0 }
+.pw-child { margin-bottom: 4px }
+.pw-notice { background: rgba(255,143,1,.07); border: 1px solid rgba(255,143,1,.25); border-left: 3px solid #ff8f01; border-radius: 10px; padding: 14px 16px; margin: 0 0 18px }
+.pw-notice strong { display: block; font: 700 13px 'Poppins', sans-serif; color: #b06000; margin-bottom: 4px }
+.pw-notice p { margin: 0; font: 400 12.8px/1.65 'Poppins', sans-serif; color: rgba(14,28,15,.72) }
+.pw-notice-cta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px }
+.sc-chip:disabled { opacity: .4; cursor: not-allowed }
+
+/* ── Admission in India directory (NIRF top-50 engineering) ── */
+.ai-hero { background: #fff; border: 1px solid rgba(18,45,30,.07); border-radius: 20px; padding: clamp(24px,3.2vw,40px); margin-bottom: clamp(16px,2vw,22px) }
+.ai-hero .sc-h1 { margin-bottom: 10px }
+.ai-stats { margin-top: 20px }
+.ai-resultline { margin: 0 }
+.ai-active { margin-bottom: 14px }
+.ai-list { display: grid; gap: 10px }
+.ai-row { display: flex; align-items: flex-start; gap: 14px; text-align: left; cursor: pointer; width: 100%; transition: border-color .15s, box-shadow .15s, transform .1s }
+.ai-row:hover { border-color: #125027; box-shadow: 0 6px 18px rgba(18,80,39,.1); transform: translateY(-1px) }
+.ai-mono { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font: 800 11px 'Montserrat', sans-serif; color: #125027; background: rgba(18,80,39,.1) }
+.ai-mono[data-cat="state"] { color: #0d5f6b; background: rgba(13,95,107,.1) }
+.ai-mono[data-cat="deemed"] { color: #6b4a00; background: rgba(224,138,0,.13) }
+.ai-mono[data-cat="private"] { color: #7a3d8f; background: rgba(122,61,143,.1) }
+.ai-mono[data-cat="autonomous"] { color: #8a4b1d; background: rgba(138,75,29,.1) }
+.ai-row-main { flex: 1; min-width: 0 }
+.ai-row-main strong { display: block; font: 700 14.5px/1.35 'Montserrat', sans-serif; color: #14201a }
+.ai-row-main em { display: block; font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); font-style: normal; margin-top: 3px }
+.ai-row-prog { display: block; font: 500 11.5px/1.5 'Poppins', sans-serif; color: #1b9c85; margin-top: 6px }
+.ai-row-meta { flex: none; text-align: right; display: flex; flex-direction: column; gap: 3px; align-items: flex-end }
+.ai-rank { font: 700 13px 'Montserrat', sans-serif; color: #125027 }
+.ai-row-exam { font: 500 11px 'Poppins', sans-serif; color: rgba(20,32,26,.5); max-width: 150px }
+.ai-cta { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 20px; background: rgba(18,80,39,.04) }
+.ai-cta strong { display: block; font: 700 15px 'Montserrat', sans-serif; color: #14201a; margin-bottom: 4px }
+.ai-cta p { margin: 0; max-width: 460px }
+.ai-foot { margin-top: 18px; text-align: center }
+@media (max-width: 760px) {
+  .ai-row { flex-wrap: wrap }
+  .ai-row-meta { flex-direction: row; align-items: center; gap: 10px; text-align: left; width: 100%; padding-left: 50px }
+  .ai-row-exam { max-width: none }
 }

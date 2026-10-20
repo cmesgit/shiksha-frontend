@@ -11,7 +11,7 @@
 //           stage }  — guides are slugs resolved against the guide CMS
 //           index (see api/guidesApi.js), formerly data/guides.js.
 
-const EARLY = ["8", "9", "10"];
+const EARLY = ["6", "7", "8", "9", "10"];
 const SENIOR = ["11", "12"];
 
 // Interest specialization name → path fragment
@@ -153,12 +153,14 @@ export function buildCareerPath(intakeData) {
   const skills = (intakeData?.skills || "").split(",").map((x) => x.trim()).filter(Boolean);
   const cls = String(learner.current_class || "");
   const stream = (learner.stream || "").toLowerCase();
+  const level = intakeData?.effective_level || intakeData?.level || "";
 
-  const stage = EARLY.includes(cls)
-    ? "early"
-    : SENIOR.includes(cls)
-      ? "senior"
-      : "ug";
+  // The wizard's selected level is authoritative. Class is only a fallback
+  // for intakes written before v3; it may describe a different person when
+  // an account holder fills in a profile for a child or sibling.
+  const stage = level
+    ? (["6-8", "9-10"].includes(level) ? "early" : level === "11-12" ? "senior" : "ug")
+    : EARLY.includes(cls) ? "early" : SENIOR.includes(cls) ? "senior" : "ug";
 
   const paths = [];
   const seen = new Set();
@@ -187,12 +189,18 @@ export function buildCareerPath(intakeData) {
     paths.unshift({
       title: "First: choose the right stream",
       why: [
-        `You're in Class ${cls || "9–10"} — the stream decision comes before any career decision.`,
+        level === "6-8"
+          ? "At Class 6–8, exploring subjects and activities comes before a final career choice."
+          : "At Class 9–10, the stream decision comes before most career decisions.",
         interests.length
           ? "Your interests below point at which stream fits."
           : "Complete your career profile so we can point at a stream.",
       ],
-      nextSteps: [
+      nextSteps: level === "6-8" ? [
+        "Try one new activity and notice which parts you enjoy",
+        "List your favourite subjects and what makes them interesting",
+        "Talk through your strengths with someone you trust",
+      ] : [
         "Read the After Class 10 guide — streams, diplomas, ITI, polytechnic",
         "List your 3 favourite subjects and 3 strongest ones",
         "Book a stream-selection session with a counsellor",
