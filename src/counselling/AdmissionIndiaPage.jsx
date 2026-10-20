@@ -192,7 +192,31 @@ export default function AdmissionIndiaPage() {
         </div>
       </div>
 
-      <div className="sc-lib-layout">
+      <section className="ai-journey" aria-label="Plan your engineering admission">
+        <div className="sc-card ai-journey-card">
+          <span className="sc-eyebrow">1 · Explore the career</span>
+          <h2>Choose a direction</h2>
+          <p>Compare engineering and technology paths before selecting a programme.</p>
+          <div className="ai-journey-links">
+            <Link to="/counselling/careers/Engineering">Engineering career →</Link>
+            <Link to="/counselling/careers/IT">IT career →</Link>
+          </div>
+        </div>
+        <div className="sc-card ai-journey-card">
+          <span className="sc-eyebrow">2 · Understand admissions</span>
+          <h2>Learn the route</h2>
+          <p>Read the India admissions guide, then check each institution’s current eligibility and exam rules.</p>
+          <Link to="/counselling/guides/study-in-india">India admissions guide →</Link>
+        </div>
+        <div className="sc-card ai-journey-card">
+          <span className="sc-eyebrow">3 · Build a shortlist</span>
+          <h2>Compare institutions</h2>
+          <p>Use programme, entrance exam and state filters below to find institutions worth investigating.</p>
+          <a href="#ai-directory">Browse the directory ↓</a>
+        </div>
+      </section>
+
+      <div className="sc-lib-layout" id="ai-directory">
         <aside className="sc-rail">
           <div className="sc-filters-top">
             <strong>Filters</strong>
@@ -270,8 +294,8 @@ export default function AdmissionIndiaPage() {
             <div>
               <strong>Not sure where to apply?</strong>
               <p className="sc-note">
-                A counsellor maps your rank against last year's closing ranks and
-                returns a realistic shortlist.
+                Talk through your options and shortlist institutions. Confirm current
+                cutoffs, eligibility and deadlines on official admission sites.
               </p>
             </div>
             <Link className="sc-btn green" to="/counselling/counsellors">Book a counsellor →</Link>
