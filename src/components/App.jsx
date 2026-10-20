@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState} from "react";
 import AlreadySignedIn from "../auth/AlreadySignedIn";
+import { resolveReturnPath } from "../auth/returnTo";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
@@ -195,8 +196,8 @@ function RedirectExternal({ to }) {
 }
 
 // Where to send a user who just authenticated on /login. Prefer wherever they
-// were actually headed — an explicit ?next= (set by ForumContext.requireAuth)
-// or the post_auth_redirect stored by ProtectedRoute — so logging in from the
+// were actually headed — an explicit ?next=, the router state set by a
+// counselling page, or the post_auth_redirect stored by ProtectedRoute — so logging in from the
 // forum/explore/etc. returns there. Only when there is NO in-app destination do
 // we fall back to the context dashboard (the old always-dashboard behaviour).
 function LoginRedirect() {
@@ -207,19 +208,14 @@ function LoginRedirect() {
   const next = new URLSearchParams(location.search).get("next");
   let stored = null;
   try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
-  // `next` only wins when it's actually usable — otherwise an attacker-supplied
-  // (or just stale) unsafe `?next=` would discard a legitimately stored
-  // destination and leave it stranded for the next login in this tab.
-  const isSafe = (v) => !!v && v.startsWith("/") && !v.startsWith("//")
-    && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
-  const target = isSafe(next) ? next : (isSafe(stored) ? stored : null);
+  const target = resolveReturnPath(next, location.state?.from, stored);
   const isLocalTarget = !!target;
 
   useEffect(() => {
-    if (showRedirect && isLocalTarget && stored) {
+    if (showRedirect && isLocalTarget && stored && (isLearnerContext || isTeacherContext)) {
       try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
     }
-  }, [showRedirect, isLocalTarget, stored]);
+  }, [showRedirect, isLocalTarget, stored, isLearnerContext, isTeacherContext]);
 
   // A pending destination still belongs to the signed-in account. Always
   // offer the account choice before following it, including ?next= links.
@@ -227,6 +223,11 @@ function LoginRedirect() {
     return <AlreadySignedIn onContinue={() => setShowRedirect(true)} />;
   }
 
+  // A multi-profile account has a session but no learner selected yet.
+  // Carry the destination through the picker; it consumes it after selection.
+  if (isLocalTarget && !isLearnerContext && !isTeacherContext) {
+    return <Navigate to="/pick-profile" replace state={{ from: target }} />;
+  }
   if (isLocalTarget) return <Navigate to={target} replace />;
   if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
   if (isTeacherContext) {

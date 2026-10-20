@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { resolveReturnPath } from "../auth/returnTo";
 import {
   HOME_URL, LOGIN_URL, APP_DASHBOARD_URL,
   TEACHER_ACADEMY_URL, TEACHER_SKILL_URL,
@@ -34,6 +36,7 @@ const Avatar = ({ profile }) => {
 };
 
 const ProfilePicker = () => {
+  const location = useLocation();
   const {
     profiles, teacherInfo, context, isAuthenticated, loading,
     selectProfile, enterTeacherMode, setProfilePin,
@@ -82,7 +85,7 @@ const ProfilePicker = () => {
 
   // Bounce out if there's no account session, or a context is already chosen.
   useEffect(() => {
-    if (loading) return;
+    if (loading || busy || leaving) return;
     if (!isAuthenticated) {
       window.location.href = LOGIN_URL;
     } else if (context === "learner") {
@@ -94,7 +97,7 @@ const ProfilePicker = () => {
       window.location.href = teacherInfo?.active_track === "skill"
         ? TEACHER_SKILL_URL : TEACHER_ACADEMY_URL;
     }
-  }, [loading, isAuthenticated, context, teacherInfo]);
+  }, [loading, busy, leaving, isAuthenticated, context, teacherInfo]);
 
   // A profile/track choice ends in a full-page navigation. Play a short
   // fade-out + "Opening…" state first so the hard jump doesn't feel abrupt.
@@ -110,11 +113,11 @@ const ProfilePicker = () => {
   const consumeStoredRedirect = () => {
     let stored = null;
     try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
-    const isSafe = !!stored && stored.startsWith("/") && !stored.startsWith("//")
-      && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(stored);
-    if (!isSafe) return null;
-    try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
-    return stored;
+    const destination = resolveReturnPath(location.state?.from, stored);
+    if (stored) {
+      try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
+    }
+    return destination;
   };
   const goLearner = (name) =>
     fadeThenGo(
