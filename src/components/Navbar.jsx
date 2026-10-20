@@ -19,6 +19,7 @@ import { LayoutDashboard } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
+import { safeReturnPath } from "../auth/returnTo";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
 import { getPublicConfig } from "../api/publicConfig";
@@ -712,6 +713,12 @@ const Navbar = () => {
     }
   };
 
+  const rememberCounsellingReturn = () => {
+    const target = safeReturnPath(location.pathname + location.search);
+    if (!target || !/^\/counselling(?:\/|$)/.test(location.pathname)) return;
+    try { window.sessionStorage.setItem("post_auth_redirect", target); } catch { /* unavailable */ }
+  };
+
   const megaFor = (id) =>
     id === "courses" ? (
       <CoursesMega onGo={closeAll} menu={coursesMenu} />
@@ -866,6 +873,7 @@ const Navbar = () => {
                       global top navbar. */}
                   <NotificationBell />
                   <ProfileSwitcher
+                    onBeforeLogout={rememberCounsellingReturn}
                     teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}
@@ -1055,6 +1063,7 @@ const Navbar = () => {
                 <div className="skn-drawer-account-row">
                   <NotificationBell />
                   <ProfileSwitcher
+                    onBeforeLogout={rememberCounsellingReturn}
                     teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}

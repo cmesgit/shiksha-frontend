@@ -239,7 +239,7 @@ function TeacherPinModal({ title, onConfirm, onCancel, loading, error }) {
    re-mounts this inside the mobile DRAWER, where there is plenty of room and
    the account name is the whole point. A bare viewport media query would strip
    the name in the drawer too. */
-export default function ProfileSwitcher({ teacherSignupUrl, learnUrl, teachUrl, quickActions = [], compact = false }) {
+export default function ProfileSwitcher({ teacherSignupUrl, learnUrl, teachUrl, quickActions = [], compact = false, onBeforeLogout }) {
   const {
     user, profiles, activeProfile, teacherInfo,
     isTeacherContext, selectProfile, setProfilePin, enterTeacherMode, switchTrack, logout,
@@ -617,7 +617,7 @@ export default function ProfileSwitcher({ teacherSignupUrl, learnUrl, teachUrl, 
                   <RiQuestionLine /> Help &amp; tours
                 </button>
               )}
-              <button className="ps-mi ps-mi--logout" onClick={() => logout()} role="menuitem">
+              <button className="ps-mi ps-mi--logout" onClick={() => { onBeforeLogout?.(); logout(); }} role="menuitem">
                 <RiLogoutBoxRLine /> Log out
               </button>
             </div>
