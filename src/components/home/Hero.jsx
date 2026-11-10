@@ -576,17 +576,17 @@ export default function Hero() {
 
             {showCap && (
               <span className="sh-fl sh-cap" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M22 9 12 5 2 9l10 4 10-4Z" /><path d="M6 11v4c0 1 2.7 2 6 2s6-1 6-2v-4" /><path d="M22 9v5" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><g transform="translate(1.1 1.4)" opacity=".3" strokeWidth="1.4"><path d="M2.8 12.5C8 9.8 12 7.6 16 5.5c4.2 2.2 8.2 4.4 13.2 7-5 2.8-9 4.8-13.2 7-4-2.2-8-4.2-13.2-7Z" /><path d="M8 16.5c-.2 3 0 5 .5 6.2 4.5 2.4 10.5 2.4 15 0 .5-1.2.7-3.2.5-6.2" /><path d="M28.5 13c.2 3.5.2 6.5-.3 9" /></g><g strokeWidth="1.9"><path d="M2.8 12.5C8 9.8 12 7.6 16 5.5c4.2 2.2 8.2 4.4 13.2 7-5 2.8-9 4.8-13.2 7-4-2.2-8-4.2-13.2-7Z" /><path d="M8 16.5c-.2 3 0 5 .5 6.2 4.5 2.4 10.5 2.4 15 0 .5-1.2.7-3.2.5-6.2" /><path d="M28.5 13c.2 3.5.2 6.5-.3 9" /></g><circle cx="28.3" cy="25" r="1.7" fill="currentColor" stroke="none" /></svg>
               </span>
             )}
             {showBook && (
               <span className="sh-fl sh-book" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7v14" /><path d="M3 18V5a1 1 0 0 1 1-1h5a3 3 0 0 1 3 3 3 3 0 0 1 3-3h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2H4a1 1 0 0 1-1-1Z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#228B22" strokeLinecap="round" strokeLinejoin="round"><g transform="translate(1.1 1.4)" opacity=".3" strokeWidth="1.4"><path d="M16 8.5C12.5 6.5 8.5 6 4.5 6.8c-.3 5-.3 10.5 0 16 4-.8 8-.2 11.5 2" /><path d="M16 8.5c3.5-2 7.5-2.5 11.5-1.7.3 5 .3 10.5 0 16-4-.8-8-.2-11.5 2" /><path d="M16 8.5c.3 5.5.3 11 0 16.5" /></g><g strokeWidth="1.9"><path d="M16 8.5C12.5 6.5 8.5 6 4.5 6.8c-.3 5-.3 10.5 0 16 4-.8 8-.2 11.5 2" /><path d="M16 8.5c3.5-2 7.5-2.5 11.5-1.7.3 5 .3 10.5 0 16-4-.8-8-.2-11.5 2" /><path d="M16 8.5c.3 5.5.3 11 0 16.5" /></g><circle cx="23" cy="3.5" r="1.7" fill="#228B22" stroke="none" /></svg>
               </span>
             )}
             {showPlay && (
               <span className="sh-fl sh-play" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M10 8.5 16 12l-6 3.5Z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#FF6B00" strokeLinecap="round" strokeLinejoin="round"><g transform="translate(1.1 1.4)" opacity=".3" strokeWidth="1.4"><path d="M4.5 9.5c5-.8 10-.8 14.5 0 .5 3.8.5 8 0 13-4.5.8-9.5.8-14.5 0-.6-4.5-.6-9 0-13Z" /><path d="M19 14.5l8-4.5c.4 4 .4 8.5 0 12.5l-8-4.5" /></g><g strokeWidth="1.9"><path d="M4.5 9.5c5-.8 10-.8 14.5 0 .5 3.8.5 8 0 13-4.5.8-9.5.8-14.5 0-.6-4.5-.6-9 0-13Z" /><path d="M19 14.5l8-4.5c.4 4 .4 8.5 0 12.5l-8-4.5" /></g><circle cx="8.5" cy="14" r="1.7" fill="#FF6B00" stroke="none" /></svg>
               </span>
             )}
 
