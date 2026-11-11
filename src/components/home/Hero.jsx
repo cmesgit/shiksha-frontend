@@ -574,17 +574,17 @@ export default function Hero() {
 
             {showCap && (
               <span className="sh-fl sh-cap" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M22 9 12 5 2 9l10 4 10-4Z" /><path d="M6 11v4c0 1 2.7 2 6 2s6-1 6-2v-4" /><path d="M22 9v5" /></svg>
+                <ScribbleIcon name="graduation-cap" />
               </span>
             )}
             {showBook && (
               <span className="sh-fl sh-book" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7v14" /><path d="M3 18V5a1 1 0 0 1 1-1h5a3 3 0 0 1 3 3 3 3 0 0 1 3-3h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2H4a1 1 0 0 1-1-1Z" /></svg>
+                <ScribbleIcon name="book" />
               </span>
             )}
             {showPlay && (
               <span className="sh-fl sh-play" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M10 8.5 16 12l-6 3.5Z" /></svg>
+                <ScribbleIcon name="video" />
               </span>
             )}
 
