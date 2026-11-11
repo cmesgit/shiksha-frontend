@@ -39,6 +39,7 @@ const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage")
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
 const CounsellingCareer     = lazy(() => import("../counselling/CareerDetailPage"));
 const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPage"));
+const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -413,6 +414,7 @@ function App() {
         {/* Admission in India — the Colleges-tab destination. Public, like
             the guide library; the navbar entry points here too. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
+        <Route path="/admission/abroad"               element={<Page><AdmissionAbroad /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
