@@ -51,6 +51,7 @@ import { useState } from "react";
 
 import liveSessionService from "../../api/liveSessionService";
 import { formatClock, useRemainingTime } from "../../hooks/useRemainingTime";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 const RING_R = 52;
 const RING_C = 2 * Math.PI * RING_R;
@@ -153,7 +154,7 @@ export default function HostControlsPanel({
         <div className="gs-hc-modal__head">
           <h2>Host controls</h2>
           <button type="button" className="gs-hc-close" onClick={onClose} aria-label="Close">
-            ✕
+            <ScribbleIcon name="close" />
           </button>
         </div>
 
@@ -197,7 +198,7 @@ export default function HostControlsPanel({
               {error ? <p className="gs-hc-error">{error}</p> : null}
 
               <div className="gs-hc-note">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                <ScribbleIcon name="lock" size={15} />
                 <p>
                   {isInstant
                     ? `This room closes after the ${capMinutes} minutes selected before hosting.`

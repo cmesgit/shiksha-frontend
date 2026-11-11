@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's WhyChooseShiksha.jsx —
@@ -71,7 +72,7 @@ const ART_SVG = `
 // sane, while the seeded "board"/"live"/"guidance" keys render pixel-identical
 // to the original.
 const CHECK_SVG = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+  <ScribbleIcon name="check" />
 );
 const ICONS = {
   board: CHECK_SVG,
@@ -92,13 +93,13 @@ const DEFAULT_TINT_CYCLE = ["--coral", "--violet", "--green"];
 // Keyed to match the icon strings seeded on HomeFloater rows.
 const BADGE_ICONS = {
   live: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 6h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+    <ScribbleIcon name="video" />
   ),
   folder: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>
+    <ScribbleIcon name="book" />
   ),
   check: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+    <ScribbleIcon name="check" />
   ),
 };
 
@@ -233,7 +234,7 @@ export default function WhyChooseShiksha() {
                 </div>
                 {(ctaLabel && ctaHref) && (<CtaLink className="btn btn-coral" to={ctaHref}>
                   {ctaLabel}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  <ScribbleIcon name="arrow-right" />
                 </CtaLink>)}
               </div>
             </div>

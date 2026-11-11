@@ -15,7 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoNotificationsOutline, IoNotificationsSharp } from "react-icons/io5";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import useNotificationSocket from "../hooks/useNotificationSocket";
 import { APP_URL, TEACHER_URL } from "../config/urls";
 import { resolveNotificationTarget, fallbackPathFor } from "../utils/notificationRouting";
@@ -117,9 +117,9 @@ export default function NotificationBell() {
         type="button"
       >
         {unreadCount > 0 ? (
-          <IoNotificationsSharp size={21} color="#f59e0b" />
+          <ScribbleIcon name="bell" size={21} color="#f59e0b" />
         ) : (
-          <IoNotificationsOutline size={21} />
+          <ScribbleIcon name="bell" size={21} />
         )}
         {unreadCount > 0 && (
           <span className="skn-notif-badge">

@@ -25,7 +25,7 @@
  * (ACADEMY_BROWSE_URL).
  */
 import { Link } from "react-router-dom";
-import { IcCheck } from "../home/HomeIcons";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { formatClock } from "../../hooks/useRemainingTime";
 import { ACADEMY_BROWSE_URL } from "../../config/urls";
 import { useState } from "react";
@@ -36,9 +36,9 @@ const RING_C = 2 * Math.PI * RING_R;
 function Bullet({ children, tone = "brand" }) {
   return (
     <div className="gs-eos-bullet">
-      <IcCheck
-        width={14}
-        height={14}
+      <ScribbleIcon
+        name="check"
+        size={14}
         style={{ color: tone === "brand" ? "#0F9D6B" : "#5E7469", flex: "none", marginTop: 3 }}
       />
       <span>{children}</span>

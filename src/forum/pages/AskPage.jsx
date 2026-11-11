@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { getTopics, getSpaces, createThread } from "../../api/forum";
 import { useForum } from "../ForumContext";
 import { IcImage, IcPaperclip } from "../components/icons";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
 /* Ask / Post form — matches doc §2.5: Question/Post mode toggle, adaptive
    title, detail, category chips (required for questions), free-text tags,
@@ -66,7 +67,7 @@ export default function AskPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
       <button onClick={() => navigate(-1)} className="fm2-btn-ghost" style={{ alignSelf: "flex-start", padding: "6px 10px" }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+        <ScribbleIcon name="arrow-left" size={15} />
         Back
       </button>
 

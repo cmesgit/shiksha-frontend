@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Search, X } from "lucide-react";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import { getBlogCardsPage } from "../api/contentApi";
 import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
 import "../css/Blogs.css";
@@ -16,7 +16,7 @@ function StudyCard({ post, priority }) {
             <img src={post.thumbnail} alt="" width="640" height="360"
               loading={priority ? "eager" : "lazy"} decoding="async"
               fetchPriority={priority ? "high" : "auto"} onError={() => setImageFailed(true)} />
-          ) : <div className="study-card-placeholder" aria-hidden="true"><BookOpen size={42} /><span>{post.category || "Study guide"}</span></div>}
+          ) : <div className="study-card-placeholder" aria-hidden="true"><ScribbleIcon name="book" size={42} /><span>{post.category || "Study guide"}</span></div>}
         </div>
         <div className="study-card-body">
           <div className="study-card-meta">
@@ -27,7 +27,7 @@ function StudyCard({ post, priority }) {
           <h3>{post.title}</h3>
           {post.subtitle && <p className="study-card-excerpt">{post.subtitle}</p>}
           <div className="study-card-footer">
-            <span>Read article <ArrowRight size={16} aria-hidden="true" /></span>
+            <span>Read article <ScribbleIcon name="arrow-right" size={16} aria-hidden="true" /></span>
             {post.readingMinutes > 0 && <span className="study-card-time">{post.readingMinutes} min read</span>}
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function Blogs() {
   return (
     <main className="blogs-list-page">
       <header className="blogs-list-header">
-        <span className="blogs-list-badge"><BookOpen size={16} aria-hidden="true" /> ShikshaCom blogs</span>
+        <span className="blogs-list-badge"><ScribbleIcon name="book" size={16} aria-hidden="true" /> ShikshaCom blogs</span>
         <h1>Make your next chapter clearer.</h1>
         <p>Explore chapter notes and explainers in science, social science and more. Choose a subject or class to find what you need.</p>
       </header>
@@ -125,11 +125,11 @@ export default function Blogs() {
         <div className="blogs-search-field">
           <label htmlFor="blogs-search">Search articles</label>
           <div className="blogs-search-box">
-            <Search size={19} aria-hidden="true" />
+            <ScribbleIcon name="search" size={19} aria-hidden="true" />
             <input id="blogs-search" type="search" autoComplete="off" maxLength={200}
               placeholder="Try motion, rivers or democracy" value={search}
               onChange={(event) => setSearch(event.target.value)} />
-            {search && <button type="button" className="blogs-clear-search" aria-label="Clear article search" onClick={() => setSearch("")}><X size={18} aria-hidden="true" /></button>}
+            {search && <button type="button" className="blogs-clear-search" aria-label="Clear article search" onClick={() => setSearch("")}><ScribbleIcon name="close" size={18} aria-hidden="true" /></button>}
           </div>
         </div>
         <div className="blogs-filter-field">
@@ -157,20 +157,20 @@ export default function Blogs() {
         {pending ? (
           <div className="study-grid" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <div className="study-card study-card-skeleton" key={index}><div /><span /><span /></div>)}</div>
         ) : error ? (
-          <div className="blogs-state" role="alert"><BookOpen size={28} aria-hidden="true" /><h3>Let’s try that again</h3><p>{error}</p>
+          <div className="blogs-state" role="alert"><ScribbleIcon name="book" size={28} aria-hidden="true" /><h3>Let’s try that again</h3><p>{error}</p>
             <button type="button" onClick={() => page > 1 ? changePage(1) : setRetry((value) => value + 1)}>{page > 1 ? "Return to first page" : "Try again"}</button>
           </div>
         ) : result.items.length ? (
           <>
             <div className="study-grid">{result.items.map((post, index) => <StudyCard key={post.id} post={post} priority={index === 0} />)}</div>
             {result.count > BLOG_PAGE_SIZE && <nav className="blogs-pagination" aria-label="Article pages">
-              <button type="button" disabled={page <= 1} onClick={() => changePage(page - 1)}><ArrowLeft size={17} aria-hidden="true" /> Previous</button>
+              <button type="button" disabled={page <= 1} onClick={() => changePage(page - 1)}><ScribbleIcon name="arrow-left" size={17} aria-hidden="true" /> Previous</button>
               <span>Page {page} of {Math.ceil(result.count / BLOG_PAGE_SIZE)}</span>
-              <button type="button" disabled={!result.hasNext} onClick={() => changePage(page + 1)}>Next <ArrowRight size={17} aria-hidden="true" /></button>
+              <button type="button" disabled={!result.hasNext} onClick={() => changePage(page + 1)}>Next <ScribbleIcon name="arrow-right" size={17} aria-hidden="true" /></button>
             </nav>}
           </>
         ) : (
-          <div className="blogs-state"><Search size={28} aria-hidden="true" /><h3>{filtered ? "No articles match these filters" : "New articles are on their way"}</h3><p>{filtered ? "Try a shorter search or choose another subject or class." : "Check back soon for new notes and explainers."}</p>{filtered && <button type="button" onClick={reset}>Show all articles</button>}</div>
+          <div className="blogs-state"><ScribbleIcon name="search" size={28} aria-hidden="true" /><h3>{filtered ? "No articles match these filters" : "New articles are on their way"}</h3><p>{filtered ? "Try a shorter search or choose another subject or class." : "Check back soon for new notes and explainers."}</p>{filtered && <button type="button" onClick={reset}>Show all articles</button>}</div>
         )}
       </section>
     </main>

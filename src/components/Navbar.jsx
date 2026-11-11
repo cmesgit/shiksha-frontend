@@ -14,7 +14,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
-import { LayoutDashboard } from "lucide-react";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
@@ -875,7 +875,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —
@@ -1065,7 +1065,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —

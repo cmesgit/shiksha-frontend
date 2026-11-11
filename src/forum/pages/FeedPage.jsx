@@ -5,6 +5,7 @@ import { useForum } from "../ForumContext";
 import { useAuth } from "../../contexts/AuthContext";
 import QuestionCard from "../components/QuestionCard";
 import { FEED_TABS } from "../utils";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -53,15 +54,15 @@ export default function FeedPage() {
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => openAsk("question")} className="fm2-hero-btn fill" data-tour="forum-intro.ask">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="M11 8v6M8 11h6" /></svg>
+              <ScribbleIcon name="plus" size={13} />
               Ask Question
             </button>
             <button onClick={() => openAsk("post")} className="fm2-hero-btn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="M16 6l-4-4-4 4M12 2v13" /></svg>
+              <ScribbleIcon name="upload" size={13} />
               Post
             </button>
             <button onClick={() => { if (!requireAuth()) navigate("/forum/answer-queue"); }} className="fm2-hero-btn subtle" data-tour="forum-intro.answer">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+              <ScribbleIcon name="edit" size={13} />
               Answer
             </button>
           </div>
@@ -84,7 +85,7 @@ export default function FeedPage() {
       {/* Active filter banner */}
       {activeTopic && (
         <div style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff8e8", border: "1px solid #ecd080", borderRadius: 10, padding: "9px 14px" }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e07900" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" /></svg>
+          <ScribbleIcon name="filter" size={13} color="#e07900" />
           <span style={{ font: "600 12.5px Poppins,sans-serif", color: "#7a4c00" }}>Showing discussions tagged <strong>#{activeTopic}</strong></span>
           <button onClick={clearTopic} style={{ marginLeft: "auto", background: "#e07900", color: "#fff", border: "none", borderRadius: 7, padding: "5px 12px", font: "700 11.5px Poppins,sans-serif", cursor: "pointer" }}>Clear</button>
         </div>
@@ -96,7 +97,7 @@ export default function FeedPage() {
       ) : items.length === 0 ? (
         <div className="fm2-card" style={{ padding: "48px 24px", textAlign: "center" }}>
           <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#e4f3e8", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#125027" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            <ScribbleIcon name="message" size={22} color="#125027" />
           </div>
           <div style={{ font: "800 15px Montserrat,sans-serif", color: "#125027", marginBottom: 6 }}>
             {activeTopic ? `No discussions tagged #${activeTopic}` : "No discussions yet"}

@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's TeachersStudents.jsx —
@@ -45,7 +46,7 @@ const DUO_ILL = [
   <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M48 30v46" /><path d="M48 30C40 24 28 22 18 25v42c10-3 22-1 30 5" /><path d="M48 30c8-5 20-7 30-5v42c-10-2-22 0-30 5" /><path d="M25 37c5-1 11 0 15 3M25 47c5-1 11 0 15 3" /><path d="M56 40c5-3 11-4 15-3M56 50c5-3 11-4 15-3" /></svg>,
 ];
 const ARROW = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  <ScribbleIcon name="arrow-right" />
 );
 
 // Card chrome (variant class, pill label, button style) is also tied to

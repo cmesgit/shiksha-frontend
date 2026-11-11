@@ -20,6 +20,7 @@
 // CMS slot behind them.
 
 import { Link } from 'react-router-dom';
+import ScribbleIcon from '../icons/ScribbleIcon';
 
 const css = `
 .cpr-sec{padding:0 0 clamp(30px,4vw,48px)}
@@ -47,7 +48,7 @@ const css = `
 `;
 
 const ArrowIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  <ScribbleIcon name="arrow-right" size={15} />
 );
 
 // Sits directly under the catalog — a learner who has just scrolled the

@@ -6,6 +6,7 @@ import HowItWorks from "./components/HowItWorks";
 import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
 import TourHeaderButton from "../tour/TourHeaderButton";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./forum.css";
 
 /* Pixel-perfect chrome ported from ShikshaCom Forum.html (fm2-* system):
@@ -43,7 +44,7 @@ function PageHeader() {
         </div>
         {!isDash && (
           <form onSubmit={submit} className="fm2-hd-search">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 12, flexShrink: 0 }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+            <ScribbleIcon name="search" size={15} color="#8a9e82" style={{ marginLeft: 12, flexShrink: 0 }} />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search discussions, topics, people…" aria-label="Search the forum" />
             <button type="submit">Search</button>
           </form>
@@ -56,7 +57,7 @@ function PageHeader() {
                 sidebar Quick Links collapse on narrow screens). */}
             {isDash && (
               <button onClick={() => navigate("/forum")} className="fm2-btn-outline" style={{ padding: "8px 14px", borderRadius: 8 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+                <ScribbleIcon name="arrow-left" size={15} />
                 Back to Forum
               </button>
             )}
@@ -150,7 +151,7 @@ function LeftSidebar() {
         <button onClick={() => setTopicOpen((o) => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}>
           <span className="fm2-section-hd" style={{ marginBottom: 0 }}>Filter by Topic</span>
           <span style={{ transform: topicOpen ? "rotate(180deg)" : "none", transition: "transform .18s" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+            <ScribbleIcon name="chevron-down" size={13} color="#8a9e82" />
           </span>
         </button>
         {topicOpen && (

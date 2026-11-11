@@ -3,6 +3,7 @@ import PostAttachments from "./PostAttachments";
 import { useNavigate } from "react-router-dom";
 import { useForum } from "../ForumContext";
 import { normAuthor, timeAgo } from "../utils";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
 /* Feed/list card — matches the .fm2-thread markup in ShikshaCom Forum.html:
    an answer-count stat column + title, tags, and an author row with a save
@@ -56,7 +57,7 @@ export default function QuestionCard({ q, onDeleted }) {
             onClick={(e) => { e.stopPropagation(); toggleSave(q.id); }}
             aria-label={saved ? "Unsave" : "Save"}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? "#e07900" : "none"} stroke="#e07900" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+            <ScribbleIcon name="bookmark" size={14} color="#e07900" filled={saved} />
           </button>
           {onDeleted && (
             <div style={{ position: "relative" }} onClick={(e) => e.stopPropagation()}>

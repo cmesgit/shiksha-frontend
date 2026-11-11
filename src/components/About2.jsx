@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import "../css/ShikshaHome.css";
 import "../css/About2.css";
-import { FaUsers, FaWrench, FaHome } from "react-icons/fa";
+import { FaWrench } from "react-icons/fa";
 import { GiSprout } from "react-icons/gi";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import { useHomeContent } from "../hooks/useHomeContent";
 import { sanitizeInline } from "../utils/sanitizeInline";
 
@@ -58,7 +59,9 @@ const MISSION_DEFAULTS = {
 };
 // icon/tint key -> renderer. Unknown keys fall back to the hardcoded pillar
 // at the same index (never a blank icon), per the CMS contract.
-const PILLAR_ICON_COMPONENTS = { users: FaUsers, wrench: FaWrench, sprout: GiSprout, home: FaHome };
+const ScribbleUsers = (p) => <ScribbleIcon name="users" {...p} />;
+const ScribbleHome = (p) => <ScribbleIcon name="home" {...p} />;
+const PILLAR_ICON_COMPONENTS = { users: ScribbleUsers, wrench: FaWrench, sprout: GiSprout, home: ScribbleHome };
 const PILLAR_TINT_VARS = {
   teal: "--teal",
   green: "--green",
