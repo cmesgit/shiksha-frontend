@@ -912,12 +912,17 @@ const Navbar = () => {
         </div>
 
         {/* Mega menu panel */}
-        <div
-          className={`skn-mega${openMenu ? " skn-open" : ""}`}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="skn-mega-inner" aria-hidden={!openMenu}>
+        {/* Hover handlers sit on the visible panel, not the full-width
+            .skn-mega strip — otherwise the empty space either side of the
+            panel counted as "inside" and the menu never closed when the
+            pointer moved off it sideways. */}
+        <div className={`skn-mega${openMenu ? " skn-open" : ""}`}>
+          <div
+            className="skn-mega-inner"
+            aria-hidden={!openMenu}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
             {(openMenu || lastMenu) && megaFor(openMenu || lastMenu)}
           </div>
         </div>

@@ -508,8 +508,24 @@
   transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1),
     transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.skn-mega.skn-open {
+/* Only the visible panel takes the pointer. The .skn-mega strip is full
+   viewport width, so letting IT catch the pointer made the blank gutters
+   beside the panel count as "inside the menu" and it wouldn't close. */
+.skn-mega-inner {
+  position: relative;
+}
+.skn-mega.skn-open .skn-mega-inner {
   pointer-events: auto;
+}
+/* Invisible bridge over the 10px margin between the header and the panel,
+   so moving down from the nav into the panel doesn't register as leaving. */
+.skn-mega-inner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -11px;
+  height: 11px;
 }
 .skn-mega.skn-open .skn-mega-inner {
   opacity: 1;
