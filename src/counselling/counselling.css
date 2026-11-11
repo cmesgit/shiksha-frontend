@@ -588,6 +588,26 @@
 .ab-rank { color: #b06000; font-weight: 800; }
 /* An unranked row must not read as a position. */
 .ab-rank.unranked { color: #6b7a70; font-weight: 700; font-size: 13px; }
+/* A banded rank ("#101–150") is a range, not a position. It is set smaller
+   and lighter so it never reads as a sharper result than it is, and because
+   it is ~3x wider than "#4" it would otherwise shove the name column. */
+.ab-rank.banded { font-size: 12px; font-weight: 700; color: #8a6a3a; letter-spacing: -.1px; }
+
+/* Cross-link between the two India directories. They read different NIRF
+   tables, so the note under the link is load-bearing, not decoration. */
+.ai-switch {
+  margin: 18px 0 0; padding: 14px 16px; border-radius: 12px;
+  background: #ebf5e8; border: 1px solid rgba(18,80,39,.12);
+  font: 600 13.5px/1.5 'Poppins', sans-serif; color: #14201a;
+}
+.ai-switch a { color: #125027; font-weight: 700; text-decoration: none; }
+.ai-switch a:hover { text-decoration: underline; }
+.ai-switch-note {
+  display: block; margin-top: 5px;
+  font: 400 12.2px/1.55 'Poppins', sans-serif; color: #5c6b62;
+}
+.ai-switch-note b { font-weight: 600; color: #14201a; }
+.ab-switch { max-width: 680px; margin-left: auto; margin-right: auto; text-align: left; }
 
 .ab-row-fee { justify-self: end; max-width: 240px; }
 

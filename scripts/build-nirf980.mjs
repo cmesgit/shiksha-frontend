@@ -89,11 +89,24 @@ function parse(block) {
   const text = rest.join("\n");
 
   // "NIRF 2025: Overall 1 · Engineering 1 · Research 2 · Management 13"
+  //
+  // A rank is EITHER a position ("Engineering 4") OR a BAND ("College
+  // 201-300"). NIRF publishes the top ~100 of each list individually and
+  // bands the rest. 576 of the 980 profiles carry at least one band.
+  //
+  // The original `(\d+)$` matched integers only, so every banded entry failed
+  // outright and was dropped — leaving 444 institutions with an EMPTY ranks
+  // map and rendering as "—" on a screen whose whole premise is that these
+  // are NIRF-ranked. The source states a rank for all 980; keep its value.
   const nirfLine = rest.find((l) => l.startsWith("NIRF 2025:")) || "";
   const ranks = {};
   nirfLine.replace(/^NIRF 2025:\s*/, "").split(" · ").forEach((part) => {
-    const m = /^(.+?)\s+(\d+)$/.exec(part.trim());
-    if (m) ranks[m[1].trim()] = Number(m[2]);
+    const m = /^(.+?)\s+(\d+(?:\s*[-–]\s*\d+)?)$/.exec(part.trim());
+    if (!m) return;
+    const raw = m[2].replace(/\s*[-–]\s*/, "-");
+    // Bands stay STRINGS so nothing downstream can mistake one for a
+    // position; the UI sorts on the band's start and prints the range.
+    ranks[m[1].trim()] = raw.includes("-") ? raw : Number(raw);
   });
 
   const siteLine = rest.find((l) => l.startsWith("Website:")) || "";
@@ -174,6 +187,17 @@ const verified = records.filter((r) => r.feeStatus === "verified").length;
 if (verified !== 182) fail(`expected 182 verified fees, got ${verified}`);
 const verifyMarked = records.filter((r) => r.websiteVerify).length;
 if (verifyMarked !== 295) fail(`expected 295 "(verify)" websites, got ${verifyMarked}`);
+
+// The source prints a "NIRF 2025:" line on ALL 980 profiles, so an empty
+// ranks map means the PARSE lost it, not that the institution is unranked.
+// This is the assertion whose absence let 444 rows ship rendering "—".
+const unranked = records.filter((r) => !Object.keys(r.ranks).length).length;
+if (unranked !== 0) fail(`${unranked} profiles parsed with no rank at all`);
+// 576 profiles carry at least one banded rank ("College 201-300"); counted
+// from the source with: grep -cE '^NIRF 2025:.*[0-9]+-[0-9]+'
+const banded = records.filter((r) =>
+  Object.values(r.ranks).some((v) => typeof v === "string")).length;
+if (banded !== 576) fail(`expected 576 profiles with a banded rank, got ${banded}`);
 
 const states = [...new Set(records.map((r) => r.state))];
 const types = [...new Set(records.map((r) => r.type))];

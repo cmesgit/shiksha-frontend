@@ -66,6 +66,17 @@ const CATEGORIES = [
 
 const csv = (v) => (v ? String(v).split(",").map((s) => s.trim()).filter(Boolean) : []);
 
+// A NIRF rank is EITHER a position (number) OR a band (string, "101-150").
+// NIRF ranks the top ~100 of each list individually and bands the rest, so
+// 576 of the 980 carry at least one band. The two must never be flattened
+// into one another: a band is a range the institution sits somewhere inside,
+// and printing "#101" for "101-150" would invent a position it never held.
+const rankStart = (v) =>
+  v === undefined ? Infinity : typeof v === "number" ? v : parseInt(v, 10);
+const rankLabel = (v) =>
+  v === undefined ? "—" : typeof v === "number" ? `#${v}` : `#${v.replace("-", "–")}`;
+const isBand = (v) => typeof v === "string";
+
 const FEE_TEXT = {
   verified: "Fees verified from official documents",
   source_found: "Fee source found — values not verified",
@@ -106,7 +117,9 @@ function Drawer({ row, onClose }) {
         <div className="cf-drawer-head">
           <div>
             <div className="cf-drawer-kicker">
-              {Object.entries(row.ranks).map(([k, v]) => `${k} ${v}`).join(" · ") || "NIRF 2025"}
+              {Object.entries(row.ranks)
+                .map(([k, v]) => `${k} ${isBand(v) ? v.replace("-", "–") : v}`)
+                .join(" · ") || "NIRF 2025"}
             </div>
             <h2 className="cf-drawer-title">{row.name}</h2>
             <div className="cf-drawer-summary">
@@ -248,9 +261,12 @@ export default function AdmissionIndiaAllPage() {
       })
       .sort((a, b) => {
         // Rank within the chosen NIRF list; institutions absent from it sort
-        // after those in it, by their directory position.
-        const ra = a.ranks[category] ?? Infinity;
-        const rb = b.ranks[category] ?? Infinity;
+        // after those in it, by their directory position. A BAND sorts on its
+        // START (so "101-150" falls after #100 and before #151) — subtracting
+        // raw values would compare a string and yield NaN, which sorts
+        // unpredictably and would scatter 576 of the 980 rows.
+        const ra = rankStart(a.ranks[category]);
+        const rb = rankStart(b.ranks[category]);
         return ra - rb || a.listRank - b.listRank;
       });
   }, [q, streams, exams, states, types, category]);
@@ -302,8 +318,26 @@ export default function AdmissionIndiaAllPage() {
         <p className="ab-source">
           Source: NIRF India Rankings 2025, Ministry of Education. Course lists and fees are
           taken from official institution pages where verified — {NIRF_980.filter((r) => r.feeStatus !== "verified").length}
-          {" "}of {NIRF_980.length} profiles have no verified fee and say so. Always confirm
-          current details before applying.
+          {" "}of {NIRF_980.length} profiles have no verified fee and say so.{" "}
+          {NIRF_980.filter((r) => Object.values(r.ranks).some(isBand)).length} sit in a
+          NIRF band (for example #101–150) rather than at a single position. Always
+          confirm current details before applying.
+        </p>
+
+        {/* Cross-link to the curated engineering directory. Different NIRF
+            table (Engineering, not Overall) and a richer record — it carries
+            NIRF scores, founding years and admission prose that this
+            980-row directory does not. Say what is actually over there. */}
+        <p className="ai-switch ab-switch">
+          Comparing engineering colleges?{" "}
+          <Link to="/admission/india">
+            Open the NIRF Engineering top 50 →
+          </Link>
+          <span className="ai-switch-note">
+            Fewer institutions, more per institution — NIRF <b>scores</b>, founding
+            year, entrance exams and the admission pathway for each. Ranked on the
+            <b> Engineering</b> list, so positions differ from this page.
+          </span>
         </p>
 
         <div className="cf-stats ai-stats">
@@ -420,8 +454,13 @@ export default function AdmissionIndiaAllPage() {
               {rows.slice(0, limit).map((r) => (
                 <li key={r.listRank}>
                   <button className="sc-card ai-row ab-row" onClick={() => setOpen(r)}>
-                    <span className={`ai-rank ab-rank${r.ranks[category] === undefined ? " unranked" : ""}`}>
-                      {r.ranks[category] !== undefined ? `#${r.ranks[category]}` : "—"}
+                    <span
+                      className={`ai-rank ab-rank${r.ranks[category] === undefined ? " unranked" : ""}${isBand(r.ranks[category]) ? " banded" : ""}`}
+                      title={isBand(r.ranks[category])
+                        ? `NIRF 2025 ranks this institution in the ${r.ranks[category].replace("-", "–")} band for ${category}, not at a single position.`
+                        : undefined}
+                    >
+                      {rankLabel(r.ranks[category])}
                     </span>
                     <span className="ai-row-main">
                       <span className="ab-row-name">{r.name}</span>
