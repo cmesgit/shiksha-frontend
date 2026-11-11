@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCounsellors } from "../api/counselling";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
+import ExampleReportCard from "./ExampleReportCard";
 import CounsellingShell, { initialsOf, gradOf } from "./CounsellingShell";
 import useCounsellorsLive from "./useCounsellorsLive";
 
@@ -107,18 +108,29 @@ export default function LandingPage() {
       <div className="sc-herowrap">
         <div className="sc-hero">
           <div>
-            <span className="sc-eyebrow">Career Counselling</span>
+            <span className="sc-pill-dot">
+              Free career guidance · Class 6 to UG · India &amp; Abroad
+            </span>
             <h1 className="sc-h1">
               Confused about what comes next?<br /><em>Let's map your career path.</em>
             </h1>
             <p className="sc-sub">
               {counsellorsLive
-                ? "Complete a short career profile, get a personalised path with the reasons behind it, and book a live online session with a counsellor matched to your stream, interests and language."
-                : "Streams, entrance exams, degrees and how to choose — a free guidance library written for Indian students, from Class 6 through postgraduate study."}
+                ? "Answer a few quick questions, get a personalised career report for India or abroad, and talk it through live with a counsellor matched to you."
+                : "Answer a few quick questions and get a personalised career report for India or abroad — plus a free guidance library written for Indian students, Class 6 through postgraduate study."}
             </p>
+
+            {/* The third point is dropped when no counsellor is bookable.
+                useCounsellorsLive() exists precisely so this page never
+                advertises a 1:1 session that nobody can actually book. */}
+            <ul className="sc-ticks">
+              <li>Personal report in about 2 minutes</li>
+              <li>Careers, exams and colleges — India &amp; abroad</li>
+              {counsellorsLive && <li>Live 1:1 sessions with expert counsellors</li>}
+            </ul>
             <div style={{ display: "flex", gap: 11, flexWrap: "wrap" }}>
               {counsellorsLive ? (
-                <button className="sc-btn" onClick={start}>Get started — it's free</button>
+                <button className="sc-btn" onClick={start}>Get my free career report →</button>
               ) : (
                 <Link className="sc-btn" to="/counselling/guides">Browse career guides</Link>
               )}
@@ -171,27 +183,13 @@ export default function LandingPage() {
               <input placeholder="Search the guidance library — e.g. streams, NEET, commerce…" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
           </div>
-          <div className="sc-hero-art">
-            <div style={{ font: "700 11px Poppins, sans-serif", color: "rgba(245,255,245,.4)", letterSpacing: ".1em", textTransform: "uppercase" }}>
-              What a session does
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-              {SESSION_DOES.map(([t, s]) => (
-                <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                  <span style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(27,156,133,.22)", flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
-                    <CheckIcon />
-                  </span>
-                  <div>
-                    <div style={{ font: "600 13px/1.4 Poppins, sans-serif", color: "#f5fff5" }}>{t}</div>
-                    <div style={{ font: "400 11.5px Poppins, sans-serif", color: "rgba(245,255,245,.5)", marginTop: 2 }}>{s}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ height: 1, background: "rgba(255,255,255,.08)" }} />
-            <div style={{ font: "500 12px Poppins, sans-serif", color: "rgba(245,255,245,.45)", textAlign: "center" }}>
-              45–60 minutes · live video · matched counsellor
-            </div>
+          {/* The artboard replaces the old dark "what a session does" panel
+              with a sample report. The 86% in it is an ILLUSTRATION — nothing
+              computes a career match score (see ExampleReportCard's header) —
+              which is why the card carries a permanent "Example report"
+              label. Do not remove that label without also removing the number. */}
+          <div className="sc-hero-art sc-hero-art--card">
+            <ExampleReportCard />
           </div>
         </div>
       </div>

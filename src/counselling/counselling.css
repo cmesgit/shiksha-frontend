@@ -687,3 +687,101 @@
   .in-steps, .in-steps-6 { grid-template-columns: repeat(2, 1fr); }
   .in-guidance { grid-template-columns: 1fr; gap: 26px; }
 }
+
+/* ── Hero example report card (Career Counselling v3 artboard) ──────
+   Sits in .sc-hero-art, which was a dark panel; this card is light, so
+   the wrapper's own dark background is overridden where it is used. */
+.er-card {
+  background: #fff; border: 1px solid rgba(18,45,30,.10); border-radius: 18px;
+  padding: 18px; box-shadow: 0 18px 40px rgba(18,45,30,.10);
+  display: flex; flex-direction: column; gap: 14px; text-align: left;
+}
+.er-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.er-kicker {
+  font: 700 10.5px 'Poppins', sans-serif; letter-spacing: .09em;
+  text-transform: uppercase; color: #6b7a70;
+}
+.er-toggle { display: flex; gap: 2px; background: #f1f6f1; border-radius: 999px; padding: 2px; }
+.er-tab {
+  border: 0; background: transparent; cursor: pointer; border-radius: 999px;
+  padding: 4px 11px; font: 600 11.5px 'Poppins', sans-serif; color: #5c6b62;
+}
+.er-tab.on { background: #125027; color: #fff; }
+
+.er-best {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: #fbf7ee; border: 1px solid #f0e4cd; border-radius: 13px; padding: 13px;
+}
+.er-best-main { min-width: 0; }
+.er-badge { font: 700 10.5px 'Poppins', sans-serif; color: #b06000; display: block; }
+.er-title { font: 800 17px/1.25 'Montserrat', sans-serif; color: #14201a; margin-top: 4px; }
+.er-sub { font: 400 11.8px/1.45 'Poppins', sans-serif; color: #5c6b62; margin-top: 2px; }
+
+.er-ring { position: relative; flex: 0 0 auto; width: 48px; height: 48px; }
+.er-ring-val {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; line-height: 1;
+}
+.er-ring-val b { font: 800 12px 'Montserrat', sans-serif; color: #125027; }
+.er-ring-val i { font: 500 7.5px 'Poppins', sans-serif; font-style: normal; color: #6b7a70; }
+
+.er-sec { display: flex; flex-direction: column; gap: 7px; }
+.er-lbl {
+  font: 700 10px 'Poppins', sans-serif; letter-spacing: .085em;
+  text-transform: uppercase; color: #6b7a70;
+}
+.er-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.er-chip {
+  font: 600 11.5px 'Poppins', sans-serif; color: #125027;
+  background: #ebf5e8; border-radius: 999px; padding: 4px 10px;
+}
+.er-chip-alt { background: #eef2fb; color: #2f4a86; }
+
+.er-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.er-steps li {
+  display: flex; align-items: center; gap: 8px;
+  font: 500 12.2px/1.4 'Poppins', sans-serif; color: #14201a;
+}
+.er-num {
+  flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%;
+  background: #125027; color: #fff; display: inline-flex;
+  align-items: center; justify-content: center;
+  font: 700 10px 'Montserrat', sans-serif;
+}
+
+/* Never conditional — the 86% is an illustration only while this says so. */
+.er-foot {
+  border-top: 1px solid rgba(18,45,30,.08); padding-top: 9px;
+  font: 700 9.5px 'Poppins', sans-serif; letter-spacing: .1em;
+  text-transform: uppercase; color: #93a099; text-align: right;
+}
+
+/* The hero art slot is a dark panel by default; this card supplies its own
+   surface, so strip the wrapper's padding/background where it hosts one. */
+.sc-hero-art.sc-hero-art--card { background: none; padding: 0; box-shadow: none; border: 0; }
+
+/* Hero eyebrow pill with a live dot, and the three-point tick list.
+   Both are new in the v3 artboard; .sc-eyebrow stays for other screens. */
+.sc-pill-dot {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #ebf5e8; border: 1px solid rgba(18,80,39,.14); border-radius: 999px;
+  padding: 5px 13px; font: 600 12px 'Poppins', sans-serif; color: #125027;
+}
+.sc-pill-dot::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #1b9c85; flex: 0 0 auto;
+}
+.sc-ticks { list-style: none; margin: 16px 0 20px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.sc-ticks li {
+  position: relative; padding-left: 26px;
+  font: 500 13.5px/1.5 'Poppins', sans-serif; color: #2f3d35;
+}
+.sc-ticks li::before {
+  content: ""; position: absolute; left: 0; top: 4px;
+  width: 16px; height: 16px; border-radius: 50%; background: #ebf5e8;
+}
+.sc-ticks li::after {
+  content: ""; position: absolute; left: 5px; top: 8px;
+  width: 5px; height: 8px; border: solid #125027; border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}
