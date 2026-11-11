@@ -998,9 +998,6 @@
   .skn-burger {
     display: flex;
   }
-  .skn-guest .skn-btn-ghost {
-    display: none;
-  }
 }
 @media (max-width: 640px) {
   .skn-bar {
@@ -1008,6 +1005,19 @@
     padding-right: 16px;
   }
   .skn-brand-tx small {
+    display: none;
+  }
+  /* "Log in" drops to the drawer on PHONES only.
+     This rule used to live in the ≤1024px block, alongside the one that
+     swaps the pill nav for the burger — so every tablet lost the Log in
+     button too. Measured at 768px: brand (213) + Log in & Sign up (209) +
+     burger (42) + bar padding (48) = 512 of 768, i.e. 256px to spare. There
+     was never a fit problem at that width; the two rules had simply been
+     written as if "no pill nav" meant "phone".
+     It stays hidden here because at 375px the same sum is 421 of 375 and
+     the cluster genuinely does overflow. The drawer carries both buttons
+     in its guest branch either way (Navbar.jsx, .skn-drawer-cta). */
+  .skn-guest .skn-btn-ghost {
     display: none;
   }
   .skn-guest .skn-btn-solid,

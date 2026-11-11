@@ -15,6 +15,7 @@ import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../co
 const Profile = lazy(() => import("../pages/Profile"));
 import { ExploreProvider } from "../explore/ExploreStore";
 import ExploreToolbar from "../explore/ExploreToolbar";
+import RouteSeo from "../seo/RouteSeo";
 
 import "../css/App.css";
 
@@ -277,6 +278,10 @@ function App() {
     <ProfileModalProvider>
     <div className="app">
       <ScrollToTop />
+      {/* Sets <title>/description/canonical per route. Sits outside <Routes>
+          so it applies on every navigation, including ones that resolve to a
+          lazy chunk still in flight. */}
+      <RouteSeo />
 
       <Suspense fallback={<RouteFallback />}>
       <Routes>

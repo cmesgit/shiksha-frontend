@@ -1,0 +1,57 @@
+# https://shikshacom.com/robots.txt
+#
+# Before this file existed, /robots.txt fell through nginx's SPA rewrite and
+# returned the app's index.html with a 200 — so crawlers parsed HTML as a
+# robots file, found no directives, and had no pointer to a sitemap.
+
+User-agent: *
+
+# Authentication and account flows. Nothing here is useful in an index, and
+# several are one-shot links (verification, password reset).
+Disallow: /login
+Disallow: /register
+Disallow: /signup
+Disallow: /verify-email
+Disallow: /email-verified
+Disallow: /resend-verification
+Disallow: /forgot-password
+
+# Signed-in surfaces. These render a redirect-to-login for anonymous crawlers,
+# so indexing them only produces duplicate copies of the login page.
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /pick-profile
+Disallow: /manage-profiles
+Disallow: /form-fillup
+Disallow: /enroll/
+Disallow: /payment
+Disallow: /moderator
+Disallow: /live/room/
+Disallow: /live/guest/
+Disallow: /live/session/
+
+# The scholarship exam funnel past the public landing page: every step is
+# gated, and an exam session URL is per-student.
+Disallow: /scholarship/verify
+Disallow: /scholarship/details
+Disallow: /scholarship/eligibility
+Disallow: /scholarship/instructions
+Disallow: /scholarship/exam/
+Disallow: /scholarship/evaluating/
+Disallow: /scholarship/result/
+Disallow: /scholarship/checkout/
+Disallow: /scholarship/done
+
+# Per-user forum surfaces. The public feed, threads, spaces and categories
+# stay crawlable.
+Disallow: /forum/dashboard
+Disallow: /forum/saved
+Disallow: /forum/notifications
+Disallow: /forum/answer-queue
+Disallow: /forum/profile
+
+# Search result pages — infinite URL space, no unique content.
+Disallow: /forum/search
+Disallow: /*?q=
+
+Sitemap: https://shikshacom.com/sitemap.xml

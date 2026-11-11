@@ -13,6 +13,7 @@
  * alone is most of the recovery path.
  */
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Seo from "../seo/Seo";
 
 // The handful of places a lost visitor most plausibly wanted. Kept short on
 // purpose — a wall of links is as unhelpful as no links.
@@ -29,6 +30,12 @@ export default function NotFound() {
 
   return (
     <div className="nf-wrap">
+      {/* The server cannot return a 404 status for this page — nginx serves
+          index.html with a 200 for every unmatched path, so a crawler is told
+          this is a real page. Until that is fixed server-side (see
+          docs/seo-404.md), this noindex is the only signal that keeps 404s
+          out of the index. */}
+      <Seo title="Page not found" noindex />
       <style>{css}</style>
 
       <p className="nf-code">404</p>

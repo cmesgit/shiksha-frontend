@@ -4,7 +4,46 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/Shiksha.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ShikshaCom</title>
+
+    <!-- Default document metadata.
+         These are the FALLBACK values. Individual routes override title and
+         description at runtime via <Seo> (src/seo/Seo.jsx), which React 19
+         hoists into <head>.
+
+         They must also exist here, statically, because the overrides only
+         reach clients that execute JavaScript. Google does render JS, but
+         WhatsApp, Facebook, Slack, Telegram and X fetch the raw HTML and
+         never run the bundle — so whatever is in this file IS the link
+         preview for every shared URL on the site. Until the app is
+         server-rendered or prerendered, every page previews as the site.
+
+         Deliberately NOT set here:
+           - <link rel="canonical">: a static canonical would declare every
+             URL on the site to be the homepage, which is worse than none.
+             Set per-route in <Seo> instead.
+           - <meta property="og:url">: scrapers fall back to the URL they
+             fetched, which is already correct. -->
+    <title>ShikshaCom — Online classes for CBSE &amp; MBSE, Classes 8–12</title>
+    <meta name="description" content="Live and recorded classes for CBSE and Mizoram Board (MBSE), Classes 8–12. Study material, practice quizzes, a student forum and free career counselling." />
+
+    <meta property="og:site_name" content="ShikshaCom" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content="ShikshaCom — Online classes for CBSE &amp; MBSE, Classes 8–12" />
+    <meta property="og:description" content="Live and recorded classes for CBSE and Mizoram Board (MBSE), Classes 8–12. Study material, practice quizzes, a student forum and free career counselling." />
+    <!-- 200x200: the largest brand asset that exists today. It clears
+         Facebook's 200x200 floor and renders as a square thumbnail, but a
+         purpose-made 1200x630 card would render as a full-width banner. -->
+    <meta property="og:image" content="https://shikshacom.com/Shiksha.png" />
+    <meta property="og:image:width" content="200" />
+    <meta property="og:image:height" content="200" />
+    <meta property="og:image:alt" content="ShikshaCom" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="ShikshaCom — Online classes for CBSE &amp; MBSE, Classes 8–12" />
+    <meta name="twitter:description" content="Live and recorded classes for CBSE and Mizoram Board (MBSE), Classes 8–12. Study material, practice quizzes, a student forum and free career counselling." />
+    <meta name="twitter:image" content="https://shikshacom.com/Shiksha.png" />
+
     <!-- ✅ Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQWR3BD3C7"></script>
     <script>

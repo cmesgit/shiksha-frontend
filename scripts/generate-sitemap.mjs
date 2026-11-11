@@ -1,0 +1,149 @@
+/**
+ * Regenerate public/sitemap.xml.
+ *
+ *   node scripts/generate-sitemap.mjs            # against the live API
+ *   API=https://api.example.com node scripts/...  # against another backend
+ *
+ * Deliberately NOT wired into `npm run build`. A build that reaches out to the
+ * network fails whenever the API is down or slow, and the sitemap changes far
+ * less often than the bundle does. Run this when content is added, review the
+ * diff, and commit it.
+ *
+ * Two things this gets right that a hand-written sitemap does not:
+ *
+ *   - Courses flagged `is_coming_soon` are skipped. The catalog serves 35
+ *     courses but most competitive tracks are unbuilt; listing them tells
+ *     Google to index a page that cannot be enrolled in.
+ *   - Blog URLs respect `locale`. Hindi posts live under /blogs/hi/<slug>,
+ *     English under /blogs/<slug>, and the slug itself is a path
+ *     ("class-9/science/chapter-7"), not a single segment.
+ */
+
+const API = process.env.API || "https://api.shikshacom.com/api";
+const SITE = process.env.SITE || "https://shikshacom.com";
+
+// Stable public routes. Anything gated, per-user, or search-shaped is excluded
+// here and also Disallow:ed in public/robots.txt — keep the two in step.
+const STATIC_ROUTES = [
+  ["/", 1.0, "daily"],
+  ["/courses", 0.9, "daily"],
+  ["/about", 0.6, "monthly"],
+  ["/contact", 0.5, "monthly"],
+  ["/faq", 0.5, "monthly"],
+  ["/blogs", 0.8, "daily"],
+  ["/current-affairs", 0.7, "daily"],
+  ["/forum", 0.7, "daily"],
+  ["/explore", 0.7, "weekly"],
+  ["/explore/browse", 0.6, "weekly"],
+  ["/explore/collections", 0.5, "weekly"],
+  ["/quiz", 0.6, "weekly"],
+  ["/counselling", 0.7, "weekly"],
+  ["/counselling/guides", 0.7, "weekly"],
+  ["/admission/india", 0.6, "weekly"],
+  ["/skill/browse", 0.7, "weekly"],
+  ["/scholarship", 0.6, "weekly"],
+  ["/general-studies", 0.5, "monthly"],
+  ["/become-faculty", 0.5, "monthly"],
+  ["/become-expert", 0.5, "monthly"],
+  ["/live", 0.4, "weekly"],
+  ["/feedback", 0.3, "yearly"],
+  ["/terms", 0.2, "yearly"],
+  ["/privacy", 0.2, "yearly"],
+];
+
+async function getJSON(path) {
+  const res = await fetch(`${API}${path}`);
+  if (!res.ok) throw new Error(`${path} -> ${res.status}`);
+  return res.json();
+}
+
+/** DRF list endpoints are paginated ({count,next,results}) or a bare array. */
+async function getAll(path) {
+  let out = [];
+  let url = path;
+  while (url) {
+    const page = await getJSON(url);
+    if (Array.isArray(page)) return page;
+    out = out.concat(page.results || []);
+    url = page.next ? page.next.replace(API, "") : null;
+  }
+  return out;
+}
+
+const xmlEscape = (s) =>
+  String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+           .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+
+function urlEntry({ loc, lastmod, changefreq, priority }) {
+  const parts = [`    <loc>${xmlEscape(SITE + loc)}</loc>`];
+  if (lastmod) parts.push(`    <lastmod>${lastmod.slice(0, 10)}</lastmod>`);
+  if (changefreq) parts.push(`    <changefreq>${changefreq}</changefreq>`);
+  if (priority != null) parts.push(`    <priority>${priority.toFixed(1)}</priority>`);
+  return `  <url>\n${parts.join("\n")}\n  </url>`;
+}
+
+async function main() {
+  const entries = STATIC_ROUTES.map(([loc, priority, changefreq]) => ({
+    loc, priority, changefreq,
+  }));
+
+  const soft = async (label, fn) => {
+    try { return await fn(); }
+    catch (e) { console.warn(`! skipped ${label}: ${e.message}`); return []; }
+  };
+
+  const courses = await soft("courses", () => getAll("/courses/public/catalog/"));
+  let skippedSoon = 0;
+  for (const c of courses) {
+    if (c.is_coming_soon) { skippedSoon++; continue; }
+    if (!c.slug) continue;
+    entries.push({ loc: `/courses/${c.slug}`, priority: 0.8, changefreq: "weekly" });
+  }
+
+  const blogs = await soft("blogs", () => getAll("/content/blogs/"));
+  for (const b of blogs) {
+    if (!b.slug) continue;
+    const prefix = b.locale === "hi" ? "/blogs/hi/" : "/blogs/";
+    entries.push({ loc: prefix + b.slug, lastmod: b.publish_at || undefined,
+                   priority: 0.6, changefreq: "monthly" });
+  }
+
+  const affairs = await soft("current affairs", () => getAll("/content/current-affairs/"));
+  for (const a of affairs) {
+    if (!a.slug) continue;
+    entries.push({ loc: `/current-affairs/${a.slug}`, lastmod: a.publish_at || undefined,
+                   priority: 0.5, changefreq: "monthly" });
+  }
+
+  const guides = await soft("counselling guides", () => getAll("/counseling/guides/"));
+  for (const g of guides) {
+    if (!g.slug) continue;
+    entries.push({ loc: `/counselling/guides/${g.slug}`, priority: 0.6, changefreq: "monthly" });
+  }
+
+  // A duplicate <loc> is a validation warning in Search Console.
+  const seen = new Set();
+  const unique = entries.filter((e) => !seen.has(e.loc) && seen.add(e.loc));
+
+  const xml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<!-- Generated by scripts/generate-sitemap.mjs. Do not hand-edit. -->\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    unique.map(urlEntry).join("\n") +
+    `\n</urlset>\n`;
+
+  const { writeFileSync } = await import("node:fs");
+  const { fileURLToPath } = await import("node:url");
+  const { dirname, join } = await import("node:path");
+  const out = join(dirname(dirname(fileURLToPath(import.meta.url))), "public", "sitemap.xml");
+  writeFileSync(out, xml);
+
+  console.log(
+    `sitemap.xml: ${unique.length} urls ` +
+    `(${STATIC_ROUTES.length} static, ${courses.length - skippedSoon} courses, ` +
+    `${blogs.length} blogs, ${affairs.length} affairs, ${guides.length} guides; ` +
+    `${skippedSoon} coming-soon courses skipped)`
+  );
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });
