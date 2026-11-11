@@ -34,7 +34,7 @@
 //     number cannot be computed from anything in the repo today.
 
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import { ABROAD_100 } from "./data/abroad100";
 
@@ -364,6 +364,102 @@ export default function AdmissionAbroadPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="in-process" aria-label="How admission abroad works">
+        <h2 className="ab-h2">How admission abroad works</h2>
+        <p className="ab-lede">Six steps from choosing a course to landing on campus.</p>
+        <ol className="in-steps in-steps-6">
+          {[
+            ["Choose your course", "Match your academic background and career goals to the right programme and study level."],
+            ["Pick a destination", "Compare countries on cost, intakes, visa rules, work rights and career outcomes."],
+            ["Shortlist universities", "Use rankings, course content, fees and entry requirements to build a balanced list."],
+            ["Check eligibility & tests", "Confirm grades, IELTS/TOEFL/PTE, GRE/GMAT and documents for each programme."],
+            ["Apply & fund", "Submit SOPs, LORs and applications; plan scholarships, loans and proof of funds."],
+            ["Visa & travel", "Accept your offer, apply for the student visa and prepare to move."],
+          ].map(([title, detail], i) => (
+            <li key={title}>
+              <span className="in-step-n">{i + 1}</span>
+              <span className="in-step-title">{title}</span>
+              <span className="in-step-detail">{detail}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="sc-card in-guidance">
+        <div>
+          <div className="in-kicker">Guidance</div>
+          <h2 className="ab-h2">Planning to study abroad?</h2>
+          <p className="ab-lede">
+            A ShikshaCom counsellor can help you pick a country and course, shortlist
+            universities, prepare documents and plan your visa timeline.
+          </p>
+          <ul className="in-ticks">
+            <li>Country &amp; course shortlisting</li>
+            <li>SOP, LOR &amp; document review</li>
+            <li>Visa timeline planning</li>
+          </ul>
+          <Link className="sc-btn green" to="/counselling/counsellors">Talk to a counsellor →</Link>
+        </div>
+
+        <div>
+          <div className="in-kicker">Before you apply</div>
+          <ul className="in-checks">
+            <li>
+              Start 12–18 months before your intake — shortlist courses, check entry
+              requirements and book IELTS/TOEFL/PTE and GRE/GMAT early.
+            </li>
+            <li>
+              Apply to a balanced list of universities: a few ambitious, several realistic and
+              one or two safe choices.
+            </li>
+            <li>
+              Plan your budget for tuition, living costs, visa fees and health cover, and apply
+              for scholarships alongside admission.
+            </li>
+            <li>
+              Keep documents ready: transcripts, test scores, SOP, LORs, CV, passport and proof
+              of funds.
+            </li>
+            <li>
+              Visa and work rules change often — confirm them on the official immigration
+              website before you accept an offer.
+            </li>
+          </ul>
+
+          {/* The source sheet is explicit about what it did and did not check;
+              those numbers belong where a reader can see them, not only in a
+              generated file's header. */}
+          <details className="in-about">
+            <summary>About this data</summary>
+            <ul>
+              <li>
+                Rankings: QS World University Rankings {ABROAD_100[0].qsEdition}, published June 2026.
+                This is an overall institutional ranking, not a programme ranking.
+              </li>
+              <li>
+                <b>{ABROAD_100.filter((r) => !r.ranked).length}</b> of the {ABROAD_100.length} are
+                not placed in that overall list, and{" "}
+                <b>{ABROAD_100.filter((r) => /-/.test(r.qsRank)).length}</b> sit in a band rather
+                than at a single position. Both are shown as the source gives them.
+              </li>
+              <li>
+                Tuition is shown with the source’s own evidence label. Roughly half the entries
+                carry a numeric amount; the rest give a fee policy or state that the value was
+                not verified. Fee periods differ between institutions and are not comparable.
+              </li>
+              <li>
+                Subject lists are main postgraduate areas, not a catalogue of every degree,
+                module or intake.
+              </li>
+              <li>
+                India is excluded from this sheet by its own design — see the India directory
+                for NIRF-ranked institutions.
+              </li>
+            </ul>
+          </details>
+        </div>
       </section>
 
       <Drawer row={open} onClose={() => setOpen(null)} />

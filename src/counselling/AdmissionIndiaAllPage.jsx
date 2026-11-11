@@ -36,7 +36,7 @@
 // profile is opened, so browsing the list does not download it.
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import { NIRF_980 } from "./data/nirf980";
 
@@ -447,6 +447,100 @@ export default function AdmissionIndiaAllPage() {
             )}
           </>
         )}
+      </section>
+
+      <section className="in-process" aria-label="How admission works">
+        <h2 className="ab-h2">How admission works</h2>
+        <p className="ab-lede">Five steps from choosing a course to confirming your seat.</p>
+        <ol className="in-steps">
+          {[
+            ["Choose a course", "Pick a stream — engineering, medical, management, law, arts or science."],
+            ["Check the exam", "Find the entrance exam: JEE, NEET, CUET, CLAT, CAT and more."],
+            ["Apply & appear", "Register before the deadline and take the exam."],
+            ["Counselling", "Fill choices in JoSAA, MCC, CSAS or state counselling."],
+            ["Confirm your seat", "Verify documents and pay fees to secure admission."],
+          ].map(([title, detail], i) => (
+            <li key={title}>
+              <span className="in-step-n">{i + 1}</span>
+              <span className="in-step-title">{title}</span>
+              <span className="in-step-detail">{detail}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="sc-card in-guidance">
+        <div>
+          <div className="in-kicker">Guidance</div>
+          <h2 className="ab-h2">Not sure where to start?</h2>
+          <p className="ab-lede">
+            A ShikshaCom counsellor can help you shortlist institutions, pick the right
+            entrance exam and track deadlines.
+          </p>
+          <ul className="in-ticks">
+            <li>Free one-to-one guidance</li>
+            <li>Exam &amp; counselling support</li>
+            <li>Shortlist based on your rank</li>
+          </ul>
+          <Link className="sc-btn green" to="/counselling/counsellors">Talk to a counsellor →</Link>
+        </div>
+
+        <div>
+          <div className="in-kicker">Before you apply</div>
+          <ul className="in-checks">
+            <li>
+              Shortlist 8–10 institutions — a mix of ambitious, moderate and safe choices — and
+              check each one’s eligibility (subjects, minimum marks, age) before filling exam forms.
+            </li>
+            <li>
+              Register early for every entrance exam you need. JEE Main, NEET-UG, CUET, CLAT and
+              CAT forms usually close months before the exam.
+            </li>
+            <li>
+              An exam rank alone doesn’t give you a seat — register separately for counselling
+              (JoSAA, MCC, CSAS or your state portal) and fill choices carefully.
+            </li>
+            <li>
+              Keep documents ready: Class 10 &amp; 12 mark sheets, category / EWS / PwD and
+              domicile certificates, photo ID and passport-size photos.
+            </li>
+            <li>
+              Check the official fee notice, hostel charges and scholarships before you pay the
+              seat-acceptance fee.
+            </li>
+          </ul>
+
+          {/* The artboard links "About this data". Rather than a dead link, the
+              actual coverage numbers — the same ones the profiles carry — so a
+              reader can judge how much of this directory is verified. */}
+          <details className="in-about">
+            <summary>About this data</summary>
+            <ul>
+              <li>
+                Rankings: NIRF India Rankings 2025, Ministry of Education. NIRF 2026 had not
+                been published when this directory was compiled.
+              </li>
+              <li>
+                <b>{NIRF_980.filter((r) => r.courseSource === "official").length} of {NIRF_980.length}</b>{" "}
+                profiles have a course list taken from the institution’s own programme pages.
+                The rest show indicative groups for that kind of institution.
+              </li>
+              <li>
+                <b>{NIRF_980.filter((r) => r.feeStatus === "verified").length} of {NIRF_980.length}</b>{" "}
+                have fees from an official fee document. Where a fee could not be verified the
+                profile says so — it never shows an estimate.
+              </li>
+              <li>
+                <b>{NIRF_980.filter((r) => r.websiteVerify).length}</b> website addresses come from
+                known institutional domains and were not re-checked for this edition.
+              </li>
+              <li>
+                Stream and exam groupings are ours, derived from each profile’s course and
+                entrance text — not an official taxonomy.
+              </li>
+            </ul>
+          </details>
+        </div>
       </section>
 
       <Drawer row={open} onClose={() => setOpen(null)} />
