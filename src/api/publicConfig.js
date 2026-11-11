@@ -27,6 +27,13 @@ const DEFAULTS = {
      because two of the ticker's eight slots are the login and signup
      screens, which render before anyone has logged in. */
   live_ticker_enabled: false,
+  /* Career counselling v3. Public for the same reason: /admission/abroad is
+     a logged-out marketing page, so a flag on `feature_flags` would be
+     absent for exactly the visitors who see it. Ships OFF — the directory's
+     own data is cited and dated, but the study-abroad guides around it are
+     not finished and the source names live immigration instruments with no
+     date stamp. An admin turns it on without a deploy. */
+  admission_abroad_enabled: false,
 };
 
 /* One in-flight request per page load, shared by every caller. Without this,
@@ -38,9 +45,12 @@ export function getPublicConfig() {
   if (cached) return Promise.resolve(cached);
   if (inflight) return inflight;
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   inflight = fetch(`${API_URL}/public-config/`, {
     credentials: "omit",
     headers: { Accept: "application/json" },
+    signal: controller.signal,
   })
     .then((res) => (res.ok ? res.json() : {}))
     .catch(() => ({}))
@@ -53,7 +63,8 @@ export function getPublicConfig() {
       cached = { ...DEFAULTS, ...(body || {}) };
       inflight = null;
       return cached;
-    });
+    })
+    .finally(() => clearTimeout(timeout));
 
   return inflight;
 }

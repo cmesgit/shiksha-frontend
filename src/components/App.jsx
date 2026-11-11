@@ -39,7 +39,11 @@ const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage")
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
 const CounsellingCareer     = lazy(() => import("../counselling/CareerDetailPage"));
 const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPage"));
-const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadPage"));
+// Gated at runtime on the public `admission_abroad_enabled` flag. The route
+// points at the GATE, not the page — the gate lazy-loads the page itself
+// once it knows the flag is on, so a visitor never fetches the directory
+// chunk (183 kB) while the feature is off.
+const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadRoute"));
 const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAllPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
