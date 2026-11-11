@@ -620,3 +620,14 @@
   .ab-row-fee { grid-column: 1 / -1; justify-self: start; max-width: none; }
   .ab-tabs { width: 100%; overflow-x: auto; }
 }
+
+/* Admission in India — full NIRF directory (AdmissionIndiaAllPage.jsx).
+   Shares the ab-* layout vocabulary with the abroad directory on purpose:
+   same screen shape, same provenance badges, one set of rules to maintain. */
+.in-cats { margin-bottom: 14px; gap: 6px; }
+.in-facet-note { margin-top: 12px; max-width: 760px; }
+.in-more { display: flex; justify-content: center; margin-top: 18px; }
+.in-courses { margin: 12px 0 0; padding-left: 18px; }
+.in-courses li { margin-bottom: 6px; line-height: 1.5; color: #14201a; }
+.in-kv dt { font-weight: 700; color: #14201a; font-size: 12.5px; margin-top: 8px; }
+.in-kv dd { margin: 2px 0 0; color: #44524a; line-height: 1.55; }
