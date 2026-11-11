@@ -190,6 +190,32 @@ const STATIC_COURSES_MENU = [
 // Returns the static menu unchanged if the API has nothing usable yet, which
 // is also what "Skill & Career" gets until somebody curates it — it has no
 // catalogue backing, so the API returns nothing for it at all.
+// "Admission Abroad" is gated on the public `admission_abroad_enabled` flag,
+// the same switch that gates the route itself. Before this it was hardcoded
+// `soon: true` because no page existed; now one does, and leaving the nav
+// hardcoded meant an admin could turn the directory on and still have the
+// only menu entry pointing at it say "Coming Soon" — the page would be live
+// and unreachable by anyone who did not already know the URL.
+// Categories hold their link groups under EITHER `tabs` (School Education)
+// or `sections` (Skill & Career, which is where Career Guidance lives), so
+// both are walked. Keying on only one of them is a silent no-op: the map
+// runs, matches nothing, and the menu renders unchanged — which is exactly
+// how this first shipped.
+function applyAbroadFlag(menu, enabled) {
+  if (!enabled) return menu;
+  const relink = (l) =>
+    l.label === "Admission Abroad"
+      ? { label: l.label, to: "/admission/abroad" } // drops `soon`
+      : l;
+  const walk = (groups) =>
+    (groups || []).map((g) => ({ ...g, links: (g.links || []).map(relink) }));
+  return menu.map((cat) => ({
+    ...cat,
+    ...(cat.tabs ? { tabs: walk(cat.tabs) } : null),
+    ...(cat.sections ? { sections: walk(cat.sections) } : null),
+  }));
+}
+
 function mergeLiveNavMenu(categories) {
   if (!categories.length) return STATIC_COURSES_MENU;
   const byKey = {
@@ -532,6 +558,11 @@ const Navbar = () => {
   const [tickerEnabled, setTickerEnabled] = useState(false);
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState(readDismissedAnnouncements);
   const [coursesMenu, setCoursesMenu] = useState(STATIC_COURSES_MENU);
+  const [abroadEnabled, setAbroadEnabled] = useState(false); // fail closed
+  const navMenu = useMemo(
+    () => applyAbroadFlag(coursesMenu, abroadEnabled),
+    [coursesMenu, abroadEnabled],
+  );
 
   const headerRef = useRef(null);
   const searchRef = useRef(null);
@@ -585,7 +616,11 @@ const Navbar = () => {
   useEffect(() => {
     let alive = true;
     getPublicConfig()
-      .then((cfg) => { if (alive) setTickerEnabled(!!cfg.live_ticker_enabled); })
+      .then((cfg) => {
+        if (!alive) return;
+        setTickerEnabled(!!cfg.live_ticker_enabled);
+        setAbroadEnabled(!!cfg.admission_abroad_enabled);
+      })
       .catch(() => { /* fail closed — extras stay off */ });
     return () => { alive = false; };
   }, []);
@@ -716,7 +751,7 @@ const Navbar = () => {
 
   const megaFor = (id) =>
     id === "courses" ? (
-      <CoursesMega onGo={closeAll} menu={coursesMenu} />
+      <CoursesMega onGo={closeAll} menu={navMenu} />
     ) : id === "resources" ? (
       <CardsMega items={RESOURCES_MENU} onGo={closeAll} cols={3} />
     ) : (
@@ -975,7 +1010,7 @@ const Navbar = () => {
             open={openAcc === "courses"}
             onToggle={() => setOpenAcc(openAcc === "courses" ? "" : "courses")}
           >
-            {coursesMenu.map((cat) => (
+            {navMenu.map((cat) => (
               <div className="skn-dgroup" key={cat.title}>
                 <h5>{cat.title}</h5>
                 {(cat.tabs
