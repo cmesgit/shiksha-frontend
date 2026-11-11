@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState} from "react";
 import AlreadySignedIn from "../auth/AlreadySignedIn";
+import { resolveReturnPath } from "../auth/returnTo";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "../routes/ProtectedRoute";
@@ -14,6 +15,7 @@ import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../co
 const Profile = lazy(() => import("../pages/Profile"));
 import { ExploreProvider } from "../explore/ExploreStore";
 import ExploreToolbar from "../explore/ExploreToolbar";
+import RouteErrorBoundary from "./RouteErrorBoundary";
 
 import "../css/App.css";
 
@@ -35,6 +37,8 @@ const CounsellingPath       = lazy(() => import("../counselling/MyPathPage"));
 const CounsellingMatches    = lazy(() => import("../counselling/MatchesPage"));
 const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage"));
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
+const CounsellingCareer     = lazy(() => import("../counselling/CareerDetailPage"));
+const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -192,8 +196,8 @@ function RedirectExternal({ to }) {
 }
 
 // Where to send a user who just authenticated on /login. Prefer wherever they
-// were actually headed — an explicit ?next= (set by ForumContext.requireAuth)
-// or the post_auth_redirect stored by ProtectedRoute — so logging in from the
+// were actually headed — an explicit ?next=, router state from a counselling
+// page, or the post_auth_redirect stored by ProtectedRoute — so logging in from the
 // forum/explore/etc. returns there. Only when there is NO in-app destination do
 // we fall back to the context dashboard (the old always-dashboard behaviour).
 function LoginRedirect() {
@@ -204,19 +208,14 @@ function LoginRedirect() {
   const next = new URLSearchParams(location.search).get("next");
   let stored = null;
   try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
-  // `next` only wins when it's actually usable — otherwise an attacker-supplied
-  // (or just stale) unsafe `?next=` would discard a legitimately stored
-  // destination and leave it stranded for the next login in this tab.
-  const isSafe = (v) => !!v && v.startsWith("/") && !v.startsWith("//")
-    && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(v);
-  const target = isSafe(next) ? next : (isSafe(stored) ? stored : null);
+  const target = resolveReturnPath(next, location.state?.from, stored);
   const isLocalTarget = !!target;
 
   useEffect(() => {
-    if (showRedirect && isLocalTarget && stored) {
+    if (showRedirect && isLocalTarget && stored && (isLearnerContext || isTeacherContext)) {
       try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
     }
-  }, [showRedirect, isLocalTarget, stored]);
+  }, [showRedirect, isLocalTarget, stored, isLearnerContext, isTeacherContext]);
 
   // A pending destination still belongs to the signed-in account. Always
   // offer the account choice before following it, including ?next= links.
@@ -224,6 +223,9 @@ function LoginRedirect() {
     return <AlreadySignedIn onContinue={() => setShowRedirect(true)} />;
   }
 
+  if (isLocalTarget && !isLearnerContext && !isTeacherContext) {
+    return <Navigate to="/pick-profile" replace state={{ from: target }} />;
+  }
   if (isLocalTarget) return <Navigate to={target} replace />;
   if (isLearnerContext) return <RedirectExternal to={APP_DASHBOARD_URL} />;
   if (isTeacherContext) {
@@ -253,7 +255,7 @@ function RetiredSignupRedirect() {
 }
 
 function App() {
-  const { isAuthenticated, isLearnerContext, isTeacherContext, loading, activeProfile } = useAuth();
+  const { isAuthenticated, loading, activeProfile } = useAuth();
   const location = useLocation();
   useAnalytics();
 
@@ -274,6 +276,7 @@ function App() {
     <div className="app">
       <ScrollToTop />
 
+      <RouteErrorBoundary pathname={location.pathname}>
       <Suspense fallback={<RouteFallback />}>
       <Routes>
         {/* Home — always shows the landing page, never redirects away */}
@@ -403,6 +406,13 @@ function App() {
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
         <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
         <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
+        {/* Career Detail (workflow §7a) — public reference content, no auth
+            gate: a visitor can read a full career profile before signing up,
+            same as the guide library. */}
+        <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
+        {/* Admission in India — the Colleges-tab destination. Public, like
+            the guide library; the navbar entry points here too. */}
+        <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
@@ -562,6 +572,7 @@ function App() {
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
       </Suspense>
+      </RouteErrorBoundary>
     </div>
     </ProfileModalProvider>
   );

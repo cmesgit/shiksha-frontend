@@ -19,6 +19,7 @@ import { LayoutDashboard } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
 import ProfileSwitcher from "../shared/ProfileSwitcher";
+import { safeReturnPath } from "../auth/returnTo";
 import NotificationBell from "./NotificationBell";
 import { getAnnouncements } from "../api/contentApi";
 import { getPublicConfig } from "../api/publicConfig";
@@ -113,16 +114,11 @@ const STATIC_COURSES_MENU = [
         id: "state",
         label: "State Boards",
         heading: "State Boards",
-        // A representative few, not all 28 — this list only paints until the
-        // nav-menu API answers, and mergeLiveNavMenu then replaces the tabs
-        // wholesale. What matters is that the LABEL FORMAT matches what the
-        // API sends ("<abbr> · <state>", per BOARD_SEED), so the first paint
-        // doesn't visibly reformat itself a moment later.
         links: [
-          { label: "MBSE · Mizoram", to: "/courses", state: MBSE_STATE },
-          { label: "BSEAP · Andhra Pradesh", soon: true },
-          { label: "ASSEB · Assam", soon: true },
-          { label: "BSEB · Bihar", soon: true },
+          { label: "MBSE Mizoram", to: "/courses", state: MBSE_STATE },
+          { label: "BSEAP Andhra Pradesh", soon: true },
+          { label: "ASSEB Assam", soon: true },
+          { label: "BSEB Bihar", soon: true },
         ],
         viewAll: { label: "View all boards", to: "/courses" },
       },
@@ -171,19 +167,7 @@ const STATIC_COURSES_MENU = [
         heading: "Career Guidance",
         links: [
           { label: "Career Counselling", to: "/counselling" },
-          // This used to be `soon: true`, reserved for a future directory of
-          // Indian colleges with rankings — on the reasoning that the
-          // directory is a bigger feature than the existing study-in-india
-          // guide, which was "reachable from the guide library instead".
-          //
-          // In practice that made a nav entry people click render an inert
-          // "Coming Soon" row while a published 12-chapter Admissions
-          // Handbook sat two clicks away. Pointing at the guide that exists
-          // beats advertising one that doesn't. If the college directory is
-          // ever built it needs its own entry rather than reclaiming this
-          // one, since this URL will by then be the thing people have
-          // bookmarked.
-          { label: "Admission in India", to: "/counselling/guides/study-in-india" },
+          { label: "Admission in India", to: "/admission/india" },
           // No source guide exists yet for study-abroad admissions —
           // point this at a real page once one is written, not at a
           // domestic guide that doesn't answer the question.
@@ -724,6 +708,12 @@ const Navbar = () => {
     }
   };
 
+  const rememberCounsellingReturn = () => {
+    const target = safeReturnPath(location.pathname + location.search);
+    if (!target || !/^\/counselling(?:\/|$)/.test(location.pathname)) return;
+    try { window.sessionStorage.setItem("post_auth_redirect", target); } catch { /* unavailable */ }
+  };
+
   const megaFor = (id) =>
     id === "courses" ? (
       <CoursesMega onGo={closeAll} menu={coursesMenu} />
@@ -819,6 +809,15 @@ const Navbar = () => {
                   <IcChevronDown />
                 </button>
               ))}
+              <Link
+                to="/live"
+                className={`skn-navbtn skn-navlink${location.pathname.startsWith("/live") ? " skn-on" : ""}`}
+                aria-current={location.pathname.startsWith("/live") ? "page" : undefined}
+                onMouseEnter={closeAll}
+                onClick={closeAll}
+              >
+                Collab
+              </Link>
             </div>
 
           </nav>
@@ -869,6 +868,7 @@ const Navbar = () => {
                       global top navbar. */}
                   <NotificationBell />
                   <ProfileSwitcher
+                    onBeforeLogout={rememberCounsellingReturn}
                     teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}
@@ -967,6 +967,9 @@ const Navbar = () => {
         </div>
 
         <div className="skn-drawer-body">
+          <Link to="/live" className="skn-mlink skn-strong" onClick={closeAll}>
+            <span>Collab</span>
+          </Link>
           <DrawerAccordion
             title="Courses"
             open={openAcc === "courses"}
@@ -1055,6 +1058,7 @@ const Navbar = () => {
                 <div className="skn-drawer-account-row">
                   <NotificationBell />
                   <ProfileSwitcher
+                    onBeforeLogout={rememberCounsellingReturn}
                     teacherSignupUrl="/become-a-teacher"
                     learnUrl={APP_URL}
                     teachUrl={TEACHER_URL}

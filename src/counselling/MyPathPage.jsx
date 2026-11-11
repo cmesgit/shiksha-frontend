@@ -13,6 +13,7 @@ import { getIntake } from "../api/counselling";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import CounsellingShell from "./CounsellingShell";
 import { buildCareerPath } from "./careerPath";
+import { hasFullDetail, toCareerKey } from "./careerVocab";
 import { GuideCard } from "./LandingPage";
 import useCounsellorsLive from "./useCounsellorsLive";
 
@@ -73,6 +74,13 @@ export default function MyPathPage() {
   }
 
   const path = buildCareerPath(intake);
+  const subject = intake.audience === "child" ? "your child" :
+    intake.audience === "sibling" ? "your sibling" :
+      intake.audience === "other" ? "them" : "you";
+  const meaningTitle = intake.audience === "self" || !intake.audience
+    ? "What this means for you"
+    : `What this means for ${subject}`;
+  const firstStep = path.paths[0]?.nextSteps[0];
 
   return (
     <CounsellingShell crumb=" / My Path" step="path">
@@ -91,6 +99,32 @@ export default function MyPathPage() {
         </Link>
       </div>
 
+      <section className="sc-meaning" aria-labelledby="sc-meaning-title">
+        <h2 id="sc-meaning-title" className="sc-h2">{meaningTitle}</h2>
+        <div className="sc-grid3">
+          <div className="sc-card sc-meaning-card">
+            <span className="sc-meaning-number">01</span>
+            <h3>Start with one step</h3>
+            <p>{firstStep || `Explore a direction that interests ${subject}.`}</p>
+          </div>
+          <div className="sc-card sc-meaning-card">
+            <span className="sc-meaning-number">02</span>
+            <h3>Read the context</h3>
+            <p>Use the related guides to compare routes, subjects and entrance options.</p>
+            <a href="#sc-related-guides">See guides →</a>
+          </div>
+          <div className="sc-card sc-meaning-card">
+            <span className="sc-meaning-number">03</span>
+            <h3>Talk it through</h3>
+            <p>A counsellor can help turn this shortlist into a practical plan.</p>
+            <Link to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+              {counsellorsLive ? "Find a counsellor →" : "Explore guides →"}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <div className="sc-h2row"><h2 className="sc-h2">{path.stage === "early" ? "Directions worth exploring" : "Career directions that fit"}</h2></div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 20 }}>
         {path.paths.map((p) => (
           <div key={p.title} className="sc-card sc-path-card">
@@ -109,11 +143,18 @@ export default function MyPathPage() {
             <ol className="sc-next">
               {p.nextSteps.map((s, i) => <li key={i}>{s}</li>)}
             </ol>
+            {/* Only offered where a real career profile exists. hasFullDetail
+                is false for most path titles — see careerVocab.js. */}
+            {hasFullDetail(p.title) && (
+              <Link className="sc-btn ghost sc-btn-sm-top" to={`/counselling/careers/${encodeURIComponent(toCareerKey(p.title))}`}>
+                Explore this career in detail →
+              </Link>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="sc-h2row"><h2 className="sc-h2">Related career guides</h2></div>
+      <div className="sc-h2row" id="sc-related-guides"><h2 className="sc-h2">Related career guides</h2></div>
       <div className="sc-grid3">
         {path.relatedGuides
           .map((slug) => guideIndex.find((g) => g.slug === slug))

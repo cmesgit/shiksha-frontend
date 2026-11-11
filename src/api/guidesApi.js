@@ -84,6 +84,18 @@ export function recordGuideView(slug) {
   api.post(`/counseling/guides/${encodeURIComponent(slug)}/view/`).catch(() => {});
 }
 
+export async function getGuideProgress(slug) {
+  const { data } = await api.get(`/counseling/guide-progress/${encodeURIComponent(slug)}/`);
+  return data;
+}
+
+export async function saveGuideProgress(slug, chapterSlug, markRead = false) {
+  const { data } = await api.put(`/counseling/guide-progress/${encodeURIComponent(slug)}/`, {
+    chapter_slug: chapterSlug, mark_read: markRead,
+  });
+  return data;
+}
+
 /** Card shape LandingPage/LibraryPage/GuideCard render. */
 export function toGuideCard(g) {
   return {

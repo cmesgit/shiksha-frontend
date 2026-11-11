@@ -1,0 +1,486 @@
+// Shared lookup of common Indian undergraduate/professional degrees.
+// Keyed by canonical short name; matched fuzzily against the free-text
+// degree strings stored per career path.
+export const DEGREE_INFO = {
+  "B.Tech / B.E.": {
+    full: "Bachelor of Technology / Bachelor of Engineering",
+    duration: "4 years",
+    about: "A 4-year undergraduate engineering degree covering a chosen branch (Computer Science, Mechanical, Civil, Electrical, etc.) alongside core maths, physics and engineering fundamentals in the first year before branch specialisation begins.",
+    subjects: ["Engineering Mathematics", "Physics", "Branch core subjects", "Programming/labs", "A final-year major project"],
+    careerOptions: [
+      { title: "Core engineering roles", desc: "Design, build and maintain systems in your branch — software, mechanical, civil, electrical and more." },
+      { title: "Higher studies (M.Tech/MS)", desc: "Specialise further in India or abroad, often required for research or academic roles." },
+      { title: "MBA", desc: "A common pivot into management, consulting or business roles after a few years of engineering experience." },
+      { title: "Government/PSU jobs", desc: "GATE-qualified engineers can join public sector undertakings and government technical services." },
+    ],
+    specializations: [
+      { name: "Computer Science (CSE)", desc: "Software, algorithms and systems — the highest-demand branch for tech roles." },
+      { name: "Mechanical", desc: "Machines, manufacturing and thermal systems — a broad, evergreen core branch." },
+      { name: "Electrical & Electronics", desc: "Power systems, circuits and electronics — feeds into energy, hardware and telecom." },
+      { name: "Civil", desc: "Structures, construction and infrastructure — core to real estate and public works." },
+      { name: "Chemical", desc: "Industrial processes and materials — leads into petrochemical and pharma manufacturing." },
+    ],
+    further: "M.Tech, MS (abroad), MBA, or GATE-based PSU recruitment.",
+  },
+  "BCA": {
+    full: "Bachelor of Computer Applications",
+    duration: "3 years",
+    about: "A 3-year undergraduate degree focused on programming, software development and computer applications — a lighter-weight, often more affordable alternative to a B.Tech CSE for entering software careers.",
+    subjects: ["Programming (C, Java, Python)", "Data Structures", "Database Management", "Web Development", "Computer Networks"],
+    careerOptions: [
+      { title: "Software/Web Developer", desc: "Enter directly into development roles at IT services or product companies." },
+      { title: "MCA", desc: "A common next step — a 2-year master's that deepens technical depth and improves placement outcomes." },
+      { title: "MBA", desc: "A pivot into IT management or product roles." },
+    ],
+    further: "MCA, MBA, or direct entry into software roles.",
+  },
+  "B.Sc IT": {
+    full: "Bachelor of Science in Information Technology",
+    duration: "3 years",
+    about: "A 3-year science degree focused on IT fundamentals — a mix of programming, systems and networking with a more theoretical/scientific base than a BCA.",
+    subjects: ["Programming", "Computer Networks", "Database Systems", "Operating Systems", "Statistics"],
+    careerOptions: [
+      { title: "IT Support/Systems roles", desc: "Entry-level IT operations, systems administration or support roles." },
+      { title: "Software Developer (with upskilling)", desc: "Possible with strong project/portfolio work alongside the degree." },
+      { title: "M.Sc IT / MCA", desc: "Common postgraduate routes to deepen technical specialisation." },
+    ],
+    further: "M.Sc IT, MCA, or certifications in cloud/networking.",
+  },
+  "B.Sc Data Science": {
+    full: "Bachelor of Science in Data Science",
+    duration: "3 years",
+    about: "A relatively new undergraduate degree combining statistics, programming and machine learning — built specifically for data analyst and data science career entry.",
+    subjects: ["Statistics & Probability", "Python/R Programming", "Machine Learning Basics", "Data Visualisation", "Databases"],
+    careerOptions: [
+      { title: "Data Analyst", desc: "Entry-level role analysing data to answer business questions." },
+      { title: "Junior Data Scientist", desc: "Building basic predictive models under supervision." },
+      { title: "M.Sc/M.Tech Data Science", desc: "Deepens technical rigor for more advanced ML/research roles." },
+    ],
+    further: "M.Sc Data Science, M.Tech AI/ML, or MBA in Analytics.",
+  },
+  "BBA": {
+    full: "Bachelor of Business Administration",
+    duration: "3 years",
+    about: "A 3-year foundational management degree covering the basics of business — accounting, marketing, HR, finance and operations — usually followed by an MBA for career acceleration.",
+    subjects: ["Principles of Management", "Marketing", "Financial Accounting", "Organisational Behaviour", "Business Statistics"],
+    careerOptions: [
+      { title: "Management Trainee", desc: "Entry-level generalist roles at companies, rotating across functions." },
+      { title: "MBA", desc: "The typical next step — most BBA graduates pursue an MBA for better roles and pay." },
+      { title: "Family business / Entrepreneurship", desc: "Many BBA graduates use the degree to prepare for running their own business." },
+    ],
+    specializations: [
+      { name: "Marketing", desc: "Branding, advertising and consumer behaviour." },
+      { name: "Finance", desc: "Corporate finance, investments and financial markets." },
+      { name: "Human Resources", desc: "Hiring, talent management and organisational behaviour." },
+      { name: "International Business", desc: "Cross-border trade, global markets and export-import operations." },
+    ],
+    further: "MBA (most common), or direct entry into junior management roles.",
+  },
+  "BMS": {
+    full: "Bachelor of Management Studies",
+    duration: "3 years",
+    about: "Similar to a BBA but with a slightly sharper focus on management and administration, offered mainly by Mumbai University-affiliated colleges.",
+    subjects: ["Management Principles", "Marketing", "Finance", "Business Law", "Human Resource Management"],
+    careerOptions: [
+      { title: "Management Trainee", desc: "Entry-level roles across business functions." },
+      { title: "MBA", desc: "Common next step for career acceleration." },
+    ],
+    further: "MBA or entry into junior management/analyst roles.",
+  },
+  "B.Com (Hons)": {
+    full: "Bachelor of Commerce (Honours)",
+    duration: "3 years",
+    about: "A deeper, more rigorous version of the standard B.Com, with additional research and specialisation components — usually the strongest commerce undergraduate option at top colleges.",
+    subjects: ["Financial Accounting", "Corporate Law", "Economics", "Taxation", "Business Statistics"],
+    careerOptions: [
+      { title: "Accountant / Finance roles", desc: "Entry into accounting, banking or corporate finance functions." },
+      { title: "CA/CS/CMA", desc: "Commonly pursued alongside or after B.Com for professional credentials." },
+      { title: "MBA", desc: "A common pivot into broader management roles." },
+    ],
+    further: "CA, CS, CMA, M.Com, or MBA.",
+  },
+  "B.Com": {
+    full: "Bachelor of Commerce",
+    duration: "3 years",
+    about: "The standard undergraduate commerce degree — covers accounting, economics, business law and taxation, and is the most common base for careers in finance and accounting.",
+    subjects: ["Financial Accounting", "Business Economics", "Business Law", "Income Tax", "Auditing"],
+    careerOptions: [
+      { title: "Accountant", desc: "Manages financial records and reporting for businesses." },
+      { title: "Bank/Finance roles", desc: "Entry-level roles at banks, NBFCs or corporate finance teams." },
+      { title: "CA/CS/CMA", desc: "Most commerce students pursue one of these professional credentials alongside or after their degree." },
+    ],
+    specializations: [
+      { name: "Accounting & Finance", desc: "Focused on financial accounting, cost accounting and taxation." },
+      { name: "Honours with Economics", desc: "Deeper theoretical grounding, useful for research or policy roles." },
+      { name: "E-commerce", desc: "Digital business and online commerce operations, offered at some colleges." },
+    ],
+    further: "CA, CS, CMA, M.Com, or MBA.",
+  },
+  "CA": {
+    full: "Chartered Accountancy",
+    duration: "~4–5 years (Foundation → Intermediate → Articleship → Final)",
+    about: "A professional (not university) qualification run by ICAI. Widely regarded as one of India's toughest professional courses, combining rigorous exams with 2 years of mandatory articleship (on-the-job training) under a practising CA.",
+    subjects: ["Accounting", "Corporate & Business Law", "Taxation (Direct & Indirect)", "Auditing", "Financial Management", "Cost Accounting"],
+    careerOptions: [
+      { title: "Practising Chartered Accountant", desc: "Runs an independent practice handling audits, tax filing and advisory for clients." },
+      { title: "CFO / Finance Head (in industry)", desc: "Many CAs move into senior corporate finance leadership over a career." },
+      { title: "Auditor", desc: "Works with audit firms (including the Big 4) reviewing companies' financial statements." },
+    ],
+    specializations: [
+      { name: "Audit & Assurance", desc: "Statutory and internal audits for companies — the most common CA practice area." },
+      { name: "Direct/Indirect Taxation", desc: "Income tax, GST advisory and litigation." },
+      { name: "Forensic Accounting", desc: "Investigating financial fraud and disputes." },
+    ],
+    further: "Can be combined with CFA or an MBA for global finance/consulting roles.",
+  },
+  "CFA": {
+    full: "Chartered Financial Analyst",
+    duration: "~2–4 years (3 levels, self-paced)",
+    about: "A globally recognised investment and finance credential (US-based CFA Institute), widely valued for equity research, portfolio management and investment banking roles — usually pursued alongside or after a bachelor's degree.",
+    subjects: ["Investment Tools (stats, economics)", "Asset Valuation", "Portfolio Management", "Ethics & Professional Standards", "Financial Reporting"],
+    careerOptions: [
+      { title: "Equity Research Analyst", desc: "Analyses companies and markets to produce investment recommendations." },
+      { title: "Portfolio Manager", desc: "Manages investment portfolios for funds or high-net-worth clients." },
+      { title: "Investment Banking Analyst", desc: "Works on capital raising and M&A deals." },
+    ],
+    further: "Often paired with an MBA in Finance for senior roles.",
+  },
+  "BBA Finance": {
+    full: "Bachelor of Business Administration (Finance specialisation)",
+    duration: "3 years",
+    about: "A BBA with a finance-focused curriculum — corporate finance, investments and financial markets — aimed at students who know early they want a finance career.",
+    subjects: ["Corporate Finance", "Financial Markets", "Investment Analysis", "Accounting", "Banking & Insurance"],
+    careerOptions: [
+      { title: "Financial Analyst", desc: "Analyses financial data to guide business or investment decisions." },
+      { title: "Banking roles", desc: "Entry-level positions in retail or corporate banking." },
+      { title: "MBA Finance / CFA", desc: "Common next steps to deepen finance specialisation." },
+    ],
+    further: "MBA Finance, CFA, or CA.",
+  },
+  "BHM": {
+    full: "Bachelor of Hotel Management",
+    duration: "3–4 years",
+    about: "A specialised undergraduate degree covering hotel operations — front office, food & beverage, housekeeping and hospitality management — usually including mandatory industrial training stints at hotels.",
+    subjects: ["Front Office Operations", "Food Production", "Food & Beverage Service", "Housekeeping", "Hospitality Accounting"],
+    careerOptions: [
+      { title: "Management Trainee (hotel chains)", desc: "Entry-level rotational programme across hotel departments." },
+      { title: "F&B / Front Office roles", desc: "Department-specific operational roles early in the career." },
+      { title: "MBA Hospitality", desc: "A path toward senior hotel or hospitality management roles." },
+    ],
+    further: "MBA in Hospitality/Tourism, or international hotel school diplomas (EHL, Glion).",
+  },
+  "MBBS": {
+    full: "Bachelor of Medicine, Bachelor of Surgery",
+    duration: "5.5 years (incl. 1-year internship)",
+    about: "India's foundational medical degree, required to practise as a doctor. Covers pre-clinical, para-clinical and clinical training across all major departments of medicine, ending with a mandatory rotating internship.",
+    subjects: ["Anatomy", "Physiology", "Pathology", "Pharmacology", "Medicine, Surgery & Clinical Postings"],
+    careerOptions: [
+      { title: "General Physician", desc: "Practises general medicine after registering with the Medical Council." },
+      { title: "MD/MS Specialisation", desc: "Most doctors pursue a postgraduate specialisation via NEET-PG for higher earning specialist roles." },
+      { title: "Government Medical Officer", desc: "Public health service roles, often with rural service requirements." },
+    ],
+    specializations: [
+      { name: "MD General Medicine", desc: "Broad internal medicine specialisation, a common base for further super-specialisation." },
+      { name: "MS General Surgery", desc: "Surgical specialisation covering operative procedures across body systems." },
+      { name: "MD Paediatrics", desc: "Focused on the medical care of infants, children and adolescents." },
+      { name: "MS Orthopaedics", desc: "Focused on bones, joints and the musculoskeletal system." },
+      { name: "MD Radiology / Dermatology", desc: "High-demand, comparatively better work-life-balance specialisations." },
+    ],
+    further: "MD/MS (via NEET-PG), or DNB, super-specialisation (DM/MCh) later.",
+  },
+  "BDS": {
+    full: "Bachelor of Dental Surgery",
+    duration: "5 years (incl. 1-year internship)",
+    about: "The foundational dental degree, covering oral anatomy, dental materials and clinical dentistry, required to practise as a licensed dentist in India.",
+    subjects: ["Dental Anatomy", "Oral Pathology", "Prosthodontics", "Orthodontics basics", "Clinical Dentistry"],
+    careerOptions: [
+      { title: "General Dentist", desc: "Runs or works in a dental practice handling routine care." },
+      { title: "MDS Specialisation", desc: "A postgraduate specialisation (orthodontics, oral surgery, etc.) for higher-earning specialist practice." },
+    ],
+    further: "MDS in a chosen specialisation.",
+  },
+  "BAMS": {
+    full: "Bachelor of Ayurvedic Medicine and Surgery",
+    duration: "5.5 years (incl. 1-year internship)",
+    about: "A degree blending traditional Ayurvedic medicine with modern medical training, qualifying graduates to practise as registered Ayurvedic physicians.",
+    subjects: ["Ayurveda Samhita (classical texts)", "Anatomy & Physiology", "Dravyaguna (herbal pharmacology)", "Panchakarma", "Clinical postings"],
+    careerOptions: [
+      { title: "Ayurvedic Physician", desc: "Practises Ayurvedic medicine independently or in a clinic/hospital." },
+      { title: "MD (Ayurveda)", desc: "Postgraduate specialisation for academic or advanced clinical roles." },
+    ],
+    further: "MD (Ayurveda) in a chosen specialisation.",
+  },
+  "BHMS": {
+    full: "Bachelor of Homeopathic Medicine and Surgery",
+    duration: "5.5 years (incl. 1-year internship)",
+    about: "The foundational degree for practising homeopathy in India, combining homeopathic principles with basic modern medical training.",
+    subjects: ["Homeopathic Materia Medica", "Organon of Medicine", "Anatomy & Physiology", "Repertory", "Clinical postings"],
+    careerOptions: [
+      { title: "Homeopathic Physician", desc: "Practises homeopathy, mainly in private clinics." },
+      { title: "MD (Homeopathy)", desc: "Postgraduate route for specialisation or academics." },
+    ],
+    further: "MD (Homeopathy).",
+  },
+  "BPT": {
+    full: "Bachelor of Physiotherapy",
+    duration: "4.5 years (incl. 6-month internship)",
+    about: "The foundational degree for practising physiotherapy — treating movement and pain issues through exercise, manual therapy and rehabilitation techniques.",
+    subjects: ["Anatomy & Physiology", "Exercise Therapy", "Electrotherapy", "Orthopaedics & Rehabilitation", "Clinical postings"],
+    careerOptions: [
+      { title: "Physiotherapist", desc: "Treats patients recovering from injury, surgery or chronic conditions." },
+      { title: "Sports Physiotherapist", desc: "Specialises in treating and preventing sports injuries." },
+      { title: "MPT (Master's)", desc: "Postgraduate specialisation (orthopaedics, sports, neuro, etc.)." },
+    ],
+    further: "MPT (Master of Physiotherapy) in a chosen specialisation.",
+  },
+  "Nursing": {
+    full: "B.Sc Nursing",
+    duration: "4 years (incl. clinical postings)",
+    about: "A 4-year degree combining classroom learning with extensive hands-on clinical training in hospitals, qualifying graduates as registered nurses.",
+    subjects: ["Anatomy & Physiology", "Fundamentals of Nursing", "Medical-Surgical Nursing", "Community Health Nursing", "Clinical postings"],
+    careerOptions: [
+      { title: "Staff Nurse", desc: "Provides direct patient care in hospitals or clinics." },
+      { title: "ICU/Specialised Nurse", desc: "Works in critical care or a specific department after gaining experience." },
+      { title: "M.Sc Nursing", desc: "Enables teaching or advanced clinical/administrative nursing roles." },
+    ],
+    further: "M.Sc Nursing, or international nursing licensure (UK/US/Gulf) for roles abroad.",
+  },
+  "Allied health": {
+    full: "Allied Health Sciences (various B.Sc programmes)",
+    duration: "3–4 years depending on programme",
+    about: "An umbrella term for degrees supporting clinical care outside direct medicine/nursing — radiography, lab technology, optometry, dialysis technology and similar diagnostic/therapeutic fields.",
+    subjects: ["Varies by programme: Anatomy, Physiology, and technical subjects specific to the field (e.g. radiography, lab techniques)"],
+    careerOptions: [
+      { title: "Lab/Radiology Technician", desc: "Runs diagnostic tests and imaging in hospitals or labs." },
+      { title: "Optometrist", desc: "Examines eyes and prescribes corrective lenses." },
+    ],
+    further: "M.Sc in the specific allied health specialisation.",
+  },
+  "Any bachelor's": {
+    full: "Any Bachelor's Degree",
+    duration: "3–4 years, any stream",
+    about: "This path doesn't require a specific degree — eligibility is based on having any recognised bachelor's degree, so the subject you study matters less than clearing the relevant competitive exam.",
+    subjects: ["Any subject you enjoy", "Exam prep matters more than the major"],
+    careerOptions: [
+      { title: "Choose based on interest", desc: "Since any degree qualifies, pick one you'll enjoy and do well in — it strengthens your exam preparation and gives you a fallback career." },
+    ],
+    further: "Competitive exam preparation (UPSC/SSC/banking, etc.) alongside or after the degree.",
+  },
+  "NDA route": {
+    full: "National Defence Academy (integrated) route",
+    duration: "3 years at NDA + 1 year specialised training",
+    about: "Cleared right after Class 12 via the NDA exam and SSB interview. Selected candidates study at the NDA for 3 years (earning a degree from JNU) before joining specialised training with their respective service (Army/Navy/Air Force).",
+    subjects: ["Academics (BA/B.Sc-equivalent)", "Physical training", "Military training", "Service-specific specialisation in year 4"],
+    careerOptions: [
+      { title: "Army/Navy/Air Force Officer", desc: "Commissioned as an officer after completing training." },
+    ],
+    further: "Direct commissioning — no further degree required.",
+  },
+  "B.A/B.Sc + B.Ed": {
+    full: "Bachelor's Degree + Bachelor of Education",
+    duration: "3 years (BA/B.Sc) + 2 years (B.Ed)",
+    about: "The traditional route to becoming a school teacher: a subject degree (BA or B.Sc) followed by a B.Ed to gain teaching qualification and pedagogy training.",
+    subjects: ["Subject-specific (in the BA/B.Sc)", "Educational Psychology", "Pedagogy", "Teaching Methods", "Practice teaching"],
+    careerOptions: [
+      { title: "School Teacher (TGT/PGT)", desc: "Teaches at middle or senior school level after qualifying CTET/state TET." },
+      { title: "Curriculum Designer", desc: "Designs teaching content and materials, often after some teaching experience." },
+    ],
+    further: "M.Ed for senior academic or administrative roles in education.",
+  },
+  "B.Des": {
+    full: "Bachelor of Design",
+    duration: "4 years",
+    about: "A design-focused undergraduate degree covering design thinking, visual communication and a chosen specialisation (product, UX, fashion, etc.), built heavily around studio projects and portfolio work.",
+    subjects: ["Design Fundamentals", "Sketching & Visualisation", "Design Studio Projects", "Specialisation modules", "Portfolio development"],
+    careerOptions: [
+      { title: "UX/Product Designer", desc: "Designs digital products and interfaces." },
+      { title: "Graphic/Visual Designer", desc: "Creates visual content for brands and media." },
+      { title: "M.Des", desc: "Deepens specialisation for senior design or research roles." },
+    ],
+    specializations: [
+      { name: "Product/UX Design", desc: "Digital interfaces and user experience — the highest-demand design track." },
+      { name: "Communication Design", desc: "Branding, graphics and visual storytelling." },
+      { name: "Industrial Design", desc: "Physical products — furniture, electronics, everyday objects." },
+      { name: "Textile/Apparel Design", desc: "Fabric, print and garment-focused design track." },
+    ],
+    further: "M.Des, or direct industry entry backed by a strong portfolio.",
+  },
+  "BFA": {
+    full: "Bachelor of Fine Arts",
+    duration: "4 years",
+    about: "A studio-intensive degree in fine arts — painting, sculpture, applied art or animation — built around practical studio work and a graduating portfolio/exhibition.",
+    subjects: ["Drawing & Painting", "Art History", "Studio Practice", "Specialisation (sculpture, applied art, etc.)", "Final portfolio/exhibition"],
+    careerOptions: [
+      { title: "Fine Artist / Illustrator", desc: "Creates and sells original artwork or illustration work." },
+      { title: "Art Teacher", desc: "Teaches art at schools or art institutes." },
+      { title: "MFA", desc: "Deepens practice for academic or gallery-focused careers." },
+    ],
+    further: "MFA (Master of Fine Arts).",
+  },
+  "5-yr BA LLB": {
+    full: "5-year Integrated BA LLB",
+    duration: "5 years",
+    about: "An integrated undergraduate law degree combining a liberal arts foundation (history, political science, economics) with core law subjects, entered right after Class 12 via CLAT/AILET.",
+    subjects: ["Constitutional Law", "Contract Law", "Criminal Law", "Political Science/Economics/History (BA component)", "Moot court practice"],
+    careerOptions: [
+      { title: "Corporate Lawyer", desc: "Joins a law firm handling contracts, M&A or regulatory work." },
+      { title: "Litigator", desc: "Practises in court, either independently or under a senior advocate." },
+      { title: "Judicial Services (via exam)", desc: "Can appear for state judicial exams to become a judge after sufficient practice." },
+    ],
+    specializations: [
+      { name: "Corporate & Commercial Law", desc: "Contracts, M&A and business advisory — the most lucrative early-career track." },
+      { name: "Litigation", desc: "Court practice, either civil or criminal." },
+      { name: "Intellectual Property", desc: "Patents, trademarks and copyright protection, often pursued via an LLM." },
+      { name: "Tax Law", desc: "Advising on and litigating tax disputes." },
+    ],
+    further: "LLM (Master of Laws) for academia or specialised practice.",
+  },
+  "BBA LLB": {
+    full: "5-year Integrated BBA LLB",
+    duration: "5 years",
+    about: "Similar to BA LLB but with a business/management foundation instead of humanities — popular among students aiming specifically for corporate law careers.",
+    subjects: ["Business Management", "Constitutional Law", "Corporate Law", "Contract Law", "Moot court practice"],
+    careerOptions: [
+      { title: "Corporate Lawyer", desc: "Well-suited for M&A, contracts and corporate advisory work given the business foundation." },
+      { title: "In-house Counsel", desc: "Works within a company's legal team rather than a law firm." },
+    ],
+    further: "LLM for specialisation, especially in corporate/IP law.",
+  },
+  "B.Sc Agriculture": {
+    full: "Bachelor of Science in Agriculture",
+    duration: "4 years",
+    about: "A science degree covering crop production, soil science and agricultural technology, offered mainly through ICAR-affiliated agricultural universities.",
+    subjects: ["Agronomy", "Soil Science", "Plant Pathology", "Agricultural Economics", "Farm practicals"],
+    careerOptions: [
+      { title: "Agricultural Officer", desc: "Works with government schemes supporting farmers." },
+      { title: "Agronomist", desc: "Advises on crop and soil management to improve yield." },
+      { title: "M.Sc Agriculture", desc: "Deepens specialisation for research or teaching roles." },
+    ],
+    further: "M.Sc Agriculture, or ICAR/state PSU exams for agricultural services.",
+  },
+  "B.Tech Aero": {
+    full: "Bachelor of Technology in Aerospace Engineering",
+    duration: "4 years",
+    about: "An engineering degree focused on aircraft and spacecraft design, covering aerodynamics, propulsion and structural analysis.",
+    subjects: ["Aerodynamics", "Propulsion", "Aircraft Structures", "Flight Mechanics", "Avionics basics"],
+    careerOptions: [
+      { title: "Design Engineer (Aerospace)", desc: "Designs aircraft or spacecraft components." },
+      { title: "ISRO/DRDO Scientist", desc: "Joins India's space or defence research programmes via their entrance exams." },
+    ],
+    further: "M.Tech Aerospace, or ISRO/DRDO recruitment exams.",
+  },
+  "Pilot training": {
+    full: "Commercial Pilot License (CPL) training",
+    duration: "~2 years (ground school + flight hours)",
+    about: "Not a university degree — a licensing process through a DGCA-approved flying school, covering ground subjects and a minimum number of supervised flying hours to earn a Commercial Pilot License.",
+    subjects: ["Air Navigation", "Aviation Meteorology", "Air Regulations", "Technical/Aircraft systems", "Flight hours (practical training)"],
+    careerOptions: [
+      { title: "Commercial Pilot", desc: "Flies for an airline after building required flight hours and passing airline-specific training." },
+    ],
+    further: "Type rating training for a specific aircraft once hired by an airline.",
+  },
+  "Aircraft maintenance": {
+    full: "Aircraft Maintenance Engineering (AME)",
+    duration: "3 years (DGCA-approved diploma/degree)",
+    about: "A specialised technical qualification to certify aircraft as airworthy — covers airframe and engine systems, leading to a DGCA license after exams and supervised experience.",
+    subjects: ["Airframe Systems", "Aircraft Engines", "Avionics", "Maintenance Regulations", "Practical workshop training"],
+    careerOptions: [
+      { title: "Aircraft Maintenance Engineer", desc: "Inspects and certifies aircraft as safe to fly, working for airlines or MRO companies." },
+    ],
+    further: "Additional type-specific certifications for different aircraft models.",
+  },
+  "B.Des Animation": {
+    full: "Bachelor of Design in Animation",
+    duration: "4 years",
+    about: "A design degree focused on animation principles, character design and digital production pipelines used in film, games and advertising.",
+    subjects: ["Animation Principles", "Character Design", "3D Modelling & Rigging", "Storyboarding", "Studio production projects"],
+    careerOptions: [
+      { title: "2D/3D Animator", desc: "Creates animated content for film, games or advertising." },
+      { title: "VFX Artist", desc: "Creates visual effects for film and television." },
+    ],
+    further: "Specialised software certifications (Maya, Houdini) or an M.Des.",
+  },
+  "BA Animation": {
+    full: "Bachelor of Arts in Animation",
+    duration: "3 years",
+    about: "A more theory-and-arts-oriented take on animation education, covering storytelling and visual arts fundamentals alongside animation technique.",
+    subjects: ["Animation Fundamentals", "Art & Illustration", "Storytelling", "Digital Media Tools"],
+    careerOptions: [
+      { title: "Animator", desc: "Creates animated content, often needing a strong portfolio to compete with design-degree graduates." },
+    ],
+    further: "Portfolio-building courses or specialised software certifications.",
+  },
+  "B.Des Fashion": {
+    full: "Bachelor of Design in Fashion Design",
+    duration: "4 years",
+    about: "A design degree covering garment construction, textiles and fashion business, built around portfolio and collection-based studio projects.",
+    subjects: ["Garment Construction", "Textile Science", "Fashion Illustration", "Fashion Business", "Collection development"],
+    careerOptions: [
+      { title: "Fashion Designer", desc: "Designs clothing collections for a label or brand." },
+      { title: "Fashion Merchandiser", desc: "Manages what a brand produces, prices and stocks." },
+    ],
+    further: "M.Des Fashion, or direct industry entry with a strong portfolio.",
+  },
+  "B.Sc Fashion": {
+    full: "Bachelor of Science in Fashion (Technology/Merchandising)",
+    duration: "3–4 years",
+    about: "A more technical/business-oriented fashion degree, often focused on apparel production and merchandising rather than pure design.",
+    subjects: ["Apparel Production", "Textile Science", "Fashion Merchandising", "Quality Control"],
+    careerOptions: [
+      { title: "Fashion Merchandiser", desc: "Manages product ranges and buying decisions for a brand." },
+      { title: "Production Manager", desc: "Oversees garment manufacturing processes." },
+    ],
+    further: "PGDM in Fashion Management for senior merchandising/business roles.",
+  },
+  "B.Arch": {
+    full: "Bachelor of Architecture",
+    duration: "5 years",
+    about: "A 5-year professional degree required to practise as a registered architect in India, combining design studio work with structural, construction and planning subjects.",
+    subjects: ["Architectural Design Studio", "Building Construction & Materials", "Structural Systems", "History of Architecture", "Urban Planning basics"],
+    careerOptions: [
+      { title: "Architect", desc: "Designs buildings after registering with the Council of Architecture." },
+      { title: "Urban Planner", desc: "Plans land use and infrastructure, sometimes with additional planning qualifications." },
+      { title: "Interior Designer", desc: "Focuses on interior spaces rather than full building design." },
+    ],
+    specializations: [
+      { name: "Urban Design & Planning", desc: "City-scale planning — land use, zoning and public infrastructure." },
+      { name: "Landscape Architecture", desc: "Outdoor spaces — parks, gardens and public plazas." },
+      { name: "Conservation Architecture", desc: "Restoring and preserving heritage buildings." },
+      { name: "Sustainable/Green Design", desc: "Energy-efficient and environmentally responsible building design." },
+    ],
+    further: "M.Arch for specialisation (urban design, landscape) or Council of Architecture registration to practise.",
+  },
+};
+
+const ALIASES = [
+  ["b.tech", "B.Tech / B.E."], ["b.e.", "B.Tech / B.E."], ["b.e", "B.Tech / B.E."],
+  ["bca", "BCA"], ["b.sc it", "B.Sc IT"],
+  ["data science", "B.Sc Data Science"],
+  ["bba finance", "BBA Finance"], ["bba", "BBA"], ["bms", "BMS"],
+  ["b.com (hons)", "B.Com (Hons)"], ["b.com", "B.Com"],
+  ["cfa", "CFA"], ["ca", "CA"],
+  ["bhm", "BHM"],
+  ["mbbs", "MBBS"], ["bds", "BDS"], ["bams", "BAMS"], ["bhms", "BHMS"], ["bpt", "BPT"],
+  ["nursing", "Nursing"], ["allied health", "Allied health"],
+  ["any bachelor", "Any bachelor's"],
+  ["nda", "NDA route"],
+  ["b.a/b.sc + b.ed", "B.A/B.Sc + B.Ed"], ["itep", "B.A/B.Sc + B.Ed"],
+  ["b.des animation", "B.Des Animation"], ["ba animation", "BA Animation"],
+  ["b.des fashion", "B.Des Fashion"], ["b.sc fashion", "B.Sc Fashion"],
+  ["b.des", "B.Des"], ["bfa", "BFA"],
+  ["5-yr ba llb", "5-yr BA LLB"], ["ba llb", "5-yr BA LLB"], ["bba llb", "BBA LLB"],
+  ["b.sc agriculture", "B.Sc Agriculture"], ["b.tech agri", "B.Sc Agriculture"],
+  ["b.tech aero", "B.Tech Aero"],
+  ["pilot training", "Pilot training"], ["aircraft maintenance", "Aircraft maintenance"],
+  ["b.arch", "B.Arch"],
+];
+
+export function getDegreeInfo(rawName) {
+  if (!rawName) return null;
+  if (DEGREE_INFO[rawName]) return DEGREE_INFO[rawName];
+  const lower = rawName.toLowerCase();
+  for (const [needle, key] of ALIASES) {
+    if (lower.includes(needle)) return DEGREE_INFO[key];
+  }
+  return null;
+}
