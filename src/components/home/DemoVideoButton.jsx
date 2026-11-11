@@ -26,6 +26,7 @@ import { createPortal } from "react-dom";
 
 import { getDemoVideos } from "../../api/contentApi";
 import { IcPlay } from "./HomeIcons";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 /* Section-scoped styles, same `const css` + <style> convention as the other
    home components (Hero.jsx, Cta.jsx, …). Literal hex matches this file's
@@ -191,12 +192,7 @@ const css = `.dvb{
    triangle on the menu rows — so it is local here rather than replacing the
    shared IcPlay, which those rows (and other home sections) still use. */
 function IcPlayRing() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
-    </svg>
-  );
+  return <ScribbleIcon name="play" />;
 }
 
 /** Asks the mounted DemoVideoButton to open its player. Exported so the hero's

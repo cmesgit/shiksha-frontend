@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/Faq.css';
+import ScribbleIcon from "./icons/ScribbleIcon";
 import { getFaqs } from '../api/contentApi';
 
 // Default icons cycled onto whichever FAQ items are rendered, static or
@@ -100,9 +101,7 @@ const FAQ = () => {
                   </div>
                   <span className="faq-q-text">{faq.q}</span>
                   <div className="faq-chevron">
-                    <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-                      <polyline points="2,4 6,8 10,4" />
-                    </svg>
+                    <ScribbleIcon name="chevron-down" />
                   </div>
                 </div>
 

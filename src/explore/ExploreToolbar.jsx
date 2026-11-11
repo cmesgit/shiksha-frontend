@@ -9,6 +9,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TourHeaderButton from "../tour/TourHeaderButton";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./Explore.css";
 
 // Collections deliberately absent. It lives in My Library, which is where a
@@ -39,7 +40,7 @@ export default function ExploreToolbar() {
         <div className="exp-toolbar-acts">
           {isAuthenticated && (
             <button className={`exp-tbbtn${pathname.startsWith("/explore/dashboard") ? " active" : ""}`} onClick={() => nav("/explore/dashboard")} title="My Library Dashboard" data-tour="explore-toolbar.library">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg>
+              <ScribbleIcon name="dashboard" size={15} />
               My Library
             </button>
           )}

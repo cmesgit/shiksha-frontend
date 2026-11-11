@@ -7,6 +7,7 @@
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { AuthTickerCard } from "./AuthTicker";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import shikshaLogo from "../assets/Shiksha.png";
 /* Lazy so screens that don't need them don't ship this artwork. */
 const IntroAnimation = lazy(() => import("./IntroAnimation.jsx"));
@@ -49,7 +50,18 @@ const P = {
   clock2: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z","M12 7v5l3 3"],
 };
 
+/* Names with a semantic match in the scribble set. Unmapped names (spark,
+   shield, compass, clipboard, eye/eyeOff toggle pair) keep the stroke paths. */
+const SCRIBBLE = {
+  cap: "graduation-cap", lock: "lock", video: "video", check: "check", x: "close",
+  calendar: "calendar", mail: "mail", book: "book", gear: "settings", users: "users",
+  file: "file-text", clock: "clock", clock2: "clock", plus: "plus",
+};
+
 export function Icon({ name, size = 22, color = "currentColor", strokeWidth = 1.7 }) {
+  if (SCRIBBLE[name]) {
+    return <ScribbleIcon name={SCRIBBLE[name]} size={size} color={color === "currentColor" ? undefined : color} />;
+  }
   const d = P[name] || [];
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"

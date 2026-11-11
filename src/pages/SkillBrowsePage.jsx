@@ -42,6 +42,7 @@ import {
   DEFAULT_FILTERS, MODE_TEXT, PRICE_ANY, SORTS,
   activeFilterCount, toParams, fromUrl,
 } from "../components/skill/directoryOptions";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "../css/SkillDevelopment.css";
 
 const POPULAR = ["Guitar", "Spoken English", "Weaving", "Python"];
@@ -185,9 +186,7 @@ function FaqItem({ item, open, onToggle }) {
       <button className="sk-qa__q" type="button" aria-expanded={open} onClick={onToggle}>
         {item.q}
         <span className="sk-qa__ic" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
+          <ScribbleIcon name="plus" />
         </span>
       </button>
       <div className="sk-qa__a" ref={answerRef} style={{ maxHeight: `${maxH}px` }}>
@@ -375,9 +374,7 @@ export default function SkillBrowsePage() {
 
               <div className="sk-search">
                 <span className="sk-search__ic" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
-                  </svg>
+                  <ScribbleIcon name="search" />
                 </span>
                 <label className="sk-sr" htmlFor="sk-q">Search skills</label>
                 <input
@@ -406,17 +403,13 @@ export default function SkillBrowsePage() {
 
               <span className="sk-fchip sk-a">
                 <span className="sk-fi" style={{ background: "var(--sk-emerald)" }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z" /><circle cx="12" cy="10" r="2.4" />
-                  </svg>
+                  <ScribbleIcon name="location" />
                 </span>
                 <span><b>Across India</b><span>online or in person</span></span>
               </span>
               <span className="sk-fchip sk-b">
                 <span className="sk-fi" style={{ background: "var(--sk-gold)" }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
-                  </svg>
+                  <ScribbleIcon name="clock" />
                 </span>
                 <span><b>60-min sessions</b><span>book a free slot</span></span>
               </span>
@@ -445,25 +438,19 @@ export default function SkillBrowsePage() {
             </div>
             <div className="sk-sf">
               <span className="sk-sf__ic" style={{ "--sk-c": "var(--sk-violet)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12h18" /><circle cx="12" cy="12" r="9" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
-                </svg>
+                <ScribbleIcon name="globe" />
               </span>
               <span><b>Three ways to learn</b><span>online, their place or yours</span></span>
             </div>
             <div className="sk-sf">
               <span className="sk-sf__ic" style={{ "--sk-c": "var(--sk-blue)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
-                </svg>
+                <ScribbleIcon name="search" />
               </span>
               <span><b>Free to browse</b><span>no account needed</span></span>
             </div>
             <div className="sk-sf">
               <span className="sk-sf__ic" style={{ "--sk-c": "var(--sk-gold-deep)" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4.5" width="18" height="17" rx="3" /><path d="M8 2.5v4M16 2.5v4M3 10h18" />
-                </svg>
+                <ScribbleIcon name="calendar" />
               </span>
               <span><b>60-minute sessions</b><span>priced by each teacher</span></span>
             </div>
@@ -482,9 +469,7 @@ export default function SkillBrowsePage() {
               <article className="sk-step sk-rv" style={{ "--sk-g": "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)" }}>
                 <span className="sk-step__n" aria-hidden="true">01</span>
                 <span className="sk-step__ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
-                  </svg>
+                  <ScribbleIcon name="search" />
                 </span>
                 <h3>Search a skill</h3>
                 <p>Type what you want to learn — guitar, welding, spoken English — or start from one of the
@@ -493,9 +478,7 @@ export default function SkillBrowsePage() {
               <article className="sk-step sk-rv sk-d1" style={{ "--sk-g": "linear-gradient(135deg,#7C5CFC 0%,#5b3fd6 100%)" }}>
                 <span className="sk-step__n" aria-hidden="true">02</span>
                 <span className="sk-step__ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 6h16M7 12h10M10 18h4" />
-                  </svg>
+                  <ScribbleIcon name="filter" />
                 </span>
                 <h3>Compare teachers</h3>
                 <p>Filter by where lessons happen, district, price, language and rating until the list matches
@@ -504,9 +487,7 @@ export default function SkillBrowsePage() {
               <article className="sk-step sk-rv sk-d2" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
                 <span className="sk-step__n" aria-hidden="true">03</span>
                 <span className="sk-step__ic">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4.5" width="18" height="17" rx="3" /><path d="M8 2.5v4M16 2.5v4M3 10h18" /><path d="m9 15 2 2 4-4" />
-                  </svg>
+                  <ScribbleIcon name="calendar" />
                 </span>
                 <h3>Book a session</h3>
                 <p>Open a profile, pick an open slot from their week, and book a 60-minute session at the price
@@ -532,29 +513,21 @@ export default function SkillBrowsePage() {
               <div className="sk-glance">
                 <div className="sk-gcard sk-rv" style={{ "--sk-t": "#E7F6F4", "--sk-c": "#0A7A71" }}>
                   <span className="sk-gcard__ic">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
+                    <ScribbleIcon name="users" />
                   </span>
                   <b>{stats.experts} {stats.experts === 1 ? "expert" : "experts"}</b>
                   <span>{heroStat}</span>
                 </div>
                 <div className="sk-gcard sk-rv sk-d1" style={{ "--sk-t": "#FDF4E3", "--sk-c": "#B4750A" }}>
                   <span className="sk-gcard__ic">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" />
-                      <rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" />
-                    </svg>
+                    <ScribbleIcon name="dashboard" />
                   </span>
                   <b>{stats.categories} {stats.categories === 1 ? "category" : "categories"}</b>
                   <span>music to industrial trades</span>
                 </div>
                 <div className="sk-gcard sk-rv sk-d2" style={{ "--sk-t": "#F1EEFE", "--sk-c": "#5A3BD8" }}>
                   <span className="sk-gcard__ic">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 9.5 12 3l9 6.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20z" /><path d="M9.5 21.5V13h5v8.5" />
-                    </svg>
+                    <ScribbleIcon name="home" />
                   </span>
                   <b>{stats.offline} teach offline</b>
                   <span>at their place or yours</span>
@@ -586,9 +559,7 @@ export default function SkillBrowsePage() {
                   onClick={() => setSheet((v) => !v)}
                 >
                   Filters{activeCount ? ` (${activeCount})` : ""}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
+                  <ScribbleIcon name="chevron-down" />
                 </button>
 
                 <SkillFilters
@@ -742,9 +713,7 @@ export default function SkillBrowsePage() {
                       href={teachBanner?.cta_url || "/become-expert"}
                     >
                       {teachBanner?.cta_label || "I want to teach my craft"}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M5 12h14M13 6l6 6-6 6" />
-                      </svg>
+                      <ScribbleIcon name="arrow-right" />
                     </CtaLink>
                   </div>
                 </div>
@@ -756,9 +725,7 @@ export default function SkillBrowsePage() {
                   ].map(([title, body]) => (
                     <div className="sk-pl" key={title}>
                       <span className="sk-pl__k" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m5 12.5 4.5 4.5L19 7" />
-                        </svg>
+                        <ScribbleIcon name="check" />
                       </span>
                       <span><b>{title}</b><span>{body}</span></span>
                     </div>

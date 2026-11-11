@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 /* Section-scoped styles, ported from the design handoff's BrowseCategories.jsx —
    shared tokens (--peach, --coral, --sh-sm, .sec/.wrap/.sec-head/.btn, etc.)
@@ -49,7 +50,7 @@ const css = `.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 // identically.
 const ICONS = {
   board: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg>
+    <ScribbleIcon name="book" />
   ),
   research: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1.5" fill="currentColor" /></svg>
@@ -65,10 +66,10 @@ const FALLBACK_ICON = (
 // Static, decorative glyphs shared by every card (not CMS-driven) — the
 // checkmark next to the stat line, and the arrow inside the CTA button.
 const CHECK_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+  <ScribbleIcon name="check" />
 );
 const ARROW_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  <ScribbleIcon name="arrow-right" />
 );
 
 // Maps a CMS `tint` value to one of the design's own 3 header gradients

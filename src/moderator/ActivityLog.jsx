@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { Trash2, TriangleAlert, Check } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getModLog } from "../api/moderation";
 
 const PAGE_SIZE = 20;
 
-const TYPE_ICON = { bad: Trash2, warn: TriangleAlert, ok: Check };
+const TrashIcon = (p) => <ScribbleIcon name="trash" {...p} />;
+const CheckIcon = (p) => <ScribbleIcon name="check" {...p} />;
+
+const TYPE_ICON = { bad: TrashIcon, warn: TriangleAlert, ok: CheckIcon };
 const TYPE_PAL = { bad: "pal-red", warn: "pal-yellow", ok: "pal-green" };
 
 const formatAgo = (iso) => {
@@ -48,7 +52,7 @@ const ActivityLog = () => {
       ) : (
         <div className="mod-log-list">
           {rows.map((l) => {
-            const Icon = TYPE_ICON[l.type] || Check;
+            const Icon = TYPE_ICON[l.type] || CheckIcon;
             return (
               <div key={l.id} className="mod-log-row">
                 <div className={`mod-log-icon ${l.type}`}>

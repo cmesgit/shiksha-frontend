@@ -47,6 +47,7 @@ import api from "../api/apiClient";
 import DOMPurify from "dompurify";
 import renderMarkdown from "../utils/miniMarkdown";
 import "../css/FacultySignup.css";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 /* FALLBACK option lists only.
    The real lists are fetched from GET /accounts/faculty-choices/, which serves
@@ -208,18 +209,10 @@ function readErr(err, fallback) {
 }
 
 /* ── tiny inline icons (stroke-based, sized via CSS) ── */
-const ArrowRight = () => (
-  <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-);
-const ArrowLeft = () => (
-  <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-);
-const Check = () => (
-  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-);
-const Mail = () => (
-  <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
-);
+const ArrowRight = () => <ScribbleIcon name="arrow-right" />;
+const ArrowLeft = () => <ScribbleIcon name="arrow-left" />;
+const Check = () => <ScribbleIcon name="check" />;
+const Mail = () => <ScribbleIcon name="mail" />;
 
 const STEPS = [
   { n: 1, key: "account",   label: "Account", desc: "Email & password" },
@@ -398,9 +391,7 @@ export default function FacultySignup({
         <label className={`fs-file-upload ${d ? "fs-selected" : ""}`}>
           <input type="file" accept={DOC_ACCEPT} onChange={pickDoc(key)} />
           <div className="fs-file-icon">
-            <svg viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
+            <ScribbleIcon name="upload" color="var(--blue-700)" />
           </div>
           <div className="fs-file-text">
             <strong>{d ? d.name : cta}</strong>
@@ -889,7 +880,7 @@ export default function FacultySignup({
                   placeholder="Create a strong password"
                   value={password} onChange={(e) => { setError(""); setPassword(e.target.value); }} />
                 <button type="button" className="fs-eye-btn" onClick={() => setShowPw((v) => !v)} aria-label="Show/hide password">
-                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  <ScribbleIcon name="eye" />
                 </button>
               </div>
               <div className="fs-pwd-strength">
@@ -906,7 +897,7 @@ export default function FacultySignup({
                   placeholder="Re-enter your password"
                   value={confirm} onChange={(e) => { setError(""); setConfirm(e.target.value); }} />
                 <button type="button" className="fs-eye-btn" onClick={() => setShowCf((v) => !v)} aria-label="Show/hide password">
-                  <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  <ScribbleIcon name="eye" />
                 </button>
               </div>
             </div>
@@ -1213,7 +1204,7 @@ export default function FacultySignup({
                     <a className="fs-btn-primary" style={{ marginTop: 14, textDecoration: "none" }}
                       href={agreementText.document_url} target="_blank" rel="noreferrer"
                       onClick={() => setDownloaded(true)}>
-                      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                      <ScribbleIcon name="download" />
                       Download Agreement (v{agreementText.version_number})
                     </a>
                     {downloaded && (
@@ -1355,7 +1346,7 @@ export default function FacultySignup({
               </p>
 
               <div className="fs-admin-notice">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                <ScribbleIcon name="info" color="#b7850a" />
                 {/* Do NOT say "you cannot log in until approved" here — it was
                     false. LoginView (accounts/auth_flow.py) gates only on
                     is_verified, and a teacher identity in ANY state, review

@@ -18,6 +18,7 @@
 import { Link } from "react-router-dom";
 import { MIN_REVIEWS } from "./RatingStars";
 import { MODE_TEXT } from "./directoryOptions";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 /* Avatar tint + the card's corner wash, picked deterministically from the id so
    a given teacher keeps the same colour across pages, sorts and reloads. */
@@ -38,34 +39,17 @@ const paletteFor = (id = "") => {
   return PALETTE[h % PALETTE.length];
 };
 
-const IcStar = (
-  <path d="M12 3l2.6 5.8 6.4.7-4.8 4.3 1.4 6.2L12 17l-5.6 3 1.4-6.2L3 9.5l6.4-.7z" />
-);
+const IcMode = <ScribbleIcon name="check" />;
 
-const IcMode = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="9" /><path d="m8.5 12 2.5 2.5 4.5-5" />
-  </svg>
-);
-
-const IcGlobe = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 12h18" /><circle cx="12" cy="12" r="9" />
-    <path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
-  </svg>
-);
+const IcGlobe = <ScribbleIcon name="globe" />;
 
 /** Five stars, filled to the nearest whole star. */
 function Stars({ value }) {
   return (
     <span className="sk-stars" aria-label={`Rated ${value.toFixed(1)} out of 5`}>
       {[0, 1, 2, 3, 4].map((i) => (
-        <svg key={i} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
-             className={i < Math.round(value) ? undefined : "sk-off"}>
-          {IcStar}
-        </svg>
+        <ScribbleIcon key={i} name="star" filled={i < Math.round(value)}
+             className={i < Math.round(value) ? undefined : "sk-off"} />
       ))}
       <b>{value.toFixed(1)}</b>
     </span>
@@ -109,18 +93,13 @@ export default function TeacherCard({ expert: e, onPlayIntro }) {
               onClick={() => onPlayIntro?.(e)}
               aria-label={`Play ${e.name}'s intro video`}
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.1-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z" />
-              </svg>
+              <ScribbleIcon name="play" />
               Intro
             </button>
           )}
           {verified && (
             <span className="sk-verify" title="Verified expert">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-                   strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="m5 12.5 4.5 4.5L19 7" />
-              </svg>
+              <ScribbleIcon name="check" />
             </span>
           )}
         </span>
@@ -131,7 +110,7 @@ export default function TeacherCard({ expert: e, onPlayIntro }) {
           <h3>{e.name}</h3>
           {e.featured && (
             <span className="sk-feat">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{IcStar}</svg>
+              <ScribbleIcon name="star" filled />
               Featured
             </span>
           )}

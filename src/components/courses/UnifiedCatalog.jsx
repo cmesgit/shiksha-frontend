@@ -31,51 +31,21 @@ import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 // course.
 import { enrollLabelFor } from '../../hooks/useEnrollmentStatus';
 import CourseCard from './CourseCard';
+import ScribbleIcon from '../icons/ScribbleIcon';
 import '../../css/UnifiedCatalog.css';
 
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+const SearchIcon = () => <ScribbleIcon name="search" size={16} />;
 const ChevronIcon = ({ expanded }) => (
   <span className={`uc-chevron${expanded ? ' uc-chevron--open' : ''}`}>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
+    <ScribbleIcon name="chevron-down" size={16} />
   </span>
 );
-const FilterIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round">
-    <path d="M3 6h18M7 12h10M10 18h4" />
-  </svg>
-);
-const ClockIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
-  </svg>
-);
-const BookIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z" /><path d="M4 19a2 2 0 0 0 2 2h14" />
-  </svg>
-);
-const FlaskIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9.5 3h5M10 3v5.5L4.8 18a2 2 0 0 0 1.8 3h10.8a2 2 0 0 0 1.8-3L14 8.5V3" /><path d="M7.5 15h9" />
-  </svg>
-);
-const ChartIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 20V10M10 20V4M16 20v-7" /><path d="M2 20h20" />
-  </svg>
-);
-const GlobeIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18" />
-  </svg>
-);
+const FilterIcon = () => <ScribbleIcon name="filter" size={15} />;
+const ClockIcon = () => <ScribbleIcon name="clock" size={14} />;
+const BookIcon = () => <ScribbleIcon name="book" size={26} color="#fff" />;
+const FlaskIcon = () => <ScribbleIcon name="science" size={26} color="#fff" />;
+const ChartIcon = () => <ScribbleIcon name="progress" size={26} color="#fff" />;
+const GlobeIcon = () => <ScribbleIcon name="globe" size={26} color="#fff" />;
 // Purely decorative — which icon a card's thumbnail shows, derived from the
 // real stream (Science/Commerce/Arts) when there is one. Not a data field,
 // just a visual pick, unlike the mockup's stars/review counts/learner
@@ -86,16 +56,8 @@ function ThumbIcon({ subtitle }) {
   if (subtitle === 'Arts') return <GlobeIcon />;
   return <BookIcon />;
 }
-const ArrowIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6 9 17l-5-5" />
-  </svg>
-);
+const ArrowIcon = () => <ScribbleIcon name="arrow-right" size={13} />;
+const CheckIcon = () => <ScribbleIcon name="check" size={12} />;
 
 // What to print where the board name goes.
 //

@@ -5,6 +5,7 @@ import { useHomeContent } from "../../hooks/useHomeContent";
 import useTickerSlot from "../ticker/useTickerSlot";
 import CtaLink from "./CtaLink";
 import { PLAY_DEMO_EVENT } from "./DemoVideoButton";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 // Mirrors content.models.TickerKind.
 const KIND_LABEL = {
@@ -535,10 +536,10 @@ export default function Hero() {
               <div className="sh-cta-row">
                 {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="sh-btn sh-btn-primary" to={ctaPrimaryHref}>
                   {ctaPrimaryLabel}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
+                  <ScribbleIcon name="arrow-right" color="#FFFFFF" />
                 </CtaLink>)}
                 {(ctaSecondaryLabel && ctaSecondaryHref) && (<CtaLink className="sh-btn sh-btn-ghost" to={ctaSecondaryHref}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" /></svg>
+                  <ScribbleIcon name="calendar" />
                   {ctaSecondaryLabel}
                 </CtaLink>)}
               </div>
@@ -552,10 +553,7 @@ export default function Hero() {
                       PLAY_DEMO_EVENT, { detail: { key: demo.key } },
                     ))}
                   >
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <circle cx="12" cy="12" r="9.25" stroke="currentColor" strokeWidth="1.7" />
-                      <path d="M10.2 8.6v6.8L15.6 12z" fill="currentColor" />
-                    </svg>
+                    <ScribbleIcon name="play" />
                     {demoLabel}
                   </button>
                 )}

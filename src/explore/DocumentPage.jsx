@@ -37,11 +37,8 @@ import { useExplore } from "./ExploreStore";
 import { useAuth } from "../contexts/AuthContext";
 import { DocCard, Icon, Loading, fileGlyph, tint } from "./components/ui";
 import { CategoryIcon } from "./components/categoryIcons";
-import {
-  PiBookmarkSimple, PiBookmarkSimpleFill, PiCheck, PiFlag, PiEye,
-  PiHeart, PiHeartFill, PiPlus, PiShareNetwork, PiDownloadSimple, PiBookOpen,
-  PiFolderSimplePlus,
-} from "react-icons/pi";
+import { PiFlag, PiFolderSimplePlus } from "react-icons/pi";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./Explore.css";
 
 // Only these can be shown in a frame. Everything else (docx, ppt, xls) has no
@@ -222,9 +219,9 @@ export default function DocumentPage() {
           {/* The read-only half of the like pair — reflects the same state the
               rail button writes, so the number moves the moment you like. */}
           <div className="exp-docmeta">
-            <span><PiEye aria-hidden="true" /> {doc.views} views</span>
+            <span><ScribbleIcon name="eye" aria-hidden="true" /> {doc.views} views</span>
             <span className={liked ? "is-liked" : undefined}>
-              {liked ? <PiHeartFill aria-hidden="true" /> : <PiHeart aria-hidden="true" />} {likes} likes
+              <ScribbleIcon name="heart" filled={liked} aria-hidden="true" /> {likes} likes
             </span>
             {doc.dateLabel && <span>{doc.dateLabel}</span>}
           </div>
@@ -301,21 +298,21 @@ export default function DocumentPage() {
           <aside className="exp-docrail">
             <div className="exp-railcard">
               <button className="exp-btn exp-btn-primary exp-railbtn" onClick={readOnline}>
-                <PiBookOpen aria-hidden="true" /> Read online
+                <ScribbleIcon name="book" aria-hidden="true" /> Read online
               </button>
               <button className="exp-btn exp-btn-ghost exp-railbtn" onClick={downloadNow}>
-                <PiDownloadSimple aria-hidden="true" /> Download{doc.filetype ? ` (${doc.filetype})` : ""}
+                <ScribbleIcon name="download" aria-hidden="true" /> Download{doc.filetype ? ` (${doc.filetype})` : ""}
               </button>
               <div className="exp-railgrid">
                 {/* The functional half of the like pair. */}
                 <button className={`exp-iconbtn${liked ? " on" : ""}`} onClick={onLike} disabled={likeBusy}>
-                  {liked ? <><PiHeartFill aria-hidden="true" /> Liked</> : <><PiHeart aria-hidden="true" /> Like</>}
+                  <ScribbleIcon name="heart" filled={liked} aria-hidden="true" /> {liked ? "Liked" : "Like"}
                 </button>
                 <button className={`exp-iconbtn${saved ? " on" : ""}`} onClick={() => store.toggleSave(doc.id)}>
-                  {saved ? <><PiBookmarkSimpleFill aria-hidden="true" /> Saved</> : <><PiBookmarkSimple aria-hidden="true" /> Save</>}
+                  <ScribbleIcon name="bookmark" filled={saved} aria-hidden="true" /> {saved ? "Saved" : "Save"}
                 </button>
                 <button className="exp-iconbtn" onClick={share}>
-                  <PiShareNetwork aria-hidden="true" /> Share
+                  <ScribbleIcon name="share" aria-hidden="true" /> Share
                 </button>
                 <button className="exp-iconbtn danger" onClick={() => setReport({ reason: "", detail: "" })}>
                   <PiFlag aria-hidden="true" /> Report
@@ -353,7 +350,7 @@ export default function DocumentPage() {
                   className={`exp-btn ${following ? "exp-btn-ghost" : "exp-btn-primary"} exp-railbtn`}
                   style={{ marginTop: 8 }}
                   onClick={() => store.toggleFollow(doc.author.id)}
-                >{following ? <><PiCheck aria-hidden="true" /> Following</> : <><PiPlus aria-hidden="true" /> Follow</>}</button>
+                >{following ? <><ScribbleIcon name="check" aria-hidden="true" /> Following</> : <><ScribbleIcon name="plus" aria-hidden="true" /> Follow</>}</button>
               </div>
             )}
 
