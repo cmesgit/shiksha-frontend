@@ -178,6 +178,77 @@ if (verifyMarked !== 295) fail(`expected 295 "(verify)" websites, got ${verifyMa
 const states = [...new Set(records.map((r) => r.state))];
 const types = [...new Set(records.map((r) => r.type))];
 
+// ── Derived facets: STREAMS and EXAMS ───────────────────────────────
+// Both are OURS, not the source's. The document has no course taxonomy and
+// no exam index — it carries free prose ("JEE Advanced (B.Tech); UCEED
+// (B.Des, where offered)") and bullet lists of course names. The artboard's
+// Stream and Exam browse tabs need buckets, so they are derived here, at
+// build time, and marked as derived in the output.
+//
+// These counts are OURS and will not match the artboard's. Engineering
+// coincides exactly (418), which suggests the same "offers a B.Tech/M.Tech"
+// rule, but the artboard also shows a combined "Arts, Science & Commerce"
+// bucket (292) ALONGSIDE "Science" (334) — a different taxonomy shape that
+// cannot be reconstructed from the document. Do not tune these numbers to
+// match a picture; they mean "this institution lists such a course".
+//
+// Consequence to keep in view: a stream bucket is only as good as the course
+// text under it, and for the ~713 institutions WITHOUT an official programme
+// list that text is a generic stream template. So a stream count includes
+// institutions whose course list was never individually verified. That is
+// exactly why courseSource travels beside it.
+const STREAMS = [
+  ["Engineering", /\b(b\.?tech|m\.?tech|b\.?e\b|m\.?e\b)\b/i],
+  ["Science", /\b(b\.?sc|m\.?sc|integrated m\.?sc)\b/i],
+  ["Management", /\b(mba|pgdm|bba|bbm)\b/i],
+  ["Arts & Humanities", /\b(b\.?a\b|m\.?a\b)\b/i],
+  ["Commerce", /\b(b\.?com|m\.?com)\b/i],
+  ["Medical & Dental", /\b(mbbs|bds|mds|b\.?sc nursing|m\.?ch|bpt|mpt)\b/i],
+  ["Pharmacy", /\b(b\.?pharm|m\.?pharm|pharm\.?d)\b/i],
+  ["Law", /\b(ll\.?b|ll\.?m)\b/i],
+  ["Architecture & Design", /\b(b\.?arch|m\.?arch|b\.?des|m\.?des)\b/i],
+  ["Agriculture", /\b(b\.?sc agri|agricultur|horticultur|veterinar|b\.?v\.?sc|fisher)\b/i],
+  ["Computer Applications", /\b(bca|mca)\b/i],
+  ["Education", /\b(b\.?ed|m\.?ed)\b/i],
+  ["Hotel & Tourism", /\b(bhm|hotel management|hospitality|tourism|catering)\b/i],
+  ["Media & Communication", /\b(bjmc|mjmc|journalis|mass communication)\b/i],
+  ["Doctoral", /\b(ph\.?d|m\.?phil)\b/i],
+  ["Vocational & Skill", /\b(b\.?voc|m\.?voc|vocational)\b/i],
+];
+
+// Exam names as the source writes them, longest first so "JEE Advanced" is
+// not swallowed by "JEE Main"'s pattern and "NEET-PG" not by "NEET".
+const EXAMS = [
+  "JEE Advanced", "JEE Main", "NEET-UG", "NEET-PG", "NEET-MDS", "NEET",
+  "CUET-UG", "CUET-PG", "CUET", "GATE", "CAT", "XAT", "CMAT", "MAT", "SNAP",
+  "NMAT", "IPMAT", "JIPMAT", "CLAT", "AILET", "LSAT", "JAM", "GPAT",
+  "NIPER JEE", "UCEED", "CEED", "NATA", "NIMCET", "INI-CET", "ICAR",
+  "JoSAA", "CSAB", "CCMT", "COAP", "MHT CET", "KCET", "COMEDK", "TNEA",
+  "KEAM", "AP EAPCET", "TG EAPCET", "WBJEE", "NCHM JEE", "IISER",
+];
+
+function deriveStreams(courses) {
+  const blob = courses.join(" ; ");
+  return STREAMS.filter(([, re]) => re.test(blob)).map(([name]) => name);
+}
+
+function deriveExams(...texts) {
+  const blob = texts.filter(Boolean).join(" ; ");
+  const found = [];
+  for (const e of EXAMS) {
+    const re = new RegExp(`\\b${e.replace(/[-\s]/g, "[-\\s]")}\\b`, "i");
+    if (re.test(blob) && !found.some((f) => f.toLowerCase().startsWith(e.toLowerCase().split(/[-\s]/)[0]) && f.length > e.length)) {
+      found.push(e);
+    }
+  }
+  return [...new Set(found)];
+}
+
+for (const r of records) {
+  r.streams = deriveStreams(r.courses);
+  r.exams = deriveExams(r.ugEntrance, r.pgEntrance, r.admissionRoute);
+}
+
 // Emitted as TWO modules. The whole dataset is ~690 KB, and ~450 KB of that
 // is course text and admission rows that only the detail drawer ever shows.
 // Shipping it all in the directory's chunk would make every visitor download
@@ -187,8 +258,9 @@ const DETAIL_OUT = path.resolve("src/counselling/data/nirf980-detail.js");
 
 const indexRecords = records.map(({
   listRank, name, city, state, type, ownership, ranks,
-  feeStatus, courseSource, websiteVerify,
-}) => ({ listRank, name, city, state, type, ownership, ranks, feeStatus, courseSource, websiteVerify }));
+  feeStatus, courseSource, websiteVerify, streams, exams,
+}) => ({ listRank, name, city, state, type, ownership, ranks,
+         feeStatus, courseSource, websiteVerify, streams, exams }));
 
 const detailRecords = records.map(({
   listRank, website, courses, ugEntrance, pgEntrance, admissionRoute,
