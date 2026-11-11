@@ -579,12 +579,12 @@ export default function Hero() {
             )}
             {showBook && (
               <span className="sh-fl sh-book" aria-hidden="true">
-                <ScribbleIcon name="book" />
+                <ScribbleIcon name="book" color="#228B22" />
               </span>
             )}
             {showPlay && (
               <span className="sh-fl sh-play" aria-hidden="true">
-                <ScribbleIcon name="video" />
+                <ScribbleIcon name="video" color="#FF6B00" />
               </span>
             )}
 
