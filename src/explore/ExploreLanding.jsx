@@ -10,7 +10,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { getLanding } from "./exploreApi";
 import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
 import { CategoryIcon } from "./components/categoryIcons";
+import { HeroDeco, HeroVisual } from "../components/hero/HeroLook";
 import "./Explore.css";
+import "./explore-refresh.css";
 
 export default function ExploreLanding() {
   const nav = useNavigate();
@@ -38,36 +40,51 @@ export default function ExploreLanding() {
   return (
     <div className="exp">
       {/* hero */}
-      <section className="exp-hero">
-        <div className="exp-wrap">
-          <p className="exp-eyebrow">● Explore the knowledge library</p>
-          <h1>Discover, read &amp; share.</h1>
-          <p className="exp-hero-lead">
-            Research papers, books, notes, question papers and more — from students and
-            teachers across India. Search a topic to begin.
-          </p>
-          <button className="exp-hero-upload" onClick={() => nav("/explore/upload")}>
-            Have notes or papers of your own? {isAuthenticated ? "Upload a document" : "Sign in to upload"} <Icon.arrow />
-          </button>
+      {/* Same hero look as the forum and blogs (components/hero). */}
+      <section className="fh-hero exp-fh hl-scope">
+        <HeroDeco />
+        <div className="fh-wrap">
+          <div className="fh-body">
+            <span className="fh-badge"><i />Explore the knowledge library</span>
+            <h1 className="fh-title">
+              <span className="fh-lead">Discover, read</span>
+              <span className="fh-punch">&amp; share.</span>
+            </h1>
+            <p className="fh-sub">
+              Research papers, books, notes, question papers and more, from students and
+              teachers across India. Search a topic to begin.
+            </p>
 
-          <div className="exp-searchbar">
-            <Icon.search />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && runSearch()}
-              placeholder="Search documents, topics, authors…"
-              aria-label="Search documents"
-            />
-            <button className="exp-btn exp-btn-primary" onClick={() => runSearch()}>Search</button>
-          </div>
+            <form className="fh-search" role="search" onSubmit={(e) => { e.preventDefault(); runSearch(); }}>
+              <Icon.search />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search documents, topics, authors…"
+                aria-label="Search documents"
+              />
+              <button type="submit">Search</button>
+            </form>
 
-          <div className="exp-trendrow">
-            <span className="lbl">Trending:</span>
-            {(data?.trendChips || []).map((t) => (
-              <button key={t} className="exp-chip" onClick={() => runSearch(t)}>{t}</button>
-            ))}
+            {data?.trendChips?.length > 0 && (
+              <div className="exp-trendrow">
+                <span className="lbl">Trending</span>
+                {data.trendChips.map((t) => (
+                  <button key={t} type="button" className="exp-chip" onClick={() => runSearch(t)}>{t}</button>
+                ))}
+              </div>
+            )}
+
+            <button type="button" className="fh-link exp-fh-upload" onClick={() => nav("/explore/upload")}>
+              Have notes or papers of your own? {isAuthenticated ? "Upload a document" : "Sign in to upload"} <Icon.arrow />
+            </button>
           </div>
+          <HeroVisual cards={[
+            { icon: "file-text", lines: 2 },
+            { icon: "books", tone: "gold", lines: 3 },
+            { icon: "check", text: "Notes & papers" },
+            { avatars: true, text: "Shared by learners" },
+          ]} />
         </div>
       </section>
 
@@ -75,8 +92,8 @@ export default function ExploreLanding() {
         <div className="exp-in">
           <section className="exp-section">
             <div className="exp-wrap" style={{ textAlign: "center", padding: "48px 20px" }}>
-              <h2 style={{ font: "800 18px Montserrat,sans-serif", color: "#125027", margin: "0 0 8px" }}>Couldn't load the library</h2>
-              <p style={{ font: "400 13px Poppins,sans-serif", color: "rgba(14,28,15,.55)", margin: "0 0 18px" }}>
+              <h2 className="exp-secttitle" style={{ fontSize: 20, margin: "0 0 8px" }}>Couldn't load the library</h2>
+              <p className="exp-sub" style={{ margin: "0 0 18px" }}>
                 Something went wrong fetching documents. Please try again.
               </p>
               <button className="exp-btn exp-btn-primary" onClick={() => window.location.reload()}>Retry</button>

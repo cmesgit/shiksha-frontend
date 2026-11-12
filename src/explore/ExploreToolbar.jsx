@@ -11,6 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 import TourHeaderButton from "../tour/TourHeaderButton";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./Explore.css";
+import "./explore-refresh.css";
 
 // Collections deliberately absent. It lives in My Library, which is where a
 // user's own collections are created and managed, so a second top-level entry

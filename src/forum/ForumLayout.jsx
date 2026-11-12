@@ -7,6 +7,7 @@ import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
 import TourHeaderButton from "../tour/TourHeaderButton";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
+import { HeroDeco, HeroVisual } from "../components/hero/HeroLook";
 import "./forum.css";
 import "./forum-refresh.css";
 
@@ -40,14 +41,7 @@ function PageHeader() {
     <header className={`fh-hero${isHome ? "" : " compact"}`}>
       {/* Decorative shapes borrowed from the homepage hero (dots, dashed ring,
           gold squiggle). Purely visual. */}
-      <div className="fh-deco" aria-hidden="true">
-        <span className="fh-dots fh-a" />
-        <span className="fh-dots fh-b" />
-        <span className="fh-ring" />
-        <span className="fh-squiggle">
-          <svg viewBox="0 0 104 22" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M2 12c8-10 16-10 24 0s16 10 24 0 16-10 24 0 16 10 24 0" /></svg>
-        </span>
-      </div>
+      <HeroDeco />
 
       <div className="fh-wrap">
         <div className="fh-top">
@@ -137,25 +131,12 @@ function PageHeader() {
         {/* Right-hand visual, same blob + floating cards idea as the homepage
             hero, kept abstract (skeleton lines, no fake questions). */}
         {isHome && (
-          <div className="fh-visual" aria-hidden="true">
-            <span className="fh-blob" />
-            <div className="fh-float fh-f1">
-              <span className="fh-f-ic"><ScribbleIcon name="help" size={20} /></span>
-              <span className="fh-f-lines"><i /><i /></span>
-            </div>
-            <div className="fh-float fh-f2">
-              <span className="fh-f-ic gold"><ScribbleIcon name="message" size={20} /></span>
-              <span className="fh-f-lines"><i /><i /><i /></span>
-            </div>
-            <div className="fh-float fh-f3">
-              <span className="fh-f-ic solid"><ScribbleIcon name="check" size={18} /></span>
-              <span className="fh-f-text">Answered</span>
-            </div>
-            <div className="fh-float fh-f4">
-              <span className="fh-avs"><b /><b /><b /></span>
-              <span className="fh-f-text">Join the discussion</span>
-            </div>
-          </div>
+          <HeroVisual cards={[
+            { icon: "help", lines: 2 },
+            { icon: "message", tone: "gold", lines: 3 },
+            { icon: "check", text: "Answered" },
+            { avatars: true, text: "Join the discussion" },
+          ]} />
         )}
       </div>
     </header>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ScribbleIcon from "./icons/ScribbleIcon";
+import { HeroDeco, HeroVisual } from "./hero/HeroLook";
 import { getBlogCardsPage } from "../api/contentApi";
 import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
 import "../css/Blogs.css";
@@ -113,25 +114,49 @@ export default function Blogs() {
     resultsRef.current?.scrollIntoView({ block: "start" });
   }
 
+  // The search box already applies itself after a short pause; the button
+  // (and Enter) just applies it straight away.
+  function submitSearch(event) {
+    event.preventDefault();
+    updateParams((next) => {
+      if (search.trim()) next.set("q", search.trim()); else next.delete("q");
+      next.delete("page");
+    });
+  }
+
   return (
-    <main className="blogs-list-page">
-      <header className="blogs-list-header">
-        <span className="blogs-list-badge"><ScribbleIcon name="book" size={16} aria-hidden="true" /> ShikshaCom blogs</span>
-        <h1>Make your next chapter clearer.</h1>
-        <p>Explore chapter notes and explainers in science, social science and more. Choose a subject or class to find what you need.</p>
+    <main className="blogs-page hl-scope">
+      <header className="fh-hero">
+        <HeroDeco />
+        <div className="fh-wrap">
+          <div className="fh-body">
+            <span className="fh-badge"><i />ShikshaCom blogs</span>
+            <h1 className="fh-title">
+              <span className="fh-lead">Make your next chapter</span>
+              <span className="fh-punch">clearer.</span>
+            </h1>
+            <p className="fh-sub">Explore chapter notes and explainers in science, social science and more. Choose a subject or class to find what you need.</p>
+            <form className="fh-search" role="search" onSubmit={submitSearch}>
+              <ScribbleIcon name="search" size={17} aria-hidden="true" />
+              <label htmlFor="blogs-search" className="blogs-sr-only">Search articles</label>
+              <input id="blogs-search" type="search" autoComplete="off" maxLength={200}
+                placeholder="Try motion, rivers or democracy" value={search}
+                onChange={(event) => setSearch(event.target.value)} />
+              {search && <button type="button" className="blogs-clear-search" aria-label="Clear article search" onClick={() => setSearch("")}><ScribbleIcon name="close" size={18} aria-hidden="true" /></button>}
+              <button type="submit">Search</button>
+            </form>
+          </div>
+          <HeroVisual cards={[
+            { icon: "book", lines: 2 },
+            { icon: "notebook", tone: "gold", lines: 3 },
+            { icon: "check", text: "Chapter notes" },
+            { avatars: true, text: "For every class" },
+          ]} />
+        </div>
       </header>
 
-      <section className="blogs-filters" aria-label="Find articles">
-        <div className="blogs-search-field">
-          <label htmlFor="blogs-search">Search articles</label>
-          <div className="blogs-search-box">
-            <ScribbleIcon name="search" size={19} aria-hidden="true" />
-            <input id="blogs-search" type="search" autoComplete="off" maxLength={200}
-              placeholder="Try motion, rivers or democracy" value={search}
-              onChange={(event) => setSearch(event.target.value)} />
-            {search && <button type="button" className="blogs-clear-search" aria-label="Clear article search" onClick={() => setSearch("")}><ScribbleIcon name="close" size={18} aria-hidden="true" /></button>}
-          </div>
-        </div>
+      <div className="blogs-list-page">
+      <section className="blogs-filters" aria-label="Filter articles">
         <div className="blogs-filter-field">
           <label htmlFor="blogs-subject">Subject</label>
           <select id="blogs-subject" value={subject} onChange={(event) => updateFilter("subject", event.target.value)}>
@@ -173,6 +198,7 @@ export default function Blogs() {
           <div className="blogs-state"><ScribbleIcon name="search" size={28} aria-hidden="true" /><h3>{filtered ? "No articles match these filters" : "New articles are on their way"}</h3><p>{filtered ? "Try a shorter search or choose another subject or class." : "Check back soon for new notes and explainers."}</p>{filtered && <button type="button" onClick={reset}>Show all articles</button>}</div>
         )}
       </section>
+      </div>
     </main>
   );
 }
