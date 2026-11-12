@@ -10,16 +10,14 @@ import { useExplore } from "../ExploreStore";
 import { useAuth } from "../../contexts/AuthContext";
 import { toggleLike as toggleLikeApi } from "../exploreApi";
 import { CategoryIcon } from "./categoryIcons";
-import {
-  PiBookmarkSimple, PiBookmarkSimpleFill, PiHeart, PiHeartFill,
-} from "react-icons/pi";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
 // ── icons (kept inline so there's no icon-lib dependency) ─────────────────────
 export const Icon = {
-  search: (p) => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>),
-  arrow: (p) => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>),
-  back: (p) => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" {...p}><path d="M19 12H5M11 18l-6-6 6-6" /></svg>),
-  x: (p) => (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" {...p}><path d="M18 6 6 18M6 6l12 12" /></svg>),
+  search: (p) => (<ScribbleIcon name="search" size={18} {...p} />),
+  arrow: (p) => (<ScribbleIcon name="arrow-right" size={14} {...p} />),
+  back: (p) => (<ScribbleIcon name="arrow-left" size={16} {...p} />),
+  x: (p) => (<ScribbleIcon name="close" size={12} {...p} />),
 };
 
 // ── format helpers ────────────────────────────────────────────────────────────
@@ -91,7 +89,7 @@ export function LikeButton({ doc, className = "" }) {
       disabled={busy}
       title={liked ? "Unlike" : "Like"}
     >
-      <span aria-hidden="true" className="exp-like-glyph">{liked ? <PiHeartFill /> : <PiHeart />}</span> {count}
+      <span aria-hidden="true" className="exp-like-glyph"><ScribbleIcon name="heart" filled={liked} /></span> {count}
     </button>
   );
 }
@@ -112,7 +110,7 @@ export function DocCard({ doc }) {
           className={`fsave${saved ? " on" : ""}`}
           title={saved ? "Remove from library" : "Save to library"}
           onClick={(e) => { e.stopPropagation(); toggleSave(doc.id); }}
-        >{saved ? <PiBookmarkSimpleFill aria-hidden="true" /> : <PiBookmarkSimple aria-hidden="true" />}</button>
+        ><ScribbleIcon name="bookmark" filled={saved} aria-hidden="true" /></button>
         <span className="ficon"><CategoryIcon meta={meta} /></span>
       </div>
       <div className="exp-doc-body">

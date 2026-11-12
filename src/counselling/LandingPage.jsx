@@ -20,22 +20,11 @@ import { getCounsellors } from "../api/counselling";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import CounsellingShell, { initialsOf, gradOf } from "./CounsellingShell";
 import useCounsellorsLive from "./useCounsellorsLive";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 
-const SearchIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(14,28,15,.45)" strokeWidth="2.4" strokeLinecap="round">
-    <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
-  </svg>
-);
-const StarIcon = ({ size = 13 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="#f5a623" stroke="none">
-    <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7fe8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
+const SearchIcon = () => <ScribbleIcon name="search" size={16} color="rgba(14,28,15,.45)" />;
+const StarIcon = ({ size = 13 }) => <ScribbleIcon name="star" size={size} color="#f5a623" filled />;
+const CheckIcon = () => <ScribbleIcon name="check" size={13} color="#7fe8d4" />;
 const STEP_ICONS = [
   <svg key="p" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
     <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3" /><path d="M9 12h6M9 16h4" />
@@ -43,9 +32,7 @@ const STEP_ICONS = [
   <svg key="c" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="9" /><polygon points="16 8 10 10 8 16 14 14 16 8" />
   </svg>,
-  <svg key="b" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><path d="M9 15l2 2 4-4" />
-  </svg>,
+  <ScribbleIcon key="b" name="calendar" size={26} />,
 ];
 
 const SESSION_DOES = [

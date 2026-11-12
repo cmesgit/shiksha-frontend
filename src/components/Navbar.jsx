@@ -14,7 +14,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
-import { LayoutDashboard } from "lucide-react";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
@@ -880,7 +880,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —
@@ -917,12 +917,17 @@ const Navbar = () => {
         </div>
 
         {/* Mega menu panel */}
-        <div
-          className={`skn-mega${openMenu ? " skn-open" : ""}`}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="skn-mega-inner" aria-hidden={!openMenu}>
+        {/* Hover handlers sit on the visible panel, not the full-width
+            .skn-mega strip — otherwise the empty space either side of the
+            panel counted as "inside" and the menu never closed when the
+            pointer moved off it sideways. */}
+        <div className={`skn-mega${openMenu ? " skn-open" : ""}`}>
+          <div
+            className="skn-mega-inner"
+            aria-hidden={!openMenu}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
             {(openMenu || lastMenu) && megaFor(openMenu || lastMenu)}
           </div>
         </div>
@@ -1070,7 +1075,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —

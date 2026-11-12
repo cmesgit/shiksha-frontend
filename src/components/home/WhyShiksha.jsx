@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import { sanitizeInline } from "../../utils/sanitizeInline";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 /* Section-scoped styles, ported from the design handoff's WhyShiksha.jsx —
    shared tokens (--peach, --coral, etc.) come from ShikshaHome.css,
@@ -34,10 +35,10 @@ const css = `.deals{display:grid;grid-template-columns:290px 1fr;gap:44px;align-
 // rows, so a CMS-authored card using the same key renders identically.
 const ICONS = {
   live: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 6h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+    <ScribbleIcon name="video" />
   ),
   faculty: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
+    <ScribbleIcon name="graduation-cap" />
   ),
   board: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>
@@ -46,10 +47,10 @@ const ICONS = {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M12 18h.01" /></svg>
   ),
   guest: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
+    <ScribbleIcon name="eye" />
   ),
   guidance: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+    <ScribbleIcon name="message" />
   ),
 };
 const FALLBACK_ICON = (
@@ -133,8 +134,8 @@ export default function WhyShiksha() {
                 <h2>{heading}</h2>
                 {(subhead) && (<p>{subhead}</p>)}
                 <div className="deals-arrows">
-                  <button className="arrow" id="dPrev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg></button>
-                  <button className="arrow" id="dNext" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></button>
+                  <button className="arrow" id="dPrev" aria-label="Previous"><ScribbleIcon name="arrow-left" /></button>
+                  <button className="arrow" id="dNext" aria-label="Next"><ScribbleIcon name="arrow-right" /></button>
                 </div>
               </div>
               <div className="deals-scroll rv" id="deals">

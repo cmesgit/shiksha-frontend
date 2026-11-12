@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef, useState } from "react";
 import { getFaqs } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 /* Section-scoped styles, ported from the design handoff's Faq.jsx — shared
    tokens (--coral, --line-2, etc.) come from ShikshaHome.css, imported once
@@ -154,7 +155,7 @@ export default function Faq() {
                   >
                     {item.q}
                     <span className="qa-ic">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                      <ScribbleIcon name="plus" />
                     </span>
                   </button>
                   <div

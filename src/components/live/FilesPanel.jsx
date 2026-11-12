@@ -25,6 +25,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import liveSessionService from "../../api/liveSessionService";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
 function expiresIn(iso) {
   if (!iso) return "—";
@@ -162,11 +163,7 @@ export default function FilesPanel({ sessionId, isHost, currentUserId, limits, s
             upload(e.dataTransfer.files);
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
+          <ScribbleIcon name="upload" size={24} />
           <strong>Drop files here</strong>
           <small>
             PDF, image, doc · up to {maxMb} MB · {maxFiles} per session
@@ -211,7 +208,7 @@ export default function FilesPanel({ sessionId, isHost, currentUserId, limits, s
                 aria-label="Download"
                 title="Download"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                <ScribbleIcon name="download" size={13} />
               </a>
               {isHost || String(f.uploaded_by_id) === String(currentUserId) ? (
                 <button
@@ -221,7 +218,7 @@ export default function FilesPanel({ sessionId, isHost, currentUserId, limits, s
                   aria-label="Delete"
                   title="Delete"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
+                  <ScribbleIcon name="trash" size={13} />
                 </button>
               ) : null}
             </span>

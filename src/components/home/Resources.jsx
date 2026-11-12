@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's Resources.jsx —
@@ -60,19 +61,19 @@ const css = `.res-card{position:relative;overflow:hidden;display:flex;flex-direc
 // so a CMS row that still names it doesn't fall back to the generic circle.
 const ICONS = {
   forum: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+    <ScribbleIcon name="message" />
   ),
   counselling: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6" /><path d="M10 22h4" /><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5" /></svg>
+    <ScribbleIcon name="idea" />
   ),
   skills: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.94 15.5A2 2 0 008.5 14.06l-6.13-1.58a.5.5 0 010-.96L8.5 9.94A2 2 0 009.94 8.5l1.58-6.13a.5.5 0 01.96 0L14.06 8.5A2 2 0 0015.5 9.94l6.13 1.58a.5.5 0 010 .96L15.5 14.06a2 2 0 00-1.44 1.44l-1.58 6.13a.5.5 0 01-.96 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /><path d="M4 17v2" /><path d="M5 18H3" /></svg>
   ),
   placement: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
+    <ScribbleIcon name="progress" />
   ),
   library: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7v14" /><path d="M3 18a1 1 0 01-1-1V4a1 1 0 011-1h5a4 4 0 014 4 4 4 0 014-4h5a1 1 0 011 1v13a1 1 0 01-1 1h-6a3 3 0 00-3 3 3 3 0 00-3-3z" /></svg>
+    <ScribbleIcon name="book" />
   ),
   research: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg>
@@ -89,10 +90,10 @@ const GHOST_ICON = (
   <svg viewBox="0 0 200 200" fill="none"><circle cx="148" cy="152" r="66" fill="currentColor" opacity=".10" /><circle cx="148" cy="152" r="66" stroke="currentColor" strokeWidth="1.5" opacity=".16" /><circle cx="86" cy="128" r="30" stroke="currentColor" strokeWidth="1.5" opacity=".13" /><circle cx="172" cy="92" r="11" fill="currentColor" opacity=".14" /></svg>
 );
 const ARROW_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  <ScribbleIcon name="arrow-right" />
 );
 const PREV_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+  <ScribbleIcon name="arrow-left" />
 );
 const NEXT_ICON = ARROW_ICON;
 

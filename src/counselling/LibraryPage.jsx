@@ -12,17 +12,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import CounsellingShell from "./CounsellingShell";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import { GuideCard } from "./LandingPage";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 
-const ChevronIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-const SearchIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(20,32,26,.45)" strokeWidth="2.4" strokeLinecap="round">
-    <circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" />
-  </svg>
-);
+const ChevronIcon = () => <ScribbleIcon name="chevron-down" size={14} />;
+const SearchIcon = () => <ScribbleIcon name="search" size={15} color="rgba(20,32,26,.45)" />;
 
 function FilterGroup({ title, options, selected, onToggle }) {
   const [open, setOpen] = useState(true);

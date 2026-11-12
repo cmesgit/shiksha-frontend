@@ -8,6 +8,7 @@
  */
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import logo from "../assets/Shiksha.png";
 import "../css/theme.css";
 import "../css/FooterGreen.css";
@@ -34,9 +35,7 @@ const Footer = () => {
           </Link>
           <Link to="/register" className="ftr-cta">
             Start learning free
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            <ScribbleIcon name="arrow-right" />
           </Link>
         </div>
 

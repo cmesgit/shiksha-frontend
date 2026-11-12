@@ -2,6 +2,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's TeachersStudents.jsx —
@@ -41,11 +42,15 @@ const DUO_GHOST = [
   <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="14" y="66" width="72" height="14" rx="3" /><rect x="20" y="48" width="60" height="14" rx="3" /><rect x="26" y="30" width="48" height="14" rx="3" /><path d="M32 37 h6 M32 55 h6 M32 73 h6" /></svg>,
 ];
 const DUO_ILL = [
-  <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="40" y="16" width="42" height="32" rx="4" /><path d="M48 41l6-8 5 5 9-12" /><path d="M61 48v8" /><path d="M52 68l9-12 9 12" /><circle cx="24" cy="32" r="8" /><path d="M12 70c0-10 5-18 12-18s12 8 12 18" /><path d="M33 47l9-6" /></svg>,
-  <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M48 30v46" /><path d="M48 30C40 24 28 22 18 25v42c10-3 22-1 30 5" /><path d="M48 30c8-5 20-7 30-5v42c-10-2-22 0-30 5" /><path d="M25 37c5-1 11 0 15 3M25 47c5-1 11 0 15 3" /><path d="M56 40c5-3 11-4 15-3M56 50c5-3 11-4 15-3" /></svg>,
+  /* Educator: scribble-style redraw (matches icons/scribble — faint offset
+     outline, wobbly 3.3px strokes, accent dot) of the teacher-at-board art. */
+  <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><g transform="translate(3 3.6)" opacity=".3" strokeWidth="2.4"><path d="M40 16.5c14-1.6 28-1.6 42 0 .9 10.5.9 20.5 0 31.5-14 1.4-28 1.4-42 0-.9-10.8-.9-20.8 0-31.5Z" /><path d="M47.5 40.5c2.2-2.8 4.2-5.4 6.4-7.8 1.8 1.6 3.4 3.4 5 5.2 3-4 6-8 9.2-12.2" /><path d="M63.6 25.2c1.6-.1 3.2-.1 4.6.4.2 1.4.1 2.9-.2 4.3" /><path d="M61 48.8c.3 2.4.3 4.8 0 7.4" /><path d="M51.5 68.5c3-4.4 6.2-8.4 9.5-12.4 3.4 4 6.6 8 9.6 12.4" /><path d="M24.2 23.8c4.6-.2 8.3 3.4 8.1 8.1-.2 4.6-3.8 8.1-8.4 8-4.5-.2-7.9-3.8-7.7-8.3.2-4.4 3.6-7.6 8-7.8Z" /><path d="M12 70.5c-.5-10.6 4.4-18.5 12.2-18.7 7.4.2 12.3 8.3 11.9 18.5" /><path d="M33.2 47.8c3.2-2.4 6.2-4.4 9.6-6.4" /><path d="M8 76.5c14-1.2 34-1.4 66-.4" /></g><g strokeWidth="3.3"><path d="M40 16.5c14-1.6 28-1.6 42 0 .9 10.5.9 20.5 0 31.5-14 1.4-28 1.4-42 0-.9-10.8-.9-20.8 0-31.5Z" /><path d="M47.5 40.5c2.2-2.8 4.2-5.4 6.4-7.8 1.8 1.6 3.4 3.4 5 5.2 3-4 6-8 9.2-12.2" /><path d="M63.6 25.2c1.6-.1 3.2-.1 4.6.4.2 1.4.1 2.9-.2 4.3" /><path d="M61 48.8c.3 2.4.3 4.8 0 7.4" /><path d="M51.5 68.5c3-4.4 6.2-8.4 9.5-12.4 3.4 4 6.6 8 9.6 12.4" /><path d="M24.2 23.8c4.6-.2 8.3 3.4 8.1 8.1-.2 4.6-3.8 8.1-8.4 8-4.5-.2-7.9-3.8-7.7-8.3.2-4.4 3.6-7.6 8-7.8Z" /><path d="M12 70.5c-.5-10.6 4.4-18.5 12.2-18.7 7.4.2 12.3 8.3 11.9 18.5" /><path d="M33.2 47.8c3.2-2.4 6.2-4.4 9.6-6.4" /><path d="M8 76.5c14-1.2 34-1.4 66-.4" /></g><circle cx="12.5" cy="13" r="3.8" fill="currentColor" stroke="none" /></svg>,
+  /* Learner: scribble-style redraw of the open-book art, same construction as
+     the educator one above. */
+  <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><g transform="translate(3 3.6)" opacity=".3" strokeWidth="2.4"><path d="M48 30.5C40.5 24.6 29 22.4 18.2 24.8c-.8 14.2-.8 28.4 0 42.4 10.6-2.6 21.6-1 29.8 5" /><path d="M48 30.5c7.6-5 19.2-7.4 30-5.6.8 14 .8 28 0 42-10.4-2-21.6-.2-30 5.3" /><path d="M48 30.5c.5 14 .5 28 0 41.8" /><path d="M25 37.2c5.2-1 10.6-.2 15.2 2.6" /><path d="M25 47.2c5.2-1 10.6-.2 15.2 2.6" /><path d="M25 57.2c4-.6 7.8 0 11 1.6" /><path d="M56 40c4.8-2.6 10.2-3.6 15.2-3" /><path d="M56 50c4.8-2.6 10.2-3.6 15.2-3" /><path d="M20 80.5c18-1.1 38-1.1 56 0" /></g><g strokeWidth="3.3"><path d="M48 30.5C40.5 24.6 29 22.4 18.2 24.8c-.8 14.2-.8 28.4 0 42.4 10.6-2.6 21.6-1 29.8 5" /><path d="M48 30.5c7.6-5 19.2-7.4 30-5.6.8 14 .8 28 0 42-10.4-2-21.6-.2-30 5.3" /><path d="M48 30.5c.5 14 .5 28 0 41.8" /><path d="M25 37.2c5.2-1 10.6-.2 15.2 2.6" /><path d="M25 47.2c5.2-1 10.6-.2 15.2 2.6" /><path d="M25 57.2c4-.6 7.8 0 11 1.6" /><path d="M56 40c4.8-2.6 10.2-3.6 15.2-3" /><path d="M56 50c4.8-2.6 10.2-3.6 15.2-3" /><path d="M20 80.5c18-1.1 38-1.1 56 0" /></g><circle cx="83" cy="14" r="3.8" fill="currentColor" stroke="none" /></svg>,
 ];
 const ARROW = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  <ScribbleIcon name="arrow-right" />
 );
 
 // Card chrome (variant class, pill label, button style) is also tied to

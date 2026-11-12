@@ -13,20 +13,11 @@
 import {
   MODES, LANGS, RATINGS, EXPERIENCE, PRICE_ANY, priceLabel,
 } from "./directoryOptions";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
-const IcFilters = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4 5h16M7 12h10M10 19h4" />
-  </svg>
-);
+const IcFilters = <ScribbleIcon name="filter" />;
 
-const IcStar = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 3l2.6 5.8 6.4.7-4.8 4.3 1.4 6.2L12 17l-5.6 3 1.4-6.2L3 9.5l6.4-.7z" />
-  </svg>
-);
+const IcStar = <ScribbleIcon name="star" />;
 
 export default function SkillFilters({
   filters, categories, locations, onChange, onClear, open,

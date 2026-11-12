@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "../contexts/AuthContext";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import {
   applyReview,
   buildAnswerPayload,
@@ -1106,7 +1107,34 @@ function mmss(total) {
 /* ==========================================================================
    Icons — one sprite in the document, referenced by <use>
    ========================================================================== */
+/* Sprite ids with a scribble-set equivalent; the rest still use the sprite. */
+const QI_SCRIBBLE = {
+  "qi-arrow": "arrow-right",
+  "qi-check": "check",
+  "qi-check-c": "check",
+  "qi-x": "close",
+  "qi-x-c": "close",
+  "qi-clock": "clock",
+  "qi-search": "search",
+  "qi-help": "help",
+  "qi-users": "users",
+  "qi-eye": "eye",
+  "qi-bulb": "idea",
+  "qi-grid": "dashboard",
+  "qi-trend": "progress",
+  "qi-award": "award",
+  "qi-list": "lessons",
+  "qi-share": "share",
+  "qi-book": "book",
+  "qi-globe": "globe",
+  "qi-flask": "science",
+  "qi-calc": "calculator",
+  "qi-layers": "books",
+};
+
 function Icon({ id, className }) {
+  const scribble = QI_SCRIBBLE[id];
+  if (scribble) return <ScribbleIcon name={scribble} className={className} focusable="false" />;
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true" focusable="false">
       <use href={`#${id}`} />
@@ -2819,7 +2847,7 @@ export default function QuizHub() {
                     ["Thu", false], ["Fri", true], ["Sat", true],
                   ].map(([d, done]) => (
                     <div className={`qz-day${done ? " done" : ""}`} key={d}>
-                      <i>{done ? <svg width="14" height="14" viewBox="0 0 24 24"><use href="#qi-check" /></svg> : "—"}</i>
+                      <i>{done ? <ScribbleIcon name="check" size={14} /> : "—"}</i>
                       <span>{d}</span>
                     </div>
                   ))}

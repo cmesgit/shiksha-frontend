@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useTickerSlot from "../components/ticker/useTickerSlot";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./AuthTicker.css";
 
 /* The auth screens' two ticker surfaces (design_handoff_live_ticker Phase 5,
@@ -222,10 +223,10 @@ export function AuthFormUpdates({ slot }) {
         })}
       </div>
       {items.length > 1 && <div className="afm__pager">
-        <button type="button" aria-label="Previous advertisement" onClick={() => setIndex((current + items.length - 1) % items.length)}>↑</button>
+        <button type="button" aria-label="Previous advertisement" onClick={() => setIndex((current + items.length - 1) % items.length)}><ScribbleIcon name="chevron-up" /></button>
         <span>{current + 1} / {items.length}</span>
         {!motionReduced && <button type="button" className="afm__pause" aria-label={paused ? "Resume advertisements" : "Pause advertisements"} onClick={() => setPaused(value => !value)}>{paused ? "Play" : "Pause"}</button>}
-        <button type="button" aria-label="Next advertisement" onClick={() => setIndex((current + 1) % items.length)}>↓</button>
+        <button type="button" aria-label="Next advertisement" onClick={() => setIndex((current + 1) % items.length)}><ScribbleIcon name="chevron-down" /></button>
       </div>}
     </aside>
   );

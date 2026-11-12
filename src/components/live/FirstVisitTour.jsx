@@ -38,6 +38,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import "../../styles/liveSessions.css";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { useAuth } from "../../contexts/AuthContext";
 import { computeIdentityKey, readMirror, emptyTourState, patchTourFireAndForget } from "../../tour/tourApi";
 
@@ -57,22 +58,14 @@ const TOUR_KEY = "live.first-visit";
    button, which the reference doesn't draw here either). */
 function TourMicIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="23" />
-    </svg>
+    <ScribbleIcon name="microphone" size={24} color="#fff" />
   );
 }
 
 /* Reused verbatim from FilesPanel.jsx's dropzone icon. */
 function TourUploadIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gs-host)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="gs-tour-bob">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" y1="3" x2="12" y2="15" />
-    </svg>
+    <ScribbleIcon name="upload" size={24} color="var(--gs-host)" className="gs-tour-bob" />
   );
 }
 

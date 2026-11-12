@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import "../css/ProfileSuccessModal.css";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 const DURATION = 20;
 
@@ -59,18 +60,7 @@ const ProfileSuccessModal = ({ onClose }) => {
 
         {/* Checkmark icon */}
         <div className="psm-icon-wrap">
-          <svg
-            className="psm-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
+          <ScribbleIcon name="check" className="psm-icon" aria-hidden="true" />
         </div>
 
         {/* Text */}
