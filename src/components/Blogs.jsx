@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ScribbleIcon from "./icons/ScribbleIcon";
 import { HeroDeco, HeroVisual } from "./hero/HeroLook";
+import { BlogsArt } from "./hero/HeroArt";
 import { getBlogCardsPage } from "../api/contentApi";
 import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
 import "../css/Blogs.css";
@@ -146,12 +147,7 @@ export default function Blogs() {
               <button type="submit">Search</button>
             </form>
           </div>
-          <HeroVisual cards={[
-            { icon: "book", lines: 2 },
-            { icon: "notebook", tone: "gold", lines: 3 },
-            { icon: "check", text: "Chapter notes" },
-            { avatars: true, text: "For every class" },
-          ]} />
+          <HeroVisual art={<BlogsArt />} />
         </div>
       </header>
 

@@ -11,6 +11,7 @@ import { getLanding } from "./exploreApi";
 import { DocCard, MiniDocCard, SectionHead, Icon, Loading, tint } from "./components/ui";
 import { CategoryIcon } from "./components/categoryIcons";
 import { HeroDeco, HeroVisual } from "../components/hero/HeroLook";
+import { ExploreArt } from "../components/hero/HeroArt";
 import "./Explore.css";
 import "./explore-refresh.css";
 
@@ -79,12 +80,7 @@ export default function ExploreLanding() {
               Have notes or papers of your own? {isAuthenticated ? "Upload a document" : "Sign in to upload"} <Icon.arrow />
             </button>
           </div>
-          <HeroVisual cards={[
-            { icon: "file-text", lines: 2 },
-            { icon: "books", tone: "gold", lines: 3 },
-            { icon: "check", text: "Notes & papers" },
-            { avatars: true, text: "Shared by learners" },
-          ]} />
+          <HeroVisual art={<ExploreArt />} />
         </div>
       </section>
 

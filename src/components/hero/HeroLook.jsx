@@ -25,7 +25,17 @@ export function HeroDeco() {
      { icon, tone: "gold" | undefined, lines: 2 | 3 }  → icon + skeleton lines
      { icon, text }                                     → solid round icon + label
      { avatars: true, text }                            → avatar stack + label */
-export function HeroVisual({ cards }) {
+export function HeroVisual({ cards = [], art }) {
+  // With `art` (an illustration from HeroArt.jsx) the blob becomes a soft
+  // backdrop for the drawing and the floating cards are left out.
+  if (art) {
+    return (
+      <div className="fh-visual fh-visual-art" aria-hidden="true">
+        <span className="fh-blob" />
+        <div className="fh-art">{art}</div>
+      </div>
+    );
+  }
   return (
     <div className="fh-visual" aria-hidden="true">
       <span className="fh-blob" />

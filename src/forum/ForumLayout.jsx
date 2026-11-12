@@ -8,6 +8,7 @@ import Navbar from "../components/Navbar";
 import TourHeaderButton from "../tour/TourHeaderButton";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { HeroDeco, HeroVisual } from "../components/hero/HeroLook";
+import { ForumArt } from "../components/hero/HeroArt";
 import "./forum.css";
 import "./forum-refresh.css";
 
@@ -131,12 +132,7 @@ function PageHeader() {
         {/* Right-hand visual, same blob + floating cards idea as the homepage
             hero, kept abstract (skeleton lines, no fake questions). */}
         {isHome && (
-          <HeroVisual cards={[
-            { icon: "help", lines: 2 },
-            { icon: "message", tone: "gold", lines: 3 },
-            { icon: "check", text: "Answered" },
-            { avatars: true, text: "Join the discussion" },
-          ]} />
+          <HeroVisual art={<ForumArt />} />
         )}
       </div>
     </header>
