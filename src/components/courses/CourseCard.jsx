@@ -183,14 +183,43 @@ export default function CourseCard({
         {/* Only where there is a real course to show chapters for. A showcase
             row with no linked course has no syllabus, and an "Explore
             Programs" card is a category, not a course. */}
+        {/* An <a> with a real href, not a <button>.
+            This was a button, so the only way to reach a course was to click
+            it in place: no middle-click, no "open in new tab", no copyable
+            link, and nothing for a crawler to follow — every course in the
+            catalogue was invisible to search engines and unshareable.
+            /courses/:slug is already a real route that resolves the same
+            course (Courses.jsx reads `slug` via useParams and fetches with
+            getPublicCourseBySlug), so the URL is not invented for the link —
+            it is the address this view already had.
+            A plain left-click still calls onSyllabus and does NOT navigate,
+            so the in-page behaviour is byte-for-byte what it was. Modified
+            clicks (new tab, new window) fall through to the browser.
+            c.slug can be absent on a showcase row with no linked course; that
+            falls back to the old button so we never render href="/courses/". */}
         {c.canViewSyllabus && onSyllabus && (
-          <button
-            type="button"
-            className={cls.syllabus}
-            onClick={(e) => { e.stopPropagation(); onSyllabus(c); }}
-          >
-            View syllabus {c.arrow}
-          </button>
+          c.slug ? (
+            <a
+              href={`/courses/${c.slug}`}
+              className={cls.syllabus}
+              onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+                onSyllabus(c);
+              }}
+            >
+              View syllabus {c.arrow}
+            </a>
+          ) : (
+            <button
+              type="button"
+              className={cls.syllabus}
+              onClick={(e) => { e.stopPropagation(); onSyllabus(c); }}
+            >
+              View syllabus {c.arrow}
+            </button>
+          )
         )}
 
         {variant === "catalog" && <div className="uc-gridcard__spacer" />}
