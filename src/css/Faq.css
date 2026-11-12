@@ -1,281 +1,76 @@
-/* ═══════════════════════════════════════════
-   FAQ SECTION
-═══════════════════════════════════════════ */
-.faq-section {
-  background: #ffffff;
-  min-height: 100vh;
-  padding: 80px 24px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
+/* ============================================================================
+   FAQ PAGE
+   The page is built on the About us design system (AboutUs.css: .about-page
+   and ap-* classes for the hero, section heads, buttons and CTA). This file
+   only adds what About has no equivalent for: the hero's topic cards and the
+   accordion, both styled like About's white numbered cards (.ap-wcard).
+   Everything is scoped under .faq-page.
+   ============================================================================ */
 
-/* Background grid — identical to hero */
-.faq-bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(132, 104, 39, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 173, 51, 0.08) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(
-    ellipse 80% 80% at 50% 50%,
-    black 30%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
+/* keep a group's heading clear of the sticky site header when jumped to */
+.faq-page section[id]{scroll-margin-top:96px}
 
-/* Glow orbs — mirrors hero */
-.faq-glow-a {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(16, 67, 18, 0.22), transparent 70%);
-  top: -160px;
-  right: -80px;
-  pointer-events: none;
-}
-.faq-glow-b {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(40, 156, 49, 0.16), transparent 70%);
-  bottom: -120px;
-  left: -80px;
-  pointer-events: none;
-}
-.faq-glow-c {
-  position: absolute;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 143, 1, 0.1), transparent 70%);
-  top: 45%;
-  left: 42%;
-  pointer-events: none;
-}
+/* ---- hero: topic jump cards on the right --------------------------------- */
+.faq-page .fq-topics{display:flex;flex-direction:column;gap:14px;max-width:440px;width:100%;justify-self:center}
+.faq-page .fq-topic{display:flex;align-items:center;gap:16px;padding:18px 20px;background:#fff;text-align:left;
+  border:1px solid var(--ap-line);border-radius:20px;box-shadow:var(--ap-sh-sm);
+  transition:transform .25s,box-shadow .25s,border-color .25s}
+.faq-page .fq-topic:hover{transform:translateY(-4px);box-shadow:var(--ap-sh);border-color:transparent}
+.faq-page .fq-topic:nth-child(2){margin-left:34px}
+.faq-page .fq-topic-text{flex:1;min-width:0}
+.faq-page .fq-topic-text b{display:block;font-size:15.5px;font-weight:700;color:var(--ap-ink)}
+.faq-page .fq-topic-text span{display:block;font-size:13px;color:var(--ap-body)}
+.faq-page .fq-topic-go{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:var(--ap-emerald-soft);color:var(--ap-emerald-dark);transition:transform .2s}
+.faq-page .fq-topic:hover .fq-topic-go{transform:translateX(3px)}
+.faq-page .fq-topic--help{background:var(--ap-peach)}
+.faq-page .fq-topic:focus-visible{outline:3px solid var(--ap-emerald);outline-offset:3px}
 
-/* ── Layout ── */
-.faq-inner {
-  position: relative;
-  z-index: 2;
-  max-width: 820px;
-  margin: 0 auto;
-  width: 100%;
-}
+/* the gradient icon square, shared by topic cards and questions */
+.faq-page .fq-ic{width:46px;height:46px;flex:none;display:grid;place-items:center;border-radius:14px;color:#fff;
+  transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.faq-page .fq-ic--soft{background:var(--ap-emerald-soft);color:var(--ap-emerald-dark)}
 
-/* ═══════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════ */
-.faq-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
+/* ---- accordion ------------------------------------------------------------ */
+.faq-page .fq-list{position:relative;z-index:1;max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.faq-page .fq-item{position:relative;overflow:hidden;background:#fff;border:1px solid var(--ap-line);
+  border-radius:20px;box-shadow:var(--ap-sh-sm);transition:box-shadow .3s,border-color .3s}
+.faq-page .fq-item:hover{box-shadow:var(--ap-sh)}
+.faq-page .fq-item.is-open{border-color:rgba(15,157,107,.28);box-shadow:var(--ap-sh)}
+.faq-page .fq-q{margin:0;font-size:inherit}
+.faq-page .fq-q button{width:100%;display:flex;align-items:center;gap:16px;padding:18px 20px;border:0;background:none;
+  cursor:pointer;text-align:left;font:inherit;color:inherit}
+.faq-page .fq-q button:focus-visible{outline:3px solid var(--ap-emerald);outline-offset:-3px;border-radius:20px}
+.faq-page .fq-item:hover .fq-ic,.faq-page .fq-item.is-open .fq-ic{transform:scale(1.06) rotate(-5deg)}
+.faq-page .fq-text{flex:1;min-width:0;font-size:16px;font-weight:700;line-height:1.4;color:var(--ap-ink)}
+/* the big faint number, as on About's "Why choose" cards */
+.faq-page .fq-num{flex:none;font-weight:800;font-size:30px;line-height:1;letter-spacing:-.03em;color:var(--ap-emerald-soft);
+  user-select:none}
+.faq-page .fq-chev{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:var(--ap-peach);color:var(--ap-emerald-dark);transition:transform .3s,background .3s,color .3s}
+.faq-page .fq-item.is-open .fq-chev{transform:rotate(180deg);background:var(--ap-emerald);color:#fff}
 
-.faq-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(10, 30, 15, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 100px;
-  padding: 6px 16px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-}
+/* answer: the 0fr -> 1fr grid trick animates to the real height without JS */
+.faq-page .fq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease}
+.faq-page .fq-item.is-open .fq-a{grid-template-rows:1fr}
+.faq-page .fq-a-inner{overflow:hidden}
+.faq-page .fq-a-text{margin:0;padding:0 72px 20px 82px;font-size:14.6px;line-height:1.75;color:var(--ap-body)}
+.faq-page .fq-a-text p{margin:0 0 10px}
+.faq-page .fq-a-text p:last-child{margin-bottom:0}
+.faq-page .fq-a-text a{color:var(--ap-emerald);text-decoration:underline;text-underline-offset:3px}
 
-.faq-badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #1dcaab;
-  box-shadow: 0 0 7px #1dcaab;
-  animation: faqblink 1.6s infinite;
-  flex-shrink: 0;
+/* ---- responsive ------------------------------------------------------------ */
+@media(max-width:980px){
+  .faq-page .fq-topics{margin-top:8px}
+  .faq-page .fq-topic:nth-child(2){margin-left:0}
 }
-
-@keyframes faqblink {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.3);
-  }
+@media(max-width:600px){
+  .faq-page .fq-q button{gap:12px;padding:16px}
+  .faq-page .fq-ic{width:40px;height:40px;border-radius:12px}
+  .faq-page .fq-num{display:none}
+  .faq-page .fq-text{font-size:15px}
+  .faq-page .fq-a-text{padding:0 16px 18px 68px}
 }
-
-.faq-badge-text {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-  font-family: "Montserrat", sans-serif;
-  letter-spacing: 0.5px;
-}
-
-.faq-title {
-  font-size: 34px;
-  font-weight: 800;
-  color: rgba(12, 28, 15, 0.92);
-  font-family: "Montserrat", sans-serif;
-  line-height: 1.2;
-  margin-bottom: 12px;
-}
-
-.faq-sub {
-  font-size: 15px;
-  color: rgba(12, 28, 15, 0.55);
-  font-weight: 500;
-  font-family: "Poppins", sans-serif;
-}
-
-/* ═══════════════════════════════════════════
-   FAQ CARDS
-═══════════════════════════════════════════ */
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.faq-card {
-  background: #003223;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
-  backdrop-filter: blur(22px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
-  transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.faq-card.open {
-  border-color: color-mix(in srgb, var(--acc) 40%, transparent);
-  box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.25),
-    0 0 0 1.5px color-mix(in srgb, var(--acc) 30%, transparent);
-}
-
-/* Question row */
-.faq-q {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 20px 22px;
-  cursor: pointer;
-  user-select: none;
-}
-
-/* Icon box — mirrors scard-icon-wrap */
-.faq-q-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--acc);
-  font-size: 13px;
-  transition:
-    background 0.22s,
-    border-color 0.22s;
-}
-
-.faq-card.open .faq-q-icon {
-  background: color-mix(in srgb, var(--acc) 15%, transparent);
-  border-color: color-mix(in srgb, var(--acc) 35%, transparent);
-}
-
-.faq-q-text {
-  flex: 1;
-  font-size: 15px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-  font-family: "Montserrat", sans-serif;
-  line-height: 1.4;
-}
-
-/* Chevron toggle */
-.faq-chevron {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.22s;
-}
-
-.faq-chevron svg {
-  width: 10px;
-  height: 10px;
-  stroke: rgba(255, 255, 255, 0.65);
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.22s;
-}
-
-.faq-card.open .faq-chevron {
-  transform: rotate(180deg);
-  background: color-mix(in srgb, var(--acc) 18%, transparent);
-}
-
-.faq-card.open .faq-chevron svg {
-  stroke: var(--acc);
-}
-
-/* Answer body — animated expand */
-.faq-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.faq-body.open {
-  max-height: 200px;
-}
-
-.faq-body-inner {
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 16px 22px 20px 68px;
-}
-
-.faq-a {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.68);
-  font-family: "Poppins", sans-serif;
-  line-height: 1.7;
-  font-weight: 400;
-  margin: 0;
-}
-
-/* ═══════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════ */
-@media (max-width: 600px) {
-  .faq-title {
-    font-size: 26px;
-  }
-  .faq-q-text {
-    font-size: 14px;
-  }
-  .faq-body-inner {
-    padding: 16px 16px 20px 16px;
-  }
+@media(prefers-reduced-motion:reduce){
+  .faq-page .fq-a,.faq-page .fq-chev,.faq-page .fq-ic,.faq-page .fq-topic{transition:none}
 }

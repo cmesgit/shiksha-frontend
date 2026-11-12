@@ -43,7 +43,8 @@ import ScribbleIcon from "./icons/ScribbleIcon";
  *    screen and required for the submission to validate.
  *
  * Still hardcoded on purpose — page furniture, not content anyone edits: the
- * section headings, the "What happens next" steps, the four desks and the FAQ.
+ * section headings, the "What happens next" steps and the four desks. (The
+ * FAQ that used to close this page now lives on /faq.)
  * The CMS has no section for any of them and inventing five would be a backend
  * change this page should not smuggle in.
  */
@@ -271,29 +272,6 @@ const DESKS = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "How quickly will someone reply to my message?",
-    a: "Messages sent Monday to Saturday are answered within one working day, and usually the same day if they arrive before the afternoon. Anything sent on a Sunday or a public holiday is picked up the next working morning.",
-  },
-  {
-    q: "I am already enrolled and cannot access my course. What do I do?",
-    a: "Write to the Student Support desk with the email address you enrolled with and the name of the course. Access issues are treated as priority and are normally restored the same day.",
-  },
-  {
-    q: "Can I visit one of your offices in person?",
-    a: "Yes, both the Gurgaon head office and the Aizawl regional office welcome visitors between 9:30 AM and 6:30 PM on working days. Please call ahead so the right person is available when you arrive.",
-  },
-  {
-    q: "Do you help schools and institutions, not just individual students?",
-    a: "We do. Schools, NGOs and district programmes can work with us on bulk licences, teacher training and co-branded course tracks. The Partnerships tab above has the direct line for that team.",
-  },
-  {
-    q: "Which languages can I write to you in?",
-    a: "English and Hindi are handled by every desk. Mizo is supported by the Aizawl regional office, so questions in Mizo are best sent to the Mizoram numbers listed above.",
-  },
-];
-
 /* ==========================================================================
    Helpers
    ========================================================================== */
@@ -441,7 +419,7 @@ function useHeaderOffset(rootRef) {
  * bearing. React owns `className` on these nodes and rewrites it whenever its
  * value changes — so a `.cp-in` added imperatively here is wiped the instant
  * anything re-renders the element with a different class string. The FAQ items
- * do exactly that on every toggle (`cp-qa cp-rv` -> `cp-qa cp-rv cp-open`), and
+ * this page used to have did exactly that on every toggle, and
  * because the card never leaves the viewport the observer never fires again to
  * put it back. The visible result was the whole card going to opacity 0 the
  * moment you opened it. React does not manage `data-rv`, so it survives.
@@ -498,47 +476,6 @@ function InfoCard({ card, delay }) {
   );
 }
 
-function FaqItem({ item, index, open, onToggle }) {
-  const answerRef = useRef(null);
-  const [height, setHeight] = useState(0);
-
-  /* max-height has to be a real number for the .35s transition to animate; a
-     ResizeObserver keeps it right if the text rewraps (a phone rotating while
-     the answer is open would otherwise clip it). */
-  useEffect(() => {
-    const el = answerRef.current;
-    if (!el || !open) return undefined;
-    const measure = () => setHeight(el.scrollHeight);
-    measure();
-    if (!("ResizeObserver" in window)) return undefined;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el.firstElementChild || el);
-    return () => ro.disconnect();
-  }, [open]);
-
-  return (
-    <div className={`cp-qa cp-rv${open ? " cp-open" : ""}`}>
-      <button
-        className="cp-qa-q"
-        type="button"
-        aria-expanded={open}
-        aria-controls={`cpa${index}`}
-        onClick={onToggle}
-      >
-        <span>{item.q}</span>
-        <span className="cp-qa-ic">{ICONS.plus}</span>
-      </button>
-      <div
-        className="cp-qa-a"
-        id={`cpa${index}`}
-        ref={answerRef}
-        style={{ maxHeight: open ? `${height}px` : 0 }}
-      >
-        <p>{item.a}</p>
-      </div>
-    </div>
-  );
-}
 
 /* ==========================================================================
    The message form
@@ -768,7 +705,6 @@ export default function Contact() {
   const rootRef = useRef(null);
   const { block, items } = useHomeContent("contact_hero");
   const [tab, setTab] = useState(0);
-  const [openFaq, setOpenFaq] = useState(null);
   const tabRefs = useRef([]);
 
   const heroEyebrow = homeField("contact_hero", block, "eyebrow");
@@ -1001,28 +937,8 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ============================= 5 · FAQ ============================= */}
-      <section className="cp-sec cp-soft">
-        <div className="cp-wrap">
-          <div className="cp-head cp-rv">
-            <span className="cp-eyebrow"><u>Questions</u></span>
-            <h2>Before you <span className="cp-em">write in</span></h2>
-            <p>A few things people ask us most often — the answer may already be here.</p>
-          </div>
-
-          <div className="cp-faq">
-            {FAQS.map((item, i) => (
-              <FaqItem
-                key={item.q}
-                item={item}
-                index={i}
-                open={openFaq === i}
-                onToggle={() => setOpenFaq((cur) => (cur === i ? null : i))}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* The "Before you write in" questions moved to the FAQ page (/faq),
+          which now has a "Contacting us" group: content/contactFaqs.js. */}
 
       {/* ========================= 6 · NEWSLETTER CTA ========================= */}
       <section className="cp-sec" style={{ paddingTop: "clamp(30px,4vw,54px)" }}>
