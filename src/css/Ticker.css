@@ -118,31 +118,137 @@ a.tk-card:hover { border-color: var(--sk-green); }
 .tk-card--dark .tk-card__metric { color: var(--sk-gold); }
 a.tk-card--dark:hover { border-color: rgba(255, 255, 255, 0.4); }
 
-.tk-foot__nav .tk-rot__arrow {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.22);
-  color: #fff;
-}
-.tk-foot__nav .tk-rot__dot { background: rgba(255, 255, 255, 0.28); }
-.tk-foot__nav .tk-rot__dot.is-on { background: var(--sk-gold); }
-
 /* ── the homepage band ──────────────────────────────────────────── */
 
 .tk-band { background: var(--sk-paper); }
 
 /* ── the footer region ──────────────────────────────────────────── */
+/* Compact cards of its own (FooterTicker's FooterCard), not the homepage
+   TickerCard: one short update no longer becomes a 244px empty box. The
+   heading and the pager share a row; the pager is pinned top-right. */
 
 .tk-foot {
-  padding: 26px 0;
+  position: relative;
+  padding: 28px 0 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .tk-foot__label {
-  margin: 0 0 12px;
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  margin: 0 0 16px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+/* a small live dot, so the strip reads as "news", not as more footer links */
+.tk-foot__label i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sk-gold);
+  box-shadow: 0 0 0 0 rgba(255, 178, 29, 0.55);
+  animation: tk-live 2.2s ease-out infinite;
+}
+@keyframes tk-live {
+  0% { box-shadow: 0 0 0 0 rgba(255, 178, 29, 0.55); }
+  100% { box-shadow: 0 0 0 9px rgba(255, 178, 29, 0); }
+}
+
+/* columns follow the item count, so one or two cards don't stretch oddly */
+.tk-foot .tk-rot { gap: 0; }
+.tk-foot .tk-rot__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.tk-foot--n2 .tk-rot__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tk-foot--n1 .tk-rot__cards { grid-template-columns: minmax(0, 620px); }
+
+/* pager: arrows and dots in the heading row, right-aligned */
+.tk-foot .tk-rot__nav { position: absolute; top: 28px; right: 0; gap: 8px; }
+.tk-foot__nav .tk-rot__arrow {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  transition: background 0.18s, border-color 0.18s;
+}
+.tk-foot__nav .tk-rot__arrow:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.4); }
+.tk-foot__nav .tk-rot__dot { background: rgba(255, 255, 255, 0.28); transition: width 0.2s, background 0.2s; }
+.tk-foot__nav .tk-rot__dot.is-on { background: var(--sk-gold); }
+
+/* the compact card */
+.tk-fcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  min-height: 86px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+a.tk-fcard:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+a.tk-fcard:focus-visible { outline: 3px solid rgba(255, 178, 29, 0.7); outline-offset: 3px; }
+.tk-fcard__ic,
+.tk-fcard__thumb {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 13px;
+}
+.tk-fcard__ic {
+  display: grid;
+  place-items: center;
+  background: rgba(143, 227, 192, 0.14);
+  color: #8FE3C0;
+}
+.tk-fcard__thumb { object-fit: cover; display: block; }
+.tk-fcard__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.tk-fcard__meta { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tk-fcard__kind {
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: #8FE3C0;
+}
+.tk-fcard__metric { font-size: 11px; color: rgba(255, 255, 255, 0.72); white-space: nowrap; }
+.tk-fcard__metric b { color: var(--sk-gold); font-weight: 800; }
+/* title up to two lines, detail one line; grid stretch keeps a row even */
+.tk-fcard__title {
+  font-size: 14.5px; font-weight: 700; color: #fff; line-height: 1.35;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.tk-fcard__body { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-fcard__body { font-size: 12.5px; color: rgba(255, 255, 255, 0.66); line-height: 1.45; }
+.tk-fcard__go {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #fff;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+}
+a.tk-fcard:hover .tk-fcard__go { background: var(--sk-gold); border-color: var(--sk-gold); color: #3a2400; transform: translateX(2px); }
+
+@media (max-width: 900px) {
+  .tk-foot .tk-rot__cards,
+  .tk-foot--n2 .tk-rot__cards { grid-template-columns: minmax(0, 1fr); }
+  .tk-foot--n1 .tk-rot__cards { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-foot__label i { animation: none; }
+  .tk-fcard, .tk-fcard__go { transition: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

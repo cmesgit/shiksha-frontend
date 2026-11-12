@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../css/Ticker.css";
+import { KIND_LABEL } from "./tickerKinds";
 
 /* Open item #7, settled 2026-09-10: 5s, the design's own `rotationSeconds`
  * default. The site's two existing hand-rolled rotators use 3200ms, but they
@@ -134,15 +135,3 @@ export function TickerCard({ item, tone = "light" }) {
     ? <Link to={item.link_url} className={cls}>{inner}</Link>
     : <a className={cls} href={item.link_url} target="_blank" rel="noopener noreferrer">{inner}</a>;
 }
-
-// Mirrors content.models.TickerKind. Shown as the card's small eyebrow.
-const KIND_LABEL = {
-  new_course: "New course",
-  enrolment: "Enrolment",
-  new_mentor: "New mentor",
-  practice: "Practice",
-  deadline: "Deadline",
-  milestone: "Milestone",
-  current_affairs: "Current affairs",
-  mentor_spotlight: "Mentor spotlight",
-};
