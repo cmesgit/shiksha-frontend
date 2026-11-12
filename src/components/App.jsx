@@ -45,6 +45,13 @@ const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPa
 // chunk (183 kB) while the feature is off.
 const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadRoute"));
 const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAllPage"));
+// The "Admission in India v2" artboard: an OVERVIEW whose ranking block is a
+// five-row preview beside an "All 980 institutions →" link. It owns
+// /admission/india because its hero covers the whole 980-row directory; the
+// curated 50-institution ENGINEERING list moved to /admission/india/engineering
+// so the two NIRF tables stay separate (Overall vs Engineering — IIT Delhi is
+// #4 on one and #2 on the other).
+const AdmissionIndiaOverview = lazy(() => import("../counselling/AdmissionIndiaOverview"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -419,11 +426,16 @@ function App() {
             gate: a visitor can read a full career profile before signing up,
             same as the guide library. */}
         <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
-        {/* Admission in India — the Colleges-tab destination. Public, like
-            the guide library; the navbar entry points here too. */}
-        <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
+        {/* Admission in India — the Colleges-tab destination and the navbar
+            entry. Public, like the guide library. */}
+        <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />
         <Route path="/admission/abroad"               element={<Page><AdmissionAbroad /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
+        {/* The curated NIRF **Engineering** top 50 — a different NIRF table
+            with scores, founding years and admission prose the 980-row
+            directory does not carry. Career pages deep-link it with
+            ?program= (admissionLinks.js). */}
+        <Route path="/admission/india/engineering"    element={<Page><AdmissionIndia /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
