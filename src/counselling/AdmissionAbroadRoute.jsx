@@ -50,7 +50,12 @@ function AbroadNotLive() {
         </p>
         <p className="sc-sub">In the meantime:</p>
         <div className="ai-journey-links" style={{ marginTop: 14 }}>
-          <Link to="/admission/india/all">Browse colleges in India →</Link>
+          {/* /admission/india, not /admission/india/all. The "all" directory
+              is part of the parallel career-v3 branch's own India rebuild,
+              which main implemented differently and does not have — linking
+              there from this fallback would 404 exactly the visitor we just
+              turned away. */}
+          <Link to="/admission/india">Browse colleges in India →</Link>
           <Link to="/counselling/counsellors">Talk to a counsellor →</Link>
         </div>
       </div>
