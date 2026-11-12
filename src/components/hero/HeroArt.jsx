@@ -179,3 +179,91 @@ export function ExploreArt() {
     </svg>
   );
 }
+
+/* Current affairs: a reader with the day's paper, a calendar and a globe. */
+export function CurrentAffairsArt() {
+  return (
+    <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
+      <Ground />
+      {/* calendar */}
+      <g>
+        <rect x="46" y="58" width="128" height="116" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
+        <path d="M46 74 a16 16 0 0 1 16 -16 h96 a16 16 0 0 1 16 16 v12 h-128z" fill={C.brand} />
+        <rect x="74" y="48" width="8" height="20" rx="4" fill={C.deep} />
+        <rect x="138" y="48" width="8" height="20" rx="4" fill={C.deep} />
+        {[0, 1, 2].map((r) => [0, 1, 2, 3].map((c) => (
+          <rect key={`${r}-${c}`} x={62 + c * 26} y={100 + r * 22} width="16" height="12" rx="4"
+            fill={r === 1 && c === 2 ? C.gold : C.wash2} />
+        )))}
+      </g>
+      {/* globe */}
+      <g>
+        <circle cx="352" cy="78" r="30" fill={C.wash} stroke={C.brand} strokeWidth="4" />
+        <ellipse cx="352" cy="78" rx="13" ry="30" fill="none" stroke={C.brand} strokeWidth="3" />
+        <path d="M322 78 h60 M327 62 h50 M327 94 h50" stroke={C.brand} strokeWidth="3" strokeLinecap="round" />
+      </g>
+      <Person x={250} skin={C.skin2} shirt={C.gold} pants={C.deep} hair={C.ink} hang={false}
+        arm="M230 166 C216 176 212 186 214 196" />
+      <path d="M270 166 C284 176 288 186 286 196" stroke={C.gold} strokeWidth="12" strokeLinecap="round" fill="none" />
+      {/* newspaper held in front */}
+      <g>
+        <rect x="198" y="166" width="104" height="74" rx="8" fill={C.white} stroke={C.line} strokeWidth="2" />
+        <rect x="210" y="178" width="56" height="9" rx="4.5" fill={C.deep} />
+        <rect x="210" y="196" width="30" height="30" rx="5" fill={C.wash2} />
+        <Lines x={248} y={196} widths={[42, 34, 40]} gap={11} />
+        <rect x="274" y="178" width="16" height="9" rx="4.5" fill={C.gold} />
+      </g>
+      <circle cx="214" cy="198" r="6" fill={C.skin2} />
+      <circle cx="286" cy="198" r="6" fill={C.skin2} />
+      <Plant x={92} />
+      <circle cx="214" cy="60" r="6" fill={C.gold} />
+      <circle cx="388" cy="200" r="4" fill={C.brand2} />
+    </svg>
+  );
+}
+
+/* Quizzes: a learner pointing at a quiz card, with a stopwatch and a trophy. */
+export function QuizArt() {
+  return (
+    <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
+      <Ground />
+      {/* quiz card */}
+      <g>
+        <rect x="232" y="44" width="146" height="178" rx="18" fill={C.white} stroke={C.line} strokeWidth="2" />
+        <rect x="252" y="64" width="64" height="9" rx="4.5" fill={C.deep} />
+        <rect x="252" y="80" width="96" height="6" rx="3" fill={C.line} />
+        {[0, 1, 2].map((i) => {
+          const y = 104 + i * 30;
+          const on = i === 0;
+          return (
+            <g key={i}>
+              <rect x="248" y={y - 4} width="114" height="24" rx="12" fill={on ? C.wash : C.white} stroke={on ? C.brand : C.line} strokeWidth="2" />
+              <circle cx="262" cy={y + 8} r="6" fill={on ? C.brand : C.white} stroke={on ? C.brand : C.line} strokeWidth="2" />
+              {on && <path d={`M259 ${y + 8} l2.5 2.5 l4.5 -5`} stroke={C.white} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
+              <rect x="276" y={y + 5} width={on ? 64 : 52 - i * 6} height="6" rx="3" fill={on ? C.brand : C.line} />
+            </g>
+          );
+        })}
+        <rect x="270" y="192" width="70" height="18" rx="9" fill={C.brand} />
+      </g>
+      {/* stopwatch */}
+      <g>
+        <rect x="62" y="52" width="16" height="8" rx="3" fill={C.deep} />
+        <circle cx="70" cy="88" r="26" fill={C.white} stroke={C.brand} strokeWidth="5" />
+        <path d="M70 88 V72 M70 88 l10 8" stroke={C.deep} strokeWidth="4" strokeLinecap="round" />
+        <circle cx="70" cy="88" r="3.5" fill={C.gold} />
+      </g>
+      <Person x={160} skin={C.skin1} shirt={C.brand} pants={C.ink} hair="#3A2A1E"
+        arm="M179 162 C196 152 210 144 226 136" hand={[228, 134]} />
+      {/* trophy */}
+      <g>
+        <path d="M352 244 h36 v8 a18 18 0 0 1 -36 0z" fill={C.gold} />
+        <path d="M352 250 h-8 a8 8 0 0 0 8 10 M388 250 h8 a8 8 0 0 1 -8 10" stroke={C.gold} strokeWidth="4" fill="none" strokeLinecap="round" />
+        <rect x="366" y="268" width="8" height="18" fill={C.gold} />
+        <rect x="356" y="284" width="28" height="10" rx="4" fill={C.deep} />
+      </g>
+      <circle cx="200" cy="54" r="6" fill={C.gold} />
+      <circle cx="44" cy="210" r="4" fill={C.brand2} />
+    </svg>
+  );
+}

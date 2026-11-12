@@ -21,6 +21,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCurrentAffairs } from "../api/contentApi";
 import { getTopHeadlines } from "../api/newsApi";
+import ScribbleIcon from "./icons/ScribbleIcon";
+import { HeroDeco, HeroVisual } from "./hero/HeroLook";
+import { CurrentAffairsArt } from "./hero/HeroArt";
 import "../css/CurrentAffairs.css";
 
 // Mirrors AffairCategory in content/models.py. Kept as an explicit list
@@ -114,12 +117,37 @@ const CurrentAffairs = () => {
   const showWire = !filtersActive && !wireLoading && wire.length > 0;
 
   return (
-    <div className="current-affairs-page">
-      <h1>Current Affairs</h1>
-      <p className="page-description">
-        Exam-focused daily current affairs, written and curated by the ShikshaCom team.
-      </p>
+    <div className="ca-page hl-scope">
+      {/* Same hero look as the forum, blogs, Explore and quizzes. */}
+      <header className="fh-hero">
+        <HeroDeco />
+        <div className="fh-wrap">
+          <div className="fh-body">
+            <span className="fh-badge"><i />Current affairs</span>
+            <h1 className="fh-title">
+              <span className="fh-lead">Stay exam-ready,</span>
+              <span className="fh-punch">every day.</span>
+            </h1>
+            <p className="fh-sub">
+              Exam-focused daily current affairs, written and curated by the ShikshaCom team.
+            </p>
+            <form className="fh-search" role="search" onSubmit={(e) => { e.preventDefault(); setQueryTerm(q.trim()); }}>
+              <ScribbleIcon name="search" size={17} aria-hidden="true" />
+              <input
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search current affairs…"
+                aria-label="Search current affairs"
+              />
+              <button type="submit">Search</button>
+            </form>
+          </div>
+          <HeroVisual art={<CurrentAffairsArt />} />
+        </div>
+      </header>
 
+    <div className="current-affairs-page">
       <div className="ca-filters">
         <div className="ca-chips">
           {CATEGORIES.map(([value, label]) => (
@@ -135,15 +163,9 @@ const CurrentAffairs = () => {
         </div>
 
         <div className="ca-filterRow">
+          <label className="ca-monthLabel" htmlFor="ca-month">Month</label>
           <input
-            className="ca-search"
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search current affairs…"
-            aria-label="Search current affairs"
-          />
-          <input
+            id="ca-month"
             className="ca-month"
             type="month"
             value={month}
@@ -281,6 +303,7 @@ const CurrentAffairs = () => {
           </div>
         </section>
       )}
+    </div>
     </div>
   );
 };
