@@ -42,10 +42,14 @@ const SESSION_DOES = [
   ["Leave with a concrete next step", "Courses, streams, or entrance exams to focus on"],
 ];
 
+// The artboard's "From confused to clear in 3 steps", verbatim. Step 3 names
+// a live 1:1 session, so this set is only reachable once counsellors exist —
+// HOW_STEPS_PRELAUNCH below is the honest copy for an empty directory and
+// deliberately does NOT promise a booking.
 const HOW_STEPS_LIVE = [
-  ["Step 1", "Complete your profile", "Share your interests, skills and goals in two minutes. We already know your class and stream from your Shiksha profile."],
-  ["Step 2", "Get your path & matches", "See a personalised career path with the reasons behind it, plus counsellors ranked for you with a clear match score."],
-  ["Step 3", "Book & meet online", "Pick a slot, fill the optional pre-session assessment, and meet your counsellor live over a 45-minute video call."],
+  ["Step 1", "Answer a few questions", "Tell us your class, interests and strengths. It takes about 2 minutes."],
+  ["Step 2", "Get your career report", "See careers that fit you, with the reasons, exams and top colleges."],
+  ["Step 3", "Talk to a counsellor", "Book a live 1:1 video session and leave with a clear next step."],
 ];
 const HOW_STEPS_PRELAUNCH = [
   ["Step 1", "Browse the library", "Ten guides covering Class 6 through postgraduate study, plus admissions in India — free, no login needed."],
@@ -195,8 +199,8 @@ export default function LandingPage() {
 
       {/* how it works */}
       <div className="lms-sechead" style={{ marginTop: "clamp(26px,3.5vw,44px)", textAlign: "center", marginLeft: "auto", marginRight: "auto" }}>
-        <span className="sc-eyebrow">Simple, guided, personal</span>
-        <h2>How career counselling works</h2>
+        <span className="sc-eyebrow">How it works</span>
+        <h2>From confused to clear in 3 steps</h2>
         <p>From a two-minute profile to a live session with the right counsellor — here's the whole journey.</p>
       </div>
       <div className="lms-steps">
