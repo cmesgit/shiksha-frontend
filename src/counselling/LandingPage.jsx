@@ -18,6 +18,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCounsellors } from "../api/counselling";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
+import { getPublicConfig } from "../api/publicConfig";
+import { AUDIENCES } from "./wizardSteps";
 import ExampleReportCard from "./ExampleReportCard";
 import CounsellingShell, { initialsOf, gradOf } from "./CounsellingShell";
 import useCounsellorsLive from "./useCounsellorsLive";
@@ -25,32 +27,26 @@ import ScribbleIcon from "../components/icons/ScribbleIcon";
 
 const SearchIcon = () => <ScribbleIcon name="search" size={16} color="rgba(14,28,15,.45)" />;
 const StarIcon = ({ size = 13 }) => <ScribbleIcon name="star" size={size} color="#f5a623" filled />;
-const CheckIcon = () => <ScribbleIcon name="check" size={13} color="#7fe8d4" />;
-const STEP_ICONS = [
-  <svg key="p" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="8" y="2" width="8" height="4" rx="1" /><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3" /><path d="M9 12h6M9 16h4" />
-  </svg>,
-  <svg key="c" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="9" /><polygon points="16 8 10 10 8 16 14 14 16 8" />
-  </svg>,
-  <ScribbleIcon key="b" name="calendar" size={26} />,
-];
+// STEP_ICONS / SESSION_DOES / CheckIcon were dropped with the old
+// "How career counselling works" block: the replacement numbers its steps
+// in plain circles and carries no per-step icon.
 
-const SESSION_DOES = [
-  ["Understand your interests & strengths", "Not just what you're good at — what excites you"],
-  ["Get a clear, personalised career direction", "With the reasons behind it — not just a list of options"],
-  ["Leave with a concrete next step", "Courses, streams, or entrance exams to focus on"],
-];
-
+// "From confused to clear in 3 steps" — artboard copy, verbatim.
+//
+// Step 3 names a live 1:1 session, so it follows the same honesty rule as
+// the hero's third tick: with nobody approved to book, promising a video
+// call is a promise the product cannot keep. The prelaunch variant swaps
+// that one step rather than hiding the section, because steps 1 and 2 are
+// true and useful either way.
 const HOW_STEPS_LIVE = [
-  ["Step 1", "Complete your profile", "Share your interests, skills and goals in two minutes. We already know your class and stream from your Shiksha profile."],
-  ["Step 2", "Get your path & matches", "See a personalised career path with the reasons behind it, plus counsellors ranked for you with a clear match score."],
-  ["Step 3", "Book & meet online", "Pick a slot, fill the optional pre-session assessment, and meet your counsellor live over a 45-minute video call."],
+  ["Answer a few questions", "Tell us your class, interests and strengths. It takes about 2 minutes."],
+  ["Get your career report", "See careers that fit you, with the reasons, exams and top colleges."],
+  ["Talk to a counsellor", "Book a live 1:1 video session and leave with a clear next step."],
 ];
 const HOW_STEPS_PRELAUNCH = [
-  ["Step 1", "Browse the library", "Ten guides covering Class 6 through postgraduate study, plus admissions in India — free, no login needed."],
-  ["Step 2", "Build your career profile", "Interests, skills, goals — two minutes, so your path is ready the moment counsellors are."],
-  ["Step 3", "Read your matched guides", "Your profile picks out the guides most relevant to your class, stream and interests."],
+  HOW_STEPS_LIVE[0],
+  HOW_STEPS_LIVE[1],
+  ["Read your matched guides", "Your profile picks out the guides most relevant to your class, stream and interests."],
 ];
 
 export default function LandingPage() {
@@ -60,6 +56,10 @@ export default function LandingPage() {
   const [q, setQ] = useState("");
   const [featured, setFeatured] = useState(null);
   const [guides, setGuides] = useState(null);
+  // null until known. The "Study abroad" card must follow the same public
+  // flag the navbar entry and /admission/abroad itself follow, or the
+  // landing page becomes a fourth, unguarded way into a gated screen.
+  const [abroadOn, setAbroadOn] = useState(null);
 
   useEffect(() => {
     let live = true;
@@ -74,6 +74,14 @@ export default function LandingPage() {
     return () => { mounted = false; };
   }, []);
 
+  useEffect(() => {
+    let alive = true;
+    getPublicConfig()
+      .then((cfg) => alive && setAbroadOn(Boolean(cfg.admission_abroad_enabled)))
+      .catch(() => alive && setAbroadOn(false)); // fail closed
+    return () => { alive = false; };
+  }, []);
+
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle || !guides) return null;
@@ -82,9 +90,19 @@ export default function LandingPage() {
     );
   }, [q, guides]);
 
-  const start = () => {
-    if (isAuthenticated) navigate("/counselling/profile");
-    else navigate("/login", { state: { from: "/counselling/profile" } });
+  // `audience` is one of wizardSteps' AUDIENCES keys (self/child/sibling/
+  // other) — the SAME vocabulary the wizard's own step-0 chips use, so the
+  // landing chip prefills a real field instead of inventing a parallel one.
+  //
+  // Routing only: nothing is stored server-side from this page. The choice
+  // rides the URL, and `safeReturnPath` already preserves a query string
+  // through the login round trip (see auth/returnTo.js + its tests), so a
+  // logged-out visitor who picks "My child" still lands on a prefilled
+  // wizard after signing in.
+  const start = (audience) => {
+    const to = "/counselling/profile" + (audience ? `?audience=${audience}` : "");
+    if (isAuthenticated) navigate(to);
+    else navigate("/login", { state: { from: to } });
   };
 
   const howSteps = counsellorsLive ? HOW_STEPS_LIVE : HOW_STEPS_PRELAUNCH;
@@ -117,7 +135,7 @@ export default function LandingPage() {
             </ul>
             <div style={{ display: "flex", gap: 11, flexWrap: "wrap" }}>
               {counsellorsLive ? (
-                <button className="sc-btn" onClick={start}>Get my free career report →</button>
+                <button className="sc-btn" onClick={() => start()}>Get my free career report →</button>
               ) : (
                 <Link className="sc-btn" to="/counselling/guides">Browse career guides</Link>
               )}
@@ -181,48 +199,149 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Spark Finder invite */}
-      <Link to="/counselling/spark" className="sc-spark-invite" style={{ textDecoration: "none" }}>
-        <div className="sc-spark-invite-l">
-          <span className="sc-spark-invite-emoji">✦</span>
-          <div>
-            <div className="sc-spark-invite-t">Not sure where to start? Play Spark Finder</div>
-            <div className="sc-spark-invite-s">A 2-minute tap quiz that reveals what genuinely excites you — then builds your profile for you.</div>
-          </div>
-        </div>
-        <span className="sc-spark-invite-btn">Try it →</span>
-      </Link>
-
-      {/* how it works */}
-      <div className="lms-sechead" style={{ marginTop: "clamp(26px,3.5vw,44px)", textAlign: "center", marginLeft: "auto", marginRight: "auto" }}>
-        <span className="sc-eyebrow">Simple, guided, personal</span>
-        <h2>How career counselling works</h2>
-        <p>From a two-minute profile to a live session with the right counsellor — here's the whole journey.</p>
+      {/* how it works — "From confused to clear in 3 steps" */}
+      <div className="lms-sechead" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
+        <span className="sc-eyebrow">How it works</span>
+        <h2>From confused to clear in 3 steps</h2>
       </div>
-      <div className="lms-steps">
-        {howSteps.map(([num, title, body], i) => (
-          <div key={num} className="lms-step">
-            <span className="ic">{STEP_ICONS[i]}</span>
-            <div className="num">{num}</div>
-            <h3>{title}</h3>
-            <p>{body}</p>
+      <div className="sc-steps3">
+        {howSteps.map(([title, body], i) => (
+          <div key={title} className="sc-step3">
+            <span className="sc-step3-n" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </div>
           </div>
         ))}
       </div>
-      <div style={{ textAlign: "center", marginTop: 18 }}>
-        <button className="sc-btn" onClick={start}>Start my career profile →</button>
+
+      {/* start here — "Ready to find your path?"
+          The Spark Finder promo lives INSIDE this card, as the artboard
+          places it. The standalone .sc-spark-invite banner that used to sit
+          above this section was removed in the same change: two promos for
+          one 2-minute quiz on a single screen is noise, not emphasis. */}
+      <div className="sc-start">
+        <div className="sc-start-grid">
+          <div>
+            <span className="sc-eyebrow">Start here</span>
+            <h2>Ready to find your path?</h2>
+            <p>
+              Answer a few questions and get a personal career report for India
+              or abroad — with careers that fit you, the exams to take and top
+              colleges.
+            </p>
+            <span className="sc-qs-label" id="sc-qs-label">Quick start · Who is this for?</span>
+            <div className="sc-qs-chips" role="group" aria-labelledby="sc-qs-label">
+              {AUDIENCES.map(([value, label]) => (
+                <button key={value} type="button" className="sc-qs-chip" onClick={() => start(value)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="sc-start-r">
+            <button className="sc-btn" onClick={() => start()}>Get my free career report →</button>
+            <Link to="/counselling/spark" className="sc-spark-mini">
+              <span className="sc-spark-mini-ic" aria-hidden="true">✦</span>
+              <span className="sc-spark-mini-b">
+                <span className="sc-spark-mini-t">Play Spark Finder</span>
+                <span className="sc-spark-mini-s">A 2-minute tap quiz that shows what excites you</span>
+              </span>
+              <span className="sc-spark-mini-go" aria-hidden="true">›</span>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* featured counsellors — hidden while the directory is empty */}
+      {/* explore at your own pace */}
+      <div className="lms-sechead" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
+        <span className="sc-eyebrow">Guides &amp; careers</span>
+        <h2>Explore at your own pace</h2>
+        <p>Free guides and career profiles.</p>
+      </div>
+      <div className="sc-explore2">
+        <Link to="/admission/india/all" className="sc-explore-card">
+          <span className="sc-explore-ic" aria-hidden="true"><ScribbleIcon name="home" size={22} /></span>
+          <h3>Study in India</h3>
+          <p>Guides for every stage and careers you can build in India.</p>
+          <span className="sc-explore-foot">
+            <span className="sc-explore-link">Explore India</span>
+            <span className="sc-explore-go" aria-hidden="true">→</span>
+          </span>
+        </Link>
+
+        {/* Abroad follows the public flag. When it is off the card stays on
+            screen but stops being a link — the directory exists and is
+            genuinely coming, so removing the card entirely would hide a real
+            part of the offer, while linking it would dump a visitor on the
+            "Not open yet" gate. `null` (flag not yet known) is treated as
+            off: better a card that turns into a link a moment later than one
+            that flashes a working link and retracts it. */}
+        {abroadOn ? (
+          <Link to="/admission/abroad" className="sc-explore-card">
+            <span className="sc-explore-ic violet" aria-hidden="true"><ScribbleIcon name="globe" size={22} /></span>
+            <h3>Study abroad</h3>
+            <p>Guides on countries, tests and costs, and careers to study for abroad.</p>
+            <span className="sc-explore-foot">
+              <span className="sc-explore-link violet">Explore abroad</span>
+              <span className="sc-explore-go violet" aria-hidden="true">→</span>
+            </span>
+          </Link>
+        ) : (
+          <div className="sc-explore-card soon">
+            <span className="sc-explore-ic violet" aria-hidden="true"><ScribbleIcon name="globe" size={22} /></span>
+            <h3>Study abroad</h3>
+            <p>Guides on countries, tests and costs, and careers to study for abroad.</p>
+            <span className="sc-explore-foot">
+              <span className="sc-explore-soon">Coming soon</span>
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* counsellors.
+          Until somebody is approved this section used to be omitted
+          entirely, which left the page silent about the one thing its hero
+          is named after. It now says so plainly instead. No placeholder
+          profiles and no "notify me" field: inventing people would be a
+          lie, and collecting addresses for a date we cannot name is a
+          promise with no owner. The library is the thing that works today,
+          so that is what it points at.
+          `counsellorsLive` is null until the stats call resolves and is
+          treated as not-live — fail closed, per useCounsellorsLive's
+          contract. */}
+      <div className="lms-sechead-row" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
+        <div className="lms-sechead" style={{ margin: 0 }}>
+          <span className="sc-eyebrow">Counsellors</span>
+          <h2>Meet our counsellors</h2>
+        </div>
+        {counsellorsLive && <Link to="/counselling/counsellors" className="sc-viewall">View all →</Link>}
+      </div>
+
+      {!counsellorsLive && (
+        <div className="sc-cslr-soon">
+          <div className="sc-cslr-soon-b">
+            <h3>Counsellors are joining soon</h3>
+            <p>
+              We are still approving the first group, so there is nobody to
+              book yet — we would rather tell you that than show you a
+              directory you cannot use. Every guide below is free to read in
+              the meantime, no login needed.
+            </p>
+            <div className="sc-cslr-soon-meta">
+              <span className="sc-cslr-soon-tag">Live 1:1 · 45–60 min</span>
+              <span className="sc-cslr-soon-tag">Video call</span>
+              <span className="sc-cslr-soon-tag">Class 6 to UG</span>
+            </div>
+          </div>
+          <Link to="/counselling/guides" className="sc-btn ghost">Browse career guides →</Link>
+        </div>
+      )}
+
       {counsellorsLive && (
         <>
-          <div className="lms-sechead-row" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
-            <div className="lms-sechead" style={{ margin: 0 }}>
-              <span className="sc-eyebrow">Meet the counsellors</span>
-              <h2>Featured Counsellors</h2>
-            </div>
-            <Link to="/counselling/counsellors" className="sc-viewall">View all →</Link>
-          </div>
+
           {featured === null ? (
             <div className="sc-grid3">{[0, 1, 2].map((i) => <div key={i} className="sc-skel" style={{ height: 220 }} />)}</div>
           ) : (
@@ -289,7 +408,7 @@ export default function LandingPage() {
         <span className="sc-eyebrow">Free to start</span>
         <h2>Your future deserves a clear plan.</h2>
         <p>Build your career profile in two minutes and get matched with a counsellor who understands your goals.</p>
-        <button className="sc-btn" onClick={start}>Start your career profile →</button>
+        <button className="sc-btn" onClick={() => start()}>Start your career profile →</button>
       </div>
     </CounsellingShell>
   );

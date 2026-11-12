@@ -12,8 +12,8 @@
 // again here — the backend returns it read-only in the intake's `learner`
 // block, which is the anti-duplication rule this app was built around.
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getIntake, getSpecializations, saveIntake } from "../api/counselling";
 import CounsellingShell from "./CounsellingShell";
@@ -43,7 +43,22 @@ function Chips({ options, selected, onToggle, single }) {
 
 export default function ProfileWizard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, loading: authLoading } = useAuth();
+
+  // ?audience=self|child|sibling|other, set by the landing page's
+  // "Who is this for?" chips. Validated against AUDIENCES rather than
+  // trusted: this is a public URL anyone can hand-edit, and an unknown
+  // value would light up no chip while still counting as "answered".
+  // Held in a ref, not read straight in the effects below: as a plain
+  // value it becomes a dependency of the intake fetch, and a URL change
+  // would then re-run that fetch and overwrite whatever the user has
+  // already typed into the wizard. It only ever needs to be read once.
+  const audienceParamRef = useRef(
+    AUDIENCES.some(([v]) => v === searchParams.get("audience"))
+      ? searchParams.get("audience")
+      : ""
+  );
 
   const [step, setStep] = useState(0);       // 0 = Step 0, then 1..N
   const [specs, setSpecs] = useState([]);
@@ -66,7 +81,7 @@ export default function ProfileWizard() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate("/login", { state: { from: "/counselling/profile" } });
+      navigate("/login", { state: { from: "/counselling/profile" + (audienceParamRef.current ? `?audience=${audienceParamRef.current}` : "") } });
     }
   }, [authLoading, isAuthenticated, navigate]);
 
@@ -80,7 +95,7 @@ export default function ProfileWizard() {
       setInterests((intake.career_interests || []).map((x) => x.id));
       setLocations(intake.location_preference || []);
       setHelp(intake.help_needed || []);
-      setAudience(intake.audience || "");
+      setAudience(intake.audience || audienceParamRef.current);
       // effective_level backfills from the learner's class for intakes that
       // predate the level column — see CounselingIntake.effective_level.
       setLevel(intake.level || intake.effective_level || "");
