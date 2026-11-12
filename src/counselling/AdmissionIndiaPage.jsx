@@ -173,7 +173,9 @@ export default function AdmissionIndiaPage() {
   const bookCounsellor = () => navigate("/counselling/counsellors");
 
   return (
-    <CounsellingShell crumb=" / Admission in India">
+    // Crumb names the Engineering list specifically: both India screens used
+    // " / Admission in India", so it could not tell you which one you were on.
+    <CounsellingShell crumb=" / Engineering admission in India">
       <div className="ai-hero">
         <span className="sc-eyebrow">Engineering admissions · NIRF 2025</span>
         <h1 className="sc-h1">Engineering admission in <em>India</em></h1>
@@ -190,6 +192,22 @@ export default function AdmissionIndiaPage() {
           <div className="cf-stat"><span className="cf-stat-label">States & UTs covered</span><span className="cf-stat-value">{STATES.length}</span></div>
           <div className="cf-stat"><span className="cf-stat-label">Institution types</span><span className="cf-stat-value">{INSTITUTION_TYPES.length - 1}</span></div>
         </div>
+
+        {/* Cross-link to the full directory. The two screens read DIFFERENT
+            NIRF tables — this one is the Engineering list, the other is
+            Overall — so the same institution holds two different ranks (IIT
+            Delhi is Engineering #2 and Overall #4). Naming the table is what
+            stops that looking like one of the pages being wrong. */}
+        <p className="ai-switch">
+          Looking beyond engineering?{" "}
+          <Link to="/admission/india/all">
+            Browse all 980 NIRF 2025-ranked institutions →
+          </Link>
+          <span className="ai-switch-note">
+            Ranked on NIRF’s <b>Overall</b> list and 11 more, across every discipline.
+            This page ranks on the <b>Engineering</b> list, so positions differ.
+          </span>
+        </p>
       </div>
 
       <section className="ai-journey" aria-label="Plan your engineering admission">

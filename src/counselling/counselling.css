@@ -529,3 +529,259 @@
   .ai-row-meta { flex-direction: row; align-items: center; gap: 10px; text-align: left; width: 100%; padding-left: 50px }
   .ai-row-exam { max-width: none }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Admission abroad (AdmissionAbroadPage.jsx)
+   Palette matches the rest of this file: #125027 green, #14201a ink,
+   #1b9c85 teal. No CSS variables here — this module has never used them.
+   ───────────────────────────────────────────────────────────────── */
+
+.ab-hero { text-align: center; }
+.ab-badge {
+  display: inline-block; padding: 6px 14px; border-radius: 999px;
+  background: #ebf5e8; color: #125027; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.ab-sub { max-width: 660px; margin: 14px auto 22px; color: #44524a; line-height: 1.6; }
+.ab-popular { justify-content: center; align-items: center; gap: 8px; margin-top: 14px; }
+.ab-popular-label { color: #6b7a70; font-size: 13px; margin-right: 4px; }
+
+/* The provenance line is part of the content, not fine print. */
+.ab-source {
+  max-width: 680px; margin: 16px auto 0; color: #6b7a70;
+  font-size: 12.5px; line-height: 1.55;
+}
+
+.ab-h2 { font-size: 28px; color: #14201a; margin: 0 0 4px; }
+.ab-lede { color: #6b7a70; margin: 0 0 18px; }
+
+.ab-browse, .ab-rankings { margin-top: 48px; }
+
+.ab-tabs { display: flex; gap: 4px; padding: 4px; background: #edf2e8; border-radius: 10px;
+  width: fit-content; margin-bottom: 18px; }
+.ab-tab {
+  border: 0; background: transparent; padding: 8px 18px; border-radius: 8px;
+  font-weight: 600; color: #44524a; cursor: pointer;
+}
+.ab-tab.on { background: #ffffff; color: #125027; box-shadow: 0 1px 3px rgba(18,80,39,.12); }
+
+.ab-facet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.ab-facet {
+  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  padding: 16px; text-align: left; cursor: pointer; border: 1px solid #e9eeea;
+  background: #ffffff;
+}
+.ab-facet.on { border-color: #125027; box-shadow: 0 0 0 1px #125027 inset; }
+.ab-facet-name { font-weight: 700; color: #14201a; }
+.ab-facet-count { color: #6b7a70; font-size: 13px; }
+
+.ab-rankings-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.ab-count { color: #6b7a70; font-size: 13px; white-space: nowrap; }
+
+.ab-list { margin-top: 16px; list-style: none; padding-left: 0; }
+.ab-list > li { list-style: none; }
+.ab-row-meta { display: block; font: 400 12px 'Poppins', sans-serif;
+  color: rgba(20,32,26,.55); margin-top: 3px; text-align: left; }
+.ab-row { display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; align-items: center;
+  width: 100%; text-align: left; cursor: pointer; }
+.ab-row-name { font-weight: 700; color: #14201a; display: block; }
+.ab-rank { color: #b06000; font-weight: 800; }
+/* An unranked row must not read as a position. */
+.ab-rank.unranked { color: #6b7a70; font-weight: 700; font-size: 13px; }
+/* A banded rank ("#101–150") is a range, not a position. It is set smaller
+   and lighter so it never reads as a sharper result than it is, and because
+   it is ~3x wider than "#4" it would otherwise shove the name column. */
+.ab-rank.banded { font-size: 12px; font-weight: 700; color: #8a6a3a; letter-spacing: -.1px; }
+
+/* Cross-link between the two India directories. They read different NIRF
+   tables, so the note under the link is load-bearing, not decoration. */
+.ai-switch {
+  margin: 18px 0 0; padding: 14px 16px; border-radius: 12px;
+  background: #ebf5e8; border: 1px solid rgba(18,80,39,.12);
+  font: 600 13.5px/1.5 'Poppins', sans-serif; color: #14201a;
+}
+.ai-switch a { color: #125027; font-weight: 700; text-decoration: none; }
+.ai-switch a:hover { text-decoration: underline; }
+.ai-switch-note {
+  display: block; margin-top: 5px;
+  font: 400 12.2px/1.55 'Poppins', sans-serif; color: #5c6b62;
+}
+.ai-switch-note b { font-weight: 600; color: #14201a; }
+.ab-switch { max-width: 680px; margin-left: auto; margin-right: auto; text-align: left; }
+
+.ab-row-fee { justify-self: end; max-width: 240px; }
+
+/* Fee provenance. Tone is derived from the source's own evidence label;
+   the label text itself is always shown, never replaced by the tone. */
+.ab-pill {
+  display: inline-block; padding: 4px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.35; text-align: right;
+}
+.ab-pill-published { background: #ebf5e8; color: #125027; }
+.ab-pill-partial   { background: #fff4e0; color: #b06000; }
+.ab-pill-none      { background: #f3f4f2; color: #6b7a70; }
+
+.ab-fee { border: 1px solid #e9eeea; border-radius: 10px; padding: 14px; background: #fcfbf7; }
+.ab-fee-published { border-color: #cfe4cd; }
+.ab-fee-partial   { border-color: #ffce6d; }
+.ab-fee-label { font-size: 12px; font-weight: 700; color: #b06000; margin-bottom: 6px; }
+.ab-fee-published .ab-fee-label { color: #125027; }
+.ab-fee-none .ab-fee-label { color: #6b7a70; }
+.ab-fee-year { font-size: 12px; color: #6b7a70; margin-bottom: 8px; }
+.ab-fee-detail { margin: 0 0 8px; line-height: 1.6; color: #14201a; }
+.ab-caveat { color: #6b7a70; font-size: 12.5px; line-height: 1.55; margin: 8px 0 0; }
+.ab-src { color: #0d7a67; font-weight: 600; font-size: 13px; }
+.ab-subject { text-transform: none; }
+
+.cf-drawer-cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+@media (max-width: 720px) {
+  .ab-row { grid-template-columns: 56px 1fr; }
+  .ab-row-fee { grid-column: 1 / -1; justify-self: start; max-width: none; }
+  .ab-tabs { width: 100%; overflow-x: auto; }
+}
+
+/* Admission in India — full NIRF directory (AdmissionIndiaAllPage.jsx).
+   Shares the ab-* layout vocabulary with the abroad directory on purpose:
+   same screen shape, same provenance badges, one set of rules to maintain. */
+.in-cats { margin-bottom: 14px; gap: 6px; }
+.in-facet-note { margin-top: 12px; max-width: 760px; }
+.in-more { display: flex; justify-content: center; margin-top: 18px; }
+.in-courses { margin: 12px 0 0; padding-left: 18px; }
+.in-courses li { margin-bottom: 6px; line-height: 1.5; color: #14201a; }
+.in-kv dt { font-weight: 700; color: #14201a; font-size: 12.5px; margin-top: 8px; }
+.in-kv dd { margin: 2px 0 0; color: #44524a; line-height: 1.55; }
+
+/* Process + guidance blocks, shared by both admission directories. */
+.in-process { margin-top: 48px; }
+.in-steps { list-style: none; margin: 22px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+.in-steps-6 { grid-template-columns: repeat(6, 1fr); }
+.in-steps > li { display: block; }
+.in-step-n { display: grid; place-items: center; width: 30px; height: 30px;
+  border-radius: 999px; background: #125027; color: #ffffff;
+  font: 700 13px 'Montserrat', sans-serif; margin-bottom: 10px; }
+.in-step-title { display: block; font: 700 14.5px 'Montserrat', sans-serif;
+  color: #14201a; margin-bottom: 4px; }
+.in-step-detail { display: block; font-size: 12.5px; line-height: 1.55; color: #6b7a70; }
+
+.in-guidance { margin-top: 48px; display: grid; grid-template-columns: 1fr 1.15fr;
+  gap: 36px; padding: 30px; background: #fcfbf7; }
+.in-kicker { font: 700 11px 'Poppins', sans-serif; color: #1b9c85;
+  letter-spacing: .09em; text-transform: uppercase; margin-bottom: 6px; }
+.in-ticks { list-style: none; padding: 0; margin: 0 0 20px;
+  display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.in-ticks li { font: 600 13px 'Poppins', sans-serif; color: #125027; }
+.in-ticks li::before { content: "✓ "; }
+.in-checks { list-style: none; padding: 0; margin: 0; }
+.in-checks li { position: relative; padding-left: 22px; margin-bottom: 12px;
+  line-height: 1.6; color: #44524a; font-size: 13.5px; }
+.in-checks li::before { content: "✓"; position: absolute; left: 0; color: #125027; font-weight: 700; }
+
+.in-about { margin-top: 18px; border-top: 1px solid #e9eeea; padding-top: 12px; }
+.in-about summary { cursor: pointer; font-weight: 700; color: #125027; font-size: 13px; }
+.in-about ul { margin: 12px 0 0; padding-left: 18px; }
+.in-about li { font-size: 12.5px; line-height: 1.6; color: #6b7a70; margin-bottom: 8px; }
+
+@media (max-width: 900px) {
+  .in-steps, .in-steps-6 { grid-template-columns: repeat(2, 1fr); }
+  .in-guidance { grid-template-columns: 1fr; gap: 26px; }
+}
+
+/* ── Hero example report card (Career Counselling v3 artboard) ──────
+   Sits in .sc-hero-art, which was a dark panel; this card is light, so
+   the wrapper's own dark background is overridden where it is used. */
+.er-card {
+  background: #fff; border: 1px solid rgba(18,45,30,.10); border-radius: 18px;
+  padding: 18px; box-shadow: 0 18px 40px rgba(18,45,30,.10);
+  display: flex; flex-direction: column; gap: 14px; text-align: left;
+}
+.er-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.er-kicker {
+  font: 700 10.5px 'Poppins', sans-serif; letter-spacing: .09em;
+  text-transform: uppercase; color: #6b7a70;
+}
+.er-toggle { display: flex; gap: 2px; background: #f1f6f1; border-radius: 999px; padding: 2px; }
+.er-tab {
+  border: 0; background: transparent; cursor: pointer; border-radius: 999px;
+  padding: 4px 11px; font: 600 11.5px 'Poppins', sans-serif; color: #5c6b62;
+}
+.er-tab.on { background: #125027; color: #fff; }
+
+.er-best {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: #fbf7ee; border: 1px solid #f0e4cd; border-radius: 13px; padding: 13px;
+}
+.er-best-main { min-width: 0; }
+.er-badge { font: 700 10.5px 'Poppins', sans-serif; color: #b06000; display: block; }
+.er-title { font: 800 17px/1.25 'Montserrat', sans-serif; color: #14201a; margin-top: 4px; }
+.er-sub { font: 400 11.8px/1.45 'Poppins', sans-serif; color: #5c6b62; margin-top: 2px; }
+
+.er-ring { position: relative; flex: 0 0 auto; width: 48px; height: 48px; }
+.er-ring-val {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; line-height: 1;
+}
+.er-ring-val b { font: 800 12px 'Montserrat', sans-serif; color: #125027; }
+.er-ring-val i { font: 500 7.5px 'Poppins', sans-serif; font-style: normal; color: #6b7a70; }
+
+.er-sec { display: flex; flex-direction: column; gap: 7px; }
+.er-lbl {
+  font: 700 10px 'Poppins', sans-serif; letter-spacing: .085em;
+  text-transform: uppercase; color: #6b7a70;
+}
+.er-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.er-chip {
+  font: 600 11.5px 'Poppins', sans-serif; color: #125027;
+  background: #ebf5e8; border-radius: 999px; padding: 4px 10px;
+}
+.er-chip-alt { background: #eef2fb; color: #2f4a86; }
+
+.er-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.er-steps li {
+  display: flex; align-items: center; gap: 8px;
+  font: 500 12.2px/1.4 'Poppins', sans-serif; color: #14201a;
+}
+.er-num {
+  flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%;
+  background: #125027; color: #fff; display: inline-flex;
+  align-items: center; justify-content: center;
+  font: 700 10px 'Montserrat', sans-serif;
+}
+
+/* Never conditional — the 86% is an illustration only while this says so. */
+.er-foot {
+  border-top: 1px solid rgba(18,45,30,.08); padding-top: 9px;
+  font: 700 9.5px 'Poppins', sans-serif; letter-spacing: .1em;
+  text-transform: uppercase; color: #93a099; text-align: right;
+}
+
+/* The hero art slot is a dark panel by default; this card supplies its own
+   surface, so strip the wrapper's padding/background where it hosts one. */
+.sc-hero-art.sc-hero-art--card { background: none; padding: 0; box-shadow: none; border: 0; }
+
+/* Hero eyebrow pill with a live dot, and the three-point tick list.
+   Both are new in the v3 artboard; .sc-eyebrow stays for other screens. */
+.sc-pill-dot {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #ebf5e8; border: 1px solid rgba(18,80,39,.14); border-radius: 999px;
+  padding: 5px 13px; font: 600 12px 'Poppins', sans-serif; color: #125027;
+}
+.sc-pill-dot::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #1b9c85; flex: 0 0 auto;
+}
+.sc-ticks { list-style: none; margin: 16px 0 20px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.sc-ticks li {
+  position: relative; padding-left: 26px;
+  font: 500 13.5px/1.5 'Poppins', sans-serif; color: #2f3d35;
+}
+.sc-ticks li::before {
+  content: ""; position: absolute; left: 0; top: 4px;
+  width: 16px; height: 16px; border-radius: 50%; background: #ebf5e8;
+}
+.sc-ticks li::after {
+  content: ""; position: absolute; left: 5px; top: 8px;
+  width: 5px; height: 8px; border: solid #125027; border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}

@@ -15,6 +15,7 @@ import { APP_DASHBOARD_URL, TEACHER_ACADEMY_URL, TEACHER_SKILL_URL } from "../co
 const Profile = lazy(() => import("../pages/Profile"));
 import { ExploreProvider } from "../explore/ExploreStore";
 import ExploreToolbar from "../explore/ExploreToolbar";
+import RouteErrorBoundary from "./RouteErrorBoundary";
 
 import "../css/App.css";
 
@@ -38,6 +39,12 @@ const CounsellingCounsellor = lazy(() => import("../counselling/CounsellorPage")
 const CounsellingAssessment = lazy(() => import("../counselling/AssessmentPage"));
 const CounsellingCareer     = lazy(() => import("../counselling/CareerDetailPage"));
 const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPage"));
+// Gated at runtime on the public `admission_abroad_enabled` flag. The route
+// points at the GATE, not the page — the gate lazy-loads the page itself
+// once it knows the flag is on, so a visitor never fetches the directory
+// chunk (183 kB) while the feature is off.
+const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadRoute"));
+const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAllPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -278,6 +285,7 @@ function App() {
     <div className="app">
       <ScrollToTop />
 
+      <RouteErrorBoundary pathname={location.pathname}>
       <Suspense fallback={<RouteFallback />}>
       <Routes>
         {/* Home — always shows the landing page, never redirects away */}
@@ -407,8 +415,15 @@ function App() {
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
         <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
         <Route path="/counselling/path"               element={<Page key={cKey}><CounsellingPath /></Page>} />
+        {/* Career Detail (workflow §7a) — public reference content, no auth
+            gate: a visitor can read a full career profile before signing up,
+            same as the guide library. */}
         <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
+        {/* Admission in India — the Colleges-tab destination. Public, like
+            the guide library; the navbar entry points here too. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
+        <Route path="/admission/abroad"               element={<Page><AdmissionAbroad /></Page>} />
+        <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
@@ -567,6 +582,7 @@ function App() {
         <Route path="*" element={<Page><NotFound /></Page>} />
       </Routes>
       </Suspense>
+      </RouteErrorBoundary>
     </div>
     </ProfileModalProvider>
   );
