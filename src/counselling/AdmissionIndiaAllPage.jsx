@@ -204,7 +204,16 @@ function Drawer({ row, onClose }) {
 export default function AdmissionIndiaAllPage() {
   const [params, setParams] = useSearchParams();
   const [open, setOpen] = useState(null);
-  const [tab, setTab] = useState("stream");
+  // ?tab= opens this page on a chosen browse axis. The overview at
+  // /admission/india links in with it ("View all (16)", and the entrance-exam
+  // stat); without it those links land on Stream whatever they asked for,
+  // which reads as the link being broken rather than ignored. Validated
+  // against the known tabs so a junk value falls back instead of rendering
+  // an empty facet list.
+  const wantedTab = params.get("tab");
+  const [tab, setTab] = useState(
+    BROWSE_TABS.some(([k]) => k === wantedTab) ? wantedTab : "stream",
+  );
   const [category, setCategory] = useState("Overall");
   const [limit, setLimit] = useState(60);
 
@@ -330,7 +339,7 @@ export default function AdmissionIndiaAllPage() {
             980-row directory does not. Say what is actually over there. */}
         <p className="ai-switch ab-switch">
           Comparing engineering colleges?{" "}
-          <Link to="/admission/india">
+          <Link to="/admission/india/engineering">
             Open the NIRF Engineering top 50 →
           </Link>
           <span className="ai-switch-note">
