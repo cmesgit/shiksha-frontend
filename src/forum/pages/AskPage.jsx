@@ -70,108 +70,125 @@ export default function AskPage({ asModal = false, initialMode, onClose } = {}) 
 
   const suggested = topics.filter((t) => !tags.includes(t) && t !== category).slice(0, 8);
 
+  const isPost = mode === "post";
+  const shownTags = mode === "question" && category ? [category, ...tags] : tags;
+
   return (
-    <div className={asModal ? "fm2-ask fm2-ask-modal" : "fm2-ask"} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-      <button onClick={close} className="fm2-btn-ghost fm2-ask-back" style={{ alignSelf: "flex-start", padding: "6px 10px" }}>
-        <ScribbleIcon name="arrow-left" size={15} />
-        Back
-      </button>
-
-      <div className="fm2-card" style={{ padding: "22px 24px" }}>
-        <h1 style={{ font: "800 20px Montserrat,sans-serif", color: "#18261a", margin: "0 0 4px" }}>
-          {mode === "post" ? "Create a post" : "Ask a question"}
-        </h1>
-        <p style={{ font: "400 12.5px Poppins,sans-serif", color: "#8a9e82", margin: "0 0 16px" }}>Share it with the ShikshaCom community.</p>
-
-        {/* Mode toggle */}
-        <div className="fm2-tabs" style={{ maxWidth: 280, marginBottom: 16 }}>
+    <div className={`fm2-cmp${asModal ? " fm2-cmp--modal" : ""}`}>
+      {/* header: back, title, question/post switch */}
+      <div className="fm2-cmp-top">
+        <button type="button" onClick={close} className="fm2-cmp-back">
+          <ScribbleIcon name="arrow-left" size={16} />
+          Back
+        </button>
+        <div className="fm2-cmp-switch" role="tablist" aria-label="What are you creating?">
           {["question", "post"].map((m) => (
-            <button key={m} onClick={() => setMode(m)} style={{ flex: 1, background: mode === m ? "#125027" : "none", color: mode === m ? "#fff" : "#5a6e55", border: "none", borderRadius: 9, padding: 9, font: "700 13px Poppins,sans-serif", cursor: "pointer", textTransform: "capitalize" }}>{m}</button>
+            <button key={m} type="button" role="tab" aria-selected={mode === m}
+              className={mode === m ? "on" : ""} onClick={() => setMode(m)}>
+              {m === "post" ? "Post" : "Question"}
+            </button>
           ))}
         </div>
+      </div>
 
-        {preview ? (
-          <div style={{ border: "1px solid #e4edd8", borderRadius: 10, padding: 16, marginBottom: 16 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-              {(mode === "question" && category ? [category, ...tags] : tags).map((t) => <span key={t} className="fm2-tag">#{t}</span>)}
-            </div>
-            <h2 style={{ font: "800 18px Montserrat,sans-serif", color: "#18261a", margin: "0 0 8px" }}>{title || "Your title preview…"}</h2>
-            <p style={{ font: "400 14px/1.7 Poppins,sans-serif", color: "#4a5e3a", margin: 0, whiteSpace: "pre-line" }}>{desc || "Your details preview…"}</p>
-          </div>
-        ) : (
-          <>
-            <label className="fm2-label">{mode === "post" ? "What do you want to share?" : "Your question"}</label>
-            <input className="fm2-input" value={title} onChange={(e) => setTitle(e.target.value)}
-              placeholder={mode === "post" ? "Share an update, resource or experience…" : 'Start with "What", "How", "Why"…'}
+      <div className="fm2-cmp-head">
+        <h1>{isPost ? "Share a post" : "Ask a question"}</h1>
+        <p>{isPost ? "Share an update, resource or experience with the community." : "Ask the ShikshaCom community anything."}</p>
+      </div>
+
+      {preview ? (
+        <div className="fm2-cmp-preview">
+          {shownTags.length > 0 && (
+            <div className="fm2-cmp-tags">{shownTags.map((t) => <span key={t} className="fm2-cmp-tag">#{t}</span>)}</div>
+          )}
+          <h2>{title || "Your title preview…"}</h2>
+          <p>{desc || "Your details preview…"}</p>
+        </div>
+      ) : (
+        <>
+          {/* writing area: two borderless fields in one soft box */}
+          <div className="fm2-cmp-write">
+            <input className="fm2-cmp-title" value={title} onChange={(e) => setTitle(e.target.value)}
+              aria-label={isPost ? "What do you want to share?" : "Your question"}
+              placeholder={isPost ? "What do you want to share?" : 'Your question, e.g. "How do I…"'}
               data-tour="ask.title" />
-
-            <label className="fm2-label">Details {mode === "question" ? "(optional)" : ""}</label>
-            <textarea className="fm2-textarea" rows={5} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Add context, what you've tried, and what you're looking for." />
-
-            {mode === "question" && (
-              <>
-                <label className="fm2-label">Category <span style={{ color: "#c0392b" }}>*</span></label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {topics.map((t) => (
-                    <button key={t} onClick={() => setCategory(category === t ? "" : t)} className={`fm2-chip${category === t ? " on" : ""}`}>{t}</button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            <label className="fm2-label">Tags</label>
-            <input className="fm2-input" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={tagKey} placeholder="Type a tag and press Enter" data-tour="ask.tags" />
-            {tags.length ? (
-              <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {tags.map((t) => (
-                  <span key={t} className="fm2-tag">#{t}<button onClick={() => setTags(tags.filter((x) => x !== t))} style={{ background: "none", border: "none", cursor: "pointer", marginLeft: 4, color: "#8a9e82" }}>✕</button></span>
-                ))}
-              </div>
-            ) : null}
-            {suggested.length ? (
-              <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-                <span style={{ font: "500 11px Poppins,sans-serif", color: "#8a9e82" }}>Suggested:</span>
-                {suggested.map((t) => <button key={t} onClick={() => addTag(t)} className="fm2-chip">{t}</button>)}
-              </div>
-            ) : null}
-
-            {spaces.length ? (
-              <>
-                <label className="fm2-label">Post to a Space (optional)</label>
-                <select className="fm2-input" value={spaceSlug} onChange={(e) => setSpaceSlug(e.target.value)} data-tour="ask.space">
-                  <option value="">No Space</option>
-                  {spaces.map((s) => <option key={s.slug} value={s.slug}>{s.name}</option>)}
-                </select>
-              </>
-            ) : null}
-
-            <label className="fm2-label">Attachments</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button className="fm2-btn-outline" style={{ padding: "7px 14px" }} onClick={() => imgRef.current?.click()}><IcImage size={14} /> Image</button>
-              <button className="fm2-btn-outline" style={{ padding: "7px 14px" }} onClick={() => fileRef.current?.click()}><IcPaperclip size={14} /> File</button>
-              <input ref={imgRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
-              <input ref={fileRef} type="file" multiple hidden onChange={onPickFiles} />
-            </div>
-            {files.length ? (
-              <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+            <textarea className="fm2-cmp-body" rows={5} value={desc} onChange={(e) => setDesc(e.target.value)}
+              aria-label="Details"
+              placeholder={isPost ? "Add details (optional)" : "Add context and what you have tried (optional)"} />
+            {files.length > 0 && (
+              <div className="fm2-cmp-files">
                 {files.map((f, i) => (
-                  <span key={i} className="fm2-tag">{f.name}<button onClick={() => setFiles(files.filter((_, idx) => idx !== i))} style={{ background: "none", border: "none", cursor: "pointer", marginLeft: 4, color: "#8a9e82" }}>✕</button></span>
+                  <span key={i} className="fm2-cmp-file">
+                    {f.name}
+                    <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles(files.filter((_, idx) => idx !== i))}>✕</button>
+                  </span>
                 ))}
               </div>
-            ) : null}
+            )}
+          </div>
+
+          {mode === "question" && (
+            <div className="fm2-cmp-row">
+              <span className="fm2-cmp-label">Category <em>*</em></span>
+              <div className="fm2-cmp-chips">
+                {topics.map((t) => (
+                  <button key={t} type="button" onClick={() => setCategory(category === t ? "" : t)}
+                    className={`fm2-cmp-chip${category === t ? " on" : ""}`}>{t}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="fm2-cmp-row">
+            <span className="fm2-cmp-label">Tags</span>
+            <div className="fm2-cmp-tagbox">
+              {tags.map((t) => (
+                <span key={t} className="fm2-cmp-tag">
+                  #{t}
+                  <button type="button" aria-label={`Remove tag ${t}`} onClick={() => setTags(tags.filter((x) => x !== t))}>✕</button>
+                </span>
+              ))}
+              <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={tagKey}
+                placeholder={tags.length ? "Add another" : "Type a tag and press Enter"} aria-label="Add a tag" data-tour="ask.tags" />
+            </div>
+          </div>
+          {suggested.length > 0 && (
+            <div className="fm2-cmp-suggest">
+              <span>Suggested</span>
+              {suggested.map((t) => <button key={t} type="button" onClick={() => addTag(t)} className="fm2-cmp-chip">+ {t}</button>)}
+            </div>
+          )}
+
+          {spaces.length > 0 && (
+            <div className="fm2-cmp-row">
+              <label className="fm2-cmp-label" htmlFor="fm2-cmp-space">Space</label>
+              <select id="fm2-cmp-space" className="fm2-cmp-select" value={spaceSlug} onChange={(e) => setSpaceSlug(e.target.value)} data-tour="ask.space">
+                <option value="">No Space</option>
+                {spaces.map((s) => <option key={s.slug} value={s.slug}>{s.name}</option>)}
+              </select>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* footer: attach + preview on the left, cancel + publish on the right */}
+      <div className="fm2-cmp-foot">
+        {!preview && (
+          <>
+            <button type="button" className="fm2-cmp-icon" onClick={() => imgRef.current?.click()} aria-label="Attach an image" title="Attach an image"><IcImage size={17} /></button>
+            <button type="button" className="fm2-cmp-icon" onClick={() => fileRef.current?.click()} aria-label="Attach a file" title="Attach a file"><IcPaperclip size={17} /></button>
+            <input ref={imgRef} type="file" accept="image/*" multiple hidden onChange={onPickFiles} />
+            <input ref={fileRef} type="file" multiple hidden onChange={onPickFiles} />
           </>
         )}
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18 }}>
-          <button className="fm2-btn-ghost" onClick={() => setPreview((p) => !p)} style={{ padding: "8px 14px" }}>
-            {preview ? "Edit" : "Preview"}
-          </button>
-          <div style={{ flex: 1 }} />
-          <button className="fm2-btn-ghost" onClick={close} style={{ padding: "8px 14px" }}>Cancel</button>
-          <button className="fm2-btn-green" disabled={busy} onClick={submit} style={{ padding: "9px 20px" }}>
-            {busy ? "Publishing…" : mode === "post" ? "Post" : "Publish"}
-          </button>
-        </div>
+        <button type="button" className="fm2-cmp-text" onClick={() => setPreview((p) => !p)}>
+          {preview ? "Edit" : "Preview"}
+        </button>
+        <div className="fm2-cmp-spacer" />
+        <button type="button" className="fm2-cmp-text" onClick={close}>Cancel</button>
+        <button type="button" className="fm2-cmp-submit" disabled={busy} onClick={submit}>
+          {busy ? "Publishing…" : isPost ? "Post" : "Publish"}
+        </button>
       </div>
     </div>
   );
