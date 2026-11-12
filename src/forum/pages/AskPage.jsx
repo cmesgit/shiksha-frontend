@@ -8,11 +8,15 @@ import ScribbleIcon from "../../components/icons/ScribbleIcon";
 /* Ask / Post form — matches doc §2.5: Question/Post mode toggle, adaptive
    title, detail, category chips (required for questions), free-text tags,
    optional Space, Preview toggle. Styled with the fm2 system. */
-export default function AskPage() {
+// Also rendered inside ComposeModal (asModal): then it closes through
+// onClose instead of going back a page, and starts in `initialMode`.
+export default function AskPage({ asModal = false, initialMode, onClose } = {}) {
   const navigate = useNavigate();
   const { showToast } = useForum();
   const [params] = useSearchParams();
-  const [mode, setMode] = useState(params.get("mode") === "post" ? "post" : "question");
+  const startMode = initialMode || params.get("mode");
+  const [mode, setMode] = useState(startMode === "post" ? "post" : "question");
+  const close = asModal && onClose ? onClose : () => navigate(-1);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [category, setCategory] = useState(params.get("topic") || "");
@@ -56,7 +60,9 @@ export default function AskPage() {
         space: spaceSlug || "", tags: finalTags.filter(Boolean), files,
       });
       showToast(mode === "post" ? "Your post is live" : "Your question was posted");
-      navigate(`/forum/thread/${post.id}`);
+      // From the pop-up, replace its ?compose entry so Back from the new
+      // thread returns to the forum, not to a reopened form.
+      navigate(`/forum/thread/${post.id}`, asModal ? { replace: true } : undefined);
     } catch (e) {
       showToast(e?.response?.data?.reason || e?.response?.data?.detail || "Could not publish");
     } finally { setBusy(false); }
@@ -65,8 +71,8 @@ export default function AskPage() {
   const suggested = topics.filter((t) => !tags.includes(t) && t !== category).slice(0, 8);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-      <button onClick={() => navigate(-1)} className="fm2-btn-ghost" style={{ alignSelf: "flex-start", padding: "6px 10px" }}>
+    <div className={asModal ? "fm2-ask fm2-ask-modal" : "fm2-ask"} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <button onClick={close} className="fm2-btn-ghost fm2-ask-back" style={{ alignSelf: "flex-start", padding: "6px 10px" }}>
         <ScribbleIcon name="arrow-left" size={15} />
         Back
       </button>
@@ -161,7 +167,7 @@ export default function AskPage() {
             {preview ? "Edit" : "Preview"}
           </button>
           <div style={{ flex: 1 }} />
-          <button className="fm2-btn-ghost" onClick={() => navigate(-1)} style={{ padding: "8px 14px" }}>Cancel</button>
+          <button className="fm2-btn-ghost" onClick={close} style={{ padding: "8px 14px" }}>Cancel</button>
           <button className="fm2-btn-green" disabled={busy} onClick={submit} style={{ padding: "9px 20px" }}>
             {busy ? "Publishing…" : mode === "post" ? "Post" : "Publish"}
           </button>

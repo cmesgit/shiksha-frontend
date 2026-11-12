@@ -98,7 +98,33 @@
 .fm2-shell .fm2-how-cta{border-radius:999px;color:#fff;font:700 14px var(--display);background:linear-gradient(135deg,var(--brand-2),var(--brand-deep));box-shadow:0 10px 24px -10px rgba(11,91,62,.55)}
 .fm2-shell .fm2-how-cta:hover{box-shadow:0 14px 28px -10px rgba(11,91,62,.6)}
 
+/* ---------- "Share a post" pop-up (ComposeModal) ---------- */
+.fm2-modal{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:clamp(16px,6vh,64px) 16px;overflow-y:auto;
+  background:rgba(12,38,32,.42);backdrop-filter:blur(3px);
+  animation:fm2fade .18s ease both;
+}
+.fm2-modal-panel{
+  width:100%;max-width:640px;
+  background:#fff;border:1px solid var(--line);border-radius:22px;
+  box-shadow:0 30px 70px -20px rgba(12,38,32,.45);
+  padding:14px 14px 18px;
+  animation:fm2pop .22s ease both;
+}
+.fm2-ask-modal{gap:4px!important}
+.fm2-ask-modal .fm2-ask-back{border-radius:999px;padding:7px 14px!important;font:600 13px var(--display);color:var(--brand-deep)}
+.fm2-ask-modal .fm2-ask-back:hover{background:var(--wash)}
+.fm2-ask-modal .fm2-card{border:0!important;box-shadow:none!important;padding:8px 12px 0!important}
+.fm2-ask-modal h1{font-family:var(--display)!important;letter-spacing:-.02em}
+@media (prefers-reduced-motion:reduce){.fm2-modal,.fm2-modal-panel{animation:none}}
+
 /* ---------- responsive ---------- */
 @media(max-width:760px){
   .fm2-shell .fm2-wrap{padding-top:18px}
+}
+@media(max-width:560px){
+  .fm2-modal{padding:0;align-items:stretch}
+  .fm2-modal-panel{max-width:none;min-height:100%;border-radius:0;border:0}
 }

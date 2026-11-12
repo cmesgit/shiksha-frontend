@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Outlet, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ForumProvider, useForum } from "./ForumContext";
 import HowItWorks from "./components/HowItWorks";
+import ComposeModal from "./components/ComposeModal";
 import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
 import TourHeaderButton from "../tour/TourHeaderButton";
@@ -22,9 +23,18 @@ function PageHeader() {
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
   const { me, requireAuth } = useForum();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
   const isDash = pathname.startsWith("/forum/dashboard");
+
+  // "Share a post" opens the form as a pop-up over the forum. It is a new
+  // history entry (?compose=post), so the browser's back button closes it.
+  const openPost = () => {
+    if (requireAuth()) return;
+    const next = new URLSearchParams(params);
+    next.set("compose", "post");
+    setParams(next, { state: { composeOpened: true } });
+  };
 
   const submit = (e) => {
     e.preventDefault();
@@ -118,7 +128,7 @@ function PageHeader() {
                 Ask a question
                 <ScribbleIcon name="arrow-right" size={17} />
               </button>
-              <button onClick={() => openAsk("post")} className="fh-btn fh-btn-ghost">
+              <button onClick={openPost} className="fh-btn fh-btn-ghost">
                 Share a post
               </button>
               <button onClick={() => { if (!requireAuth()) navigate("/forum/answer-queue"); }} className="fh-link" data-tour="forum-intro.answer">
@@ -242,10 +252,25 @@ function LeftSidebar() {
 }
 
 function Shell() {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
   // The dashboard ships its own two-column layout (sidebar + content), so it
   // renders full-width instead of inside the standard 3-column forum grid.
   const isDash = pathname.startsWith("/forum/dashboard");
+
+  // Pop-up "Share a post" form (see PageHeader.openPost). Signed-out
+  // visitors never see it, even from a shared ?compose link.
+  const compose = params.get("compose") === "post" && isAuthenticated ? "post" : null;
+  const closeCompose = useCallback(() => {
+    // Opened by our button: step back, exactly like the browser's back
+    // button. Opened from a pasted link: just drop the parameter.
+    if (state?.composeOpened) { navigate(-1); return; }
+    const next = new URLSearchParams(params);
+    next.delete("compose");
+    setParams(next, { replace: true });
+  }, [state, navigate, params, setParams]);
 
   return (
     <div className="fm2-shell">
@@ -266,6 +291,7 @@ function Shell() {
           </div>
         )}
       </div>
+      {compose && <ComposeModal mode={compose} onClose={closeCompose} />}
     </div>
   );
 }
