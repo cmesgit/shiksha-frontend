@@ -66,7 +66,12 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ResearchHub = lazy(() => import("../explore/ResearchHub"));
-const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
+/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — /explore/dashboard is now the
+   design's single saved-sets list. DashboardPage.jsx (the six-tab version) is
+   still on disk and unchanged; restoring it is this one line. Nothing it read
+   was deleted — see MyLibraryPage.jsx's header for what moved where. */
+const ExploreDashboard = lazy(() => import("../explore/MyLibraryPage"));
+const ExploreVerify = lazy(() => import("../explore/VerifyPage"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
@@ -457,6 +462,12 @@ function App() {
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/research" element={<ExplorePage><ResearchHub /></ExplorePage>} />
+        {/* Community verification (shiksha-backend/docs/EXPLORE_VERIFICATION.md).
+            Deliberately NOT wrapped in ProtectedRoute: the page itself
+            handles both the signed-out case and the feature flag being off,
+            and a route guard would bounce a guest to login for a page that
+            should simply explain itself. */}
+        <Route path="/explore/verify"          element={<ExplorePage><ExploreVerify /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
             (distinct from the forum's /moderator). Renders the shared site
