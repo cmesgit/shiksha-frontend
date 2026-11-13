@@ -9,9 +9,10 @@ import { Link } from "react-router-dom";
 import { AuthTickerCard } from "./AuthTicker";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import shikshaLogo from "../assets/Shiksha.png";
-/* Lazy so screens that don't need them don't ship this artwork. */
-const IntroAnimation = lazy(() => import("./IntroAnimation.jsx"));
-const LoginAnimation = lazy(() => import("./LoginAnimation.jsx"));
+/* Lazy so screens that don't need it don't ship this artwork. AuthArt
+   replaced the hand-off IntroAnimation / LoginAnimation (both files are still
+   in the repo) with lighter animated scenes in the site's illustration style. */
+const AuthArt = lazy(() => import("./AuthArt.jsx"));
 import "./AuthFlow.css";
 
 /* ── Per-role accent palette (verbatim from the design) ── */
@@ -89,22 +90,28 @@ export function AuthShell({
           ShikshaCom
         </Link>
         {illustrated ? (
-  /* Signup's IntroAnimation draws its own per-station caption (with the
-     numbered badge) directly in the SVG, so the static tagline here would
-     double up with it — only Login needs this overlay, since LoginAnimation
-     has no caption of its own. */
+  /* Illustrated screens (Login, Signup): tagline + animated AuthArt scene. */
   <div className="af-brand__body af-brand__body--intro">
     <Suspense fallback={null}>
-      {intro ? <IntroAnimation accent={pal.a} /> : <LoginAnimation />}
+      <AuthArt variant={intro ? "signup" : "login"} />
     </Suspense>
-    {!intro && (
-      <div className="af-brand__tagline">
-        <h2 className="af-brand__headline">Good to see you again.</h2>
-        <p className="af-brand__desc">
-          Sign in to your ShikshaCom account — learner, tutor or faculty.
-        </p>
-      </div>
-    )}
+    {/* The old signup animation drew its own captions; AuthArt doesn't, so
+        both screens now carry a short tagline above the art. */}
+    <div className="af-brand__tagline">
+      {intro ? (
+        <>
+          <h2 className="af-brand__headline">Join ShikshaCom.</h2>
+          <p className="af-brand__desc">One account to learn, practise and teach.</p>
+        </>
+      ) : (
+        <>
+          <h2 className="af-brand__headline">Good to see you again.</h2>
+          <p className="af-brand__desc">
+            Sign in to your ShikshaCom account — learner, tutor or faculty.
+          </p>
+        </>
+      )}
+    </div>
   </div>
 ) : (
         <div className="af-brand__body">
@@ -123,7 +130,7 @@ export function AuthShell({
             CSS hides this card in the compact mobile brand header. */}
         <AuthTickerCard
           slot={intro ? "auth_signup" : "auth_login"}
-          variant={intro ? "list" : "rotate"}
+          variant="rotate"
         />
       </div>
 
