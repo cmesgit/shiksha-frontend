@@ -6,8 +6,10 @@
 // Explore-specific actions out of the global site navbar.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { verificationEnabled } from "./verificationApi";
 import TourHeaderButton from "../tour/TourHeaderButton";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./Explore.css";
@@ -24,17 +26,31 @@ const LINKS = [
   { label: "Browse", to: "/explore/browse", match: (p) => p.startsWith("/explore/browse") },
 ];
 
+// Verify sits after Browse, as in the design. It is appended rather than
+// listed above because it is the one entry that is conditional: while
+// GlobalSettings.explore_verification_enabled is off the page 404s its own
+// API and there is nothing to link to.
+const VERIFY_LINK = { label: "Verify", to: "/explore/verify", match: (p) => p.startsWith("/explore/verify") };
+
 export default function ExploreToolbar() {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const { isAuthenticated, hasPermission, hasRole } = useAuth();
   const canMod = isAuthenticated && (hasPermission?.("documents.moderate") || hasRole?.("ADMIN") || hasRole?.("MODERATOR"));
 
+  /* Read from /api/public-config/ rather than from `feature_flags`, because
+     this toolbar renders for logged-out visitors too. Starts false so the
+     entry never flashes in and then disappears. */
+  const [verifyOn, setVerifyOn] = useState(false);
+  useEffect(() => { let live = true; verificationEnabled().then((on) => live && setVerifyOn(on)); return () => { live = false; }; }, []);
+
+  const links = verifyOn ? [...LINKS, VERIFY_LINK] : LINKS;
+
   return (
     <div className="exp-toolbar">
       <div className="exp-toolbar-in">
         <nav className="exp-toolbar-nav">
-          {LINKS.map((l) => (
+          {links.map((l) => (
             <button key={l.to} className={`exp-tblink${l.match(pathname) ? " active" : ""}`} onClick={() => nav(l.to)} data-tour={`explore-toolbar.${l.to.replace(/^\/explore\/?/, "") || "home"}`}>{l.label}</button>
           ))}
         </nav>
