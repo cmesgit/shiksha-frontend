@@ -180,7 +180,7 @@ export default function LandingPage() {
               which is why the card carries a permanent "Example report"
               label. Do not remove that label without also removing the number. */}
           <div className="sc-hero-art sc-hero-art--card">
-            <ExampleReportCard />
+            <ExampleReportCard sessionsLive={counsellorsLive} />
           </div>
         </div>
       </div>

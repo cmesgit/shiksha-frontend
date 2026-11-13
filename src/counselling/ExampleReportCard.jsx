@@ -77,12 +77,30 @@ function Ring({ value }) {
   );
 }
 
-export default function ExampleReportCard() {
+/**
+ * sessionsLive — render the artboard's floating "Live 1:1 session" badge.
+ *
+ * The artboard draws it unconditionally, but it states a bookable fact
+ * (45–60 minute video sessions) rather than illustrating a report, so the
+ * "EXAMPLE REPORT" label does not cover it. With an empty counsellor
+ * directory it would be an advertisement for something nobody can book, so
+ * it follows the same gate as the hero's third tick and its CTA.
+ */
+export default function ExampleReportCard({ sessionsLive = false }) {
   const [tab, setTab] = useState("india");
   const r = REPORTS[tab];
 
   return (
     <div className="er-card">
+      {sessionsLive && (
+        <div className="er-session">
+          <span className="er-session-dot" aria-hidden="true" />
+          <span>
+            <b>Live 1:1 session</b>
+            <small>45–60 min · video</small>
+          </span>
+        </div>
+      )}
       <div className="er-head">
         <span className="er-kicker">Your career report</span>
         <div className="er-toggle" role="group" aria-label="Example report region">
