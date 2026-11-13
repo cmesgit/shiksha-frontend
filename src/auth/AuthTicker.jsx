@@ -83,7 +83,7 @@ export function AuthTickerCard({ slot, variant = "rotate" }) {
   if (variant === "list" || variant === "compact") {
     return (
       <aside className={`aft aft--${variant}`} aria-label="Explore ShikshaCom">
-        <span className="aft__label">{variant === "compact" ? "Explore ShikshaCom" : "More to explore"}</span>
+        <span className="aft__label">Explore ShikshaCom</span>
         <ul className="aft__list">
           {items.slice(0, variant === "compact" ? 1 : 3).map((it) => (
             <li key={it.id} className={`aft__line${it.img ? " aft__line--thumb" : ""}`}>
@@ -99,13 +99,17 @@ export function AuthTickerCard({ slot, variant = "rotate" }) {
   const href = promoHref(it);
   return (
     <aside ref={root} className={`aft aft--rotate${it.img ? " aft--banner" : ""}`} aria-label="Explore ShikshaCom" aria-live="off">
-      {it.img && <img className="aft__img" src={it.img} alt="" width="360" height="100" loading="lazy" decoding="async" />}
+      {/* Content nodes are keyed by item so each rotation remounts them and
+          they fade in (aft-in, AuthTicker.css). The controls are not keyed,
+          so keyboard focus on ‹ Pause › survives the swap. */}
+      {it.img && <img key={`img-${it.id}`} className="aft__img aft__in" src={it.img} alt="" width="360" height="100" loading="lazy" decoding="async" />}
       <div className="aft__head">
-        <span className="aft__label">{KIND_LABEL[it.kind] || "Discover"}</span>
+        <span className="aft__label">Explore ShikshaCom</span>
         {n > 1 && <span className="aft__count">{index + 1}/{n}</span>}
       </div>
-      <p className="aft__text">{it.message}</p>
-      {it.body && <p className="aft__body">{it.body}</p>}
+      {KIND_LABEL[it.kind] && <span key={`k-${it.id}`} className="aft__kind aft__in">{KIND_LABEL[it.kind]}</span>}
+      <p key={`t-${it.id}`} className="aft__text aft__in">{it.message}</p>
+      {it.body && <p key={`b-${it.id}`} className="aft__body aft__in">{it.body}</p>}
       <div className="aft__footer">
         {href && <a className="aft__link" href={href} target="_blank" rel="noopener noreferrer">{it.link_label || "Explore"} ↗</a>}
         {n > 1 && (
