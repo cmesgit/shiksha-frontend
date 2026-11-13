@@ -660,3 +660,229 @@
   .exp-mobile-filter-toggle { display: inline-flex; justify-self: start; }
   .exp-browse .exp-filters:not(.is-open) { display: none; }
 }
+
+/* ── upload: the file list of a set ───────────────────────────────────────────
+   design_handoff_explore_verification §7. A set holds several files, each
+   removable before publishing. */
+.exp-upload-files { margin-top: 14px; }
+.exp-upload-count { font: 600 13px Poppins, sans-serif; color: var(--muted); margin: 0 0 8px; }
+.exp-upload-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding-block: 10px;
+  padding-inline: 12px;
+  margin-bottom: 8px;
+  background: var(--card);
+}
+.exp-upload-file > span { min-width: 0; }
+.exp-upload-file strong {
+  display: block;
+  font: 600 13.5px Poppins, sans-serif;
+  color: var(--ink);
+  overflow-wrap: anywhere;   /* filenames are user-supplied and can be long */
+}
+.exp-upload-file em { font-style: normal; font-size: 12px; color: var(--muted); }
+.exp-upload-file button {
+  appearance: none;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  width: 44px;               /* the design's hit target */
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.exp-upload-file button:hover { background: #f3f6f4; color: var(--ink); }
+
+/* An inline text link that is really a button (it navigates via the router,
+   so it must not be an <a href>). Styled to read as a link rather than
+   inheriting the button reset. */
+.exp .exp-inlinelink {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--forest);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.exp .exp-inlinelink:hover { color: var(--teal); }
+
+/* "2 files: DOCX, XLSX" on a multi-file set's card. */
+.exp .exp-doc-files {
+  font: 500 12px Poppins, sans-serif;
+  color: var(--muted);
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── upload: the design's three numbered sections ─────────────────────────────
+   design_handoff_explore_verification §7. */
+.exp .exp-secnum {
+  font: 700 11px Poppins, sans-serif;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--forest);
+  margin: 26px 0 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.exp .exp-optional { color: var(--muted); font-weight: 400; }
+.exp .exp-choose { margin-top: 10px; }
+
+/* ── the tag picker ─────────────────────────────────────────────────────────
+   A tag is a full `field › subject › branch` path and a set carries several.
+   The branch is bold because it is the part that differs between two tags on
+   the same subject. */
+.exp .exp-tagpicker { margin-bottom: 8px; }
+.exp .exp-tagchips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.exp .exp-tagchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--forest);
+  color: #fff;
+  font: 500 13px Poppins, sans-serif;
+  padding-block: 6px;
+  padding-inline: 14px;
+  border-radius: 50px;
+  overflow-wrap: anywhere;
+}
+.exp .exp-tagchip strong { font-weight: 700; }
+.exp .exp-tagchip button {
+  appearance: none;
+  background: none;
+  border: 0;
+  color: #cfe8da;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+.exp .exp-tagchip button:hover { color: #fff; }
+
+.exp .exp-taginput {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding-block: 11px;
+  padding-inline: 14px;
+  font: 400 14px Poppins, sans-serif;
+  color: var(--ink);
+}
+.exp .exp-taginput:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+.exp .exp-tagsuggest { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.exp .exp-chip-add {
+  appearance: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--forest);
+  font: 600 13px Poppins, sans-serif;
+  padding-inline: 14px;
+  min-height: 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.exp .exp-chip-add:hover { border-color: var(--forest); }
+
+/* ── "Ready to publish" ─────────────────────────────────────────────────────── */
+.exp .exp-ready {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f7fcf9;
+  padding: 20px;
+  margin-top: 26px;
+}
+.exp .exp-ready h3 {
+  font: 800 20px Montserrat, sans-serif;
+  color: var(--forest);
+  margin: 4px 0 2px;
+  overflow-wrap: anywhere;
+}
+.exp .exp-readytag { font: 500 13px Poppins, sans-serif; color: var(--ink); margin: 2px 0 0; overflow-wrap: anywhere; }
+.exp .exp-readybtn { width: 100%; margin-top: 16px; justify-content: center; }
+.exp .exp-readyfoot { font-size: 12.5px; color: var(--muted); text-align: center; margin: 8px 0 0; line-height: 1.6; }
+.exp .exp-readyrule { border: 0; border-top: 1px solid var(--line); margin: 14px 0 10px; }
+
+/* ── document page: the FILES panel ──────────────────────────────────────────
+   A set holds several files; the viewer and the Download button only ever
+   address the first, so this is the only route to the rest. */
+.exp .exp-filelist { list-style: none; margin: 0; padding: 0; }
+.exp .exp-filelist li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding-block: 10px;
+  padding-inline: 14px;
+  margin-bottom: 8px;
+}
+.exp .exp-filename {
+  font: 600 13.5px Poppins, sans-serif;
+  min-width: 0;
+  overflow-wrap: anywhere;   /* filenames are user-supplied */
+}
+.exp .exp-filename em {
+  display: block;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--muted);
+}
+.exp .exp-filedead { opacity: 0.6; cursor: not-allowed; }
+
+/* ── the three-level browse panel ────────────────────────────────────────────
+   design_handoff_explore_verification §6. Three stacked rows in one card,
+   each a label plus chips with counts, narrowing as you pick. */
+.exp .exp-fieldbrowser {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  padding: 4px 16px 14px;
+  margin-bottom: 16px;
+}
+.exp .exp-fbrow { padding-top: 12px; }
+.exp .exp-fbrow + .exp-fbrow { border-top: 1px solid var(--line); margin-top: 4px; }
+.exp .exp-fblabel {
+  font: 700 10.5px Poppins, sans-serif;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.exp .exp-fbchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.exp .exp-fbchip {
+  appearance: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 600 13px Poppins, sans-serif;
+  padding-inline: 14px;
+  min-height: 40px;          /* the design's hit target */
+  border-radius: 50px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.exp .exp-fbchip:hover { border-color: var(--forest); }
+.exp .exp-fbchip.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+.exp .exp-fbcount { color: var(--muted); font-weight: 500; margin-left: 2px; }
+.exp .exp-fbchip.on .exp-fbcount { color: #a9d9c2; }
+.exp .exp-fbheading {
+  font: 800 clamp(18px, 2.4vw, 24px) Montserrat, sans-serif;
+  color: var(--forest);
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+}

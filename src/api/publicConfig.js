@@ -34,6 +34,13 @@ const DEFAULTS = {
      not finished and the source names live immigration instruments with no
      date stamp. An admin turns it on without a deploy. */
   admission_abroad_enabled: false,
+  /* design_handoff_explore_verification. Public for the same reason again,
+     and the most visible case of it: the Explore library is browsable by
+     guests and the Verified/Unverified badge sits on every card they see.
+     A flag delivered only on /accounts/me/ would gate the signed-in half of
+     the feature, pass every test written against it, and leave the badge
+     ungated for most of the people who see it. Ships OFF. */
+  explore_verification_enabled: false,
 };
 
 /* One in-flight request per page load, shared by every caller. Without this,

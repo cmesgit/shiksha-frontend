@@ -375,7 +375,15 @@ export async function uploadDocument(payload) {
     };
   }
   const form = new FormData();
-  Object.entries(payload).forEach(([k, v]) => v != null && form.append(k, v));
+  Object.entries(payload).forEach(([k, v]) => {
+    if (v == null) return;
+    /* An ARRAY becomes repeated parts under the same name — `files` and
+       `topics`, which the server reads as ListFields. FormData.append on an
+       array would stringify it to "[object File],[object File]" and the
+       server would see one useless text part instead of N files. */
+    if (Array.isArray(v)) v.forEach((item) => item != null && form.append(k, item));
+    else form.append(k, v);
+  });
   const { data } = await api.post("/explore/documents/", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });

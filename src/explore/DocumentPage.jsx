@@ -35,7 +35,7 @@ import {
 } from "./exploreApi";
 import { useExplore } from "./ExploreStore";
 import { useAuth } from "../contexts/AuthContext";
-import { DocCard, Icon, Loading, fileGlyph, tint } from "./components/ui";
+import { DocCard, Icon, Loading, VerificationBadge, fileGlyph, humanSize, tint } from "./components/ui";
 import { CategoryIcon } from "./components/categoryIcons";
 import {
   PiBookmarkSimple, PiBookmarkSimpleFill, PiCheck, PiFlag, PiEye,
@@ -118,6 +118,10 @@ export default function DocumentPage() {
   const accent = meta.color || "#125027";
   const saved = store.isSaved(doc.id);
   const following = doc.author && store.isFollowing(doc.author.id);
+  // The SET's size, not the first file's — the title block describes the
+  // whole set. Backfilled rows carry 0, so this is 0 until they are filled
+  // in and the line is hidden rather than claiming "0 B".
+  const totalSize = (doc?.files || []).reduce((sum, f) => sum + (f.size || 0), 0);
   const inlinePreview = canPreviewInline(doc);
 
   const share = async () => {
@@ -218,10 +222,14 @@ export default function DocumentPage() {
             )}
           </div>
           <h1>{doc.title}</h1>
+          <VerificationBadge verification={doc.verification} />
           {doc.research && <aside className="exp-upload-error" aria-label="Research review information"><strong>Reviewed on Shiksha · v{doc.research.version}</strong><p>Authors: {doc.research.authors}</p><p>{doc.research.review_scope}</p>{doc.research.corrections?.map(c => <p key={c.version}><strong>Correction · version {c.version}:</strong> {c.public_note}</p>)}{doc.research.original_url && <a href={doc.research.original_url} target="_blank" rel="noreferrer">Original publication</a>}</aside>}
           {/* The read-only half of the like pair — reflects the same state the
               rail button writes, so the number moves the moment you like. */}
           <div className="exp-docmeta">
+            {doc.author?.name && <span>{doc.author.name}</span>}
+            {totalSize > 0 && <span>{humanSize(totalSize)}</span>}
+            <span>{doc.downloads} downloads</span>
             <span><PiEye aria-hidden="true" /> {doc.views} views</span>
             <span className={liked ? "is-liked" : undefined}>
               {liked ? <PiHeartFill aria-hidden="true" /> : <PiHeart aria-hidden="true" />} {likes} likes
@@ -275,6 +283,55 @@ export default function DocumentPage() {
               </section>
             )}
 
+            {/* design_handoff_explore_verification §8 — FILES.
+                ⚠ Not cosmetic. A set holds several files and the viewer and
+                the Download button both only ever point at the FIRST one, so
+                without this panel a set's second and third files are
+                unreachable from the page that is supposed to be about them. */}
+            {doc.files?.length > 0 && (
+              <section className="exp-docsect">
+                <h2>Files</h2>
+                <ul className="exp-filelist">
+                  {doc.files.map((f) => (
+                    <li key={f.id}>
+                      <span className="exp-filename">
+                        {f.name}
+                        {f.size > 0 && <em>{humanSize(f.size)}</em>}
+                      </span>
+                      {f.url
+                        ? <a className="exp-btn exp-btn-ghost" href={f.url}
+                             target="_blank" rel="noreferrer">Preview</a>
+                        : <span className="exp-btn exp-btn-ghost exp-filedead"
+                                title="This file is missing from storage">Missing</span>}
+                    </li>
+                  ))}
+                </ul>
+                {doc.files.length > 1 && (
+                  <button className="exp-btn exp-btn-ghost" style={{ marginTop: 10 }}
+                    onClick={() => doc.files.forEach((f) => f.url && window.open(f.url, "_blank", "noopener"))}>
+                    Open all {doc.files.length} files
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* §8 — TAGS. The full `field › subject › branch` paths, which
+                are what decide who may verify the set. The legacy free-text
+                #tags above are a different thing and both are shown. */}
+            {doc.topics?.length > 0 && (
+              <section className="exp-docsect">
+                <h2>Tags</h2>
+                <div className="exp-doc-tags">
+                  {doc.topics.map((t, i) => (
+                    <button key={i} className="exp-tag" style={{ cursor: "pointer", border: "none" }}
+                      onClick={() => nav(`/explore/browse?field=${encodeURIComponent(t.field)}&tsubject=${encodeURIComponent(t.subject)}${t.branch ? `&branch=${encodeURIComponent(t.branch)}` : ""}`)}>
+                      {t.path}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {info.length > 0 && (
               <section className="exp-docsect">
                 <h2>Document information</h2>
@@ -299,6 +356,45 @@ export default function DocumentPage() {
 
           {/* ── action rail ───────────────────────────────────────────────── */}
           <aside className="exp-docrail">
+            {/* design_handoff_explore_verification §8. Absent entirely while
+                the feature flag is off — `verification_detail` is null, not an
+                empty panel, so the page looks exactly as it did before. */}
+            {doc.verification_detail && (
+              <>
+                <div className="vf-panelcard">
+                  <p className="exp-raileyebrow">Verification</p>
+                  <h3>{doc.verification_detail.heading}</h3>
+                  <p>{doc.verification_detail.sentence}</p>
+                  {doc.verification_detail.confirmers.map((name) => (
+                    <div key={name} className="vf-who">
+                      <span className="vf-tick" aria-hidden="true">✓</span> {name}
+                    </div>
+                  ))}
+                  <button
+                    className="exp-btn exp-btn-ghost exp-railbtn"
+                    style={{ marginTop: 10 }}
+                    onClick={() => nav("/explore/verify?tab=how")}
+                  >How verification works ›</button>
+                </div>
+
+                {doc.verification_detail.history.length > 0 && (
+                  <div className="vf-panelcard">
+                    <p className="exp-raileyebrow">History</p>
+                    {doc.verification_detail.history.map((h, i) => (
+                      <div key={i} className="vf-histrow">
+                        <span>{h.label}</span>
+                        <time dateTime={h.at}>
+                          {new Date(h.at).toLocaleDateString(undefined, {
+                            day: "numeric", month: "short", year: "numeric",
+                          })}
+                        </time>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="exp-railcard">
               <button className="exp-btn exp-btn-primary exp-railbtn" onClick={readOnline}>
                 <PiBookOpen aria-hidden="true" /> Read online
