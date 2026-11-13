@@ -1,11 +1,125 @@
 .courses-page {
-  background: #fff;
+  /* Soft mint, like the other refreshed pages, instead of the gold grid
+     texture that read as busy behind the catalog. */
+  background: #F7FCF9;
   min-height: 100vh;
   padding-bottom: 60px;
-  background-image:
-    linear-gradient(rgba(132, 104, 39, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201, 173, 51, 0.07) 1px, transparent 1px);
-  background-size: 60px 60px;
+}
+
+/* The courses page (hero, strip, promo, catalog) lays its content out in
+   `.wrap`, but `.wrap` is only defined in ShikshaHome.css, which since the
+   route-splitting change loads only on the homepage. Opened directly,
+   /courses therefore had no side gutter at all: the hero text touched the
+   left edge and the art's right-hand chip was clipped. Define it here so the
+   page no longer depends on the homepage having been visited first. */
+.courses-page .wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+/* Same problem for the reused homepage FAQ (components/home/Faq.jsx): it
+   needs ShikshaHome.css's colour tokens and its .sec / .sec-head / .eyebrow
+   / .em primitives. Copied here, scoped to this page, so the section looks
+   the same whether or not the homepage was visited first. Values match
+   ShikshaHome.css exactly. (.rv is left out on purpose: without it the FAQ
+   simply shows, rather than depending on a reveal observer.) */
+.courses-page {
+  --coral: #0F9D6B; --coral-dark: #0B5B3E; --coral-soft: #E7F6EE;
+  --ink: #0B2E20; --ink-2: #2B4237; --body: #5E7469;
+  --peach: #F6FAF7; --line: #EDF3EE; --line-2: #EDF5EF;
+  --display: 'Poppins', system-ui, sans-serif;
+  --font: 'Poppins', system-ui, -apple-system, sans-serif;
+  --sh-sm: 0 6px 22px rgba(11, 46, 32, .06);
+  --sh: 0 18px 46px rgba(11, 91, 62, .12);
+}
+.courses-page .sec { position: relative; padding: clamp(56px, 7.5vw, 100px) 0; }
+.courses-page .sec.peach { background: var(--peach); }
+.courses-page .eyebrow {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  font-family: var(--font); font-weight: 700; font-size: 12.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--coral); margin: 0 0 16px;
+}
+.courses-page .eyebrow u { text-decoration: none; border-bottom: 2px solid var(--coral); padding-bottom: 5px; }
+.courses-page .sec-head { max-width: 620px; margin: 0 auto clamp(38px, 5vw, 54px); text-align: center; }
+.courses-page .sec-head h2 { font-family: var(--display); color: var(--ink); font-size: clamp(28px, 4.1vw, 42px); font-weight: 700; line-height: 1.18; letter-spacing: -.01em; margin: 0; }
+.courses-page .sec-head p { margin: 14px 0 0; color: var(--body); font-size: 15.5px; }
+.courses-page .em { color: var(--coral); }
+
+/* ── "Happening on ShikshaCom" (CoursesTicker) ──
+   A compact, centred news bar: one slim row with the live label, the
+   current item (thumbnail, type, title) and the dots + Pause. It rotates one
+   item at a time. Capped in width so a short headline is not stretched
+   across the whole catalog. Ticker.css still hides it below 760px. */
+.courses-page .ck {
+  max-width: 860px;
+  margin: 6px auto 30px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px 8px 16px;
+  border-radius: 16px;
+  border: 1px solid #E4EEE8;
+  box-shadow: 0 1px 2px rgba(12, 38, 32, .04), 0 6px 18px -12px rgba(12, 38, 32, .14);
+}
+.courses-page .ck__head {
+  flex: none;
+  padding: 0 14px 0 0;
+  border-right: 1px solid #E4EEE8;
+  align-items: center;
+  gap: 8px;
+  align-self: stretch;
+}
+.courses-page .ck__title { font-size: 10.5px; line-height: 1.3; letter-spacing: .12em; color: #0B5B3E; white-space: nowrap; }
+.courses-page .ck__stage { flex: 1; min-width: 0; }
+.courses-page .ck__item { animation: ck-in .4s ease both; }
+@keyframes ck-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.courses-page .ck__link {
+  display: flex; align-items: center; gap: 12px;
+  height: 48px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 12px;
+  background: none;
+  text-decoration: none;
+  transition: background .18s;
+}
+.courses-page a.ck__link:hover { background: #F2FAF6; }
+.courses-page .ck__thumb { width: 40px; height: 40px; border-radius: 10px; }
+.courses-page .ck__metric { min-width: 40px; padding: 4px 6px; }
+.courses-page .ck__metric b { font-size: 14px; }
+.courses-page .ck__meta { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.courses-page .ck__kind { flex: none; color: #0F9D6B; font-size: 10px; }
+.courses-page .ck__text {
+  min-width: 0; font-size: 14px; font-weight: 700; color: #0C2620;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* one headline per row keeps the bar slim; the detail line is for wider
+   surfaces */
+.courses-page .ck__body { display: none; }
+.courses-page .ck__go {
+  flex: none; width: 26px; height: 26px; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid #DCE8E1; background: #fff; color: #0B5B3E; font-size: 13px; font-weight: 700;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.courses-page a.ck__link:hover .ck__go { background: #0F9D6B; border-color: #0F9D6B; color: #fff; }
+.courses-page .ck__nav { flex: none; display: flex; align-items: center; gap: 10px; }
+.courses-page .ck__dots { display: flex; align-items: center; gap: 5px; }
+.courses-page .ck__pip { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 99px; background: #D3E3DA; cursor: pointer; transition: width .2s, background .2s; }
+.courses-page .ck__pip.is-on { width: 16px; background: #0F9D6B; }
+.courses-page .ck__pause {
+  height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid #DCE8E1; background: #fff;
+  color: #0B5B3E; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.courses-page .ck__pause:hover { background: #EAF7F0; }
+.courses-page .ck button:focus-visible,
+.courses-page .ck__link:focus-visible { outline: 2px solid #0F9D6B; outline-offset: 2px; }
+/* narrower screens: keep one row; the label shortens to the live dot */
+@media (max-width: 960px) {
+  .courses-page .ck__title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .courses-page .ck__head { padding-right: 12px; }
+  .courses-page .ck__kind { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .courses-page .ck__item { animation: none; }
 }
 
 .courses-container {
