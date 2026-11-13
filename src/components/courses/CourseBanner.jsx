@@ -1,4 +1,5 @@
 import { useId } from "react";
+import logo from "../../assets/Shiksha.png";
 
 /* CourseBanner — a generated card banner for each academic course.
    ────────────────────────────────────────────────────────────────
@@ -164,8 +165,9 @@ export default function CourseBanner({ subtitle, classLevel }) {
   ][s];
 
   return (
-    /* xMax: on a card narrower than the banner, trim the plain dotted left
-       side, never the art and class number on the right */
+    <>
+    {/* xMax: on a card narrower than the banner, trim the plain dotted left
+       side, never the art and class number on the right */}
     <svg className="uc-banner" viewBox="0 0 360 128" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`g${uid}`} x1="0" y1="0" x2="1" y2="1">
@@ -192,5 +194,23 @@ export default function CourseBanner({ subtitle, classLevel }) {
         <circle key={i} cx={x} cy={y} r={i === 1 ? 3 : 4} fill={i === 0 ? t.pop : t.accent} opacity={i === 2 ? .55 : .8} />
       ))}
     </svg>
+    {/* watermark: the ShikshaCom logo, large and faint, pinned to the card's
+        LEFT edge (its own layer, so the banner's right-anchored crop never
+        hides it) — the counterpart of the class number on the right.
+        The filter tints the PNG to one colour: alpha becomes (alpha -
+        lightness), so the dark emblem stays, its white details and the
+        transparent background drop out, and the flood paints the rest in
+        the banner's accent — a flat silhouette, like the number. */}
+    <svg className="uc-banner__mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id={`w${uid}`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.333 -0.333 -0.333 1 0" result="ink" />
+          <feFlood floodColor={t.accent} />
+          <feComposite in2="ink" operator="in" />
+        </filter>
+      </defs>
+      <image href={logo} width="100" height="100" preserveAspectRatio="xMidYMid meet" filter={`url(#w${uid})`} />
+    </svg>
+    </>
   );
 }

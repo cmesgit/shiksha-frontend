@@ -112,6 +112,8 @@
    pill come after it in the DOM and stay on top */
 .uc-gridcard__thumb .uc-banner { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .uc-gridcard:hover .uc-banner { filter: saturate(1.06); }
+.uc-gridcard__thumb .uc-banner__mark { position: absolute; left: 12px; top: 50%; width: 96px; height: 96px; transform: translateY(-50%); opacity: .16; pointer-events: none; transition: opacity .25s ease; }
+.uc-gridcard:hover .uc-gridcard__thumb .uc-banner__mark { opacity: .24; }
 /* Legibility scrim, only on cards that have a real photo — the same treatment
    `.fc-thumb--photo` gives the homepage card, so the two surfaces decorate one
    shared picture the same way. Dark at the very top and bottom so the gold
