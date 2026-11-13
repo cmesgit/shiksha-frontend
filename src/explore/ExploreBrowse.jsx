@@ -15,11 +15,11 @@ import { verificationEnabled } from "./verificationApi";
 import "./Explore.css";
 import "./Verification.css";
 
-// design_handoff_explore_verification §9. A single-select chip row above the
+// shiksha-backend/docs/EXPLORE_VERIFICATION.md §9. A single-select chip row above the
 // results, shown only while the feature is on. "Needs my review" is the
 // viewer's own queue, so it is omitted for a signed-out visitor rather than
 // shown and then returning nothing.
-/* design_handoff_explore_verification §6 — the three stacked chip rows.
+/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §6 — the three stacked chip rows.
    A row per level, every chip carrying a count including zero, narrowing as
    you pick. This replaces the Main subject / Subcategory dropdowns, which
    had no top level, no counts, and showed nothing until opened.
@@ -285,7 +285,7 @@ export default function ExploreBrowse() {
             </div>
           )}
 
-          {/* design_handoff_explore_verification §9. Its own sibling block,
+          {/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §9. Its own sibling block,
               NOT nested in the active-chips conditional below — the status row
               is a control and has to stay on screen when no filter is
               applied, which is exactly when someone reaches for it. */}

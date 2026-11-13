@@ -2,7 +2,7 @@
 // src/explore/VerifyPage.jsx   —   /explore/verify
 //
 // "Check uploads in your subjects." The member-facing half of community
-// verification. Spec: design_handoff_explore_verification/README.md §4.
+// verification. Spec: shiksha-backend/docs/EXPLORE_VERIFICATION.md §4.
 //
 // Five tabs: Review queue, Notifications, My uploads, Specializations,
 // How it works. Counts in the tab labels are live.

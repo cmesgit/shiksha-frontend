@@ -205,7 +205,7 @@ export default function UploadPage() {
   // has always advertised "up to 50 MB" while checking nothing, and the
   // drag-and-drop path bypasses the input's `accept` entirely — so an
   // oversized or wrong-type file only failed after the upload, as a 400.
-  /* design_handoff_explore_verification §7 — the widened rules.
+  /* shiksha-backend/docs/EXPLORE_VERIFICATION.md §7 — the widened rules.
      ⚠ These MUST stay in step with config/upload_validation.py's
      LIBRARY_EXTS / LIBRARY_MAX_MB. The server is the real boundary; this
      list exists so a member is told at pick time instead of after the whole

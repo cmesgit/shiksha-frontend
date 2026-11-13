@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    src/explore/Verification.css
    Community verification — /explore/verify and the badges it puts on cards.
-   Spec: design_handoff_explore_verification/README.md
+   Spec: shiksha-backend/docs/EXPLORE_VERIFICATION.md
 
    Everything is scoped under .vf (page) or .vf-pill / .vf-prompt (the bits
    that ride on Explore cards), so it never touches the rest of the app.

@@ -662,7 +662,7 @@
 }
 
 /* ── upload: the file list of a set ───────────────────────────────────────────
-   design_handoff_explore_verification §7. A set holds several files, each
+   shiksha-backend/docs/EXPLORE_VERIFICATION.md §7. A set holds several files, each
    removable before publishing. */
 .exp-upload-files { margin-top: 14px; }
 .exp-upload-count { font: 600 13px Poppins, sans-serif; color: var(--muted); margin: 0 0 8px; }
@@ -726,7 +726,7 @@
 }
 
 /* ── upload: the design's three numbered sections ─────────────────────────────
-   design_handoff_explore_verification §7. */
+   shiksha-backend/docs/EXPLORE_VERIFICATION.md §7. */
 .exp .exp-secnum {
   font: 700 11px Poppins, sans-serif;
   letter-spacing: 1.6px;
@@ -845,7 +845,7 @@
 .exp .exp-filedead { opacity: 0.6; cursor: not-allowed; }
 
 /* ── the three-level browse panel ────────────────────────────────────────────
-   design_handoff_explore_verification §6. Three stacked rows in one card,
+   shiksha-backend/docs/EXPLORE_VERIFICATION.md §6. Three stacked rows in one card,
    each a label plus chips with counts, narrowing as you pick. */
 .exp .exp-fieldbrowser {
   border: 1px solid var(--line);

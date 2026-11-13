@@ -283,7 +283,7 @@ export default function DocumentPage() {
               </section>
             )}
 
-            {/* design_handoff_explore_verification §8 — FILES.
+            {/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — FILES.
                 ⚠ Not cosmetic. A set holds several files and the viewer and
                 the Download button both only ever point at the FIRST one, so
                 without this panel a set's second and third files are
@@ -356,7 +356,7 @@ export default function DocumentPage() {
 
           {/* ── action rail ───────────────────────────────────────────────── */}
           <aside className="exp-docrail">
-            {/* design_handoff_explore_verification §8. Absent entirely while
+            {/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8. Absent entirely while
                 the feature flag is off — `verification_detail` is null, not an
                 empty panel, so the page looks exactly as it did before. */}
             {doc.verification_detail && (

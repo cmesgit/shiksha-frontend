@@ -24,7 +24,7 @@ export const Icon = {
 };
 
 // ── verification badge ────────────────────────────────────────────────────────
-// design_handoff_explore_verification §8.
+// shiksha-backend/docs/EXPLORE_VERIFICATION.md §8.
 //
 // ⚠ `doc.verification` is NULL while the feature flag is off, and that must
 // render NOTHING — not an "Unverified" pill. The two say different things:

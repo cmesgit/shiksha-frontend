@@ -2,7 +2,7 @@
 // src/explore/verificationApi.js
 //
 // Community verification of Explore uploads.
-// Spec: design_handoff_explore_verification/README.md
+// Spec: shiksha-backend/docs/EXPLORE_VERIFICATION.md
 //
 // Every endpoint here 404s while GlobalSettings.explore_verification_enabled
 // is off — deliberately, so an unreleased feature is not merely forbidden but

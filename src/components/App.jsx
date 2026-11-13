@@ -66,7 +66,7 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ResearchHub = lazy(() => import("../explore/ResearchHub"));
-/* design_handoff_explore_verification §8 — /explore/dashboard is now the
+/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — /explore/dashboard is now the
    design's single saved-sets list. DashboardPage.jsx (the six-tab version) is
    still on disk and unchanged; restoring it is this one line. Nothing it read
    was deleted — see MyLibraryPage.jsx's header for what moved where. */
@@ -459,7 +459,7 @@ function App() {
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/research" element={<ExplorePage><ResearchHub /></ExplorePage>} />
-        {/* Community verification (design_handoff_explore_verification).
+        {/* Community verification (shiksha-backend/docs/EXPLORE_VERIFICATION.md).
             Deliberately NOT wrapped in ProtectedRoute: the page itself
             handles both the signed-out case and the feature flag being off,
             and a route guard would bounce a guest to login for a page that

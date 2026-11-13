@@ -2,7 +2,7 @@
 // src/explore/MyLibraryPage.jsx   —   /explore/dashboard
 //
 // "My Library." Sets you save from Browse are kept here.
-// Spec: design_handoff_explore_verification/README.md §8.
+// Spec: shiksha-backend/docs/EXPLORE_VERIFICATION.md §8.
 //
 // ⚠ This REPLACED a six-tab dashboard (Overview, Reading History, My Uploads,
 // Saved, Following, Collections). The owner chose the design's simpler page on
