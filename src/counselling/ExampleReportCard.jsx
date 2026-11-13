@@ -77,12 +77,33 @@ function Ring({ value }) {
   );
 }
 
-export default function ExampleReportCard() {
+/**
+ * sessionsLive — render the artboard's floating "Live 1:1 session" badge,
+ * the one item landing-v3-artboard.md §1 records as NOT built.
+ *
+ * Gated rather than unconditional. Unlike the 86% ring, the badge states a
+ * BOOKABLE FACT (45–60 minute video sessions), so the card's "EXAMPLE
+ * REPORT" label does not cover it — an example report may illustrate a
+ * score, but it cannot advertise a service that does not exist. With
+ * /api/counseling/counselors/ returning count 0 it would do exactly that,
+ * which is the same reason the hero's third tick and its CTA already sit
+ * behind this flag.
+ */
+export default function ExampleReportCard({ sessionsLive = false }) {
   const [tab, setTab] = useState("india");
   const r = REPORTS[tab];
 
   return (
     <div className="er-card">
+      {sessionsLive && (
+        <div className="er-session">
+          <span className="er-session-dot" aria-hidden="true" />
+          <span>
+            <b>Live 1:1 session</b>
+            <small>45–60 min · video</small>
+          </span>
+        </div>
+      )}
       <div className="er-head">
         <span className="er-kicker">Your career report</span>
         <div className="er-toggle" role="group" aria-label="Example report region">
