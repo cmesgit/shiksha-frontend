@@ -31,6 +31,7 @@ import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 // course.
 import { enrollLabelFor } from '../../hooks/useEnrollmentStatus';
 import CourseCard from './CourseCard';
+import CourseBanner from './CourseBanner';
 import ScribbleIcon from '../icons/ScribbleIcon';
 import '../../css/UnifiedCatalog.css';
 
@@ -199,6 +200,10 @@ function toCatalogCard(cls, board, hideKindLabel) {
     image: cls.image,
     gradient: thumbGradient(cls),
     icon: <ThumbIcon subtitle={cls.subtitle} />,
+    // Academic classes get a generated banner in the site's illustration
+    // style (one look, varied by stream and class); it replaces the uploaded
+    // photo and the gradient on these cards. Other cards are unchanged.
+    banner: cls.classLevel ? <CourseBanner subtitle={cls.subtitle} classLevel={cls.classLevel} /> : null,
     // Real class_level -> a "Class 8" ribbon; falls back to the admin-set
     // `badge` only when class_level isn't present.
     ribbon: cls.classLevel ? `Class ${cls.classLevel}` : cls.badge,
