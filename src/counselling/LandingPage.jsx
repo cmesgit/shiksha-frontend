@@ -409,6 +409,13 @@ export default function LandingPage() {
         <h2>Your future deserves a clear plan.</h2>
         <p>Build your career profile in two minutes and get matched with a counsellor who understands your goals.</p>
         <button className="sc-btn" onClick={() => start()}>Start your career profile →</button>
+        {/* Every other CTA on this page is seeker-facing; this is the only
+            route for someone who wants to GIVE guidance rather than get it.
+            Deliberately understated — it must not compete with the student
+            CTA above it. */}
+        <p className="sc-counsel-door">
+          Guide students yourself? <Link to="/become-counsellor">Become a counsellor</Link>
+        </p>
       </div>
     </CounsellingShell>
   );

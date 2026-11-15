@@ -83,6 +83,23 @@ export const TEACHER_SKILL_URL   = TEACHER_URL + "/teacher/expert";
 // listing and nothing telling them why.
 export const TEACHER_SKILL_PROFILE_URL = TEACHER_URL + "/teacher/expert/profile";
 
+// ── Career Counselling (design_handoff_admin_counsellor) ──────────────────
+// The counsellor console is the teacher app's THIRD track, at
+// /teacher/counsellor (two l's — the backend's own prefix is /counselor with
+// one, and the public site uses /counselling; none of those are typos, see
+// src/utils/notificationRouting.js).
+//
+// This is NOT a "track" in the ProfileSwitcher sense and must not be added to
+// its TRACKS list: that list filters on `teacherInfo.tracks[key]`, a map the
+// backend hard-wires to exactly academy + skill off TeacherProfile
+// (accounts/auth_flow.py:380). A counsellor is a counseling.CounselorProfile —
+// a different model in a different app — so the entry would never render.
+//
+// The destination self-serves: CounselorLayout shows the apply form to any
+// signed-in teacher with no counsellor profile yet, so this link always has
+// somewhere real to land.
+export const TEACHER_COUNSELLOR_URL = TEACHER_URL + "/teacher/counsellor";
+
 // Where a student is sent to enroll in a track they are not in yet.
 export const ACADEMY_BROWSE_URL = HOME_URL + "/courses";
 export const SKILL_BROWSE_URL   = HOME_URL + "/skill-development";

@@ -96,6 +96,9 @@ const Footer = () => {
               {/* The Skill Dev half of the same offer. Its absence here (and
                   in the Navbar drawer) is why the track had no public door. */}
               <li><Link to="/become-expert">Teach on Skill Dev</Link></li>
+              {/* The third provider track. Absent for the same reason Skill
+                  Dev's was, with the same consequence — see the note above. */}
+              <li><Link to="/become-counsellor">Become a Counsellor</Link></li>
             </ul>
           </div>
 
