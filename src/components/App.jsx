@@ -91,6 +91,7 @@ const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const SkillIntro       = lazy(() => import("../pages/SkillIntro"));
+const CounsellorIntro  = lazy(() => import("../pages/CounsellorIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
 const AboutUs          = lazy(() => import("./AboutUs"));
@@ -540,6 +541,13 @@ function App() {
         <Route path="/become-faculty" element={<FacultyIntro />} />
         <Route path="/become-expert"  element={<SkillIntro />} />
         <Route path="/expert-apply"   element={<Navigate to="/become-expert" replace />} />
+        {/* The third provider track's door, added for the same reason the two
+            above exist: the counsellor console had NO public entry point, so
+            the only way in was already knowing the teacher-app URL. It is an
+            in-app route rather than a cross-app link because `safeReturnPath`
+            correctly refuses a cross-origin ?next=, so a signed-out visitor
+            needs somewhere on this origin to come back to. */}
+        <Route path="/become-counsellor" element={<CounsellorIntro />} />
 
         {/*
           Moderator Panel — ported from the internal Admin-dashboard app so

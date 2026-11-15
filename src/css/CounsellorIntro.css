@@ -1,0 +1,172 @@
+/* /become-counsellor — the public door to the counsellor console.
+ * design_handoff_admin_counsellor.
+ *
+ * ⚠ Literal hex is CORRECT here and is not an oversight. `shiksha-frontend`
+ * does not use the teacher/student token system (shared/tokens.css) and must
+ * not import it — see CLAUDE.md, career-counselling design rule 3. The values
+ * below are the counselling section's own existing palette, taken from
+ * src/counselling/counselling.css so this page matches the student side it
+ * links to: #125027 ink, #1b9c85 accent, #6b7a70 muted, #ebf5e8 tint.
+ */
+
+.ci-wrap {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 56px) clamp(16px, 4vw, 28px) 72px;
+  color: #14201a;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────── */
+
+.ci-eyebrow {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #ebf5e8;
+  color: #125027;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ci-hero h1 {
+  margin: 16px 0 0;
+  font-size: clamp(28px, 4.4vw, 42px);
+  line-height: 1.15;
+  color: #125027;
+}
+
+.ci-lede {
+  margin-top: 14px;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.6;
+  color: #6b7a70;
+}
+
+.ci-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.ci-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  border-radius: 10px;
+  background: #125027;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #125027;
+}
+
+.ci-btn:hover {
+  background: #0e1c0f;
+  border-color: #0e1c0f;
+}
+
+.ci-btn--ghost {
+  background: transparent;
+  color: #125027;
+  border-color: #e9eeea;
+}
+
+.ci-btn--ghost:hover {
+  background: #ebf5e8;
+  color: #125027;
+  border-color: #ebf5e8;
+}
+
+.ci-note {
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: #6b7a70;
+}
+
+/* ── Steps ─────────────────────────────────────────────────────────── */
+
+.ci-steps,
+.ci-faq {
+  margin-top: clamp(36px, 5vw, 60px);
+}
+
+.ci-steps h2,
+.ci-faq h2 {
+  font-size: clamp(20px, 2.6vw, 26px);
+  color: #125027;
+  margin-bottom: 18px;
+}
+
+.ci-steplist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.ci-step {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #e9eeea;
+  border-radius: 14px;
+  background: #fcfbf7;
+}
+
+.ci-step__n {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #1b9c85;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ci-step h3 {
+  font-size: 15.5px;
+  color: #125027;
+  margin: 2px 0 6px;
+}
+
+.ci-step p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #6b7a70;
+}
+
+/* ── FAQ ───────────────────────────────────────────────────────────── */
+
+.ci-faq dl {
+  display: grid;
+  gap: 16px;
+}
+
+.ci-faq dt {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #125027;
+}
+
+.ci-faq dd {
+  margin: 5px 0 0;
+  max-width: 68ch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #6b7a70;
+}
+
+.ci-faq dd a {
+  color: #0d7a67;
+  font-weight: 600;
+}

@@ -103,6 +103,13 @@
 .lms-ctaband p { font: 400 15px/1.6 'Poppins', sans-serif; color: rgba(255,255,255,.78); max-width: 520px; margin: 0 auto 18px }
 .lms-ctaband .sc-btn { background: #fff; border-color: #fff; color: #103f22 }
 .lms-ctaband .sc-btn:hover { background: #e9eeea; border-color: #e9eeea; color: #103f22 }
+/* The provider-side door at the foot of the closing CTA. Quieter than the
+   student CTA above it on purpose — it serves a much smaller audience and
+   must not look like the page's main action. The `.lms-ctaband p` rule above
+   would otherwise centre-cap it at 520px and bury it. */
+.lms-ctaband .sc-counsel-door { font: 400 14px/1.6 'Poppins', sans-serif; color: rgba(255,255,255,.62); margin: 18px auto 0 }
+.lms-ctaband .sc-counsel-door a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px }
+.lms-ctaband .sc-counsel-door a:hover { color: #e9eeea }
 
 @media (max-width: 900px) {
   .sc-grid2, .sc-grid3, .sc-hero, .lms-steps { grid-template-columns: 1fr }
