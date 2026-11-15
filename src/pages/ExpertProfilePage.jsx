@@ -212,8 +212,13 @@ export default function ExpertProfilePage() {
     const header = document.querySelector(".skn-header");
     if (!root || !header) return undefined;
     const apply = () => {
-      const h = Math.round(header.getBoundingClientRect().height);
-      if (h > 0) root.style.setProperty("--ep-header-h", `${h}px`);
+      /* Its BOTTOM EDGE, not its height. The header is fixed but not flush
+         to y=0 — it sits at a small top offset — so height (71px) is 12px
+         short of where it actually ends (83px). Using height left the pinned
+         panel clearing the nav by 4px instead of the intended 16. */
+      const b = header.getBoundingClientRect();
+      const bottom = Math.round(b.top + b.height);
+      if (bottom > 0) root.style.setProperty("--ep-header-h", `${bottom}px`);
     };
     apply();
     if (!("ResizeObserver" in window)) {
@@ -340,15 +345,25 @@ export default function ExpertProfilePage() {
       <Navbar />
 
     <div className="ep-page" ref={epRootRef}>
-      {/* ── Hero ── */}
-      <div className="ep-hero">
+      {/* ONE grid for the whole screen, matching the design:
+          'hero panel' / 'tabs panel' / 'body panel' (Skill Public.dc.html:265).
+          The booking panel is a sibling of the content column and spans all
+          three rows, which is what lets it stay with you as you scroll.
+
+          It used to be a child of .ep-hero__card. position:sticky can only
+          travel inside its own containing block, so it was bounded by the
+          hero's height and scrolled away with it — it never pinned for
+          anyone. The hero is a CARD in the content column now rather than a
+          full-bleed band, which is both what the design specifies and what
+          makes room for the panel beside it. */}
+      <button className="ep-back" onClick={() => navigate("/skill/browse")}>← All teachers</button>
+
+      <div className="ep-layout">
+        <section className="ep-hero">
         <span className="ep-hero__grid" aria-hidden="true" />
         <span className="ep-hero__glow ep-hero__glow--1" aria-hidden="true" />
         <span className="ep-hero__glow ep-hero__glow--2" aria-hidden="true" />
-        <div className="ep-hero__inner">
-          <button className="ep-back" onClick={() => navigate("/skill/browse")}>← All teachers</button>
           <div className="ep-hero__card">
-            {/* Col 1 — photo + badges */}
             <div className="ep-hero__col1">
               <div className="ep-hero__photo">
                 {expert.img
@@ -415,9 +430,18 @@ export default function ExpertProfilePage() {
                 </div>
               </div>
             </div>
+          </div>
+          {showComposer && !msgSent && (
+            <MessageComposer
+              teacherProfileId={expert.teacher_profile_id}
+              expertName={expert.name}
+              onSent={() => { setMsgSent(true); setShowComposer(false); }}
+            />
+          )}
+          {msgSent && <div className="ep-msg-sent">✓ Taking you to your messages…</div>}
+        </section>
 
-            {/* Col 3 — sticky dark booking panel */}
-            <div className="ep-hero__col3">
+        <aside className="ep-panelWrap">
               <div className="ep-panel">
                 <div className="ep-panel__price">{heroPrice === 0 ? "Free" : `₹${heroPrice}`}</div>
                 <div className="ep-panel__sub">{multi ? "from · per 60-min session" : "per 60-min session"}</div>
@@ -446,49 +470,8 @@ export default function ExpertProfilePage() {
                     a promise the product cannot keep, shown at the exact
                     moment someone decides to book. */}
               </div>
-            </div>
-          </div>
+        </aside>
 
-          {showComposer && !msgSent && (
-            <MessageComposer
-              teacherProfileId={expert.teacher_profile_id}
-              expertName={expert.name}
-              onSent={() => { setMsgSent(true); setShowComposer(false); }}
-            />
-          )}
-          {msgSent && <div className="ep-msg-sent">✓ Taking you to your messages…</div>}
-        </div>
-      </div>
-
-      {/* ── Skills & pricing (multi-listing experts) ── */}
-      {(multi || pausedListings.length > 0) && (
-        <div className="ep-listings-wrap">
-          <section className="ep-section ep-listings">
-            <h2>Skills & pricing</h2>
-            <div className="ep-listings__grid">
-              {listings.map(l => (
-                <button key={l.id} type="button" className="ep-listing-card" onClick={() => handleBookClick(l.id)}>
-                  <div className="ep-listing-card__title">{l.title}</div>
-                  <div className="ep-listing-card__tags">{(l.skill_tags || []).slice(0, 3).join(", ")}</div>
-                  <div className="ep-listing-card__foot">
-                    <RatingSummary value={Number(l.rating)} count={l.reviews_count} size={12} />
-                    <b>{l.price_rupees === 0 ? "Free" : `₹${l.price_rupees}`}</b>
-                  </div>
-                  <span className="ep-listing-card__cta">Book this skill →</span>
-                </button>
-              ))}
-              {pausedListings.map(l => (
-                <div key={l.id} className="ep-listing-card ep-listing-card--paused">
-                  <div className="ep-listing-card__title">{l.title}</div>
-                  <div className="ep-listing-card__tags">Paused by the teacher</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {/* ── Tabs ── */}
       <div className="ep-tabs">
         {[
           { key: "about",   label: "About" },
@@ -591,6 +574,7 @@ export default function ExpertProfilePage() {
                 </button>
               </div>
         )}
+      </div>
       </div>
 
       {gate && <AuthGateModal action={gate} expertName={expert.name} onClose={() => setGate(null)} />}

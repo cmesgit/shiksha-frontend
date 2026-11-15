@@ -10,11 +10,66 @@
 
 .ep-loading { padding: 60px; text-align: center; color: var(--sk-body, #5e7469); }
 .ep-page    { min-height: 100vh; background: var(--sk-paper, #f6faf7); font-family: var(--sk-font, "Poppins", sans-serif); }
-.ep-back    { background: none; border: none; color: var(--sk-green-dark, #0b5b3e); font-weight: 600; cursor: pointer; font-size: 14px; margin-bottom: 16px; padding: 0; position: relative; z-index: 2; }
+.ep-back    { display: block; max-width: 1180px; margin: 0 auto; padding: 20px 24px 0; background: none; border: none; color: var(--sk-green-dark, #0b5b3e); font-weight: 600; cursor: pointer; font-size: 14px; position: relative; z-index: 2; text-align: left; }
 .ep-back:hover { text-decoration: underline; }
 
-/* ── Hero ── */
-.ep-hero { position: relative; overflow: hidden; background: #fff; border-bottom: 1px solid var(--sk-line, #edf3ee); padding: 32px 0 40px; }
+/* ── Page grid ───────────────────────────────────────────────────────────
+   The design's profile screen is ONE grid (Skill Public.dc.html:265):
+     --p-cols : desk  minmax(0,1fr) 400px
+                tl    minmax(0,1fr) 360px
+                below minmax(0,1fr)
+     --p-areas: side  'hero panel' 'tabs panel' 'body panel'
+                else  'hero' 'tabs' 'panel' 'body'
+   Note where the panel lands when it stacks: BETWEEN tabs and body, not at
+   the bottom — on a phone the thing you came to do should not be below the
+   reviews. */
+.ep-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  grid-template-areas: 'hero panel' 'tabs panel' 'body panel';
+  gap: 16px 20px;
+  align-items: start;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+}
+
+.ep-hero      { grid-area: hero; }
+.ep-tabs      { grid-area: tabs; }
+.ep-body      { grid-area: body; }
+/* align-self: stretch, against the container's `align-items: start`.
+   The design sets align-items:start and does NOT make its panel sticky —
+   ours is, and a sticky element can only travel inside its containing
+   block. With `start` the wrap shrinks to the panel's own height, so there
+   is nowhere to travel and it scrolls away exactly as it did when it lived
+   inside the hero. Stretching the wrap across all three rows is what
+   actually gives sticky its range. */
+.ep-panelWrap { grid-area: panel; min-width: 0; align-self: stretch; }
+
+@media (max-width: 1199px) {
+  .ep-layout { grid-template-columns: minmax(0, 1fr) 360px; }
+}
+
+@media (max-width: 899px) {
+  .ep-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'hero' 'tabs' 'panel' 'body';
+  }
+}
+
+/* ── Hero ──
+   A CARD in the content column now, not a full-bleed band — that is what the
+   design specifies and what makes room for the panel beside it. The texture
+   and glows move onto the card, so the visual language survives the change. */
+.ep-hero {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--sk-line, #edf3ee);
+  border-radius: 16px;
+  box-shadow: var(--sk-sh-sm, 0 1px 3px rgba(26,44,51,.06));
+  padding: 22px;
+}
 .ep-hero__grid { position: absolute; inset: 0;
   background-image: linear-gradient(rgba(132,104,39,.15) 1px, transparent 1px),
                     linear-gradient(90deg, rgba(201,173,51,.08) 1px, transparent 1px);
@@ -29,13 +84,14 @@
 
 .ep-hero__inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 .ep-hero__card {
-  display: grid; grid-template-columns: 200px 1fr 260px; gap: 28px; padding: 28px;
+  /* Two tracks, not three: the booking panel is no longer a child here. */
+  display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px;
 }
 @media (max-width: 900px) { .ep-hero__card { grid-template-columns: 1fr; } }
 
 /* Col 1 — photo + badges */
 .ep-hero__col1 { display: flex; flex-direction: column; gap: 10px; }
-.ep-hero__photo { position: relative; width: 200px; }
+.ep-hero__photo { position: relative; width: 100%; max-width: 180px; }
 @media (max-width: 900px) { .ep-hero__photo { width: 140px; } }
 .ep-hero__photo img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 18px; display: block; }
 .ep-hero__initials {
@@ -49,6 +105,13 @@
 .ep-hero__introBtn i { width: 16px; height: 16px; border-radius: 50%; background: var(--sk-orange, #ff9900);
   display: grid; place-items: center; font-size: 8px; font-style: normal; }
 .ep-hero__badges { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Moved here from ExpertRow.css (2026-09-11) when that dead component was
+   deleted. It was already broken: nothing imported ExpertRow.css, so Vite
+   never emitted these rules and this page's badges rendered as bare text.
+   Latent only because no expert carries a badge on prod yet. */
+.ep-badge { font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+.ep-badge--verified { background: rgba(15,157,107,.12); color: var(--sk-green-dark, #0b5b3e); }
+.ep-badge--top      { background: rgba(255,153,0,.14); color: #b45309; letter-spacing: .03em; }
 .ep-hero__introFrame { border-radius: 12px; overflow: hidden; aspect-ratio: 16/9; }
 .ep-hero__introFrame iframe { width: 100%; height: 100%; border: none; }
 
@@ -67,8 +130,10 @@
 .ep-stat__val   { font-family: "Montserrat", sans-serif; font-size: 19px; font-weight: 800; color: var(--sk-ink, #0b2e20); }
 .ep-stat__label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--sk-body, #5e7469); margin-top: 2px; }
 
-/* Col 3 — the dark booking panel.
-   ⚠ ITS `position: sticky` NEVER ENGAGES, and that is structural, not a typo.
+/* The dark booking panel.
+   Its `position: sticky` NOW WORKS: .ep-panelWrap is a grid area spanning
+   hero/tabs/body, so the panel can travel the height of the whole page. It
+   previously could not —
    The panel is a grid child of .ep-hero__card, which sits inside the
    full-bleed dark .ep-hero band. A sticky element can only travel inside its
    own containing block, so this one is bounded by the hero's height and
@@ -131,7 +196,22 @@
 .ep-listing-card--paused:hover { border-color: var(--sk-line, #edf3ee); box-shadow: none; }
 
 /* ── Tabs ── */
-.ep-tabs { max-width: 1180px; margin: 24px auto 0; padding: 0 24px; display: flex; gap: 4px; border-bottom: 1px solid var(--sk-line, #edf3ee); }
+/* min-width:0 + overflow-x:auto, exactly as the design does it
+   (Skill Public.dc.html:297). As a grid item the strip defaults to
+   min-width:auto, so it refuses to shrink below its content and pushes the
+   whole PAGE into horizontal scroll at phone widths — measured 457px inside
+   a 390px viewport. The max-width/margin/padding are gone because .ep-layout
+   now owns the page gutter. */
+.ep-tabs {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--sk-line, #edf3ee);
+}
+.ep-tabs::-webkit-scrollbar { display: none; }
+.ep-tabBtn { flex-shrink: 0; }
 .ep-tabBtn {
   padding: 12px 20px; background: none; border: none; font-size: 14px; font-weight: 600;
   color: var(--sk-body, #5e7469); cursor: pointer; border-bottom: 2.5px solid transparent;
@@ -140,7 +220,9 @@
 .ep-tabBtn.on { color: var(--sk-green-dark, #0b5b3e); border-bottom-color: var(--sk-green, #0f9d6b); }
 
 /* ── Body ── */
-.ep-body    { max-width: 1180px; margin: 24px auto; padding: 0 24px 60px; }
+/* .ep-layout owns the page gutter now, so this must not add its own —
+   doubling it indented the body against the hero above it. */
+.ep-body    { min-width: 0; padding-bottom: 20px; }
 .ep-2col    { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
 @media (max-width: 900px) { .ep-2col { grid-template-columns: 1fr; } }
 .ep-section { background: #fff; border-radius: 16px; padding: 22px; margin-bottom: 16px; border: 1px solid var(--sk-line, #edf3ee); }
