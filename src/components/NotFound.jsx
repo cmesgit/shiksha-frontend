@@ -12,7 +12,9 @@
  * Rendered inside <Page>, so it keeps the site Navbar and Footer: the nav bar
  * alone is most of the recovery path.
  */
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { followRedirect, resolveRedirect } from "../utils/resolveRedirect";
 
 // The handful of places a lost visitor most plausibly wanted. Kept short on
 // purpose — a wall of links is as unhelpful as no links.
@@ -24,8 +26,42 @@ const SUGGESTIONS = [
 ];
 
 export default function NotFound() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
+  // undefined = still asking, null = no rule, string = where to go.
+  const [redirect, setRedirect] = useState(undefined);
+
+  /* Before telling anyone their link is dead, ask whether an admin has
+     already fixed it.
+     ⚠ This is the ONLY place site redirects can fire. nginx serves
+     index.html for every unmatched path, so Django — and
+     django.contrib.redirects with it — never sees the request. The SPA's
+     catch-all is the first code that knows the URL failed.
+     The problem is real: Course.slug is derived from the title on first save
+     and never re-derived on rename, so renaming a course kills every shared
+     link to it. See content/models.py's Redirect docstring. */
+  useEffect(() => {
+    let alive = true;
+    const ac = new AbortController();
+    resolveRedirect(pathname, { signal: ac.signal }).then((to) => {
+      if (!alive) return;
+      setRedirect(to);
+      if (to) followRedirect(to, navigate, search);
+    });
+    return () => { alive = false; ac.abort(); };
+  }, [pathname, search, navigate]);
+
+  /* Hold the 404 back while the question is outstanding. Flashing "we
+     couldn't find that page" and then redirecting is worse than a brief
+     pause — it tells the visitor they were lost when they were not. */
+  if (redirect === undefined || redirect) {
+    return (
+      <div className="nf-wrap">
+        <style>{css}</style>
+        <p className="nf-sub" role="status">Looking for that page…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="nf-wrap">
