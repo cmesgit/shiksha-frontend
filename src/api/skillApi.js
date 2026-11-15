@@ -76,12 +76,26 @@ export async function fetchTeacher(id) {
    the student app reads, so the public profile grid now reflects real slots
    instead of the old localStorage mock. */
 export async function fetchAvailability(expertId) {
-  if (!expertId) return { open: [], booked: [] };
+  if (!expertId) return { open: [], booked: [], authRequired: false };
   try {
     const { data } = await api.get(`/skill/teachers/${expertId}/availability/`);
-    return { open: data.open || [], booked: data.booked || [] };
-  } catch {
-    return { open: [], booked: [] }; // expert hasn't set any slots yet
+    return { open: data.open || [], booked: data.booked || [], authRequired: false };
+  } catch (err) {
+    /* ExpertAvailabilityView is IsAuthenticated despite its own docstring
+       saying "Public read" one line above the guard. A bare `catch` used to
+       swallow that 401 and return an empty grid, so a logged-out visitor saw
+       EVERY cell rendered "Closed" — the page told them the expert had no
+       time free when in fact it had never been allowed to ask. Those are
+       opposite claims.
+
+       401/403 is now reported so the grid can say "sign in to see times".
+       Any other failure still degrades to empty, which for this endpoint
+       really does mean "no slots set". */
+    const code = err?.response?.status;
+    if (code === 401 || code === 403) {
+      return { open: [], booked: [], authRequired: true };
+    }
+    return { open: [], booked: [], authRequired: false };
   }
 }
 

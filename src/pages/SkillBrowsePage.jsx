@@ -457,47 +457,7 @@ export default function SkillBrowsePage() {
           </div>
         </section>
 
-        {/* ========================== 3 · HOW IT WORKS ========================== */}
-        <section className="sk-sec" id="sk-how">
-          <div className="sk-wrap">
-            <div className="sk-head sk-rv">
-              <span className="sk-eyebrow"><u>How It Works</u></span>
-              <h2>Three steps to your <span className="sk-em">first session</span></h2>
-              <p>Browse the directory, shortlist the teachers who fit, and book a slot that suits you.</p>
-            </div>
-            <div className="sk-steps">
-              <article className="sk-step sk-rv" style={{ "--sk-g": "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)" }}>
-                <span className="sk-step__n" aria-hidden="true">01</span>
-                <span className="sk-step__ic">
-                  <ScribbleIcon name="search" />
-                </span>
-                <h3>Search a skill</h3>
-                <p>Type what you want to learn — guitar, welding, spoken English — or start from one of the
-                  popular searches.</p>
-              </article>
-              <article className="sk-step sk-rv sk-d1" style={{ "--sk-g": "linear-gradient(135deg,#7C5CFC 0%,#5b3fd6 100%)" }}>
-                <span className="sk-step__n" aria-hidden="true">02</span>
-                <span className="sk-step__ic">
-                  <ScribbleIcon name="filter" />
-                </span>
-                <h3>Compare teachers</h3>
-                <p>Filter by where lessons happen, district, price, language and rating until the list matches
-                  what you need.</p>
-              </article>
-              <article className="sk-step sk-rv sk-d2" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
-                <span className="sk-step__n" aria-hidden="true">03</span>
-                <span className="sk-step__ic">
-                  <ScribbleIcon name="calendar" />
-                </span>
-                <h3>Book a session</h3>
-                <p>Open a profile, pick an open slot from their week, and book a 60-minute session at the price
-                  they list.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* =========================== 4 · DIRECTORY =========================== */}
+        {/* =========================== 3 · DIRECTORY =========================== */}
         <section className="sk-sec sk-sec--tint" id="sk-directory">
           <div className="sk-wrap">
 
@@ -666,6 +626,46 @@ export default function SkillBrowsePage() {
                 </div>
               </div>
 
+            </div>
+          </div>
+        </section>
+
+        {/* ========================== 4 · HOW IT WORKS ========================== */}
+        <section className="sk-sec" id="sk-how">
+          <div className="sk-wrap">
+            <div className="sk-head sk-rv">
+              <span className="sk-eyebrow"><u>How It Works</u></span>
+              <h2>Three steps to your <span className="sk-em">first session</span></h2>
+              <p>Browse the directory, shortlist the teachers who fit, and book a slot that suits you.</p>
+            </div>
+            <div className="sk-steps">
+              <article className="sk-step sk-rv" style={{ "--sk-g": "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)" }}>
+                <span className="sk-step__n" aria-hidden="true">01</span>
+                <span className="sk-step__ic">
+                  <ScribbleIcon name="search" />
+                </span>
+                <h3>Search a skill</h3>
+                <p>Type what you want to learn — guitar, welding, spoken English — or start from one of the
+                  popular searches.</p>
+              </article>
+              <article className="sk-step sk-rv sk-d1" style={{ "--sk-g": "linear-gradient(135deg,#7C5CFC 0%,#5b3fd6 100%)" }}>
+                <span className="sk-step__n" aria-hidden="true">02</span>
+                <span className="sk-step__ic">
+                  <ScribbleIcon name="filter" />
+                </span>
+                <h3>Compare teachers</h3>
+                <p>Filter by where lessons happen, district, price, language and rating until the list matches
+                  what you need.</p>
+              </article>
+              <article className="sk-step sk-rv sk-d2" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
+                <span className="sk-step__n" aria-hidden="true">03</span>
+                <span className="sk-step__ic">
+                  <ScribbleIcon name="calendar" />
+                </span>
+                <h3>Book a session</h3>
+                <p>Open a profile, pick an open slot from their week, and book a 60-minute session at the price
+                  they list.</p>
+              </article>
             </div>
           </div>
         </section>

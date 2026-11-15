@@ -668,8 +668,7 @@
   .skills-page .sk-tcard.sk-skel { animation: none; }
 }
 
-/* ============================================================================
-   Intro-video lightbox
+/* =====================================================================   Intro-video lightbox
 
    NOT scoped to .skills-page. IntroVideoModal portals to <body> to escape
    .sk-tcard's hover transform, so it renders outside the page wrapper and a
@@ -702,3 +701,74 @@
 .sk-vmodal__frame iframe{width:100%;height:100%;border:0;display:block}
 @keyframes sk-vfade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.sk-vmodal{animation:none}}
+/* ── Directory results: two-up cards (design_handoff_dashboards_v2) ────────
+   Spec: source/"Skill Public.dc.html" :172 —
+   repeat(auto-fill, minmax(min(100%,440px), 1fr)).
+
+   .sk-list was a flex COLUMN of full-width rows, and .sk-tcard a rigid
+   112px | 1fr | 206px grid built for that width. Dropping that card into a
+   440px column leaves ~80px for the name and skills, so the card has to
+   reflow, not just shrink — which is why the design builds it as flex-wrap
+   with flex-basis on each part rather than fixed tracks.
+
+   min(100%,400px) rather than a bare value: without the min(), a container
+   narrower than the track produces a track wider than its parent and the
+   page scrolls sideways.
+
+   ⚠ 400px, NOT the design's 440px. The design is full-bleed at 32px padding,
+   so at 1440 its results column is ~1076px and two 440px cards fit. This page
+   lives inside the site-wide `.sk-wrap` (max-width 1180), which leaves 822px
+   once the 280px filter sidebar is placed — and 2 x 440 + gap = 894 does not
+   fit, so a 440 min silently collapsed to ONE column at desktop while showing
+   two on a tablet, which is backwards and defeats the change. Widening
+   .sk-wrap would reflow every other section of this page, well outside P1.
+   400 gives two-up on the layout we actually have. */
+
+.skills-page .sk-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+/* The card becomes a reflowing flex row inside whatever column it lands in.
+   Overrides the fixed-track grid above; the mobile breakpoint that used to
+   re-grid it is now redundant but harmless. */
+.skills-page .sk-list .sk-tcard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+/* Avatar column — never grows. */
+.skills-page .sk-list .sk-tcard > :first-child { flex: 0 0 auto; }
+
+/* Body and the price/actions rail. The basis values are the design's: the
+   body wants 200px before it wraps, the rail 150px. Both are flex:1 so a
+   wide column fills, and both wrap to full width in a narrow one. */
+.skills-page .sk-list .sk-tcard > :nth-child(2) { flex: 1 1 200px; min-width: 0; }
+.skills-page .sk-list .sk-tcard > :last-child   { flex: 1 1 150px; min-width: 0; }
+
+/* The divider the design draws between body and rail. It must disappear once
+   the rail WRAPS onto its own line, where a left border is a stray vertical
+   rule in the middle of the card.
+
+   Wrapping depends on the CARD's width, not the viewport's — the card sits in
+   an auto-fill track whose width also depends on whether the filter sidebar
+   is showing. A @media query keyed on viewport width gets this wrong at any
+   breakpoint where those two disagree, so this is a CONTAINER query. */
+.skills-page .sk-list .sk-tcard { container-type: inline-size; }
+
+@container (min-width: 460px) {
+  .skills-page .sk-list .sk-tcard > :last-child {
+    padding-left: 14px;
+    border-left: 1px solid var(--sk-line);
+  }
+}
+
+/* The hover lift makes .sk-tcard a containing block for position:fixed, which
+   is why the Intro modal is portalled. Keep that true — do NOT add transform
+   to a descendant here. */
