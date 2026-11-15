@@ -33,6 +33,8 @@ import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
 import { RatingStars, RatingSummary, MIN_REVIEWS } from "../components/skill/RatingStars";
 import ReviewList, { RatingBreakdown } from "../components/skill/ReviewList";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
@@ -191,6 +193,37 @@ export default function ExpertProfilePage() {
   const [distribution, setDistribution] = useState({});
   const [loading, setLoading] = useState(true);
   const [err, setErr]         = useState("");
+
+  /* The site Navbar is position:fixed, so anything position:sticky on this
+     page must clear it or it pins UNDERNEATH the header.
+
+     Measures .skn-header, NOT the .skn-spacer that useHeaderOffset in
+     Contact.jsx / AboutUs.jsx watches: the spacer reserves 78px while the
+     header itself is 83px, and the number that matters here is the height of
+     the thing that actually overlaps.
+
+     Re-runs when `expert` arrives. The component early-returns a bare
+     "Loading…" before that, so on first mount there is no Navbar in the DOM
+     at all — a one-shot query bails and never retries, which is exactly what
+     the first version of this did. */
+  const epRootRef = useRef(null);
+  useEffect(() => {
+    const root = epRootRef.current;
+    const header = document.querySelector(".skn-header");
+    if (!root || !header) return undefined;
+    const apply = () => {
+      const h = Math.round(header.getBoundingClientRect().height);
+      if (h > 0) root.style.setProperty("--ep-header-h", `${h}px`);
+    };
+    apply();
+    if (!("ResizeObserver" in window)) {
+      window.addEventListener("resize", apply, { passive: true });
+      return () => window.removeEventListener("resize", apply);
+    }
+    const ro = new ResizeObserver(apply);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [expert]);
   const [activeTab, setTab]   = useState("about");
   const [gate, setGate]       = useState(null);     // "message" | "book" | null
   const [msgSent, setMsgSent] = useState(false);
@@ -297,7 +330,16 @@ export default function ExpertProfilePage() {
     : [expert.class_location, MODE_TEXT[expert.class_mode]].filter(Boolean).join(" · ");
 
   return (
-    <div className="ep-page">
+    <>
+      {/* The page rendered NO site chrome at all — a visitor landing on an
+          expert from search had no nav, no way back into the site, and no
+          footer. Navbar/Footer sit outside .ep-page, matching
+          SkillBrowsePage: the page scope rebinds custom properties that
+          theme.css also declares on :root, and nesting global chrome inside
+          would silently pin those copies. */}
+      <Navbar />
+
+    <div className="ep-page" ref={epRootRef}>
       {/* ── Hero ── */}
       <div className="ep-hero">
         <span className="ep-hero__grid" aria-hidden="true" />
@@ -318,10 +360,13 @@ export default function ExpertProfilePage() {
                   </button>
                 )}
               </div>
-              <div className="ep-hero__badges">
-                {expert.badges?.includes("Verified")  && <span className="er-badge er-badge--verified">✓ Verified</span>}
-                {expert.badges?.includes("Top-rated") && <span className="er-badge er-badge--top">TOP RATED</span>}
-              </div>
+              {/* "✓ Verified" and "TOP RATED" were CUT, not hidden. Nothing in
+                  the backend ever writes ExpertProfile.badges — there is no
+                  admin action, no signal, no management command — so both
+                  were permanently dead, and a reader of this file could not
+                  tell that from the guard. If badges gain a writer, restore
+                  them deliberately rather than finding them switched on by a
+                  data change nobody connected to this screen. */}
               {showIntro && expert.intro_video_embed_url && (
                 <div className="ep-hero__introFrame">
                   <iframe src={expert.intro_video_embed_url} title="Intro video" allow="autoplay; fullscreen" />
@@ -338,10 +383,23 @@ export default function ExpertProfilePage() {
 
               <div className="ep-stats">
                 <div className="ep-stat">
+                  {/* "New", not an em-dash. MIN_REVIEWS is 5 and most experts
+                      sit below it, so this is the COMMON case, not an edge
+                      one — and "—" reads as "no rating data" or even as a bad
+                      score, when the honest meaning is "not enough reviews
+                      yet". The design has no state for it at all. */}
                   <div className="ep-stat__val">
-                    {reviewsCount >= MIN_REVIEWS ? avgRating.toFixed(1) : "—"}
+                    {reviewsCount >= MIN_REVIEWS
+                      ? avgRating.toFixed(1)
+                      : <span className="ep-stat__new">New</span>}
                   </div>
-                  <div className="ep-stat__label">Rating ({reviewsCount})</div>
+                  <div className="ep-stat__label">
+                    {reviewsCount >= MIN_REVIEWS
+                      ? `Rating (${reviewsCount})`
+                      : reviewsCount === 0
+                        ? "No reviews yet"
+                        : `${reviewsCount} review${reviewsCount === 1 ? "" : "s"} so far`}
+                  </div>
                 </div>
                 <div className="ep-stat">
                   <div className="ep-stat__val">{expert.sessions ?? 0}</div>
@@ -370,7 +428,9 @@ export default function ExpertProfilePage() {
                     </span>
                   )}
                   {locationLine && <span className="ep-panel__chip">📍 {locationLine}</span>}
-                  {expert.mastery_target && <span className="ep-panel__chip">🎯 {expert.mastery_target}</span>}
+                  {/* The design's "Goal: …" chip is CUT. mastery_target is an
+                      integer field, so this rendered a bare "🎯 3" — a number
+                      with no unit and no label, which tells a visitor nothing. */}
                 </div>
                 <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={() => handleBookClick(null)}>
                   📅 Book a session
@@ -380,7 +440,11 @@ export default function ExpertProfilePage() {
                     💬 Message
                   </button>
                 )}
-                <p className="ep-panel__hint">Free 15-min intro on your first session</p>
+                {/* "Free 15-min intro on your first session" was CUT: nothing
+                    implements it. There is no intro-session type, no free
+                    first booking, and no code path that discounts one. It is
+                    a promise the product cannot keep, shown at the exact
+                    moment someone decides to book. */}
               </div>
             </div>
           </div>
@@ -518,6 +582,9 @@ export default function ExpertProfilePage() {
 
       {gate && <AuthGateModal action={gate} expertName={expert.name} onClose={() => setGate(null)} />}
     </div>
+
+      <Footer />
+    </>
   );
 }
 
