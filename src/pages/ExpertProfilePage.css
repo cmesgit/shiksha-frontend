@@ -67,7 +67,25 @@
 .ep-stat__val   { font-family: "Montserrat", sans-serif; font-size: 19px; font-weight: 800; color: var(--sk-ink, #0b2e20); }
 .ep-stat__label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--sk-body, #5e7469); margin-top: 2px; }
 
-/* Col 3 — sticky dark booking panel */
+/* Col 3 — the dark booking panel.
+   ⚠ ITS `position: sticky` NEVER ENGAGES, and that is structural, not a typo.
+   The panel is a grid child of .ep-hero__card, which sits inside the
+   full-bleed dark .ep-hero band. A sticky element can only travel inside its
+   own containing block, so this one is bounded by the hero's height and
+   scrolls away with it — it has never pinned for anyone.
+
+   The design wants it beside the WHOLE page: its grid is
+   'hero panel' / 'tabs panel' / 'body panel', i.e. the panel is a sibling of
+   the content column, not a child of the hero. Fixing it therefore means
+   lifting col3 out of .ep-hero__card and re-composing .ep-page as a two
+   column grid — which also takes the panel off the dark band it is currently
+   drawn on. That is a redesign of the page shell, deliberately NOT attempted
+   here; see NILIMA.md.
+
+   The `top` below is already correct for when that happens: it measures
+   .skn-header, so the panel will clear the fixed site nav rather than pin
+   underneath it. Left in place so the restructure does not have to
+   rediscover it. */
 .ep-hero__col3 { min-width: 0; }
 .ep-panel { position: sticky; top: calc(var(--ep-header-h, 78px) + 16px); background: linear-gradient(0deg, rgba(0,0,0,.3), rgba(0,0,0,.3)), rgba(0,50,35,.9);
   border-radius: 18px; padding: 20px; color: #fff; }

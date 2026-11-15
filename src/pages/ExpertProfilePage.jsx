@@ -530,11 +530,24 @@ export default function ExpertProfilePage() {
 
               <section className="ep-section">
                 <h2>How sessions work</h2>
+                {/* These are hardcoded for EVERY expert but written in the
+                    first person, so they read as that expert's own promises.
+                    Two of the four were false:
+
+                    · "free 15-min intro" — there is no intro session type and
+                      no code path that discounts a first booking.
+                    · "Reschedule any time up to 12 hours before" — the exact
+                      INVERSE of the rule. CANCELLABLE is (REQUESTED,
+                      PENDING_PAYMENT): a learner may cancel only while the
+                      request is still pending, and once the expert confirms,
+                      cancel_views.py tells them to message the expert.
+
+                    Rewritten to what the code actually does, and out of the
+                    first person, since the platform is speaking here. */}
                 <ul>
-                  <li>One-on-one sessions via video call or in person.</li>
-                  <li>First session is a free 15-min intro — see if we click.</li>
-                  <li>I'll share a personalised plan after our intro call.</li>
-                  <li>Reschedule any time up to 12 hours before the session.</li>
+                  <li>One-on-one sessions, online or in person — whichever this expert offers.</li>
+                  <li>You can cancel yourself while the request is still pending.</li>
+                  <li>Once the expert confirms, message them to change or cancel the time.</li>
                 </ul>
               </section>
             </div>
@@ -640,7 +653,8 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
 
   const [note, setNote] = useState("");
   const [slot, setSlot] = useState(null);
-  const [dur,  setDur]  = useState(60);
+  // Fixed: see the note where the duration picker used to be.
+  const dur = 60;
   const [busy, setBusy] = useState(false);
   const [msg, setMsg]   = useState("");
   const [done, setDone] = useState(false);
@@ -732,6 +746,16 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
       <label className="ep-book-label">Pick a time · this week</label>
       {!availLoaded ? (
         <div className="ep-book-hint">Loading availability…</div>
+      ) : avail.authRequired ? (
+        /* The availability endpoint refused us. Saying "hasn't published open
+           slots yet" here — which is what this branch used to do — blames the
+           EXPERT for our own missing permission, and tells the visitor the
+           opposite of the truth: the slots may be full, the page simply was
+           never allowed to look. */
+        <div className="ep-book-noSlots">
+          Sign in to see {first}&rsquo;s open times. You can still send a request
+          now and agree a time over chat.
+        </div>
       ) : !hasOpen ? (
         <div className="ep-book-noSlots">
           {first} hasn't published open slots yet. You can still send a request and agree a time over chat.
@@ -740,12 +764,16 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
         <SlotGrid avail={avail} selected={slot} onPick={setSlot} />
       )}
 
-      <label className="ep-book-label" style={{ marginTop: 14 }}>Duration</label>
-      <select className="ep-select" value={dur} onChange={e => setDur(+e.target.value)}>
-        <option value={60}>1 hour</option>
-        <option value={90}>1.5 hours</option>
-        <option value={120}>2 hours</option>
-      </select>
+      {/* The duration picker was REMOVED. Price does not scale with it —
+          60/90/120 all quoted the same figure because nothing multiplies by
+          duration — and one slot is one hour, so a "2 hours" booking still
+          reserved a single cell. Offering a choice that changes neither the
+          price nor the reservation is a pricing bug the learner discovers
+          after paying. Requests are now a flat 60 minutes, which is what the
+          price and the grid have always actually meant.
+
+          To make duration real, BOTH halves have to move together: the quote
+          must multiply AND the booking must consume consecutive slots. */}
 
       <label className="ep-book-label" style={{ marginTop: 14 }}>What do you want to work on?</label>
       <textarea className="ep-book-note" rows={4} value={note}
