@@ -33,6 +33,8 @@ import { fetchAvailability } from "../api/skillApi";
 import { SDAvail } from "../components/skill/availability";
 import { RatingStars, RatingSummary, MIN_REVIEWS } from "../components/skill/RatingStars";
 import ReviewList, { RatingBreakdown } from "../components/skill/ReviewList";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./ExpertProfilePage.css";
 
 const rupees = (p) => p === 0 ? "Free" : `₹${Math.round(p / 100)}`;
@@ -191,6 +193,42 @@ export default function ExpertProfilePage() {
   const [distribution, setDistribution] = useState({});
   const [loading, setLoading] = useState(true);
   const [err, setErr]         = useState("");
+
+  /* The site Navbar is position:fixed, so anything position:sticky on this
+     page must clear it or it pins UNDERNEATH the header.
+
+     Measures .skn-header, NOT the .skn-spacer that useHeaderOffset in
+     Contact.jsx / AboutUs.jsx watches: the spacer reserves 78px while the
+     header itself is 83px, and the number that matters here is the height of
+     the thing that actually overlaps.
+
+     Re-runs when `expert` arrives. The component early-returns a bare
+     "Loading…" before that, so on first mount there is no Navbar in the DOM
+     at all — a one-shot query bails and never retries, which is exactly what
+     the first version of this did. */
+  const epRootRef = useRef(null);
+  useEffect(() => {
+    const root = epRootRef.current;
+    const header = document.querySelector(".skn-header");
+    if (!root || !header) return undefined;
+    const apply = () => {
+      /* Its BOTTOM EDGE, not its height. The header is fixed but not flush
+         to y=0 — it sits at a small top offset — so height (71px) is 12px
+         short of where it actually ends (83px). Using height left the pinned
+         panel clearing the nav by 4px instead of the intended 16. */
+      const b = header.getBoundingClientRect();
+      const bottom = Math.round(b.top + b.height);
+      if (bottom > 0) root.style.setProperty("--ep-header-h", `${bottom}px`);
+    };
+    apply();
+    if (!("ResizeObserver" in window)) {
+      window.addEventListener("resize", apply, { passive: true });
+      return () => window.removeEventListener("resize", apply);
+    }
+    const ro = new ResizeObserver(apply);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [expert]);
   const [activeTab, setTab]   = useState("about");
   const [gate, setGate]       = useState(null);     // "message" | "book" | null
   const [msgSent, setMsgSent] = useState(false);
@@ -297,16 +335,35 @@ export default function ExpertProfilePage() {
     : [expert.class_location, MODE_TEXT[expert.class_mode]].filter(Boolean).join(" · ");
 
   return (
-    <div className="ep-page">
-      {/* ── Hero ── */}
-      <div className="ep-hero">
+    <>
+      {/* The page rendered NO site chrome at all — a visitor landing on an
+          expert from search had no nav, no way back into the site, and no
+          footer. Navbar/Footer sit outside .ep-page, matching
+          SkillBrowsePage: the page scope rebinds custom properties that
+          theme.css also declares on :root, and nesting global chrome inside
+          would silently pin those copies. */}
+      <Navbar />
+
+    <div className="ep-page" ref={epRootRef}>
+      {/* ONE grid for the whole screen, matching the design:
+          'hero panel' / 'tabs panel' / 'body panel' (Skill Public.dc.html:265).
+          The booking panel is a sibling of the content column and spans all
+          three rows, which is what lets it stay with you as you scroll.
+
+          It used to be a child of .ep-hero__card. position:sticky can only
+          travel inside its own containing block, so it was bounded by the
+          hero's height and scrolled away with it — it never pinned for
+          anyone. The hero is a CARD in the content column now rather than a
+          full-bleed band, which is both what the design specifies and what
+          makes room for the panel beside it. */}
+      <button className="ep-back" onClick={() => navigate("/skill/browse")}>← All teachers</button>
+
+      <div className="ep-layout">
+        <section className="ep-hero">
         <span className="ep-hero__grid" aria-hidden="true" />
         <span className="ep-hero__glow ep-hero__glow--1" aria-hidden="true" />
         <span className="ep-hero__glow ep-hero__glow--2" aria-hidden="true" />
-        <div className="ep-hero__inner">
-          <button className="ep-back" onClick={() => navigate("/skill/browse")}>← All teachers</button>
           <div className="ep-hero__card">
-            {/* Col 1 — photo + badges */}
             <div className="ep-hero__col1">
               <div className="ep-hero__photo">
                 {expert.img
@@ -318,10 +375,13 @@ export default function ExpertProfilePage() {
                   </button>
                 )}
               </div>
-              <div className="ep-hero__badges">
-                {expert.badges?.includes("Verified")  && <span className="ep-badge ep-badge--verified">✓ Verified</span>}
-                {expert.badges?.includes("Top-rated") && <span className="ep-badge ep-badge--top">TOP RATED</span>}
-              </div>
+              {/* "✓ Verified" and "TOP RATED" were CUT, not hidden. Nothing in
+                  the backend ever writes ExpertProfile.badges — there is no
+                  admin action, no signal, no management command — so both
+                  were permanently dead, and a reader of this file could not
+                  tell that from the guard. If badges gain a writer, restore
+                  them deliberately rather than finding them switched on by a
+                  data change nobody connected to this screen. */}
               {showIntro && expert.intro_video_embed_url && (
                 <div className="ep-hero__introFrame">
                   <iframe src={expert.intro_video_embed_url} title="Intro video" allow="autoplay; fullscreen" />
@@ -338,10 +398,23 @@ export default function ExpertProfilePage() {
 
               <div className="ep-stats">
                 <div className="ep-stat">
+                  {/* "New", not an em-dash. MIN_REVIEWS is 5 and most experts
+                      sit below it, so this is the COMMON case, not an edge
+                      one — and "—" reads as "no rating data" or even as a bad
+                      score, when the honest meaning is "not enough reviews
+                      yet". The design has no state for it at all. */}
                   <div className="ep-stat__val">
-                    {reviewsCount >= MIN_REVIEWS ? avgRating.toFixed(1) : "—"}
+                    {reviewsCount >= MIN_REVIEWS
+                      ? avgRating.toFixed(1)
+                      : <span className="ep-stat__new">New</span>}
                   </div>
-                  <div className="ep-stat__label">Rating ({reviewsCount})</div>
+                  <div className="ep-stat__label">
+                    {reviewsCount >= MIN_REVIEWS
+                      ? `Rating (${reviewsCount})`
+                      : reviewsCount === 0
+                        ? "No reviews yet"
+                        : `${reviewsCount} review${reviewsCount === 1 ? "" : "s"} so far`}
+                  </div>
                 </div>
                 <div className="ep-stat">
                   <div className="ep-stat__val">{expert.sessions ?? 0}</div>
@@ -357,9 +430,18 @@ export default function ExpertProfilePage() {
                 </div>
               </div>
             </div>
+          </div>
+          {showComposer && !msgSent && (
+            <MessageComposer
+              teacherProfileId={expert.teacher_profile_id}
+              expertName={expert.name}
+              onSent={() => { setMsgSent(true); setShowComposer(false); }}
+            />
+          )}
+          {msgSent && <div className="ep-msg-sent">✓ Taking you to your messages…</div>}
+        </section>
 
-            {/* Col 3 — sticky dark booking panel */}
-            <div className="ep-hero__col3">
+        <aside className="ep-panelWrap">
               <div className="ep-panel">
                 <div className="ep-panel__price">{heroPrice === 0 ? "Free" : `₹${heroPrice}`}</div>
                 <div className="ep-panel__sub">{multi ? "from · per 60-min session" : "per 60-min session"}</div>
@@ -370,7 +452,9 @@ export default function ExpertProfilePage() {
                     </span>
                   )}
                   {locationLine && <span className="ep-panel__chip">📍 {locationLine}</span>}
-                  {expert.mastery_target && <span className="ep-panel__chip">🎯 {expert.mastery_target}</span>}
+                  {/* The design's "Goal: …" chip is CUT. mastery_target is an
+                      integer field, so this rendered a bare "🎯 3" — a number
+                      with no unit and no label, which tells a visitor nothing. */}
                 </div>
                 <button className="ep-btn ep-btn--primary ep-btn--wide" onClick={() => handleBookClick(null)}>
                   📅 Book a session
@@ -380,51 +464,14 @@ export default function ExpertProfilePage() {
                     💬 Message
                   </button>
                 )}
-                <p className="ep-panel__hint">Free 15-min intro on your first session</p>
+                {/* "Free 15-min intro on your first session" was CUT: nothing
+                    implements it. There is no intro-session type, no free
+                    first booking, and no code path that discounts one. It is
+                    a promise the product cannot keep, shown at the exact
+                    moment someone decides to book. */}
               </div>
-            </div>
-          </div>
+        </aside>
 
-          {showComposer && !msgSent && (
-            <MessageComposer
-              teacherProfileId={expert.teacher_profile_id}
-              expertName={expert.name}
-              onSent={() => { setMsgSent(true); setShowComposer(false); }}
-            />
-          )}
-          {msgSent && <div className="ep-msg-sent">✓ Taking you to your messages…</div>}
-        </div>
-      </div>
-
-      {/* ── Skills & pricing (multi-listing experts) ── */}
-      {(multi || pausedListings.length > 0) && (
-        <div className="ep-listings-wrap">
-          <section className="ep-section ep-listings">
-            <h2>Skills & pricing</h2>
-            <div className="ep-listings__grid">
-              {listings.map(l => (
-                <button key={l.id} type="button" className="ep-listing-card" onClick={() => handleBookClick(l.id)}>
-                  <div className="ep-listing-card__title">{l.title}</div>
-                  <div className="ep-listing-card__tags">{(l.skill_tags || []).slice(0, 3).join(", ")}</div>
-                  <div className="ep-listing-card__foot">
-                    <RatingSummary value={Number(l.rating)} count={l.reviews_count} size={12} />
-                    <b>{l.price_rupees === 0 ? "Free" : `₹${l.price_rupees}`}</b>
-                  </div>
-                  <span className="ep-listing-card__cta">Book this skill →</span>
-                </button>
-              ))}
-              {pausedListings.map(l => (
-                <div key={l.id} className="ep-listing-card ep-listing-card--paused">
-                  <div className="ep-listing-card__title">{l.title}</div>
-                  <div className="ep-listing-card__tags">Paused by the teacher</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
-
-      {/* ── Tabs ── */}
       <div className="ep-tabs">
         {[
           { key: "about",   label: "About" },
@@ -466,11 +513,24 @@ export default function ExpertProfilePage() {
 
               <section className="ep-section">
                 <h2>How sessions work</h2>
+                {/* These are hardcoded for EVERY expert but written in the
+                    first person, so they read as that expert's own promises.
+                    Two of the four were false:
+
+                    · "free 15-min intro" — there is no intro session type and
+                      no code path that discounts a first booking.
+                    · "Reschedule any time up to 12 hours before" — the exact
+                      INVERSE of the rule. CANCELLABLE is (REQUESTED,
+                      PENDING_PAYMENT): a learner may cancel only while the
+                      request is still pending, and once the expert confirms,
+                      cancel_views.py tells them to message the expert.
+
+                    Rewritten to what the code actually does, and out of the
+                    first person, since the platform is speaking here. */}
                 <ul>
-                  <li>One-on-one sessions via video call or in person.</li>
-                  <li>First session is a free 15-min intro — see if we click.</li>
-                  <li>I'll share a personalised plan after our intro call.</li>
-                  <li>Reschedule any time up to 12 hours before the session.</li>
+                  <li>One-on-one sessions, online or in person — whichever this expert offers.</li>
+                  <li>You can cancel yourself while the request is still pending.</li>
+                  <li>Once the expert confirms, message them to change or cancel the time.</li>
                 </ul>
               </section>
             </div>
@@ -515,9 +575,13 @@ export default function ExpertProfilePage() {
               </div>
         )}
       </div>
+      </div>
 
       {gate && <AuthGateModal action={gate} expertName={expert.name} onClose={() => setGate(null)} />}
     </div>
+
+      <Footer />
+    </>
   );
 }
 
@@ -573,7 +637,8 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
 
   const [note, setNote] = useState("");
   const [slot, setSlot] = useState(null);
-  const [dur,  setDur]  = useState(60);
+  // Fixed: see the note where the duration picker used to be.
+  const dur = 60;
   const [busy, setBusy] = useState(false);
   const [msg, setMsg]   = useState("");
   const [done, setDone] = useState(false);
@@ -665,6 +730,16 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
       <label className="ep-book-label">Pick a time · this week</label>
       {!availLoaded ? (
         <div className="ep-book-hint">Loading availability…</div>
+      ) : avail.authRequired ? (
+        /* The availability endpoint refused us. Saying "hasn't published open
+           slots yet" here — which is what this branch used to do — blames the
+           EXPERT for our own missing permission, and tells the visitor the
+           opposite of the truth: the slots may be full, the page simply was
+           never allowed to look. */
+        <div className="ep-book-noSlots">
+          Sign in to see {first}&rsquo;s open times. You can still send a request
+          now and agree a time over chat.
+        </div>
       ) : !hasOpen ? (
         <div className="ep-book-noSlots">
           {first} hasn't published open slots yet. You can still send a request and agree a time over chat.
@@ -673,12 +748,16 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
         <SlotGrid avail={avail} selected={slot} onPick={setSlot} />
       )}
 
-      <label className="ep-book-label" style={{ marginTop: 14 }}>Duration</label>
-      <select className="ep-select" value={dur} onChange={e => setDur(+e.target.value)}>
-        <option value={60}>1 hour</option>
-        <option value={90}>1.5 hours</option>
-        <option value={120}>2 hours</option>
-      </select>
+      {/* The duration picker was REMOVED. Price does not scale with it —
+          60/90/120 all quoted the same figure because nothing multiplies by
+          duration — and one slot is one hour, so a "2 hours" booking still
+          reserved a single cell. Offering a choice that changes neither the
+          price nor the reservation is a pricing bug the learner discovers
+          after paying. Requests are now a flat 60 minutes, which is what the
+          price and the grid have always actually meant.
+
+          To make duration real, BOTH halves have to move together: the quote
+          must multiply AND the booking must consume consecutive slots. */}
 
       <label className="ep-book-label" style={{ marginTop: 14 }}>What do you want to work on?</label>
       <textarea className="ep-book-note" rows={4} value={note}
