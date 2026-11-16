@@ -1,5 +1,11 @@
 # Dependencies
 node_modules/
+# Without a trailing slash too. `node_modules/` matches a DIRECTORY only, so
+# a symlinked node_modules (a file) slipped past it and got committed —
+# pointing at an absolute path on one laptop. On a deploy box `git reset
+# --hard` then REPLACES the real node_modules with that dead symlink and the
+# build dies with "Cannot find package 'vite'". Hit on prod 2026-11-16.
+node_modules
 
 # Production build
 dist/
