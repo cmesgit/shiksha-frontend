@@ -52,6 +52,11 @@ const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAl
 // so the two NIRF tables stay separate (Overall vs Engineering — IIT Delhi is
 // #4 on one and #2 on the other).
 const AdmissionIndiaOverview = lazy(() => import("../counselling/AdmissionIndiaOverview"));
+// The guides-and-careers hub the landing page's "Study in India" card
+// promises. Distinct from /admission/india, which is the institutions
+// directory — that card used to land there, which answered a question
+// about guides with a list of colleges.
+const StudyInIndia        = lazy(() => import("../counselling/StudyInIndiaPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -73,7 +78,12 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ResearchHub = lazy(() => import("../explore/ResearchHub"));
-const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
+/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — /explore/dashboard is now the
+   design's single saved-sets list. DashboardPage.jsx (the six-tab version) is
+   still on disk and unchanged; restoring it is this one line. Nothing it read
+   was deleted — see MyLibraryPage.jsx's header for what moved where. */
+const ExploreDashboard = lazy(() => import("../explore/MyLibraryPage"));
+const ExploreVerify = lazy(() => import("../explore/VerifyPage"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
@@ -271,6 +281,17 @@ function RetiredSignupRedirect() {
   return <Navigate to={`/register${qs ? `?${qs}` : ""}`} replace />;
 }
 
+/**
+ * /blog/<anything> → /blogs/<anything>, preserving the rest of the path,
+ * the query string and the hash. A link written with the singular spelling
+ * lands on the article it meant rather than on a 404.
+ */
+function BlogSlugRedirect() {
+  const location = useLocation();
+  const rest = location.pathname.replace(/^\/blog(?=\/|$)/, "");
+  return <Navigate to={`/blogs${rest}${location.search}${location.hash}`} replace />;
+}
+
 function App() {
   const { isAuthenticated, loading, activeProfile } = useAuth();
   const location = useLocation();
@@ -407,6 +428,14 @@ function App() {
         <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
+        {/* The singular form 404'd. It is the spelling people type and the one
+            other sites link to, and both the nav and the footer say "Blogs",
+            so the plural stays canonical and this redirects into it. In code
+            rather than an admin Redirect row because the catch-all resolver
+            only ever sees paths that match no route — and /blog/<slug> would
+            not reach it anyway, since /blogs/* already prefix-matches. */}
+        <Route path="/blog"            element={<Navigate to="/blogs" replace />} />
+        <Route path="/blog/*"          element={<BlogSlugRedirect />} />
         {/* More specific than the wildcard below — React Router ranks static
             segments above wildcards regardless of declaration order, so this
             always wins for any path starting with /blogs/hi/, but declaring
@@ -427,6 +456,10 @@ function App() {
             gate: a visitor can read a full career profile before signing up,
             same as the guide library. */}
         <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
+        {/* Ungated like the guide library — a visitor reads guides and
+            career profiles before signing up; only the report needs an
+            account. `?tab=careers` opens the second tab directly. */}
+        <Route path="/counselling/india"              element={<Page><StudyInIndia /></Page>} />
         {/* Admission in India — the Colleges-tab destination and the navbar
             entry. Public, like the guide library. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />
@@ -470,6 +503,12 @@ function App() {
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/research" element={<ExplorePage><ResearchHub /></ExplorePage>} />
+        {/* Community verification (shiksha-backend/docs/EXPLORE_VERIFICATION.md).
+            Deliberately NOT wrapped in ProtectedRoute: the page itself
+            handles both the signed-out case and the feature flag being off,
+            and a route guard would bounce a guest to login for a page that
+            should simply explain itself. */}
+        <Route path="/explore/verify"          element={<ExplorePage><ExploreVerify /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
             (distinct from the forum's /moderator). Renders the shared site

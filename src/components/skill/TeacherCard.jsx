@@ -65,9 +65,18 @@ export default function TeacherCard({ expert: e, onPlayIntro }) {
      shows a "New" chip instead of a star row — same rule RatingStars applies
      everywhere else in the app. */
   const rated    = reviews >= MIN_REVIEWS && rating > 0;
-  /* `from_rate` is the cheapest active listing; `rate` is the expert's own
-     hourly. Both are already rupees. 0 is a real price, meaning free. */
+  /* `from_rate` is the cheapest bookable listing; `rate` is the expert's own
+     hourly. Both are already rupees.
+     `price_is_from` says whether that figure is a FLOOR — this card used to
+     print min(listings) captioned "per 60-min session" with no qualifier,
+     so a two-listing expert advertised their cheapest skill as a flat rate
+     while the profile page quoted a different (default) listing.
+     `is_free` is the server's own zero check: `price === 0` is wrong,
+     because price_paise // 100 floors Rs 0.50 to 0 and a sub-rupee listing
+     then advertised itself as free. Both fall back for an older payload. */
   const price    = e.from_rate ?? e.rate ?? 0;
+  const isFrom   = e.price_is_from ?? false;
+  const isFree   = e.is_free ?? price === 0;
   const slots    = e.open_slots_week || 0;
   const skills   = (e.skills || []).slice(0, 3);
   const langs    = (e.languages || []).slice(0, 2);
@@ -161,10 +170,12 @@ export default function TeacherCard({ expert: e, onPlayIntro }) {
       </div>
 
       <div className="sk-rail">
-        <p className={`sk-price${price === 0 ? " sk-price--free" : ""}`}>
-          {price === 0 ? "Free" : `₹${price}`}
+        <p className={`sk-price${isFree ? " sk-price--free" : ""}`}>
+          {isFree ? "Free" : <>{isFrom && <small className="sk-price__from">from </small>}₹{price}</>}
         </p>
-        <p className="sk-per">per 60-min session</p>
+        <p className="sk-per">
+          {isFrom ? "lowest-priced skill · 60 min" : "per 60-min session"}
+        </p>
         {slots > 0 && (
           <span className="sk-slots">
             <i aria-hidden="true" />{slots} slot{slots === 1 ? "" : "s"} this week

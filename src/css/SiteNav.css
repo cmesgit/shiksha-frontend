@@ -317,6 +317,38 @@
   flex: none;
   color: var(--sk-body);
 }
+/* The magnifier is a real submit button now. Stripped back to the bare glyph
+   so the pill looks exactly as it did, but with a 16px-high hit target that
+   actually runs the search. */
+.skn-search__go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* The glyph is 16px, which is below any sane tap target. The padding grows
+     the hit area to 26px and the equal negative margin cancels it in layout,
+     so the pill looks pixel-for-pixel as it did while being tappable. */
+  padding: 5px;
+  margin: -5px;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 999px;
+}
+.skn-search__go:hover svg {
+  color: var(--sk-green);
+}
+.skn-search__go:focus-visible {
+  outline: 2px solid var(--sk-green);
+  outline-offset: 2px;
+}
+/* Safari paints its own clear/decoration glyphs on type="search". */
+.skn-search input::-webkit-search-decoration,
+.skn-search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
 .skn-search input {
   flex: 1;
   min-width: 0;

@@ -261,7 +261,11 @@ export default function LandingPage() {
         <p>Free guides and career profiles.</p>
       </div>
       <div className="sc-explore2">
-        <Link to="/admission/india/all" className="sc-explore-card">
+        {/* /counselling/india, NOT /admission/india/all. This card offers
+            "guides for every stage and careers"; the directory it used to
+            link to is 980 rows of institutions. The college directory is
+            one click on from the new page, correctly labelled. */}
+        <Link to="/counselling/india" className="sc-explore-card">
           <span className="sc-explore-ic" aria-hidden="true"><ScribbleIcon name="home" size={22} /></span>
           <h3>Study in India</h3>
           <p>Guides for every stage and careers you can build in India.</p>

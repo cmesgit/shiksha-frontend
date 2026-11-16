@@ -888,23 +888,34 @@ const Navbar = () => {
                 <IcSearch />
               </button>
             ) : (
-              <div className={`skn-search${isForumRoute ? " skn-search-expanded" : ""}`}>
-                <IcSearch />
+              // A <form>, not a <div>: the magnifier used to be a bare <svg>
+              // with no handler, so Enter was the ONLY way to run a search and
+              // the thing that looks like a button did nothing. Submit also
+              // gives mobile keyboards a "Go" key. The Enter handler is gone
+              // because the form already does it — keeping both fired
+              // goSearch twice.
+              <form
+                className={`skn-search${isForumRoute ? " skn-search-expanded" : ""}`}
+                role="search"
+                onSubmit={(e) => { e.preventDefault(); goSearch(); }}
+              >
+                <button type="submit" className="skn-search__go" aria-label="Search courses">
+                  <IcSearch />
+                </button>
                 <input
                   ref={searchRef}
-                  type="text"
+                  type="search"
                   placeholder="Search courses…"
                   aria-label="Search courses"
                   value={query}
                   autoFocus={isForumRoute}
                   onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && goSearch()}
                   onBlur={() => {
                     if (isForumRoute && !query.trim()) setForumSearchOpen(false);
                   }}
                 />
                 {!isForumRoute && <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>}
-              </div>
+              </form>
             )}
 
             {!loading &&
@@ -1012,17 +1023,25 @@ const Navbar = () => {
         </div>
 
         <div className="skn-drawer-search">
-          <div className="skn-search skn-full">
-            <IcSearch />
+          {/* Below 1024px the header search is hidden entirely (SiteNav.css),
+              so this drawer copy is the only search a phone or small-laptop
+              visitor ever sees — it needs the tappable submit most of all. */}
+          <form
+            className="skn-search skn-full"
+            role="search"
+            onSubmit={(e) => { e.preventDefault(); goSearch(); }}
+          >
+            <button type="submit" className="skn-search__go" aria-label="Search courses">
+              <IcSearch />
+            </button>
             <input
-              type="text"
+              type="search"
               placeholder="Search courses…"
               aria-label="Search courses"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && goSearch()}
             />
-          </div>
+          </form>
         </div>
 
         <div className="skn-drawer-body">

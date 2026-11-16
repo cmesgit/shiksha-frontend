@@ -132,7 +132,9 @@ export default function CourseCard({
   // for a card with no artwork. Never both: layering the brand gradient over a
   // photo at its own 0.72/0.88 alphas left ~27% of the artwork visible and made
   // every card render as a flat colour block.
-  const hasPhoto = !!c.image;
+  // A generated banner (CourseBanner, set by the catalog for academic
+  // classes) takes the place of both the photo and the gradient + icon.
+  const hasPhoto = !!c.image && !c.banner;
   const thumbClass = hasPhoto && cls.thumbPhoto
     ? `${cls.thumb} ${cls.thumbPhoto}`
     : cls.thumb;
@@ -151,13 +153,14 @@ export default function CourseCard({
       onClick={onOpen ? () => onOpen(c) : undefined}
     >
       <div className={thumbClass} style={thumbStyle}>
+        {c.banner}
         {c.ribbon && !c.isComingSoon && (
           <span className={cls.ribbon}>{c.ribbon}</span>
         )}
         {hasPhoto && cls.img && (
           <img src={c.image} alt="" className={cls.img} />
         )}
-        {!hasPhoto && c.icon && <span className={cls.icon}>{c.icon}</span>}
+        {!hasPhoto && !c.banner && c.icon && <span className={cls.icon}>{c.icon}</span>}
         {c.levelLabel && <span className={cls.pill}>{c.levelLabel}</span>}
       </div>
 

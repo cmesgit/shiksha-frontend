@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { followRedirect, resolveRedirect } from '../utils/resolveRedirect';
 import '../css/Courses.css';
 import SubjectList from './SubjectList';
 import EnrollModal from './EnrollModal';
@@ -168,7 +169,20 @@ const Courses = () => {
     getPublicCourseBySlug(slugParam).then((detail) => {
       if (cancelled) return;
       setActiveCourseLoading(false);
-      if (!detail) return;
+      if (!detail) {
+        /* ⚠ An unknown slug used to fall through here and quietly show the
+           whole catalogue — the visitor's link looked like it "worked" while
+           taking them somewhere else entirely.
+           This route MATCHES, so the catch-all 404 (the other redirect call
+           site) never sees it. A renamed course is the motivating case for
+           redirects at all — Course.slug is derived from the title on first
+           save and never re-derived on rename — so without this hook the
+           feature would miss the very thing it was built for. */
+        resolveRedirect(`/courses/${slugParam}`).then((to) => {
+          if (!cancelled) followRedirect(to, navigate);
+        });
+        return;
+      }
       const liveBoard = detail.board ? boards.find((b) => b.name === detail.board.name) : null;
       if (liveBoard) setSelectedBoard(liveBoard.slug);
       setActiveCourseId(detail.id);
@@ -229,7 +243,23 @@ const Courses = () => {
     appliedLocationStateRef.current = location.state;
 
     if (location.state?.resetCourses) {
-      setSelectedBoard(null);
+      // ALL_BOARDS_KEY, not null.
+      //
+      // Nulling it handed control back to the default-board effect above,
+      // whose third candidate is `loadLastBoard()` — so a search typed in
+      // the navbar silently re-scoped itself to whatever single board this
+      // visitor last clicked, possibly in an earlier session. That is the
+      // "Class 10 returned nothing, then 20 batches after clearing filters"
+      // report: the board had no Class 10, and "Clear all filters" fixed it
+      // only because resetAll() forces ALL_BOARDS_KEY.
+      //
+      // `resetCourses` is only ever set by the navbar's search (Navbar.jsx),
+      // and a search is a question about the whole catalogue, not about one
+      // remembered board. Setting it directly also skips the render where
+      // selectedBoard is null — that fetched nothing, resolved instantly
+      // with loading=false, and flashed "No batches match these filters"
+      // before the real request had started.
+      setSelectedBoard(ALL_BOARDS_KEY);
       setExpandedClassId(null);
       setActiveCourse(null);
       setActiveCourseId(null);

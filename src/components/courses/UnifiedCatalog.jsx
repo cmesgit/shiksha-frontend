@@ -31,6 +31,7 @@ import { submitBoardNotify, submitCourseNotify } from '../../api/coursesApi';
 // course.
 import { enrollLabelFor } from '../../hooks/useEnrollmentStatus';
 import CourseCard from './CourseCard';
+import CourseBanner from './CourseBanner';
 import ScribbleIcon from '../icons/ScribbleIcon';
 import '../../css/UnifiedCatalog.css';
 
@@ -199,6 +200,10 @@ function toCatalogCard(cls, board, hideKindLabel) {
     image: cls.image,
     gradient: thumbGradient(cls),
     icon: <ThumbIcon subtitle={cls.subtitle} />,
+    // Academic classes get a generated banner in the site's illustration
+    // style (one look, varied by stream and class); it replaces the uploaded
+    // photo and the gradient on these cards. Other cards are unchanged.
+    banner: cls.classLevel ? <CourseBanner subtitle={cls.subtitle} classLevel={cls.classLevel} /> : null,
     // Real class_level -> a "Class 8" ribbon; falls back to the admin-set
     // `badge` only when class_level isn't present.
     ribbon: cls.classLevel ? `Class ${cls.classLevel}` : cls.badge,
@@ -323,8 +328,15 @@ const UnifiedCatalog = ({
   const [sortBy, setSortBy] = useState('rec');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // 300ms here, and useCrossBoardMatches debounces its own request by a
+  // further 250ms — so the suggestions lagged the grid by ~550ms. For most
+  // of that window the grid showed "No batches match these filters" with
+  // nothing underneath it, which is exactly the dead end the audit hit: the
+  // one row that would have explained the result arrived half a second
+  // after the reader had already read the empty state. 150ms here keeps the
+  // request rate sane while closing most of the gap.
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    const t = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(t);
   }, [search]);
 
@@ -400,6 +412,23 @@ const UnifiedCatalog = ({
     () => Array.from(new Set(classes.filter((c) => c.subtitle).map((c) => c.subtitle))),
     [classes]
   );
+
+  // Streams only exist for Class 11/12, so picking any other class unmounts
+  // the Stream group — but the stream it was holding kept filtering, and an
+  // invisible filter that excludes everything reads as "the catalogue is
+  // empty". Pick Stream = Science, then Class 9, and the grid went blank with
+  // the only escape being an applied-chip × you had no reason to look for.
+  // Dropping the stream is the honest resolution: a class with no streams has
+  // no stream to be filtered by.
+  //
+  // Done here, on the event, rather than in an effect reacting to
+  // `showStreams` — choosing the class is what invalidates the stream, and
+  // deriving it in an effect is a cascading extra render (and what
+  // react-hooks/set-state-in-effect flags).
+  const chooseClass = (next) => {
+    setClassFilter(next);
+    if (next !== null && !SENIOR_TITLES.includes(next)) setStreamFilter(null);
+  };
 
   const q = search.trim().toLowerCase();
   const visibleClasses = useMemo(() => {
@@ -495,7 +524,11 @@ const UnifiedCatalog = ({
 
         {q && crossMatches.length > 0 && (
           <div className="uc-cross-matches">
-            <div className="uc-cross-matches__label">Also matches in other boards</div>
+            {/* Not "in other boards" any more: this list now also carries
+                board-less competitive courses, which it used to discard —
+                the reason searching "NEET" on the default axis returned
+                nothing at all while the server had just sent the row. */}
+            <div className="uc-cross-matches__label">Also matching elsewhere</div>
             <div className="uc-cross-matches__list">
               {crossMatches.map((m) => (
                 <button
@@ -512,9 +545,24 @@ const UnifiedCatalog = ({
         {classesLoading ? (
           <SkeletonCards />
         ) : visibleClasses.length === 0 ? (
+          /* The copy used to be one sentence about filters for every case.
+             When the reader had typed a search it was misleading twice
+             over: it blamed filters they had not set, and it pointed at the
+             board switcher while matches sat in the strip right above. */
           <div className="uc-empty">
-            <b>No batches match these filters</b>
-            Try another class, or switch the board to see what&rsquo;s running.
+            {q ? (
+              <>
+                <b>Nothing in this board matches &ldquo;{search.trim()}&rdquo;</b>
+                {crossMatches.length > 0
+                  ? "It does match elsewhere though — see the suggestions above."
+                  : "Try a subject, a class, or an exam name."}
+              </>
+            ) : (
+              <>
+                <b>No batches match these filters</b>
+                Try another class, or switch the board to see what&rsquo;s running.
+              </>
+            )}
             <div><button type="button" className="uc-empty__btn" onClick={resetAll}>Clear all filters</button></div>
           </div>
         ) : (
@@ -664,9 +712,9 @@ const UnifiedCatalog = ({
         {!isCompetitive && classTitles.length > 0 && (
           <FilterGroup title="Class" open={!collapsed.class} onToggle={() => toggleGroup('class')}>
             <div className="uc-fchips">
-              <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
+              <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => chooseClass(null)}>All</button>
               {classTitles.map((t) => (
-                <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
+                <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => chooseClass(classFilter === t ? null : t)}>
                   {t}
                 </button>
               ))}
