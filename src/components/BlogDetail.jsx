@@ -5,10 +5,11 @@
 // (class-9/economics/chapter-1), so every /blogs/<slug> link resolves via
 // the content API alone — no static-fragment/CDN fallback needed anymore.
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getBlogPost } from "../api/contentApi";
+import { formatSiteDate, sameSiteDay, toDateTimeAttr } from "../utils/siteDate";
 import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
 import { BLOG_BLOCKS_CSS } from "../blogBlocks/blocksCss";
 import { renderDocument, themeStyleText, neutralizeViewportUnits } from "../blogBlocks/render";
@@ -211,6 +212,71 @@ const ChapterLoading = () => (
 // extra cache-shape complexity for two small fields.
 const LOCALE_LABELS = { en: "English", hi: "हिंदी" };
 
+/**
+ * The article byline.
+ *
+ * `author_name`, `publish_at`, `updated_at` and `reading_minutes` have always
+ * been on the detail response (content/serializers.py:59-67) — this page just
+ * never read them, so every article rendered with no author, no date and no
+ * reading time while the listing cards showed a reading time.
+ *
+ * It sits OUTSIDE the body iframe deliberately. The body is an `about:srcdoc`
+ * document, so anything rendered in there is invisible to crawlers and to
+ * in-page find. The byline is the one piece of article metadata that belongs
+ * in the host document.
+ *
+ * "Updated" is suppressed when it falls on the publication day — a post saved
+ * twice within an hour of publishing should not advertise itself as revised.
+ */
+const ArticleMeta = ({ meta }) => {
+  if (!meta) return null;
+  const published = formatSiteDate(meta.publish_at);
+  const updated = formatSiteDate(meta.updated_at);
+  const showUpdated =
+    updated && !sameSiteDay(meta.updated_at, meta.publish_at);
+  const minutes = Number(meta.reading_minutes) || 0;
+
+  const bits = [];
+  if (meta.author_name) bits.push(<span key="by">By {meta.author_name}</span>);
+  if (published) {
+    bits.push(
+      <time key="pub" dateTime={toDateTimeAttr(meta.publish_at)}>{published}</time>
+    );
+  }
+  if (showUpdated) {
+    bits.push(
+      <time key="upd" dateTime={toDateTimeAttr(meta.updated_at)}>Updated {updated}</time>
+    );
+  }
+  if (minutes > 0) bits.push(<span key="min">{minutes} min read</span>);
+  if (!bits.length) return null;
+
+  return (
+    <div
+      style={{
+        maxWidth: 880,
+        margin: "0 auto 4px",
+        padding: "14px 20px 0",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "6px 10px",
+        color: "#55665e",
+        fontSize: "14px",
+        fontWeight: 500,
+        letterSpacing: "0.2px",
+      }}
+    >
+      {bits.map((bit, i) => (
+        <Fragment key={bit.key}>
+          {i > 0 && <span aria-hidden="true" style={{ opacity: 0.45 }}>·</span>}
+          {bit}
+        </Fragment>
+      ))}
+    </div>
+  );
+};
+
 const BlogDetail = ({ locale = "en" }) => {
   const { "*": slug } = useParams();
   const navigate = useNavigate();
@@ -222,6 +288,7 @@ const BlogDetail = ({ locale = "en" }) => {
   const [status, setStatus] = useState("loading"); // loading | ready | notfound | error
   const [translations, setTranslations] = useState([]);
   const [isFallbackLocale, setIsFallbackLocale] = useState(false);
+  const [meta, setMeta] = useState(null);
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -249,6 +316,7 @@ const BlogDetail = ({ locale = "en" }) => {
       setTheme(cached.theme);
       setTranslations(cached.translations);
       setIsFallbackLocale(cached.isFallbackLocale);
+      setMeta(cached.meta);
       setStatus("ready");
       return;
     }
@@ -257,20 +325,38 @@ const BlogDetail = ({ locale = "en" }) => {
     setHtml(null);
     setBlocks(null);
     setTheme(null);
+    setMeta(null);
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const show = (text, postBlocks, postTheme, title, translationList, fallback) => {
+    // Takes the whole post rather than a positional argument per field: the
+    // byline added four more values to carry, and a seven-argument call of
+    // bare strings and booleans is where the wrong one quietly gets passed.
+    const show = (post) => {
+      const text = post.body_html;
+      const postBlocks = post.body_blocks;
+      const postTheme = post.body_theme;
+      const title = post.seo_title || post.title;
+      const translationList = post.translations || [];
+      const fallback = !!post.is_fallback_locale;
+      const postMeta = {
+        author_name: post.author_name,
+        publish_at: post.publish_at,
+        updated_at: post.updated_at,
+        reading_minutes: post.reading_minutes,
+      };
       htmlCache.set(cacheKey, {
         html: text, blocks: postBlocks, theme: postTheme,
         translations: translationList, isFallbackLocale: fallback,
+        meta: postMeta,
       });
       setHtml(text);
       setBlocks(postBlocks);
       setTheme(postTheme);
       setTranslations(translationList);
       setIsFallbackLocale(fallback);
+      setMeta(postMeta);
       setStatus("ready");
       const heading =
         title ||
@@ -286,14 +372,7 @@ const BlogDetail = ({ locale = "en" }) => {
     getBlogPost(slug, locale).then((result) => {
       if (ctrl.signal.aborted) return;
       if (result.status === "ok") {
-        show(
-          result.post.body_html,
-          result.post.body_blocks,
-          result.post.body_theme,
-          result.post.seo_title || result.post.title,
-          result.post.translations || [],
-          !!result.post.is_fallback_locale
-        );
+        show(result.post);
       } else if (result.status === "notfound") {
         setStatus("notfound");
       } else {
@@ -433,6 +512,8 @@ const BlogDetail = ({ locale = "en" }) => {
           This chapter isn't translated into {LOCALE_LABELS[locale] || locale} yet — showing the English version.
         </div>
       )}
+
+      {status === "ready" && <ArticleMeta meta={meta} />}
 
       {status === "ready" && (
         (blocks && blocks.length > 0) || !bodyLooksEmpty(html)

@@ -276,6 +276,17 @@ function RetiredSignupRedirect() {
   return <Navigate to={`/register${qs ? `?${qs}` : ""}`} replace />;
 }
 
+/**
+ * /blog/<anything> → /blogs/<anything>, preserving the rest of the path,
+ * the query string and the hash. A link written with the singular spelling
+ * lands on the article it meant rather than on a 404.
+ */
+function BlogSlugRedirect() {
+  const location = useLocation();
+  const rest = location.pathname.replace(/^\/blog(?=\/|$)/, "");
+  return <Navigate to={`/blogs${rest}${location.search}${location.hash}`} replace />;
+}
+
 function App() {
   const { isAuthenticated, loading, activeProfile } = useAuth();
   const location = useLocation();
@@ -412,6 +423,14 @@ function App() {
         <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
+        {/* The singular form 404'd. It is the spelling people type and the one
+            other sites link to, and both the nav and the footer say "Blogs",
+            so the plural stays canonical and this redirects into it. In code
+            rather than an admin Redirect row because the catch-all resolver
+            only ever sees paths that match no route — and /blog/<slug> would
+            not reach it anyway, since /blogs/* already prefix-matches. */}
+        <Route path="/blog"            element={<Navigate to="/blogs" replace />} />
+        <Route path="/blog/*"          element={<BlogSlugRedirect />} />
         {/* More specific than the wildcard below — React Router ranks static
             segments above wildcards regardless of declaration order, so this
             always wins for any path starting with /blogs/hi/, but declaring

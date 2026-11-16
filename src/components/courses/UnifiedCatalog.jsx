@@ -406,6 +406,23 @@ const UnifiedCatalog = ({
     [classes]
   );
 
+  // Streams only exist for Class 11/12, so picking any other class unmounts
+  // the Stream group — but the stream it was holding kept filtering, and an
+  // invisible filter that excludes everything reads as "the catalogue is
+  // empty". Pick Stream = Science, then Class 9, and the grid went blank with
+  // the only escape being an applied-chip × you had no reason to look for.
+  // Dropping the stream is the honest resolution: a class with no streams has
+  // no stream to be filtered by.
+  //
+  // Done here, on the event, rather than in an effect reacting to
+  // `showStreams` — choosing the class is what invalidates the stream, and
+  // deriving it in an effect is a cascading extra render (and what
+  // react-hooks/set-state-in-effect flags).
+  const chooseClass = (next) => {
+    setClassFilter(next);
+    if (next !== null && !SENIOR_TITLES.includes(next)) setStreamFilter(null);
+  };
+
   const q = search.trim().toLowerCase();
   const visibleClasses = useMemo(() => {
     let list = classes.filter((cls) => {
@@ -669,9 +686,9 @@ const UnifiedCatalog = ({
         {!isCompetitive && classTitles.length > 0 && (
           <FilterGroup title="Class" open={!collapsed.class} onToggle={() => toggleGroup('class')}>
             <div className="uc-fchips">
-              <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter(null)}>All</button>
+              <button type="button" className={`uc-pill${classFilter === null ? ' uc-pill--on' : ''}`} onClick={() => chooseClass(null)}>All</button>
               {classTitles.map((t) => (
-                <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => setClassFilter((prev) => (prev === t ? null : t))}>
+                <button key={t} type="button" className={`uc-pill${classFilter === t ? ' uc-pill--on' : ''}`} onClick={() => chooseClass(classFilter === t ? null : t)}>
                   {t}
                 </button>
               ))}

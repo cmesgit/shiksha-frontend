@@ -8,6 +8,7 @@ import { sanitizeInline } from "../utils/sanitizeInline";
 import { submitContactMessage, subscribeNewsletter } from "../api/contentApi";
 import { ContactScene } from "./contact/contactArt";
 import ScribbleIcon from "./icons/ScribbleIcon";
+import { REGISTERED_OFFICE_HTML } from "../config/org";
 
 /**
  * ShikshaCom — Contact Us.
@@ -150,7 +151,7 @@ const CARDS_DEFAULT = [
     icon: "location",
     grad: "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)",
     title: "Head Office",
-    body: "House No. 1473A<br>Maruti Vihar<br>Gurgaon, Haryana – 122002",
+    body: REGISTERED_OFFICE_HTML,
     note: "",
   },
   {
