@@ -52,6 +52,11 @@ const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAl
 // so the two NIRF tables stay separate (Overall vs Engineering — IIT Delhi is
 // #4 on one and #2 on the other).
 const AdmissionIndiaOverview = lazy(() => import("../counselling/AdmissionIndiaOverview"));
+// The guides-and-careers hub the landing page's "Study in India" card
+// promises. Distinct from /admission/india, which is the institutions
+// directory — that card used to land there, which answered a question
+// about guides with a list of colleges.
+const StudyInIndia        = lazy(() => import("../counselling/StudyInIndiaPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -451,6 +456,10 @@ function App() {
             gate: a visitor can read a full career profile before signing up,
             same as the guide library. */}
         <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
+        {/* Ungated like the guide library — a visitor reads guides and
+            career profiles before signing up; only the report needs an
+            account. `?tab=careers` opens the second tab directly. */}
+        <Route path="/counselling/india"              element={<Page><StudyInIndia /></Page>} />
         {/* Admission in India — the Colleges-tab destination and the navbar
             entry. Public, like the guide library. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />
