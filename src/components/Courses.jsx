@@ -243,7 +243,23 @@ const Courses = () => {
     appliedLocationStateRef.current = location.state;
 
     if (location.state?.resetCourses) {
-      setSelectedBoard(null);
+      // ALL_BOARDS_KEY, not null.
+      //
+      // Nulling it handed control back to the default-board effect above,
+      // whose third candidate is `loadLastBoard()` — so a search typed in
+      // the navbar silently re-scoped itself to whatever single board this
+      // visitor last clicked, possibly in an earlier session. That is the
+      // "Class 10 returned nothing, then 20 batches after clearing filters"
+      // report: the board had no Class 10, and "Clear all filters" fixed it
+      // only because resetAll() forces ALL_BOARDS_KEY.
+      //
+      // `resetCourses` is only ever set by the navbar's search (Navbar.jsx),
+      // and a search is a question about the whole catalogue, not about one
+      // remembered board. Setting it directly also skips the render where
+      // selectedBoard is null — that fetched nothing, resolved instantly
+      // with loading=false, and flashed "No batches match these filters"
+      // before the real request had started.
+      setSelectedBoard(ALL_BOARDS_KEY);
       setExpandedClassId(null);
       setActiveCourse(null);
       setActiveCourseId(null);

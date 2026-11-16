@@ -1,5 +1,9 @@
 import React from "react";
 import LegalDocument from "./LegalDocument";
+import {
+  ORG_LEGAL_NAME, ORG_TRADING_NAME,
+  REGISTERED_OFFICE, REGISTERED_OFFICE_INLINE,
+} from "../config/org";
 
 /**
  * PrivacyPolicy — /privacy
@@ -50,7 +54,7 @@ const sections = [
     title: "Who we are",
     content: `This Privacy Policy explains what personal data ShikshaCom collects, why, who else sees it, and what you can do about it.
 
-The data controller — in the language of the Digital Personal Data Protection Act, 2023, the "Data Fiduciary" — is CM Engineering Solution, doing business as ShikshaCom Learning Management System ("ShikshaCom", "we", "us", "our"), registered in India with its registered office at House No. – 1473, Maruti Vihar, Gurgaon, Haryana - 122002.
+The data controller — in the language of the Digital Personal Data Protection Act, 2023, the "Data Fiduciary" — is CM Engineering Solution, doing business as ShikshaCom Learning Management System ("ShikshaCom", "we", "us", "our"), registered in India with its registered office at ${REGISTERED_OFFICE_INLINE}.
 
 This policy covers the ShikshaCom website at https://www.shikshacom.com and the signed-in student, teacher and administrator applications reached from it.
 
@@ -328,10 +332,10 @@ If a change materially affects how we use data you have already given us, we wil
 
 For any question, request or complaint about privacy or your personal data:
 
-CM Engineering Solution (ShikshaCom Learning Management System)
-House No. – 1473, Maruti Vihar
-Gurgaon, Haryana - 122002
-India
+${ORG_LEGAL_NAME} (${ORG_TRADING_NAME})
+${REGISTERED_OFFICE.line1}, ${REGISTERED_OFFICE.line2}
+${REGISTERED_OFFICE.city}, ${REGISTERED_OFFICE.state} – ${REGISTERED_OFFICE.postcode}
+${REGISTERED_OFFICE.country}
 
 Email: ${CONTACT}
 

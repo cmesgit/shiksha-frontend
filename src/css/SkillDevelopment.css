@@ -414,6 +414,9 @@
   border-left:1px dashed var(--sk-line-2)}
 .skills-page .sk-price{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--sk-ink)}
 .skills-page .sk-price--free{color:var(--sk-emerald)}
+/* "from " prefix on a multi-price expert — smaller and lighter than the
+   figure so the number still reads as the price, not the word. */
+.skills-page .sk-price__from{font-size:14px;font-weight:600;letter-spacing:0;color:var(--sk-body)}
 .skills-page .sk-per{margin-top:-8px;font-size:12.5px;color:var(--sk-body)}
 .skills-page .sk-slots{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
   color:var(--sk-emerald-dark);background:var(--sk-emerald-soft);border-radius:999px;padding:6px 13px}

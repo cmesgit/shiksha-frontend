@@ -6,10 +6,12 @@
  * deep-green panel, rounded top, pill CTA, four-column layout.
  * Styles: css/FooterGreen.css (all classes prefixed `ftr-`).
  */
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import ScribbleIcon from "./icons/ScribbleIcon";
 import logo from "../assets/Shiksha.png";
+import { REGISTERED_OFFICE_LINES } from "../config/org";
 import "../css/theme.css";
 import "../css/FooterGreen.css";
 import FooterTicker from "./ticker/FooterTicker";
@@ -105,13 +107,12 @@ const Footer = () => {
           <div className="ftr-col">
             <h4>Address</h4>
             <p>
-              House no - 1473A
-              <br />
-              Maruti Vihar
-              <br />
-              Gurgaon, Haryana
-              <br />
-              Pin - 122002
+              {REGISTERED_OFFICE_LINES.map((line, i) => (
+                <Fragment key={line}>
+                  {i > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
             </p>
             <p>
               Hualngohmun Vengchhak

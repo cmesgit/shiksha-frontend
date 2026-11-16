@@ -4,7 +4,7 @@ import ScribbleIcon from "./icons/ScribbleIcon";
 import { HeroDeco, HeroVisual } from "./hero/HeroLook";
 import { BlogsArt } from "./hero/HeroArt";
 import { getBlogCardsPage } from "../api/contentApi";
-import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
+import { BLOG_CLASSES, BLOG_PAGE_SIZE, BLOG_SORTS, BLOG_SUBJECTS, blogFilters } from "../utils/blogBrowse";
 import "../css/Blogs.css";
 
 // Study-specific cards leave the shared dashboard BlogCard contract intact.
@@ -51,14 +51,14 @@ export default function Blogs() {
     paramsRef.current = next;
     setParams(next, options);
   }, [setParams]);
-  const { q, subject, class_level, page } = blogFilters(params);
+  const { q, subject, class_level, sort, page } = blogFilters(params);
   const [search, setSearch] = useState(q);
   const [result, setResult] = useState({ items: [], count: 0, hasNext: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const resultsRef = useRef(null);
-  const queryKey = JSON.stringify([q, subject, class_level, page]);
+  const queryKey = JSON.stringify([q, subject, class_level, sort, page]);
   const [loadedKey, setLoadedKey] = useState("");
   const pending = loading || queryKey !== loadedKey;
   const filtered = Boolean(q || subject || class_level);
@@ -80,7 +80,7 @@ export default function Blogs() {
     const controller = new AbortController();
     setLoading(true);
     setError("");
-    getBlogCardsPage({ q, subject, class_level, page }, { signal: controller.signal })
+    getBlogCardsPage({ q, subject, class_level, sort, page }, { signal: controller.signal })
       .then((data) => { if (!controller.signal.aborted) setResult(data); })
       .catch((failure) => {
         if (controller.signal.aborted) return;
@@ -92,7 +92,7 @@ export default function Blogs() {
         if (!controller.signal.aborted) { setLoading(false); setLoadedKey(queryKey); }
       });
     return () => controller.abort();
-  }, [q, subject, class_level, page, queryKey, retry]);
+  }, [q, subject, class_level, sort, page, queryKey, retry]);
 
   function updateFilter(name, value) {
     updateParams((next) => {
@@ -165,6 +165,15 @@ export default function Blogs() {
           <select id="blogs-class" value={class_level} onChange={(event) => updateFilter("class_level", event.target.value)}>
             <option value="">All classes</option>
             {BLOG_CLASSES.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+          </select>
+        </div>
+        {/* Sort sits with the filters but is NOT counted in `filtered`:
+            reordering is not narrowing, and counting it would pop a
+            "Clear filters" button for a reorder and then undo it. */}
+        <div className="blogs-filter-field">
+          <label htmlFor="blogs-sort">Sort</label>
+          <select id="blogs-sort" value={sort} onChange={(event) => updateFilter("sort", event.target.value)}>
+            {BLOG_SORTS.map(([value, label]) => <option value={value} key={value || "newest"}>{label}</option>)}
           </select>
         </div>
         {filtered && <button type="button" className="blogs-reset" onClick={reset}>Clear filters</button>}
