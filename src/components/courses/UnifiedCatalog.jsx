@@ -328,8 +328,15 @@ const UnifiedCatalog = ({
   const [sortBy, setSortBy] = useState('rec');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // 300ms here, and useCrossBoardMatches debounces its own request by a
+  // further 250ms — so the suggestions lagged the grid by ~550ms. For most
+  // of that window the grid showed "No batches match these filters" with
+  // nothing underneath it, which is exactly the dead end the audit hit: the
+  // one row that would have explained the result arrived half a second
+  // after the reader had already read the empty state. 150ms here keeps the
+  // request rate sane while closing most of the gap.
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    const t = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(t);
   }, [search]);
 
@@ -517,7 +524,11 @@ const UnifiedCatalog = ({
 
         {q && crossMatches.length > 0 && (
           <div className="uc-cross-matches">
-            <div className="uc-cross-matches__label">Also matches in other boards</div>
+            {/* Not "in other boards" any more: this list now also carries
+                board-less competitive courses, which it used to discard —
+                the reason searching "NEET" on the default axis returned
+                nothing at all while the server had just sent the row. */}
+            <div className="uc-cross-matches__label">Also matching elsewhere</div>
             <div className="uc-cross-matches__list">
               {crossMatches.map((m) => (
                 <button
@@ -534,9 +545,24 @@ const UnifiedCatalog = ({
         {classesLoading ? (
           <SkeletonCards />
         ) : visibleClasses.length === 0 ? (
+          /* The copy used to be one sentence about filters for every case.
+             When the reader had typed a search it was misleading twice
+             over: it blamed filters they had not set, and it pointed at the
+             board switcher while matches sat in the strip right above. */
           <div className="uc-empty">
-            <b>No batches match these filters</b>
-            Try another class, or switch the board to see what&rsquo;s running.
+            {q ? (
+              <>
+                <b>Nothing in this board matches &ldquo;{search.trim()}&rdquo;</b>
+                {crossMatches.length > 0
+                  ? "It does match elsewhere though — see the suggestions above."
+                  : "Try a subject, a class, or an exam name."}
+              </>
+            ) : (
+              <>
+                <b>No batches match these filters</b>
+                Try another class, or switch the board to see what&rsquo;s running.
+              </>
+            )}
             <div><button type="button" className="uc-empty__btn" onClick={resetAll}>Clear all filters</button></div>
           </div>
         ) : (

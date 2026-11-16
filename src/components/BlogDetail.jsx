@@ -6,9 +6,9 @@
 // the content API alone — no static-fragment/CDN fallback needed anymore.
 
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
-import { getBlogPost } from "../api/contentApi";
+import { getBlogPost, getRelatedBlogPosts } from "../api/contentApi";
 import { formatSiteDate, sameSiteDay, toDateTimeAttr } from "../utils/siteDate";
 import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
 import { BLOG_BLOCKS_CSS } from "../blogBlocks/blocksCss";
@@ -277,6 +277,92 @@ const ArticleMeta = ({ meta }) => {
   );
 };
 
+/**
+ * The way out of an article.
+ *
+ * Until now the only navigation on a chapter page was the fixed "Back"
+ * button to /blogs and a scroll-to-top — a reader finishing Chapter 3 of
+ * Class 9 Science had no route to Chapter 4 but the listing and its
+ * filters. Everything here comes from blogs/<slug>/related/, which reads
+ * chapter_number and (class_level, subject): columns that have existed
+ * since launch with nothing using them.
+ *
+ * Rendered outside the body iframe for the same reason as the byline —
+ * links inside an `about:srcdoc` document are invisible to crawlers.
+ */
+const ArticleFooter = ({ nav, basePath }) => {
+  if (!nav) return null;
+  const { prev, next, related } = nav;
+  if (!prev && !next && !related.length) return null;
+
+  const href = (card) => `${basePath}/${card.slug}`;
+  const linkStyle = {
+    display: "block", padding: "14px 18px", borderRadius: 12,
+    border: "1px solid #d8e6d8", background: "#fff", color: "inherit",
+    textDecoration: "none", minWidth: 0,
+  };
+  const kicker = {
+    display: "block", fontSize: 11, fontWeight: 700, letterSpacing: ".1em",
+    textTransform: "uppercase", color: "#6b7f74", marginBottom: 4,
+  };
+
+  return (
+    <nav
+      aria-label="More articles"
+      style={{ maxWidth: 880, margin: "28px auto 48px", padding: "0 20px" }}
+    >
+      {(prev || next) && (
+        <div style={{
+          display: "grid", gap: 12, marginBottom: related.length ? 28 : 0,
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        }}>
+          {/* An absent neighbour renders nothing rather than a disabled
+              box — the first chapter of a series has no previous, and a
+              greyed-out control invites a click that cannot work. */}
+          {prev && (
+            <Link to={href(prev)} style={linkStyle}>
+              <span style={kicker}>&larr; Previous</span>
+              <span style={{ fontWeight: 600 }}>{prev.title}</span>
+            </Link>
+          )}
+          {next && (
+            <Link to={href(next)} style={{ ...linkStyle, textAlign: prev ? "right" : "left" }}>
+              <span style={kicker}>Next &rarr;</span>
+              <span style={{ fontWeight: 600 }}>{next.title}</span>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {related.length > 0 && (
+        <>
+          <h2 style={{
+            fontSize: 15, fontWeight: 700, letterSpacing: ".06em",
+            textTransform: "uppercase", color: "#55665e", margin: "0 0 12px",
+          }}>
+            More like this
+          </h2>
+          <div style={{
+            display: "grid", gap: 12,
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          }}>
+            {related.map((card) => (
+              <Link key={card.slug} to={href(card)} style={linkStyle}>
+                <span style={{ fontWeight: 600, display: "block" }}>{card.title}</span>
+                {card.readingMinutes > 0 && (
+                  <span style={{ fontSize: 13, color: "#6b7f74" }}>
+                    {card.readingMinutes} min read
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+    </nav>
+  );
+};
+
 const BlogDetail = ({ locale = "en" }) => {
   const { "*": slug } = useParams();
   const navigate = useNavigate();
@@ -289,6 +375,7 @@ const BlogDetail = ({ locale = "en" }) => {
   const [translations, setTranslations] = useState([]);
   const [isFallbackLocale, setIsFallbackLocale] = useState(false);
   const [meta, setMeta] = useState(null);
+  const [nav, setNav] = useState(null);
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -381,6 +468,23 @@ const BlogDetail = ({ locale = "en" }) => {
     });
 
     return () => ctrl.abort();
+  }, [slug, locale]);
+
+  // Fetched separately from the body, and deliberately NOT cached with it:
+  // the footer is cheap, and a cached one would go stale the moment a new
+  // chapter is published while the body it rides on has not changed.
+  // Stamped with the slug it belongs to rather than cleared on the way in.
+  // A synchronous setNav(null) in the effect body is a cascading render
+  // (react-hooks/set-state-in-effect), and reading the stamp also stops the
+  // previous article's footer flashing under the new one while its own
+  // request is still out.
+  useEffect(() => {
+    if (!slug) return undefined;
+    let alive = true;
+    const ctrl = new AbortController();
+    getRelatedBlogPosts(slug, locale, { signal: ctrl.signal })
+      .then((rows) => { if (alive) setNav({ key: `${locale}:${slug}`, ...rows }); });
+    return () => { alive = false; ctrl.abort(); };
   }, [slug, locale]);
 
   // Only shown when a translation actually exists in another locale —
@@ -526,6 +630,13 @@ const BlogDetail = ({ locale = "en" }) => {
               This chapter doesn’t have any content yet.
             </p>
           )
+      )}
+
+      {status === "ready" && (
+        <ArticleFooter
+          nav={nav?.key === `${locale}:${slug}` ? nav : null}
+          basePath={locale === "en" ? "/blogs" : `/blogs/${locale}`}
+        />
       )}
 
       {status === "notfound" && <h2>Blog not found</h2>}

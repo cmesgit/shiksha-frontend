@@ -24,9 +24,17 @@ import api from "./apiClient";
 export async function getTopHeadlines({ max = 9 } = {}) {
   try {
     const { data } = await api.get("/news/top-headlines/", { params: { max } });
-    return Array.isArray(data?.articles) ? data.articles : [];
+    return {
+      articles: Array.isArray(data?.articles) ? data.articles : [],
+      // When GNews was actually called, not when this request was served —
+      // the backend caches for 30 minutes and stamps this inside the cached
+      // body. Null on an older backend that doesn't send it, which the
+      // caller must treat as "don't claim a time".
+      fetchedAt: data?.fetchedAt || null,
+      stale: Boolean(data?.stale),
+    };
   } catch {
-    return [];
+    return { articles: [], fetchedAt: null, stale: true };
   }
 }
 

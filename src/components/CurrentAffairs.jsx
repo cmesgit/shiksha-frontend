@@ -34,7 +34,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCurrentAffairs } from "../api/contentApi";
 import { getTopHeadlines } from "../api/newsApi";
-import { formatSiteDate, siteMonthKey } from "../utils/siteDate";
+import {
+  formatSiteDate, formatSiteDateTime, siteMonthKey, toDateTimeAttr,
+} from "../utils/siteDate";
 import ScribbleIcon from "./icons/ScribbleIcon";
 import { HeroDeco, HeroVisual } from "./hero/HeroLook";
 import { CurrentAffairsArt } from "./hero/HeroArt";
@@ -72,6 +74,7 @@ const CurrentAffairs = () => {
   const [error, setError] = useState(false);
 
   const [wire, setWire] = useState([]);
+  const [wireFetchedAt, setWireFetchedAt] = useState(null);
   const [wireLoading, setWireLoading] = useState(true);
 
   const [category, setCategory] = useState("");
@@ -116,7 +119,11 @@ const CurrentAffairs = () => {
   useEffect(() => {
     let alive = true;
     getTopHeadlines({ max: 9 })
-      .then((rows) => { if (alive) setWire(rows); })
+      .then((res) => {
+        if (!alive) return;
+        setWire(res.articles);
+        setWireFetchedAt(res.fetchedAt);
+      })
       .finally(() => { if (alive) setWireLoading(false); });
     return () => { alive = false; };
   }, []);
@@ -300,8 +307,21 @@ const CurrentAffairs = () => {
               {queryTerm || month ? "Matching headlines" : "In the news today"}
             </h2>
             <p>
-              Live headlines from the news wire, updated through the day. These
-              are not written by ShikshaCom.
+              {/* The page used to assert "updated through the day" with
+                  nothing behind it, over a response the backend caches for
+                  30 minutes. Now it either states when the wire was last
+                  pulled, or says nothing about freshness at all — an older
+                  backend sends no fetchedAt, and an unverifiable claim is
+                  worse than no claim. */}
+              Live headlines from the news wire. These are not written by
+              ShikshaCom.
+              {wireFetchedAt && (
+                <> Last pulled{" "}
+                  <time dateTime={toDateTimeAttr(wireFetchedAt)}>
+                    {formatSiteDateTime(wireFetchedAt)}
+                  </time>.
+                </>
+              )}
               {wireIgnoresCategory && (
                 <> The <b>{categoryLabel}</b> filter applies to ShikshaCom’s own
                 briefs — wire headlines aren’t sorted into these categories.</>
