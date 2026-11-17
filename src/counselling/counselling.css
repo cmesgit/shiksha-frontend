@@ -146,6 +146,18 @@
 /* library filter rail (guide library page) */
 .sc-lib-layout { display: grid; grid-template-columns: 280px minmax(0,1fr); gap: 24px; align-items: start }
 @media (max-width: 900px) { .sc-lib-layout { grid-template-columns: 1fr } .sc-rail { position: static } }
+/* Between 901px and 1100px the 280px rail leaves under 237px per card, and a
+   `.sc-grid3` track cannot shrink below its card's min-content because
+   `.sc-badge` is `white-space: nowrap` ("Secondary School · Classes 9–10" is
+   194px). The three tracks then total 688px inside a 592px column and the whole
+   PAGE scrolls sideways — 96px at a 952px viewport, 147px at 901px.
+   Measured alternatives, both rejected: `repeat(3, minmax(0,1fr))` stops the
+   page bleed but relocates it, spilling 3 of 10 badges out of their own card by
+   up to 51px; `repeat(auto-fit, minmax(214px,1fr))` is clean here but goes
+   FOUR-up at 1280px, which spills again and is not the design. Dropping to two
+   columns in the dead zone keeps every card above its min-content at every
+   width from 901px up, and below 900px the rule above already collapses it. */
+@media (max-width: 1100px) { .sc-lib-layout .sc-grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .sc-rail { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 18px }
 .sc-railcard { background: #fff; border: 1px solid rgba(18,45,30,.09); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(14,28,15,.03); display: flex; flex-direction: column }
 .sc-rail-search { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border-bottom: 1px solid rgba(18,45,30,.09); flex: none }
