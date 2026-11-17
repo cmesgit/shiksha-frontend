@@ -239,7 +239,7 @@ export default function ProfileWizard() {
                   {abroadOnly && (
                     <div className="pw-notice-cta">
                       <Link className="sc-btn green" to="/counselling/counsellors">Talk to a counsellor →</Link>
-                      <Link className="sc-btn ghost" to="/counselling/guides">Explore career guides →</Link>
+                      <Link className="sc-btn ghost" to="/counselling/india">Explore career guides →</Link>
                     </div>
                   )}
                 </div>

@@ -29,7 +29,6 @@ const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
 const CounsellingLanding    = lazy(() => import("../counselling/LandingPage"));
-const CounsellingLibrary    = lazy(() => import("../counselling/LibraryPage"));
 const CounsellingGuide      = lazy(() => import("../counselling/GuidePage"));
 const CounsellingProfile    = lazy(() => import("../counselling/ProfileWizard"));
 const CounsellingSpark      = lazy(() => import("../counselling/SparkFinder"));
@@ -447,7 +446,10 @@ function App() {
         <Route path="/faculty/signup"  element={<FacultySignup />} />
         
         <Route path="/counselling"                    element={<Page><CounsellingLanding /></Page>} />
-        <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
+        {/* The standalone Career Guidance Library is retired: the design
+            reaches guides through Study in India's Guides tab, not a separate
+            index. Old links and bookmarks redirect there rather than 404. */}
+        <Route path="/counselling/guides"             element={<Navigate to="/counselling/india" replace />} />
         <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
         <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
