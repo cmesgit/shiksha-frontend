@@ -1104,6 +1104,38 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
   .sii-handbook-acts .sc-btn { flex: 1 1 auto; justify-content: center }
 }
 
+/* ── Admission Abroad → the product sub-nav (AbroadNav.jsx) ─────────────
+   Occupies .sc-subbar, the white strip under the site Navbar, which is the
+   row the board draws this in. Literal hexes here match the rest of this
+   file — it carries the PUBLIC site's palette (#125027 deep green), not the
+   dashboards' token system, which is why counselling.css has never resolved
+   through --action/--ink. */
+.ab-nav { flex: 1 1 auto; display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap; min-width: 0 }
+.ab-nav-tabs { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; min-width: 0 }
+.ab-navlink { font: 600 13px 'Poppins', sans-serif; color: rgba(20,32,26,.7);
+  text-decoration: none; padding: 7px 14px; border-radius: 999px;
+  white-space: nowrap; transition: background .16s, color .16s }
+.ab-navlink:hover { color: #125027; background: rgba(18,80,39,.06) }
+.ab-navlink.on { background: #125027; color: #fff; font-weight: 700 }
+.ab-navlink.on:hover { background: #0e3f1f; color: #fff }
+/* Not a link: there is no study-abroad guide screen yet. Rendered because
+   the board draws the tab, inert because it has nowhere to go. */
+.ab-navlink.is-soon { display: inline-flex; align-items: center; gap: 7px;
+  color: rgba(20,32,26,.4); cursor: default }
+.ab-nav-soon { font: 700 9.5px 'Poppins', sans-serif; text-transform: uppercase;
+  letter-spacing: .08em; color: rgba(20,32,26,.5); background: rgba(18,45,30,.07);
+  border-radius: 999px; padding: 3px 7px }
+.ab-nav-cta { margin-left: auto; font: 700 12.5px 'Poppins', sans-serif;
+  color: #125027; background: #fff; border: 1px solid rgba(18,45,30,.18);
+  border-radius: 999px; padding: 8px 17px; text-decoration: none;
+  white-space: nowrap; flex: none; transition: border-color .16s, background .16s }
+.ab-nav-cta:hover { border-color: #125027; background: rgba(18,80,39,.05) }
+@media (max-width: 560px) {
+  .ab-nav-cta { margin-left: 0 }
+  .ab-navlink { padding: 6px 11px; font-size: 12.5px }
+}
+
 /* ── Admission Abroad → Country guides ──────────────────────────────────
    Built to the Country guides board. The card clamps its blurb to 3 lines
    and its Intakes line to 2, as the board does — several entries visibly

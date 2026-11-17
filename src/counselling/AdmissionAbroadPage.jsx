@@ -26,16 +26,18 @@
 //     field in the dataset — its read-me lists "confirmed scholarship" as
 //     explicitly out of scope — and a funding filter that silently matched
 //     nothing would be worse than its absence.
-//   * "Popular study destinations" country-guide cards and the study-abroad
-//     phase index. Both come from abroad3.docx, which is not imported yet
-//     and needs a human dedupe pass first (Greece and Canada are written
+//   * The study-abroad phase index, from abroad3.docx, which is not imported
+//     yet and needs a human dedupe pass first (Greece and Canada are written
 //     twice; the artboard's own Canada card renders with no intake text).
+//     The country guides it was bracketed with HAVE since been built —
+//     AbroadCountriesPage, reachable from the Countries tab in AbroadNav.
 //   * The artboard's "697 guide topics" stat, for the same reason — the
 //     number cannot be computed from anything in the repo today.
 
 import React, { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
+import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 
 const POPULAR = ["United States", "United Kingdom", "Canada", "Australia", "Germany"];
@@ -209,7 +211,7 @@ export default function AdmissionAbroadPage() {
   ];
 
   return (
-    <CounsellingShell crumb=" / Admission abroad">
+    <CounsellingShell nav={<AbroadNav current="universities" />}>
       <div className="ai-hero ab-hero">
         <span className="ab-badge">Study abroad · QS rankings {ABROAD_100[0].qsEdition}</span>
         <h1 className="sc-h1">Admission <em>abroad</em></h1>
