@@ -29,6 +29,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
+import AbroadNav from "./AbroadNav";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES, COUNTRY_REGIONS } from "./data/abroadCountries";
@@ -75,7 +76,7 @@ export default function AbroadCountriesPage() {
   }, [q, region]);
 
   return (
-    <CounsellingShell>
+    <CounsellingShell nav={<AbroadNav current="countries" />}>
       <nav className="ac-crumb" aria-label="Breadcrumb">
         <Link to="/admission/abroad">Admission Abroad</Link>
         <span aria-hidden="true"> / </span>
