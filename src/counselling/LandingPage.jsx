@@ -1,25 +1,31 @@
 // PLACEMENT: src/counselling/LandingPage.jsx   (landing/frontend app)
 // REPLACES the old placeholder components/Counselling.jsx at /counselling.
 //
-// Workflow screen 1 — LANDING: hero · search & browse · Spark Finder invite ·
-// how-it-works · featured counsellors · career guidance library · closing
-// CTA. Guests can read every guide; "Get Started" walks them into
-// login → profile wizard.
+// Workflow screen 1 — LANDING, built to the "Career Counselling v3" board
+// (claude.ai/artifact/Dwch7uVD5334397py5NEmD#artboard-f22323634b41), read
+// in the browser at full width on 2026-11-17.
 //
-// Guide data comes from the backend CMS (getGuideIndex), not the retired
-// static data/guides.js. Booking/counsellor content is gated by
-// useCounsellorsLive — with zero counsellors approved, the page leads with
-// the guide library instead of funnelling visitors into an empty directory.
-// The same hook now also carries the site-wide avg rating / session total
-// the hero stats row shows (one request, see useCounsellorsLive.js).
+// Board order, which is this file's order:
+//   hero (+ sample report card) · how it works · start here (+ Spark Finder)
+//   · guides & careers · meet our counsellors · footer
+//
+// Two sections this page used to carry are NOT on the board and were
+// removed: the "Career Guidance Library" grid and the "Your future
+// deserves a clear plan." CTA band. See the note above </CounsellingShell>.
+//
+// This page no longer has a pre-launch variant. It used to swap its
+// sub-copy, third tick, CTA and how-it-works step 3 on useCounsellorsLive(),
+// which meant prod — where no counsellor is approved yet — never rendered
+// the board at all. Owner decision 2026-11-17: build the board and approve
+// counsellors. The only survivor is the counsellor grid's empty state.
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCounsellors } from "../api/counselling";
-import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import { getPublicConfig } from "../api/publicConfig";
 import { AUDIENCES } from "./wizardSteps";
+import ExampleReportCard from "./ExampleReportCard";
 import CounsellingShell, { initialsOf, gradOf } from "./CounsellingShell";
 import useCounsellorsLive from "./useCounsellorsLive";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
@@ -30,31 +36,31 @@ const StarIcon = ({ size = 13 }) => <ScribbleIcon name="star" size={size} color=
 // "How career counselling works" block: the replacement numbers its steps
 // in plain circles and carries no per-step icon.
 
-// "From confused to clear in 3 steps" — artboard copy, verbatim.
+// "From confused to clear in 3 steps" — board copy, verbatim.
 //
-// Step 3 names a live 1:1 session, so it follows the same honesty rule as
-// the hero's third tick: with nobody approved to book, promising a video
-// call is a promise the product cannot keep. The prelaunch variant swaps
-// that one step rather than hiding the section, because steps 1 and 2 are
-// true and useful either way.
-const HOW_STEPS_LIVE = [
+// There is no longer a prelaunch variant of step 3. This page used to swap
+// "Talk to a counsellor" for "Read your matched guides" whenever no
+// counsellor was approved, along with the hero's third tick, its sub-copy
+// and its CTA — a whole second version of the page keyed on
+// useCounsellorsLive(). Owner decision 2026-11-17: build the board as drawn
+// and approve counsellors to make it true, rather than ship a page that
+// renders its pre-launch self indefinitely. The gating is gone from all of
+// those; what remains of useCounsellorsLive here is the counsellor grid's
+// own empty state, which is a rendering concern, not a different page.
+const HOW_STEPS = [
   ["Answer a few questions", "Tell us your class, interests and strengths. It takes about 2 minutes."],
   ["Get your career report", "See careers that fit you, with the reasons, exams and top colleges."],
   ["Talk to a counsellor", "Book a live 1:1 video session and leave with a clear next step."],
-];
-const HOW_STEPS_PRELAUNCH = [
-  HOW_STEPS_LIVE[0],
-  HOW_STEPS_LIVE[1],
-  ["Read your matched guides", "Your profile picks out the guides most relevant to your class, stream and interests."],
 ];
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { live: counsellorsLive, count, avgRating, totalSessions } = useCounsellorsLive();
+  // Only `live` is read now: the hero stats row the other three fed
+  // (count / avgRating / totalSessions) is not on the board and is gone.
+  const { live: counsellorsLive } = useCounsellorsLive();
   const [q, setQ] = useState("");
   const [featured, setFeatured] = useState(null);
-  const [guides, setGuides] = useState(null);
   // null until known. The "Study abroad" card must follow the same public
   // flag the navbar entry and /admission/abroad itself follow, or the
   // landing page becomes a fourth, unguarded way into a gated screen.
@@ -68,26 +74,12 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    getGuideIndex().then((cards) => mounted && setGuides(cards.map(toGuideCard)));
-    return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
     let alive = true;
     getPublicConfig()
       .then((cfg) => alive && setAbroadOn(Boolean(cfg.admission_abroad_enabled)))
       .catch(() => alive && setAbroadOn(false)); // fail closed
     return () => { alive = false; };
   }, []);
-
-  const results = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle || !guides) return null;
-    return guides.filter((g) =>
-      (g.title + " " + g.blurb + " " + g.audience).toLowerCase().includes(needle)
-    );
-  }, [q, guides]);
 
   // `audience` is one of wizardSteps' AUDIENCES keys (self/child/sibling/
   // other) — the SAME vocabulary the wizard's own step-0 chips use, so the
@@ -104,7 +96,7 @@ export default function LandingPage() {
     else navigate("/login", { state: { from: to } });
   };
 
-  const howSteps = counsellorsLive ? HOW_STEPS_LIVE : HOW_STEPS_PRELAUNCH;
+  const howSteps = HOW_STEPS;
 
   return (
     <CounsellingShell>
@@ -115,77 +107,62 @@ export default function LandingPage() {
             <span className="sc-pill-dot">
               Free career guidance · Class 6 to UG · India &amp; Abroad
             </span>
+            {/* No <br/>: the board lets this wrap naturally, so "Let's"
+                sits on the same line as "comes next?" and the green clause
+                breaks wherever the column does. A hard break put the whole
+                green sentence on its own line, which is not the board. */}
             <h1 className="sc-h1">
-              Confused about what comes next?<br /><em>Let's map your career path.</em>
+              Confused about what comes next? <em>Let's map your career path.</em>
             </h1>
             <p className="sc-sub">
-              {counsellorsLive
-                ? "Answer a few quick questions, get a personalised career report for India or abroad, and talk it through live with a counsellor matched to you."
-                : "Answer a few quick questions and get a personalised career report for India or abroad — plus a free guidance library written for Indian students, Class 6 through postgraduate study."}
+              Answer a few quick questions, get a personalised career report for India
+              or abroad, and talk it through live with a counsellor matched to you.
             </p>
 
-            {/* The third point is dropped when no counsellor is bookable.
-                useCounsellorsLive() exists precisely so this page never
-                advertises a 1:1 session that nobody can actually book. */}
             <ul className="sc-ticks">
               <li>Personal report in about 2 minutes</li>
               <li>Careers, exams and colleges — India &amp; abroad</li>
-              {counsellorsLive && <li>Live 1:1 sessions with expert counsellors</li>}
+              <li>Live 1:1 sessions with expert counsellors</li>
             </ul>
             <div style={{ display: "flex", gap: 11, flexWrap: "wrap" }}>
-              {counsellorsLive ? (
-                <button className="sc-btn" onClick={() => start()}>Get my free career report →</button>
-              ) : (
-                <Link className="sc-btn" to="/counselling/india">Browse career guides</Link>
-              )}
+              <button className="sc-btn" onClick={() => start()}>Get my free career report →</button>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 18, flexWrap: "wrap" }}>
-              {counsellorsLive ? (
-                <>
-                  {featured?.length > 0 && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ display: "flex" }}>
-                        {featured.map((c, i) => (
-                          <span key={c.id} style={{
-                            width: 22, height: 22, borderRadius: "50%",
-                            background: gradOf(c.display_name), border: "2px solid #fff",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            font: "700 8px Montserrat, sans-serif", color: "#fff",
-                            marginRight: i < featured.length - 1 ? -6 : 0,
-                          }}>{initialsOf(c.display_name)}</span>
-                        ))}
-                      </div>
-                      <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>
-                        {count} expert counsellor{count === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                  )}
-                  <div style={{ width: 1, height: 14, background: "rgba(18,45,30,.15)" }} />
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <StarIcon />
-                    <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>
-                      {avgRating || "New"} avg rating · {totalSessions}+ sessions
-                    </span>
-                  </div>
-                  <div style={{ width: 1, height: 14, background: "rgba(18,45,30,.15)" }} />
-                  <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>Classes 6–UG</span>
-                </>
-              ) : (
-                <>
-                  <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>
-                    {guides === null ? "…" : guides.length} career guides
-                  </span>
-                  <div style={{ width: 1, height: 14, background: "rgba(18,45,30,.15)" }} />
-                  <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>Free · no login needed</span>
-                  <div style={{ width: 1, height: 14, background: "rgba(18,45,30,.15)" }} />
-                  <span style={{ font: "500 12px Poppins, sans-serif", color: "rgba(20,32,26,.6)" }}>Classes 6–UG</span>
-                </>
-              )}
-            </div>
-            <div className="sc-search sc-search-hero">
+            {/* The board puts the search directly under the CTA, labelled
+                "Search guides", with its own Search button — and carries NO
+                stats row between them, so the counsellor-count / rating /
+                "N career guides" strip that used to sit here is gone.
+
+                It NAVIGATES rather than filtering in place: the results used
+                to render into the "Career Guidance Library" section further
+                down, which the board does not have and which this change
+                removes. Study in India's Guides tab is where guides live. */}
+            <form
+              className="sc-search sc-search-hero"
+              role="search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const term = q.trim();
+                navigate("/counselling/india" + (term ? `?q=${encodeURIComponent(term)}` : ""));
+              }}
+            >
               <SearchIcon />
-              <input placeholder="Search the guidance library — e.g. streams, NEET, commerce…" value={q} onChange={(e) => setQ(e.target.value)} />
-            </div>
+              <input
+                aria-label="Search guides"
+                placeholder="Search guides"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <button type="submit" className="sc-search-go">Search</button>
+            </form>
+          </div>
+
+          {/* The board's right-hand column: a sample career report. The 86%
+              in it is an ILLUSTRATION — nothing computes a career match score
+              (see ExampleReportCard's header) — which is why the card carries
+              a permanent "EXAMPLE REPORT" label. Do not remove that label
+              without also removing the number. */}
+          <div className="sc-hero-art sc-hero-art--card">
+            <ExampleReportCard />
           </div>
         </div>
       </div>
@@ -311,18 +288,24 @@ export default function LandingPage() {
           <span className="sc-eyebrow">Counsellors</span>
           <h2>Meet our counsellors</h2>
         </div>
-        {counsellorsLive && <Link to="/counselling/counsellors" className="sc-viewall">View all →</Link>}
+        {/* The board draws "View all →" beside the heading unconditionally. */}
+        <Link to="/counselling/counsellors" className="sc-viewall">View all →</Link>
       </div>
 
-      {!counsellorsLive && (
+      {/* The grid is no longer gated on counsellorsLive — the board draws
+          this section unconditionally. What survives is an EMPTY STATE for
+          the window before the first counsellor is approved: a heading with
+          nothing under it reads as a broken page, and `featured` is [] on
+          prod today. It disappears on its own the moment anyone is
+          approved; no code change, no flag. */}
+      {featured !== null && featured.length === 0 && (
         <div className="sc-cslr-soon">
           <div className="sc-cslr-soon-b">
             <h3>Counsellors are joining soon</h3>
             <p>
               We are still approving the first group, so there is nobody to
-              book yet — we would rather tell you that than show you a
-              directory you cannot use. Every guide below is free to read in
-              the meantime, no login needed.
+              book just yet. Your career report is ready now, and your
+              counsellor match follows as soon as they are live.
             </p>
             <div className="sc-cslr-soon-meta">
               <span className="sc-cslr-soon-tag">Live 1:1 · 45–60 min</span>
@@ -330,11 +313,11 @@ export default function LandingPage() {
               <span className="sc-cslr-soon-tag">Class 6 to UG</span>
             </div>
           </div>
-          <Link to="/counselling/india" className="sc-btn ghost">Browse career guides →</Link>
+          <button className="sc-btn ghost" onClick={() => start()}>Get my free career report →</button>
         </div>
       )}
 
-      {counsellorsLive && (
+      {featured === null || featured.length > 0 ? (
         <>
 
           {featured === null ? (
@@ -377,41 +360,37 @@ export default function LandingPage() {
             </div>
           )}
         </>
-      )}
+      ) : null}
 
-      {/* library */}
-      <div className="lms-sechead-row" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
-        <div className="lms-sechead" style={{ margin: 0 }}>
-          <span className="sc-eyebrow">Explore first</span>
-          <h2>{results ? `Guides matching "${q.trim()}"` : "Career Guidance Library"}</h2>
-        </div>
-        <Link to="/counselling/india" className="sc-viewall">View all →</Link>
-      </div>
-      {guides === null ? (
-        <div className="sc-grid3">{[0, 1, 2].map((i) => <div key={i} className="sc-skel" style={{ height: 172 }} />)}</div>
-      ) : (
-        <div className="sc-grid3">
-          {(results || guides.slice(0, 3)).map((g) => <GuideCard key={g.slug} g={g} />)}
-          {results && results.length === 0 && (
-            <div className="sc-empty" style={{ gridColumn: "1/-1" }}>No guides match — try "science", "commerce" or "class 10".</div>
-          )}
-        </div>
-      )}
-
-      {/* closing CTA */}
-      <div className="lms-ctaband" style={{ marginTop: "clamp(26px,3.5vw,44px)" }}>
-        <span className="sc-eyebrow">Free to start</span>
-        <h2>Your future deserves a clear plan.</h2>
-        <p>Build your career profile in two minutes and get matched with a counsellor who understands your goals.</p>
-        <button className="sc-btn" onClick={() => start()}>Start your career profile →</button>
-        {/* Every other CTA on this page is seeker-facing; this is the only
-            route for someone who wants to GIVE guidance rather than get it.
-            Deliberately understated — it must not compete with the student
-            CTA above it. */}
-        <p className="sc-counsel-door">
-          Guide students yourself? <Link to="/become-counsellor">Become a counsellor</Link>
+      {/* Board copy, under the counsellor grid. Hidden while the grid is
+          showing its empty state — "not sure who to pick" makes no sense
+          when there is nobody to pick from. */}
+      {featured !== null && featured.length > 0 && (
+        <p className="sc-cslr-pick">
+          Not sure who to pick?{" "}
+          <Link to="/counselling/counsellors">Find my counsellor →</Link>
         </p>
-      </div>
+      )}
+
+      {/* The board ends here: counsellors, then "Not sure who to pick?",
+          then the footer.
+
+          TWO SECTIONS WERE REMOVED to get there, both verified absent from
+          the board at full width in the browser, not inferred from the A4
+          PDF export:
+
+            * "EXPLORE FIRST / Career Guidance Library" + its three cards.
+              Guides reach readers through the hero search and Study in
+              India's Guides tab now; this was the last remnant of the
+              standalone library retired in 46089c14.
+            * "FREE TO START / Your future deserves a clear plan." + its
+              "Start your career profile →" button. The same CTA already
+              appears twice above (hero and START HERE).
+
+          `/become-counsellor` lost its link here with the CTA band. It is
+          NOT orphaned — Footer.jsx:103 carries "Become a Counsellor" on
+          every page. Checked before deleting, because an unreachable route
+          is exactly what this area has been fixing all day. */}
     </CounsellingShell>
   );
 }
