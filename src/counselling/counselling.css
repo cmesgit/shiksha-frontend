@@ -1185,3 +1185,11 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
 .ac-empty { margin-top: 18px }
 .ac-linkbtn { background: none; border: 0; padding: 0; cursor: pointer;
   font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: underline }
+
+/* Admission Abroad Home — the board centres a "View all (N)" button under
+   the four facet cards, the same control the India overview carries. */
+.ab-viewall-row { display: flex; justify-content: center; margin-top: 16px }
+/* The stat tiles are links into the directory on this screen, so they must
+   not inherit the underline/colour a bare <a> gets inside .sc-wrap. */
+.ai-stats a.cf-stat { text-decoration: none; color: inherit; transition: border-color .16s, transform .12s }
+.ai-stats a.cf-stat:hover { border-color: rgba(18,80,39,.35); transform: translateY(-1px) }

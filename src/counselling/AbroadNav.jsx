@@ -13,20 +13,21 @@
 // a header row of exactly these four, with the current one as a filled
 // dark-green pill, plus `Talk to counsellor` and `Sign up` at the right.
 //
-// ── The two readings that had to be resolved, and why ────────────────
-//   * `Home` points at the SITE home. The board draws this row where our
-//     Navbar sits, and our Navbar's own home is the brand logo → "/"
-//     (Navbar.jsx:830). The board is that row redrawn, not a second nav
-//     below it. Navbar also names exactly ONE Admission Abroad destination,
-//     `/admission/abroad` (Navbar.jsx:204-210), which is why `Universities`
-//     takes it rather than a new route: that page IS the universities
-//     directory — its own H2 is "Explore universities abroad" and its stat
-//     tile reads "Universities 100". Splitting it would have invented a
-//     Home screen no board specifies and changed a URL already live on prod.
-//   * `Sign up` is NOT repeated here. The site Navbar renders its own Sign Up
-//     ~40px above this bar, and it is the wrong control entirely for a
-//     signed-in reader. `Talk to counsellor` has no Navbar equivalent, is a
-//     real destination, and is kept.
+// ── Where the tabs point, and how that was settled ──────────────────
+// The Admission Abroad board (#artboard-e1ccdaae93d6, read in the browser
+// 2026-11-17) draws this bar with HOME active on a hero screen. So the bar
+// is the PRODUCT's nav and `Home` is the product's home, not the site's.
+//
+// I originally shipped `Home` -> "/" and `Universities` -> /admission/abroad,
+// reasoning from Navbar.jsx because the board could not be read from a
+// Claude Code session at the time. That was wrong, and it is the reason
+// /admission/abroad was split: Home is the hero, Universities is the 100-row
+// directory at /admission/abroad/universities — the same shape the India
+// side already had as /admission/india and /admission/india/all.
+//
+// `Sign up` from the board is NOT repeated here: the site Navbar renders its
+// own ~40px above this bar, and it is the wrong control for a signed-in
+// reader. `Talk to counsellor` has no Navbar equivalent and is kept.
 //
 // ── Guide ────────────────────────────────────────────────────────────
 // There is no study-abroad guide screen. The tab is rendered as the board
@@ -45,8 +46,8 @@ import { Link } from "react-router-dom";
 
 // key, label, destination (null = not built yet)
 export const ABROAD_TABS = [
-  ["home", "Home", "/"],
-  ["universities", "Universities", "/admission/abroad"],
+  ["home", "Home", "/admission/abroad"],
+  ["universities", "Universities", "/admission/abroad/universities"],
   ["countries", "Countries", "/admission/abroad/countries"],
   ["guide", "Guide", null],
 ];

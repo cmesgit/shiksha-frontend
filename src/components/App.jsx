@@ -469,6 +469,7 @@ function App() {
         {/* Admission Abroad → Countries, from the Country guides board. Gated
             by the SAME AdmissionAbroadRoute as the directory, so the flag has
             one gate and a second route cannot become an unguarded way in. */}
+        <Route path="/admission/abroad/universities"  element={<Page><AdmissionAbroad screen="universities" /></Page>} />
         <Route path="/admission/abroad/countries"     element={<Page><AdmissionAbroad screen="countries" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
         {/* The curated NIRF **Engineering** top 50 — a different NIRF table
