@@ -30,12 +30,21 @@
 // reader. `Talk to counsellor` has no Navbar equivalent and is kept.
 //
 // ── Guide ────────────────────────────────────────────────────────────
-// There is no study-abroad guide screen. The tab is rendered as the board
-// draws it but inert, marked "Soon" — the same thing Navbar.jsx does with
-// `soon: true` for Industrial/Specialized Skills, and Content Studio's nav
-// does for its unbuilt screens. A tab that navigates nowhere, or quietly
-// lands on the INDIA guides, would be the "advertises a screen that does not
-// exist" trap this area keeps falling into.
+// Points at the CMS guide "Study Abroad — Admissions Handbook"
+// (/counselling/guides/study-abroad), the exact twin of the India side's
+// "Study in India — Admissions Handbook". There is NO Guide artboard — the
+// design project holds only two boards, Admission in India v2 and Admission
+// Abroad — so rather than invent a screen, this reuses the guide reader that
+// already exists and is already linked from ten places.
+//
+// Imported 2026-11-17 from abroad2.0.docx (9 chapters, 216 sections) via
+// `manage.py import_career_guides --only study-abroad`. abroad3.docx was
+// NOT used: it is a composite of a handbook, a subject catalogue and ~53
+// country guides, with 243 duplicate section titles.
+//
+// It was an inert "Soon" chip before the import, because a tab that
+// navigates nowhere — or quietly lands on the INDIA guides — is the
+// "advertises a screen that does not exist" trap this area keeps hitting.
 //
 // This bar renders INSIDE the gated screens, so it inherits
 // `admission_abroad_enabled` from AdmissionAbroadRoute and cannot become a
@@ -49,7 +58,7 @@ export const ABROAD_TABS = [
   ["home", "Home", "/admission/abroad"],
   ["universities", "Universities", "/admission/abroad/universities"],
   ["countries", "Countries", "/admission/abroad/countries"],
-  ["guide", "Guide", null],
+  ["guide", "Guide", "/counselling/guides/study-abroad"],
 ];
 
 export default function AbroadNav({ current = "" }) {
