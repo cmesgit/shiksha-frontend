@@ -112,7 +112,7 @@ export default function LandingPage() {
                 breaks wherever the column does. A hard break put the whole
                 green sentence on its own line, which is not the board. */}
             <h1 className="sc-h1">
-              Confused about what comes next? <em>Let's map your career path.</em>
+              Confused about what comes next? <em className="sc-mark">Let's map your career path.</em>
             </h1>
             <p className="sc-sub">
               Answer a few quick questions, get a personalised career report for India

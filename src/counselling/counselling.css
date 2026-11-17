@@ -17,6 +17,24 @@
 .sc-wrap { max-width: 1280px; margin: 0 auto; padding: clamp(18px,2.5vw,26px) clamp(16px,3.5vw,28px) clamp(36px,5vw,56px) }
 .sc-h1 { font: 700 clamp(28px, 3.4vw, 40px)/1.15 'Montserrat', sans-serif; color: #14201a; margin: 0 0 14px; letter-spacing: -.7px }
 .sc-h1 em { font-style: normal; color: #125027 }
+
+/* The landing hero's "Let's map your career path." carries a marker-stroke
+   highlight on the board: a pale mint band behind the LOWER part of the
+   text, not a full-height background. A linear-gradient with a hard stop is
+   what gives it the flat top edge the board has.
+
+   Its own class, NOT `.sc-h1 em` — that selector is shared with
+   AdmissionAbroadPage ("Admission abroad") and AdmissionIndiaPage
+   ("...admission in India"), and neither of those boards has a highlight.
+
+   box-decoration-break: clone is load-bearing. The phrase wraps across two
+   lines; without it the band paints as one box spanning both, leaving a
+   stripe through the gap and no stroke under the second line. */
+.sc-mark {
+  background: linear-gradient(to top, rgba(27,156,133,.20) 0, rgba(27,156,133,.20) 58%, transparent 58%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
 .sc-sub { font: 400 15px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.58); max-width: 640px; margin: 0 0 20px }
 .sc-h2 { font: 700 22px 'Montserrat', sans-serif; color: #14201a; margin: 0; letter-spacing: -.4px }
 .sc-h2row { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: clamp(22px,3vw,34px) 0 14px; flex-wrap: wrap }
