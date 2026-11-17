@@ -223,8 +223,8 @@ function CareersTab() {
 
       <p className="sc-note" style={{ marginTop: 16 }}>
         Looking for something else? The{" "}
-        <Link to="/counselling/guides">guide library</Link> covers streams,
-        degrees and entrance exams in depth, and a{" "}
+        <Link to="/counselling/india">Guides tab</Link> covers streams, degrees
+        and entrance exams in depth, and a{" "}
         <Link to="/counselling/profile">career report</Link> matches them to you.
       </p>
     </section>

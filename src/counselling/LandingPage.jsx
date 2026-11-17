@@ -20,7 +20,6 @@ import { getCounsellors } from "../api/counselling";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import { getPublicConfig } from "../api/publicConfig";
 import { AUDIENCES } from "./wizardSteps";
-import ExampleReportCard from "./ExampleReportCard";
 import CounsellingShell, { initialsOf, gradOf } from "./CounsellingShell";
 import useCounsellorsLive from "./useCounsellorsLive";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
@@ -137,7 +136,7 @@ export default function LandingPage() {
               {counsellorsLive ? (
                 <button className="sc-btn" onClick={() => start()}>Get my free career report →</button>
               ) : (
-                <Link className="sc-btn" to="/counselling/guides">Browse career guides</Link>
+                <Link className="sc-btn" to="/counselling/india">Browse career guides</Link>
               )}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 18, flexWrap: "wrap" }}>
@@ -187,14 +186,6 @@ export default function LandingPage() {
               <SearchIcon />
               <input placeholder="Search the guidance library — e.g. streams, NEET, commerce…" value={q} onChange={(e) => setQ(e.target.value)} />
             </div>
-          </div>
-          {/* The artboard replaces the old dark "what a session does" panel
-              with a sample report. The 86% in it is an ILLUSTRATION — nothing
-              computes a career match score (see ExampleReportCard's header) —
-              which is why the card carries a permanent "Example report"
-              label. Do not remove that label without also removing the number. */}
-          <div className="sc-hero-art sc-hero-art--card">
-            <ExampleReportCard sessionsLive={counsellorsLive} />
           </div>
         </div>
       </div>
@@ -339,7 +330,7 @@ export default function LandingPage() {
               <span className="sc-cslr-soon-tag">Class 6 to UG</span>
             </div>
           </div>
-          <Link to="/counselling/guides" className="sc-btn ghost">Browse career guides →</Link>
+          <Link to="/counselling/india" className="sc-btn ghost">Browse career guides →</Link>
         </div>
       )}
 
@@ -394,7 +385,7 @@ export default function LandingPage() {
           <span className="sc-eyebrow">Explore first</span>
           <h2>{results ? `Guides matching "${q.trim()}"` : "Career Guidance Library"}</h2>
         </div>
-        <Link to="/counselling/guides" className="sc-viewall">View all →</Link>
+        <Link to="/counselling/india" className="sc-viewall">View all →</Link>
       </div>
       {guides === null ? (
         <div className="sc-grid3">{[0, 1, 2].map((i) => <div key={i} className="sc-skel" style={{ height: 172 }} />)}</div>

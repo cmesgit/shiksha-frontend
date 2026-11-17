@@ -5,7 +5,7 @@
 //
 // Fetches from the backend guide CMS (getGuide) instead of the retired
 // static data/guides.js. A bad slug and a down API used to look
-// identical (both fell through to <Navigate to="/counselling/guides">});
+// identical (both fell through to <Navigate to="/counselling/india">});
 // they're now distinguished: "notfound" redirects, "error" shows a retry
 // banner, because the guide really might still exist.
 //
@@ -194,7 +194,7 @@ function GuideReader({ slug }) {
     return () => cancelAnimationFrame(frame);
   }, [paginated, requestedChapter, bodySections]);
 
-  if (state.status === "notfound") return <Navigate to="/counselling/guides" replace />;
+  if (state.status === "notfound") return <Navigate to="/counselling/india" replace />;
 
   if (state.status === "error") {
     return (
@@ -371,7 +371,7 @@ function GuideReader({ slug }) {
               <Link className="sc-btn green" to="/admission/india/engineering">Explore engineering colleges in India →</Link>
             )}
             <Link className="sc-btn" to="/counselling/counsellors">Find counsellors for this →</Link>
-            <Link className="sc-btn ghost" to="/counselling/guides">All guides</Link>
+            <Link className="sc-btn ghost" to="/counselling/india">All guides</Link>
           </div>
         </article>
       </div>

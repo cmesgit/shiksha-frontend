@@ -78,7 +78,7 @@ export default function MatchesPage() {
       ) : rows.length === 0 ? (
         <div className="sc-empty" style={{ marginTop: 18 }}>
           Counsellors are onboarding right now — check back soon, or{" "}
-          <Link to="/counselling/guides" style={{ color: "#1b9c85", fontWeight: 700 }}>read the guides</Link>{" "}
+          <Link to="/counselling/india" style={{ color: "#1b9c85", fontWeight: 700 }}>read the guides</Link>{" "}
           meanwhile.
         </div>
       ) : (

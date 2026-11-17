@@ -534,7 +534,7 @@ function CareerDetailReader({ careerSlug: key }) {
             {fullDetailKeys().join(", ")}.
           </p>
           <div className="cf-coll-cta">
-            <Link className="sc-btn green" to="/counselling/guides">Browse career guides →</Link>
+            <Link className="sc-btn green" to="/counselling/india">Browse career guides →</Link>
             <Link className="sc-btn ghost" to="/counselling/counsellors">Talk to a counsellor →</Link>
           </div>
         </div>

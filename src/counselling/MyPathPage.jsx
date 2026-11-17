@@ -94,7 +94,7 @@ export default function MyPathPage() {
             <Link to="/counselling/profile" style={{ color: "#1b9c85", fontWeight: 700 }}>Edit profile</Link>
           </p>
         </div>
-        <Link className="sc-btn" to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+        <Link className="sc-btn" to={counsellorsLive ? "/counselling/counsellors" : "/counselling/india"}>
           {counsellorsLive ? "Find my counsellors →" : "All career guides →"}
         </Link>
       </div>
@@ -117,7 +117,7 @@ export default function MyPathPage() {
             <span className="sc-meaning-number">03</span>
             <h3>Talk it through</h3>
             <p>A counsellor can help turn this shortlist into a practical plan.</p>
-            <Link to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+            <Link to={counsellorsLive ? "/counselling/counsellors" : "/counselling/india"}>
               {counsellorsLive ? "Find a counsellor →" : "Explore guides →"}
             </Link>
           </div>

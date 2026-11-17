@@ -96,7 +96,7 @@ export async function saveGuideProgress(slug, chapterSlug, markRead = false) {
   return data;
 }
 
-/** Card shape LandingPage/LibraryPage/GuideCard render. */
+/** Card shape LandingPage/StudyInIndiaPage/GuideCard render. */
 export function toGuideCard(g) {
   return {
     slug: g.slug,
