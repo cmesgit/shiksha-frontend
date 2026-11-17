@@ -31,13 +31,15 @@ import { getPublicConfig } from "../api/publicConfig";
 
 const AdmissionAbroadPage = lazy(() => import("./AdmissionAbroadPage"));
 const AbroadCountriesPage = lazy(() => import("./AbroadCountriesPage"));
+const AbroadUniversitiesPage = lazy(() => import("./AbroadUniversitiesPage"));
 
 // Every Admission Abroad screen goes through THIS component, chosen by the
 // `screen` prop, so the flag keeps exactly one gate. Adding a second route
 // with its own `getPublicConfig()` check is how a gated area grows an
 // unguarded entrance.
 const SCREENS = {
-  directory: AdmissionAbroadPage,
+  directory: AdmissionAbroadPage,   // the board's "Home" tab
+  universities: AbroadUniversitiesPage,
   countries: AbroadCountriesPage,
 };
 
