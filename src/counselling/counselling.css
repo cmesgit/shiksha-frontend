@@ -1103,3 +1103,53 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
   .sii-handbook-acts { width: 100% }
   .sii-handbook-acts .sc-btn { flex: 1 1 auto; justify-content: center }
 }
+
+/* ── Admission Abroad → Country guides ──────────────────────────────────
+   Built to the Country guides board. The card clamps its blurb to 3 lines
+   and its Intakes line to 2, as the board does — several entries visibly
+   truncate there by design, the full text belonging on the country page.
+   Clamping is what lets every card in a row share a height without the
+   grid falling back to min-content, the trap fixed above for .sc-grid3. */
+.ac-crumb { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 2px 0 14px }
+.ac-crumb a { color: #125027; text-decoration: none }
+.ac-crumb a:hover { text-decoration: underline }
+
+.ac-band { background: linear-gradient(180deg, #fdf3e3 0%, #fbf7ef 100%);
+  border: 1px solid rgba(18,45,30,.07); border-radius: 18px;
+  padding: clamp(22px,3vw,34px) clamp(20px,3vw,32px); margin-bottom: 20px }
+.ac-h1 { font: 800 clamp(28px,4vw,40px)/1.12 'Montserrat', sans-serif; color: #0e2a18; margin: 0 }
+.ac-sub { font: 500 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.62); margin: 8px 0 0 }
+
+.ac-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px }
+.ac-find { flex: 0 1 300px; min-width: 200px; margin: 0 }
+.ac-chips { display: flex; gap: 8px; flex-wrap: wrap; min-width: 0 }
+.ac-chip { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.68);
+  background: #fff; border: 1px solid rgba(18,45,30,.14); border-radius: 999px;
+  padding: 8px 15px; cursor: pointer; white-space: nowrap }
+.ac-chip:hover { border-color: rgba(18,80,39,.4) }
+.ac-chip.on { background: #125027; border-color: #125027; color: #fff }
+
+/* minmax(0,1fr), not 1fr — see the .sc-grid3 note above: a 1fr track's
+   automatic minimum is min-content, and a long country name plus a flag
+   would otherwise push the row wider than its container. */
+.ac-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start }
+@media (max-width: 1040px) { .ac-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 680px)  { .ac-grid { grid-template-columns: 1fr } }
+
+.ac-card { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 1px 2px rgba(14,28,15,.03); min-width: 0 }
+.ac-card-head { display: flex; align-items: flex-start; gap: 11px; min-width: 0 }
+.ac-flag { font-size: 22px; line-height: 1.1; flex: none }
+.ac-name { font: 700 15px/1.3 'Montserrat', sans-serif; color: #0e2a18; margin: 0; overflow-wrap: anywhere }
+.ac-rank { font: 500 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 3px 0 0 }
+.ac-blurb { font: 400 12.5px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.74); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }
+.ac-intakes { font: 400 11.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.66);
+  margin: auto 0 0; padding-top: 10px; border-top: 1px solid rgba(18,45,30,.07);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.ac-intakes-l { font-weight: 700; color: #125027 }
+
+.ac-empty { margin-top: 18px }
+.ac-linkbtn { background: none; border: 0; padding: 0; cursor: pointer;
+  font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: underline }

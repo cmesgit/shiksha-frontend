@@ -466,6 +466,10 @@ function App() {
             entry. Public, like the guide library. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />
         <Route path="/admission/abroad"               element={<Page><AdmissionAbroad /></Page>} />
+        {/* Admission Abroad → Countries, from the Country guides board. Gated
+            by the SAME AdmissionAbroadRoute as the directory, so the flag has
+            one gate and a second route cannot become an unguarded way in. */}
+        <Route path="/admission/abroad/countries"     element={<Page><AdmissionAbroad screen="countries" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
         {/* The curated NIRF **Engineering** top 50 — a different NIRF table
             with scores, founding years and admission prose the 980-row
