@@ -30,6 +30,16 @@ import { Link } from "react-router-dom";
 import { getPublicConfig } from "../api/publicConfig";
 
 const AdmissionAbroadPage = lazy(() => import("./AdmissionAbroadPage"));
+const AbroadCountriesPage = lazy(() => import("./AbroadCountriesPage"));
+
+// Every Admission Abroad screen goes through THIS component, chosen by the
+// `screen` prop, so the flag keeps exactly one gate. Adding a second route
+// with its own `getPublicConfig()` check is how a gated area grows an
+// unguarded entrance.
+const SCREENS = {
+  directory: AdmissionAbroadPage,
+  countries: AbroadCountriesPage,
+};
 
 const CENTRED = {
   minHeight: "50vh",
@@ -58,7 +68,8 @@ function AbroadNotLive() {
   );
 }
 
-export default function AdmissionAbroadRoute() {
+export default function AdmissionAbroadRoute({ screen = "directory" }) {
+  const Screen = SCREENS[screen] || SCREENS.directory;
   const [enabled, setEnabled] = useState(null); // null = not yet known
 
   useEffect(() => {
@@ -81,7 +92,7 @@ export default function AdmissionAbroadRoute() {
 
   return (
     <Suspense fallback={<main role="status" style={CENTRED}>Loading…</main>}>
-      <AdmissionAbroadPage />
+      <Screen />
     </Suspense>
   );
 }
