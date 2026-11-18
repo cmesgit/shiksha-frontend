@@ -1835,38 +1835,47 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 }
 .sii-career-go:hover { text-decoration: underline }
 
-/* Study abroad (/counselling/abroad) — the twin of Study in India. */
-.sab-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
-  flex-wrap: wrap; margin-bottom: 18px }
-.sab-head h3 { font: 800 20px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.4px }
-.sab-head p { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin: 6px 0 0; max-width: 620px }
+/* Study abroad (/counselling/abroad) — the twin of Study in India.
+ * Guide tab: 3 STEP groups of step-grouped mini-guide cards, matching
+ * artboard-f22323634b41 exactly in shape. Each card's violet header band
+ * uses the module's established abroad indigo (#6d5bd0, same as
+ * .sii-head--abroad / .sii-cta--abroad) rather than eyedropping the
+ * board's own gradient — consistent tone over a guessed-at pixel match. */
+.sab-step { margin-bottom: 26px }
+.sab-step-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 14px }
+.sab-step-badge { flex: none; background: rgba(109,91,208,.14); color: #4b3bb0; font: 700 11px 'Poppins', sans-serif;
+  letter-spacing: .3px; padding: 3px 9px; border-radius: 999px }
+.sab-step-head h3 { font: 800 19px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.3px }
+.sab-step-head p { flex-basis: 100%; font: 400 13px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 0 }
 
-.sab-phases { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px }
-@media (max-width: 1040px) { .sab-phases { grid-template-columns: repeat(2, minmax(0,1fr)) } }
-@media (max-width: 680px)  { .sab-phases { grid-template-columns: 1fr } }
-.sab-phase { display: flex; align-items: center; gap: 12px; background: #fff;
-  border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 15px 16px;
-  text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
-.sab-phase:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
-.sab-phase-n { flex: none; width: 26px; height: 26px; border-radius: 8px; background: rgba(109,91,208,.14);
-  color: #4b3bb0; display: grid; place-items: center; font: 700 12px 'Poppins', sans-serif }
-.sab-phase-tx { min-width: 0 }
-.sab-phase-tx b { display: block; font: 700 13px/1.35 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
-.sab-phase-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
+.sab-stepcards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px }
+@media (max-width: 760px) { .sab-stepcards { grid-template-columns: 1fr } }
 
-.sab-courses { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px }
-@media (max-width: 1040px) { .sab-courses { grid-template-columns: repeat(2, minmax(0,1fr)) } }
-@media (max-width: 620px)  { .sab-courses { grid-template-columns: 1fr } }
-.sab-course { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 12px;
-  padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0;
-  transition: border-color .16s, transform .12s }
-.sab-course:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
-/* abroad100.js stores subject areas lowercase ("arts and social sciences").
-   Capitalise the FIRST LETTER only — `text-transform: capitalize` would
-   title-case every word and produce "Arts And Social Sciences". */
-.sab-course b { display: block; font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
-.sab-course b::first-letter { text-transform: uppercase }
-.sab-course small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 4px }
+.sab-gcard { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column; min-width: 0 }
+.sab-gcard-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px;
+  background: linear-gradient(135deg, #8577e0, #5b4bc4); color: #fff }
+.sab-gcard-ic { flex: none; width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.18);
+  display: grid; place-items: center }
+.sab-gcard-head small { display: block; font: 700 10px 'Poppins', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase; opacity: .8 }
+.sab-gcard-head b { display: block; font: 700 14.5px 'Montserrat', sans-serif; margin-top: 1px }
+.sab-gcard-body { padding: 16px 18px; flex: 1 }
+.sab-gcard-body h4 { font: 700 15.5px/1.35 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 6px; letter-spacing: -.2px }
+.sab-gcard-body p { font: 400 12.5px/1.55 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 0 0 12px }
+.sab-gcard-learn { display: block; font: 700 10.5px 'Poppins', sans-serif; letter-spacing: .4px;
+  text-transform: uppercase; color: rgba(20,32,26,.45); margin-bottom: 7px }
+.sab-gcard-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.sab-gcard-body li { display: flex; align-items: flex-start; gap: 7px; font: 400 12.5px/1.45 'Poppins', sans-serif; color: #15291c }
+.sab-gcard-body li svg { flex: none; margin-top: 2px }
+.sab-gcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 18px; border-top: 1px solid rgba(18,45,30,.08) }
+.sab-gcard-foot > span { font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.sc-btn.sii-cta--abroad.sm { padding: 7px 14px; font-size: 12.5px; border-radius: 10px }
+
+.sab-gfoot { text-align: center; font: 400 13px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 4px 0 0 }
+.sab-gfoot a { color: #4b3bb0; font-weight: 700; text-decoration: none }
+.sab-gfoot a:hover { text-decoration: underline }
 
 /* ─────────────────────────────────────────────────────────────────────────
  * The landing, measured against the Career Counselling v3 board.
