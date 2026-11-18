@@ -19,7 +19,7 @@ import AbroadNav from "./AbroadNav";
 import { useAbroadCompare } from "./useAbroadCompare";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { EXTRA_FLAGS, uniSlug } from "./data/abroadFacets";
+import { EXTRA_FLAGS, uniSlug, capFirst } from "./data/abroadFacets";
 
 const DIRECTORY = "/admission/abroad/universities";
 
@@ -28,24 +28,11 @@ const ROWS = [
   ["Country", (r, _, flagOf) => <>{flagOf.get(r.country)} {r.country}</>],
   ["Region", (r) => r.region],
   ["Type", (r) => r.type],
-  [
-    "Subject areas",
-    // abroad100.js stores these lowercase ("engineering", "computing and
-    // AI"). `::first-letter` capitalises the first character of a WHOLE
-    // text node, not of each comma-separated item — joining into one
-    // string and relying on that rule left every word after the first
-    // comma lowercase. Each item needs its own element.
-    (r) => (
-      <>
-        {r.subjects.map((s, i) => (
-          <React.Fragment key={s}>
-            {i > 0 && ", "}
-            <span className="ab-subject">{s}</span>
-          </React.Fragment>
-        ))}
-      </>
-    ),
-  ],
+  // capFirst, not CSS: abroad100.js stores these lowercase, and
+  // `::first-letter` does not apply here at all — the CSS Pseudo-Elements
+  // spec excludes flex containers, and .sc-fchip (used on the Courses tab
+  // for the same data) is inline-flex. See abroadFacets.js's comment.
+  ["Subject areas", (r) => r.subjects.map(capFirst).join(", ")],
   ["Fee reference", (r) => r.feeYear || "—"],
   ["Tuition & fees", (r) => r.feeDetail],
   ["Fee evidence", (r) => r.feeEvidence],

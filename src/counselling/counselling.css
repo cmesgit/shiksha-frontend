@@ -1715,7 +1715,6 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .abu-source, .ab-source.abu-source { font-style: italic; color: rgba(20,32,26,.45); font-size: 11.5px; margin-top: 10px }
 
 .abu-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px }
-.abu-chips .ab-subject::first-letter { text-transform: uppercase }
 .abu-group-chip { display: inline-flex; align-items: center; gap: 4px; background: #ebf5e8; color: #125027;
   border-radius: 999px; padding: 6px 12px; font: 600 12px 'Poppins', sans-serif; text-decoration: none }
 .abu-group-chip:hover { background: #d9ecd6 }
@@ -1843,7 +1842,6 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .abcmp-remove:hover { text-decoration: underline }
 .abcmp-table tbody th { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55);
   text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; background: #fafaf8 }
-.abcmp-table .ab-subject::first-letter { text-transform: uppercase }
 
 /* Explore careers — the board's facet browser: a stream chip row, an
    interest-area rail with live counts, search, sort and 2-up cards.

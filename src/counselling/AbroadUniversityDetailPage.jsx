@@ -45,7 +45,7 @@ import AdmissionHelpModal from "./AdmissionHelpModal";
 import { useAbroadCompare } from "./useAbroadCompare";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { chipAreasOf, uniSlug, countrySlug, EXTRA_FLAGS } from "./data/abroadFacets";
+import { chipAreasOf, uniSlug, countrySlug, EXTRA_FLAGS, capFirst } from "./data/abroadFacets";
 
 const DIRECTORY = "/admission/abroad/universities";
 const COUNTRIES = "/admission/abroad/countries";
@@ -208,7 +208,7 @@ export default function AbroadUniversityDetailPage() {
               <p>{row.academic}</p>
               <h3 className="abu-subh">Main subject areas</h3>
               <div className="abu-chips">
-                {row.subjects.map((s) => <span key={s} className="sc-fchip ab-subject">{s}</span>)}
+                {row.subjects.map((s) => <span key={s} className="sc-fchip ab-subject">{capFirst(s)}</span>)}
               </div>
               <h3 className="abu-subh">Subject groups</h3>
               <div className="abu-chips">
