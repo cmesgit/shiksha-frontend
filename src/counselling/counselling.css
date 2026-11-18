@@ -1219,10 +1219,177 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
 .ac-linkbtn { background: none; border: 0; padding: 0; cursor: pointer;
   font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: underline }
 
-/* Admission Abroad Home — the board centres a "View all (N)" button under
-   the four facet cards, the same control the India overview carries. */
-.ab-viewall-row { display: flex; justify-content: center; margin-top: 16px }
-/* The stat tiles are links into the directory on this screen, so they must
-   not inherit the underline/colour a bare <a> gets inside .sc-wrap. */
-.ai-stats a.cf-stat { text-decoration: none; color: inherit; transition: border-color .16s, transform .12s }
-.ai-stats a.cf-stat:hover { border-color: rgba(18,80,39,.35); transform: translateY(-1px) }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Admission Abroad → HOME (ab2-*), built to the Admission Abroad board.
+ *
+ * Its own namespace rather than extending `ab-*`: those classes still dress
+ * AbroadUniversitiesPage, and the board gives Home a different hero, a
+ * tinted stats band and a real ranking TABLE that the directory does not
+ * have. Sharing them would have meant one set of rules serving two layouts.
+ *
+ * 🔴 Every interactive card here is an <a>. `text-decoration: none` is
+ * therefore load-bearing, not cosmetic — the facet cards and ranking rows
+ * shipped UNDERLINED when they were converted from <button> to <Link> in
+ * the Home/Universities split.
+ * ───────────────────────────────────────────────────────────────────────── */
+.ab2-hero { text-align: center; padding: clamp(26px,4vw,52px) clamp(16px,3vw,28px) clamp(20px,3vw,32px) }
+.ab2-badge { display: inline-block; font: 700 11px 'Poppins', sans-serif; letter-spacing: .14em;
+  text-transform: uppercase; color: #125027; background: rgba(27,156,133,.12);
+  border-radius: 999px; padding: 7px 16px }
+.ab2-h1 { font: 800 clamp(32px,5vw,54px)/1.08 'Montserrat', sans-serif; color: #0e2a18;
+  letter-spacing: -1.2px; margin: 16px 0 0 }
+.ab2-h1 em { font-style: normal; color: #1b9c85 }
+.ab2-sub { font: 400 clamp(14px,1.5vw,16px)/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.62);
+  max-width: 660px; margin: 14px auto 0 }
+
+.ab2-search { display: flex; align-items: center; gap: 8px; background: #fff;
+  border: 1px solid rgba(18,45,30,.12); border-radius: 16px; padding: 7px 7px 7px 18px;
+  max-width: 600px; margin: 26px auto 0; box-shadow: 0 10px 30px -22px rgba(14,28,15,.5);
+  transition: border-color .18s }
+.ab2-search:focus-within { border-color: #1b9c85 }
+.ab2-search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
+  font: 500 14.5px 'Poppins', sans-serif; color: #14201a; padding: 11px 0 }
+.ab2-search-go { flex: none; border: 0; cursor: pointer; background: #125027; color: #fff;
+  font: 700 13.5px 'Poppins', sans-serif; border-radius: 11px; padding: 11px 24px;
+  transition: background .18s }
+.ab2-search-go:hover { background: #0e3f1f }
+
+.ab2-popular { display: flex; align-items: center; justify-content: center; gap: 9px;
+  flex-wrap: wrap; margin-top: 18px }
+.ab2-popular-label { font: 500 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.52) }
+.ab2-chip { font: 600 12.5px 'Poppins', sans-serif; color: #14201a; background: #fff;
+  border: 1px solid rgba(18,45,30,.14); border-radius: 999px; padding: 8px 16px;
+  text-decoration: none; white-space: nowrap; transition: border-color .16s, color .16s }
+.ab2-chip:hover { border-color: #125027; color: #125027 }
+
+.ab2-source { display: inline-flex; align-items: center; gap: 7px; margin: 18px auto 0;
+  font: 500 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.ab2-source svg { color: #1b9c85; flex: none }
+
+.ab2-stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  background: rgba(27,156,133,.07); border-radius: 18px;
+  padding: clamp(18px,2.4vw,26px) clamp(14px,2vw,22px); margin-bottom: clamp(26px,3.5vw,44px) }
+.ab2-stat { display: flex; align-items: center; gap: 13px; justify-content: center;
+  text-decoration: none; color: inherit; padding: 4px 10px; transition: transform .12s }
+.ab2-stat + .ab2-stat { border-left: 1px solid rgba(18,45,30,.1) }
+.ab2-stat:hover { transform: translateY(-1px) }
+.ab2-stat-ic { flex: none; width: 40px; height: 40px; border-radius: 12px; color: #125027;
+  background: #fff; display: grid; place-items: center }
+.ab2-stat b { display: block; font: 700 15.5px 'Montserrat', sans-serif; color: #0e2a18 }
+.ab2-stat small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 2px }
+
+.ab2-sec { margin-bottom: clamp(30px,4vw,52px) }
+.ab2-h2 { font: 800 clamp(23px,2.8vw,32px) 'Montserrat', sans-serif; color: #0e2a18;
+  letter-spacing: -.7px; margin: 4px 0 0 }
+.ab2-lede { font: 400 13.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin: 8px 0 0 }
+.ab2-sechead { display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap }
+.ab2-allink { font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: none; white-space: nowrap }
+.ab2-allink:hover { text-decoration: underline }
+
+.ab2-tabs { display: inline-flex; gap: 2px; background: rgba(18,45,30,.05);
+  border-radius: 12px; padding: 4px; margin-top: 18px }
+.ab2-tab { border: 0; cursor: pointer; background: transparent; border-radius: 9px;
+  padding: 8px 18px; font: 600 13px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.ab2-tab.on { background: #fff; color: #0e2a18; box-shadow: 0 1px 3px rgba(14,28,15,.1) }
+
+.ab2-facets { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 16px }
+.ab2-facet { display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 18px;
+  text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
+.ab2-facet:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
+.ab2-facet-flag { font-size: 22px; line-height: 1; flex: none }
+.ab2-facet-tx { min-width: 0 }
+.ab2-facet-tx b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-facet-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
+.ab2-viewall { display: flex; justify-content: center; margin-top: 18px }
+.ab2-btn-ghost { font: 700 13px 'Poppins', sans-serif; color: #125027; background: #fff;
+  border: 1.5px solid rgba(18,80,39,.3); border-radius: 999px; padding: 11px 26px; text-decoration: none }
+.ab2-btn-ghost:hover { border-color: #125027 }
+
+.ab2-regions { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 16px }
+.ab2-region { border: 1px solid rgba(18,45,30,.14); background: #fff; cursor: pointer;
+  border-radius: 999px; padding: 8px 16px; font: 600 12.5px 'Poppins', sans-serif;
+  color: rgba(20,32,26,.68); white-space: nowrap }
+.ab2-region:hover { border-color: rgba(18,80,39,.4) }
+.ab2-region.on { background: #125027; border-color: #125027; color: #fff }
+
+.ab2-table { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; overflow: hidden }
+/* minmax(0,…) on the name column: a long university name must wrap, not push
+   the country column off the card. */
+.ab2-tr { display: grid; grid-template-columns: 88px minmax(0,1fr) 190px 18px;
+  align-items: center; gap: 12px; padding: 14px 18px; text-decoration: none; color: inherit }
+.ab2-tr + .ab2-tr { border-top: 1px solid rgba(18,45,30,.07) }
+a.ab2-tr:hover { background: rgba(27,156,133,.04) }
+.ab2-th { background: rgba(18,45,30,.03); font: 700 10.5px 'Poppins', sans-serif;
+  text-transform: uppercase; letter-spacing: .1em; color: rgba(20,32,26,.5) }
+.ab2-rank { font: 800 14.5px 'Montserrat', sans-serif; color: #b4540a }
+.ab2-uni b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-uni small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 2px }
+.ab2-country { display: flex; align-items: center; gap: 8px; font: 500 13px 'Poppins', sans-serif; color: rgba(20,32,26,.78) }
+.ab2-country i { font-style: normal; font-size: 16px }
+.ab2-chev { color: rgba(20,32,26,.35); font-size: 17px; text-align: right }
+.ab2-empty { padding: 20px 18px }
+
+.ab2-dests { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin-top: 18px }
+.ab2-dest { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 18px; display: flex; flex-direction: column; gap: 11px; min-width: 0 }
+.ab2-dest-head { display: flex; align-items: flex-start; gap: 11px; min-width: 0 }
+.ab2-dest-flag { font-size: 22px; line-height: 1.1; flex: none }
+.ab2-dest h3 { font: 700 15px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; overflow-wrap: anywhere }
+.ab2-dest-head p { font: 500 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 3px 0 0 }
+/* Clamped exactly as the board clamps it — several entries truncate
+   mid-sentence by design, the full text being on the country guide. */
+.ab2-dest-intakes { font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.ab2-dest-intakes b { color: #125027 }
+.ab2-dest-go { margin-top: auto; font: 700 12.5px 'Poppins', sans-serif; color: #125027; text-decoration: none }
+.ab2-dest-go:hover { text-decoration: underline }
+
+/* The board rules a hairline between the step numbers. It is drawn on the
+   <li>, stopping before the last one so the line does not run off the end. */
+.ab2-steps { list-style: none; margin: 22px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 14px }
+.ab2-steps li { position: relative; min-width: 0 }
+.ab2-steps li:not(:last-child)::after { content: ""; position: absolute; left: 34px; right: -14px;
+  top: 13px; height: 2px; background: rgba(18,80,39,.18) }
+.ab2-steps a { text-decoration: none; color: inherit; display: block }
+.ab2-step-n { position: relative; z-index: 1; display: grid; place-items: center;
+  width: 27px; height: 27px; border-radius: 50%; background: #125027; color: #fff;
+  font: 700 12.5px 'Poppins', sans-serif }
+.ab2-step-t { display: block; font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; margin-top: 12px }
+.ab2-step-d { display: block; font: 400 12px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin-top: 6px }
+.ab2-steps a:hover .ab2-step-t { color: #125027 }
+
+.ab2-phases { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 18px }
+.ab2-phase { display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 15px 16px;
+  text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
+.ab2-phase:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
+.ab2-phase-n { flex: none; width: 26px; height: 26px; border-radius: 8px;
+  background: rgba(255,143,1,.14); color: #a85c00; display: grid; place-items: center;
+  font: 700 12px 'Poppins', sans-serif }
+.ab2-phase-tx { min-width: 0 }
+.ab2-phase-tx b { display: block; font: 700 13px/1.35 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-phase-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
+
+.ab2-provenance { font: 400 11.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.48);
+  border-top: 1px solid rgba(18,45,30,.08); padding-top: 18px; margin-top: clamp(26px,3.5vw,44px) }
+
+@media (max-width: 1040px) {
+  .ab2-facets, .ab2-phases { grid-template-columns: repeat(2, minmax(0,1fr)) }
+  .ab2-dests { grid-template-columns: repeat(2, minmax(0,1fr)) }
+  .ab2-steps { grid-template-columns: repeat(3, minmax(0,1fr)) }
+  .ab2-steps li::after { display: none }
+}
+@media (max-width: 760px) {
+  .ab2-stats { grid-template-columns: 1fr; gap: 14px }
+  .ab2-stat + .ab2-stat { border-left: 0; border-top: 1px solid rgba(18,45,30,.1); padding-top: 14px }
+  .ab2-tr { grid-template-columns: 56px minmax(0,1fr); gap: 8px }
+  .ab2-country, .ab2-chev { display: none }
+  .ab2-th { display: none }
+}
+@media (max-width: 620px) {
+  .ab2-facets, .ab2-phases, .ab2-dests, .ab2-steps { grid-template-columns: 1fr }
+}
