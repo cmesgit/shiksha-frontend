@@ -1,48 +1,59 @@
 // PLACEMENT: src/counselling/AdmissionAbroadPage.jsx   (landing/frontend app)
 //
-// Admission Abroad -> HOME, at /admission/abroad. Built to the board at
-// claude.ai/artifact/4nxDHtLVf28SB9DTNzFxga#artboard-e1ccdaae93d6, read in
-// the browser at full width on 2026-11-17.
+// Admission Abroad → HOME, at /admission/abroad. Rebuilt 2026-11-18 to the
+// board at claude.ai/artifact/4nxDHtLVf28SB9DTNzFxga#artboard-e1ccdaae93d6,
+// read in a browser at full width rather than inferred from a PDF export.
 //
-// ── This screen used to be the directory as well ─────────────────────
-// The board draws a four-tab product nav (Home / Universities / Countries /
-// Guide) with HOME active here, and this screen shows only a five-row
-// ranking PREVIEW beside an "All 100 universities ->" link. The 100-row
-// filterable directory is therefore its own screen now,
-// AbroadUniversitiesPage at /admission/abroad/universities — the same shape
-// /admission/india and /admission/india/all already have on the India side.
+// Board order, which is this file's order:
+//   hero · stats band · browse · rankings · popular destinations · process ·
+//   the complete guide · guidance · provenance
 //
-// Before the split, AbroadNav pointed BOTH "Home" and "Universities" here,
-// because without the board I had read the bar as the site nav and mapped
-// Home to "/". The board settles it: the bar is the product's own.
+// ── Every number on this screen is DERIVED ───────────────────────────
+// Nothing here is typed in from the board. The university and country
+// totals count `abroad100.js` / `abroadCountries.js` at render; the guide's
+// phase and topic counts come from the CMS over the wire. So the page
+// cannot drift from the data, and cannot claim what the data does not hold.
 //
-// DEEP LINKS: ?country= / ?region= / ?subject= / ?q= were shareable filtered
-// views of the directory. They now FORWARD to the directory route rather
-// than landing on a hero that silently ignores them.
+// Two places it therefore prints a different figure from the board, both
+// the "refuse a number the data cannot support" rule, not an oversight:
+//   * The board's GUIDE block says "16 phases and 697 topics". The imported
+//     guide has 17 phases — the board's 16 is only reachable by dropping a
+//     phase whose ~1,850 sections then land in the wrong chapter (see the
+//     manifest's note on PHASE 13) — and its own topic total is what the
+//     API reports, not 697.
+//   * The board draws a fourth browse tab, "Funding". There is no funding
+//     or scholarship field in abroad100.js — its read-me lists "confirmed
+//     scholarship" as explicitly out of scope — so a tab that silently
+//     matched nothing is left out rather than drawn dead.
 //
-// ── Where this deliberately does NOT match the board ─────────────────
-// Owner decision 2026-11-17, same rule as the India overview: print what the
-// data supports, and treat the rest as a data task.
-//   * "697 guide topics" — the board's third stat. Nothing in the repo can
-//     compute it. The third tile reports world regions, which is derived.
-//   * "56 country guides" in the sub-copy. data/abroadCountries.js holds 47;
-//     the supplied source text ran out mid-Israel. It prints the real length
-//     and becomes 56 by itself when guidesAbroad.js lands.
-//   * The board's "Funding" browse tab. There is no funding or scholarship
-//     field in the dataset — its read-me lists "confirmed scholarship" as
-//     explicitly out of scope — and a filter that silently matched nothing
-//     would be worse than its absence.
+// ── The directory lives elsewhere ────────────────────────────────────
+// This screen holds NO filter state. Everything that narrows the 100 — the
+// search box, the popular chips, the facet cards, the rankings table — is a
+// link into /admission/abroad/universities. Pre-split deep links
+// (?q= ?country= ?region= ?subject=) are forwarded there whole.
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { evidenceTone } from "./abroadShared";
+import { getGuide } from "../api/guidesApi";
 
 const DIRECTORY = "/admission/abroad/universities";
-const POPULAR = ["United States", "United Kingdom", "Canada", "Australia", "Germany"];
+const COUNTRIES = "/admission/abroad/countries";
+const GUIDE_SLUG = "study-abroad";
+
+// The board labels these "USA" and "UK", not the dataset's full names, and
+// closes with a rank cut rather than a sixth country.
+const POPULAR = [
+  ["USA", "country", "United States"],
+  ["UK", "country", "United Kingdom"],
+  ["Canada", "country", "Canada"],
+  ["Australia", "country", "Australia"],
+  ["Germany", "country", "Germany"],
+  ["QS top 50", "top", "50"],
+];
 
 const BROWSE_TABS = [
   ["country", "Country"],
@@ -50,9 +61,53 @@ const BROWSE_TABS = [
   ["subject", "Subject"],
 ];
 
+const STEPS = [
+  ["Choose your course", "Match your academic background and career goals to the right programme and study level."],
+  ["Pick a destination", "Compare countries on cost, intakes, visa rules, work rights and career outcomes."],
+  ["Shortlist universities", "Use rankings, course content, fees and entry requirements to build a balanced list."],
+  ["Check eligibility & tests", "Confirm grades, IELTS/TOEFL/PTE, GRE/GMAT and documents for each programme."],
+  ["Apply & fund", "Submit SOPs, LORs and applications; plan scholarships, loans and proof of funds."],
+  ["Visa & travel", "Accept your offer, apply for the student visa and prepare to move."],
+];
+
+// Inline, not an icon package — this app has no icon dependency beyond its
+// own ScribbleIcon set, and the board's three stat glyphs are not in it.
+const Ic = ({ d }) => (
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+       strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {d}
+  </svg>
+);
+const IcBank = <Ic d={<><path d="M12 3 3 8h18L12 3Z" /><path d="M6 11v7M10 11v7M14 11v7M18 11v7" /><path d="M3 21h18" /></>} />;
+const IcGlobe = <Ic d={<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" /></>} />;
+const IcBook  = <Ic d={<><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5Z" /><path d="M8 7h7M8 11h7" /></>} />;
+const IcShield = (
+  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
+       strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 3 5 6v5c0 4.2 2.9 8.1 7 9 4.1-.9 7-4.8 7-9V6l-7-3Z" /><path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
 export default function AdmissionAbroadPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const [q, setQ] = useState("");
+  const [tab, setTab] = useState("country");
+  const [region, setRegion] = useState("Worldwide");
+  const [guide, setGuide] = useState(null);
+
+  // The guide's phase list and per-phase topic counts come from the CMS, so
+  // the "complete guide" block can never disagree with what the reader opens.
+  useEffect(() => {
+    let alive = true;
+    // getGuide returns {status, guide}, NOT the guide — unwrapping it wrong
+    // makes `chapters` undefined, which hides the whole block silently
+    // rather than erroring.
+    getGuide(GUIDE_SLUG)
+      .then((res) => alive && setGuide(res && res.status === "ok" ? res.guide : false))
+      .catch(() => alive && setGuide(false));
+    return () => { alive = false; };
+  }, []);
 
   const facets = useMemo(() => {
     const count = (fn) => {
@@ -67,179 +122,292 @@ export default function AdmissionAbroadPage() {
     };
   }, []);
 
-  // The board's preview: the top five by QS, then "All 100 universities ->".
-  const preview = useMemo(
-    () => [...ABROAD_100].sort((a, b) => a.qsSort - b.qsSort || a.name.localeCompare(b.name)).slice(0, 5),
-    []
-  );
+  // "=2" where QS ties, "#4" where it does not — derived by counting shared
+  // ranks, never stored. Reproduces the board's table exactly.
+  const tied = useMemo(() => {
+    const m = new Map();
+    ABROAD_100.forEach((r) => m.set(r.qsRank, (m.get(r.qsRank) || 0) + 1));
+    return m;
+  }, []);
 
-  const [tab, setTab] = React.useState("country");
+  // The board orders these geographically, not by university count. Any
+  // region in the data but not listed here still appears, at the end, so a
+  // new region can never be silently dropped from the chips.
+  const BOARD_ORDER = ["North America", "Europe", "Asia", "Oceania", "Middle East", "Africa", "Latin America"];
+  const REGIONS = useMemo(() => {
+    const have = facets.region.map(([r]) => r);
+    const ordered = BOARD_ORDER.filter((r) => have.includes(r));
+    return ["Worldwide", ...ordered, ...have.filter((r) => !ordered.includes(r))];
+  }, [facets]);
+
+  const preview = useMemo(() => {
+    const rows = region === "Worldwide" ? ABROAD_100 : ABROAD_100.filter((r) => r.region === region);
+    // No name tiebreak: Array.prototype.sort is stable, so equal qsSort keeps
+    // dataset order — which is the order the board prints (Stanford above
+    // Imperial at =2). Sorting by name reverses that pair.
+    return [...rows].sort((a, b) => a.qsSort - b.qsSort).slice(0, 5);
+  }, [region]);
+
+  // Flags come from the country guides, so a flag can never be invented for
+  // a country the guides do not cover.
+  const flagOf = useMemo(() => {
+    const m = new Map();
+    ABROAD_COUNTRIES.forEach((c) => { if (c.flag) m.set(c.qsKey || c.name, c.flag); });
+    return m;
+  }, []);
+
+  const destinations = useMemo(() => {
+    const tally = ABROAD_100.reduce((a, r) => { a[r.country] = (a[r.country] || 0) + 1; return a; }, {});
+    // The board shows the six best-covered destinations, each with a guide.
+    return [...ABROAD_COUNTRIES]
+      .map((c) => ({ ...c, n: tally[c.qsKey || c.name] || 0 }))
+      .filter((c) => c.n > 0)
+      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name))
+      .slice(0, 6);
+  }, []);
+
   const facetHref = (key, value) => `${DIRECTORY}?${key}=${encodeURIComponent(value)}`;
+  const popularHref = ([, kind, value]) =>
+    kind === "top" ? `${DIRECTORY}?top=${value}` : facetHref("country", value);
 
-  // A pre-split deep link is a request for the DIRECTORY, not for this hero.
-  // Forwarded whole, so ?country=Germany&subject=... still lands filtered.
+  const edition = ABROAD_100[0].qsEdition;
+
+  // A pre-split deep link is a request for the DIRECTORY, not this hero.
   const qs = params.toString();
   if (qs) return <Navigate to={`${DIRECTORY}?${qs}`} replace />;
 
+  const phases = guide && guide.chapters ? guide.chapters : [];
+  const topics = phases.reduce((n, c) => n + (c.section_count || 0), 0);
+
   return (
     <CounsellingShell nav={<AbroadNav current="home" />}>
-      <div className="ai-hero ab-hero">
-        <span className="ab-badge">Study abroad · QS rankings {ABROAD_100[0].qsEdition}</span>
-        <h1 className="sc-h1">Admission <em>abroad</em></h1>
-        <p className="ab-sub">
+      <header className="ab2-hero">
+        <span className="ab2-badge">Study abroad {edition} · QS rankings {edition}</span>
+        <h1 className="ab2-h1">Admission <em>Abroad.</em></h1>
+        <p className="ab2-sub">
           {ABROAD_100.length} top QS-ranked universities across {facets.country.length} countries —
           postgraduate courses, tuition fees and application planning, plus{" "}
-          {ABROAD_COUNTRIES.length} country guides.
+          {ABROAD_COUNTRIES.length} country guides and a complete step-by-step study abroad guide.
         </p>
 
         <form
-          className="sc-search sc-search-hero"
+          className="ab2-search"
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
-            // navigate(), not window.location — a full reload would throw
-            // away the SPA and re-fetch the whole bundle.
-            const term = String(new FormData(e.currentTarget).get("q") || "").trim();
+            const term = q.trim();
             navigate(DIRECTORY + (term ? `?q=${encodeURIComponent(term)}` : ""));
           }}
         >
-          <input name="q" aria-label="Search universities" placeholder="University, country or subject" />
-          <button type="submit" className="sc-search-go">Search</button>
+          <input
+            aria-label="Search universities"
+            placeholder="University, country or subject"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <button type="submit" className="ab2-search-go">Search</button>
         </form>
 
-        <div className="sc-tags ab-popular">
-          <span className="ab-popular-label">Popular:</span>
-          {POPULAR.map((c) => (
-            <Link key={c} className="sc-fchip" to={facetHref("country", c)}>{c}</Link>
+        <div className="ab2-popular">
+          <span className="ab2-popular-label">Popular:</span>
+          {POPULAR.map((p) => (
+            <Link key={p[0]} className="ab2-chip" to={popularHref(p)}>{p[0]}</Link>
           ))}
         </div>
 
-        {/* Provenance belongs on the page, not in a footnote nobody reads. */}
-        <p className="ab-source">
-          Source: QS World University Rankings {ABROAD_100[0].qsEdition} and official university
-          pages. Tuition is shown with its evidence label and is not verified for every programme —
-          always confirm current details before applying.
+        <p className="ab2-source">
+          {IcShield} Source: QS World University Rankings {edition} &amp; official university
+          pages · Updated November 2026
         </p>
+      </header>
 
-        {/* The board's third tile is "697 guide topics". Nothing here can
-            derive it, so this reports world regions, which is real. */}
-        <div className="cf-stats ai-stats">
-          <Link className="cf-stat" to={DIRECTORY}>
-            <span className="cf-stat-value">{ABROAD_100.length}</span>
-            <span className="cf-stat-label">universities</span>
-          </Link>
-          <Link className="cf-stat" to="/admission/abroad/countries">
-            <span className="cf-stat-value">{facets.country.length}</span>
-            <span className="cf-stat-label">countries</span>
-          </Link>
-          <Link className="cf-stat" to={`${DIRECTORY}?tab=region`}>
-            <span className="cf-stat-value">{facets.region.length}</span>
-            <span className="cf-stat-label">world regions</span>
-          </Link>
-        </div>
+      {/* The board's tinted band: a glyph, the figure with its noun, and a
+          line saying where the figure comes from. */}
+      <div className="ab2-stats">
+        <Link className="ab2-stat" to={DIRECTORY}>
+          <span className="ab2-stat-ic">{IcBank}</span>
+          <span>
+            <b>{ABROAD_100.length} universities</b>
+            <small>Ranked in QS World Rankings {edition}</small>
+          </span>
+        </Link>
+        <Link className="ab2-stat" to={COUNTRIES}>
+          <span className="ab2-stat-ic">{IcGlobe}</span>
+          <span>
+            <b>{facets.country.length} countries</b>
+            <small>Across {facets.region.length} world regions</small>
+          </span>
+        </Link>
+        <Link className="ab2-stat" to={`/counselling/guides/${GUIDE_SLUG}`}>
+          <span className="ab2-stat-ic">{IcBook}</span>
+          <span>
+            <b>{topics ? `${topics.toLocaleString()} guide topics` : "Study abroad guide"}</b>
+            <small>From course choice to visa</small>
+          </span>
+        </Link>
       </div>
 
-      <section className="ab-browse" aria-label="Browse universities abroad">
+      <section className="ab2-sec">
         <div className="in-kicker">Browse</div>
-        <h2 className="ab-h2">Explore universities abroad</h2>
-        <p className="ab-lede">Browse by destination, region or subject.</p>
+        <h2 className="ab2-h2">Explore universities abroad</h2>
+        <p className="ab2-lede">Browse by destination, region or subject.</p>
 
-        <div className="ab-tabs" role="tablist">
+        <div className="ab2-tabs" role="tablist">
           {BROWSE_TABS.map(([key, label]) => (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={tab === key}
-              className={`ab-tab${tab === key ? " on" : ""}`}
-              onClick={() => setTab(key)}
-            >
+            <button key={key} role="tab" aria-selected={tab === key}
+                    className={`ab2-tab${tab === key ? " on" : ""}`} onClick={() => setTab(key)}>
               {label}
             </button>
           ))}
         </div>
 
-        {/* Facets LINK into the directory rather than filtering in place —
-            this screen holds no filter state at all now. */}
-        <div className="ab-facet-grid">
+        <div className="ab2-facets">
           {facets[tab].slice(0, 4).map(([value, count]) => (
-            <Link key={value} className="sc-card ab-facet" to={facetHref(tab, value)}>
-              <span className="ab-facet-name">{value}</span>
-              <span className="ab-facet-count">
-                {count} {count === 1 ? "university" : "universities"}
+            <Link key={value} className="ab2-facet" to={facetHref(tab, value)}>
+              {tab === "country" && flagOf.get(value) && (
+                <span className="ab2-facet-flag" aria-hidden="true">{flagOf.get(value)}</span>
+              )}
+              <span className="ab2-facet-tx">
+                <b>{value}</b>
+                <small>{count} {count === 1 ? "university" : "universities"}</small>
               </span>
             </Link>
           ))}
         </div>
-        <div className="ab-viewall-row">
-          <Link className="sc-btn ghost" to={`${DIRECTORY}?tab=${tab}`}>
+        <div className="ab2-viewall">
+          <Link className="ab2-btn-ghost" to={`${DIRECTORY}?tab=${tab}`}>
             View all ({facets[tab].length})
           </Link>
         </div>
       </section>
 
-      <section className="ab-rankings">
-        <div className="ab-rankings-head">
+      <section className="ab2-sec">
+        <div className="ab2-sechead">
           <div>
             <div className="in-kicker">Rankings</div>
-            <h2 className="ab-h2">Top-ranked by QS {ABROAD_100[0].qsEdition}</h2>
-            <p className="ab-lede">
-              The world's highest-ranked universities in QS World University Rankings{" "}
-              {ABROAD_100[0].qsEdition}.
+            <h2 className="ab2-h2">Top-ranked by QS {edition}</h2>
+            <p className="ab2-lede">
+              The world's highest-ranked universities in QS World University Rankings {edition}.
             </p>
           </div>
-          <Link className="in-allink" to={DIRECTORY}>All {ABROAD_100.length} universities →</Link>
+          <Link className="ab2-allink" to={DIRECTORY}>All {ABROAD_100.length} universities →</Link>
         </div>
 
-        <ul className="ai-list ab-list">
-          {preview.map((r) => (
-            <li key={r.id}>
-              <Link className="sc-card ai-row ab-row" to={`${DIRECTORY}?q=${encodeURIComponent(r.name)}`}>
-                <span className={`ai-rank ab-rank${r.ranked ? "" : " unranked"}`}>
-                  {r.ranked ? `#${r.qsRank}` : "NR"}
-                </span>
-                <span className="ai-row-main">
-                  <span className="ab-row-name">{r.name}</span>
-                  <span className="ab-row-meta">
-                    {[r.area, r.country].filter(Boolean).join(", ")} · {r.type}
-                  </span>
-                </span>
-                <span className="ab-row-fee">
-                  <span className={`ab-pill ab-pill-${evidenceTone(r.feeEvidence)}`}>
-                    {r.feeEvidence}
-                  </span>
-                </span>
-              </Link>
-            </li>
+        <div className="ab2-regions" role="tablist" aria-label="World region">
+          {REGIONS.map((r) => (
+            <button key={r} role="tab" aria-selected={region === r}
+                    className={`ab2-region${region === r ? " on" : ""}`} onClick={() => setRegion(r)}>
+              {r}
+            </button>
           ))}
-        </ul>
+        </div>
+
+        <div className="ab2-table" role="table" aria-label={`Top-ranked by QS ${edition}`}>
+          <div className="ab2-tr ab2-th" role="row">
+            <span role="columnheader">QS {edition}</span>
+            <span role="columnheader">University</span>
+            <span role="columnheader">Country</span>
+            <span aria-hidden="true" />
+          </div>
+          {preview.length === 0 ? (
+            <p className="sc-note ab2-empty">No ranked university in {region} yet.</p>
+          ) : preview.map((r) => (
+            <Link key={r.id} className="ab2-tr" role="row"
+                  to={`${DIRECTORY}?q=${encodeURIComponent(r.name)}`}>
+              <span className="ab2-rank" role="cell">
+                {r.ranked ? `${(tied.get(r.qsRank) || 0) > 1 ? "=" : "#"}${r.qsRank}` : "NR"}
+              </span>
+              <span className="ab2-uni" role="cell">
+                <b>{r.name}</b>
+                <small>{r.area}</small>
+              </span>
+              <span className="ab2-country" role="cell">
+                {flagOf.get(r.country) && <i aria-hidden="true">{flagOf.get(r.country)}</i>}
+                {r.country}
+              </span>
+              <span className="ab2-chev" aria-hidden="true">›</span>
+            </Link>
+          ))}
+        </div>
       </section>
 
-      <section className="in-process" aria-label="How admission abroad works">
-        <h2 className="ab-h2">How admission abroad works</h2>
-        <p className="ab-lede">Six steps from choosing a course to landing on campus.</p>
-        <ol className="in-steps in-steps-6">
-          {[
-            ["Choose your course", "Match your academic background and career goals to the right programme and study level."],
-            ["Pick a destination", "Compare countries on cost, intakes, visa rules, work rights and career outcomes."],
-            ["Shortlist universities", "Use rankings, course content, fees and entry requirements to build a balanced list."],
-            ["Check eligibility & tests", "Confirm grades, IELTS/TOEFL/PTE, GRE/GMAT and documents for each programme."],
-            ["Apply & fund", "Submit SOPs, LORs and applications; plan scholarships, loans and proof of funds."],
-            ["Visa & travel", "Accept your offer, apply for the student visa and prepare to move."],
-          ].map(([title, detail], i) => (
+      <section className="ab2-sec">
+        <div className="in-kicker">Destinations</div>
+        <h2 className="ab2-h2">Popular destinations</h2>
+        <p className="ab2-lede">Education system, costs, intakes, visas and work rights.</p>
+        <div className="ab2-dests">
+          {destinations.map((c) => (
+            <article key={c.name} className="ab2-dest">
+              <div className="ab2-dest-head">
+                {c.flag && <span className="ab2-dest-flag" aria-hidden="true">{c.flag}</span>}
+                <div>
+                  <h3>{c.name}</h3>
+                  <p>{c.n} QS-ranked universit{c.n === 1 ? "y" : "ies"}</p>
+                </div>
+              </div>
+              {c.intakes && (
+                <p className="ab2-dest-intakes"><b>Intakes:</b> {c.intakes}</p>
+              )}
+              <Link className="ab2-dest-go" to={`${COUNTRIES}?region=${encodeURIComponent(c.region)}`}>
+                Read the guide →
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="ab2-sec">
+        <div className="in-kicker">Process</div>
+        <h2 className="ab2-h2">How admission abroad works</h2>
+        <p className="ab2-lede">
+          Six steps from choosing a course to landing on campus. Tap a step to read the full guide.
+        </p>
+        <ol className="ab2-steps">
+          {STEPS.map(([title, detail], i) => (
             <li key={title}>
-              <span className="in-step-n">{i + 1}</span>
-              <span className="in-step-title">{title}</span>
-              <span className="in-step-detail">{detail}</span>
+              <Link to={`/counselling/guides/${GUIDE_SLUG}`}>
+                <span className="ab2-step-n">{i + 1}</span>
+                <span className="ab2-step-t">{title}</span>
+                <span className="ab2-step-d">{detail}</span>
+              </Link>
             </li>
           ))}
         </ol>
       </section>
 
+      {phases.length > 0 && (
+        <section className="ab2-sec">
+          <div className="ab2-sechead">
+            <div>
+              <div className="in-kicker">Guide</div>
+              <h2 className="ab2-h2">The complete study abroad guide</h2>
+              <p className="ab2-lede">
+                {phases.length} phases and {topics.toLocaleString()} topics — from understanding
+                study abroad to scholarships, visas and course-wise guidance.
+              </p>
+            </div>
+            <Link className="ab2-allink" to={`/counselling/guides/${GUIDE_SLUG}`}>Start reading →</Link>
+          </div>
+          <div className="ab2-phases">
+            {phases.slice(0, 8).map((c) => (
+              <Link key={c.slug} className="ab2-phase"
+                    to={`/counselling/guides/${GUIDE_SLUG}?chapter=${c.slug}`}>
+                <span className="ab2-phase-n">{c.number}</span>
+                <span className="ab2-phase-tx">
+                  <b>{String(c.title).replace(/^\d+:\s*/, "")}</b>
+                  <small>{c.section_count} topics</small>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="sc-card in-guidance">
         <div>
           <div className="in-kicker">Guidance</div>
-          <h2 className="ab-h2">Planning to study abroad?</h2>
-          <p className="ab-lede">
+          <h2 className="ab2-h2">Planning to study abroad?</h2>
+          <p className="ab2-lede">
             A ShikshaCom counsellor can help you pick a country and course, shortlist
             universities, prepare documents and plan your visa timeline.
           </p>
@@ -275,41 +443,14 @@ export default function AdmissionAbroadPage() {
               website before you accept an offer.
             </li>
           </ul>
-
-          {/* The source sheet is explicit about what it did and did not check;
-              those numbers belong where a reader can see them, not only in a
-              generated file's header. */}
-          <details className="in-about">
-            <summary>About this data</summary>
-            <ul>
-              <li>
-                Rankings: QS World University Rankings {ABROAD_100[0].qsEdition}, published June 2026.
-                This is an overall institutional ranking, not a programme ranking.
-              </li>
-              <li>
-                <b>{ABROAD_100.filter((r) => !r.ranked).length}</b> of the {ABROAD_100.length} are
-                not placed in that overall list, and{" "}
-                <b>{ABROAD_100.filter((r) => /-/.test(r.qsRank)).length}</b> sit in a band rather
-                than at a single position. Both are shown as the source gives them.
-              </li>
-              <li>
-                Tuition is shown with the source’s own evidence label. Roughly half the entries
-                carry a numeric amount; the rest give a fee policy or state that the value was
-                not verified. Fee periods differ between institutions and are not comparable.
-              </li>
-              <li>
-                Subject lists are main postgraduate areas, not a catalogue of every degree,
-                module or intake.
-              </li>
-              <li>
-                India is excluded from this sheet by its own design — see the India directory
-                for NIRF-ranked institutions.
-              </li>
-            </ul>
-          </details>
         </div>
       </section>
 
+      <p className="ab2-provenance">
+        Rankings: QS World University Rankings {edition}. Course and fee details come from
+        official university pages; visa and work rules change often — always confirm with the
+        university and official immigration website before applying.
+      </p>
     </CounsellingShell>
   );
 }
