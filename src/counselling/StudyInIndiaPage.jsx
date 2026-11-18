@@ -40,17 +40,13 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import {
-  Activity, Atom, BookOpen, BookMarked, Briefcase, Check, Clock, Compass,
-  DollarSign, Eye, FileText, FlaskConical, Globe, GraduationCap, Hotel,
-  Landmark, Layers, LayoutGrid, Leaf, Lightbulb, LineChart, Lock, Mic,
-  Monitor, Music, Navigation, Palette, PenTool, Rocket, Scale, Search,
-  Shield, Star, Target, Wrench,
-} from "lucide-react";
+import { Check, Clock, Compass, GraduationCap, Lightbulb, Target } from "lucide-react";
 import CounsellingShell from "./CounsellingShell";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getGuideIndex, getGuide, toGuideCard } from "../api/guidesApi";
 import { useAuth } from "../contexts/AuthContext";
+import CareerExplorer from "./CareerExplorer";
+import { firstSentence } from "./careerBlurb";
 import { CAREER_DETAIL } from "./data/careerDetail";
 import { CAREER_INDIA, INTEREST_AREAS, STREAMS } from "./data/careerIndia";
 
@@ -217,33 +213,8 @@ function GuidesTab({ guides, loading }) {
 
 /* ────────────────────────── Explore careers ─────────────────────── */
 
-const CAREER_ICONS = {
-  Activity, Atom, BookOpen, Briefcase, DollarSign, Eye, FileText,
-  FlaskConical, Globe, Hotel, Landmark, Layers, LayoutGrid, Leaf,
-  Lightbulb, LineChart, Lock, Mic, Monitor, Music, Navigation, Palette,
-  PenTool, Rocket, Scale, Shield, Star, Target, Wrench,
-};
-
-const SORTS = [
-  ["popular", "Most popular"],
-  ["az", "A to Z"],
-];
-
-/**
- * The board's card blurb is the FIRST SENTENCE of `overview`, then clamped
- * to two lines by CSS — not the whole paragraph clamped. Verified against
- * all thirty: Medicine shows one short sentence with no ellipsis while its
- * overview continues "MBBS (5.5 years including internship)…".
- *
- * The lookahead requires whitespace + a capital so "B.Tech", "R&D." and
- * "₹3.5–5" do not split a sentence. Checked: reproduces all 30 exactly.
- */
-function firstSentence(text) {
-  if (!text) return "";
-  const m = text.match(/^[\s\S]*?[.!?](?=\s+[A-Z₹])/);
-  return (m ? m[0] : text).trim();
-}
-
+// The control set is shared with /counselling/abroad — see CareerExplorer.
+// Only the dataset and the card's three fact labels differ.
 const CAREERS = CAREER_INDIA.map((c) => {
   const detail = CAREER_DETAIL[c.key] || {};
   return {
@@ -259,192 +230,20 @@ const CAREERS = CAREER_INDIA.map((c) => {
   };
 });
 
+const INDIA_FACTS = [
+  ["Course", "course"],
+  ["Entrance exam", "exam"],
+  ["Starting salary", "salary"],
+];
+
 function CareersTab() {
-  const [stream, setStream] = useState("all");
-  const [areas, setAreas] = useState(() => new Set());
-  const [q, setQ] = useState("");
-  const [sort, setSort] = useState("popular");
-
-  const needle = q.trim().toLowerCase();
-
-  // The sidebar's counts are computed over stream + search but NOT over the
-  // area checkboxes — verified on the board: ticking one area leaves the
-  // other eight counts untouched. Computing them over the area selection
-  // too would zero every box the moment one was ticked.
-  const base = useMemo(
-    () => CAREERS.filter(
-      (c) => (stream === "all" || c.streams.includes(stream)) &&
-             (!needle || c.haystack.includes(needle))
-    ),
-    [stream, needle]
-  );
-
-  const counts = useMemo(() => {
-    const out = Object.fromEntries(INTEREST_AREAS.map((a) => [a, 0]));
-    base.forEach((c) => { out[c.area] += 1; });
-    return out;
-  }, [base]);
-
-  const rows = useMemo(() => {
-    const picked = areas.size ? base.filter((c) => areas.has(c.area)) : base;
-    // "Most popular" IS the CAREER_INDIA array order, so it needs no sort.
-    return sort === "az"
-      ? [...picked].sort((a, b) => a.label.localeCompare(b.label))
-      : picked;
-  }, [base, areas, sort]);
-
-  const toggleArea = (area) => {
-    setAreas((prev) => {
-      const next = new Set(prev);
-      if (next.has(area)) next.delete(area); else next.add(area);
-      return next;
-    });
-  };
-
-  const clearAll = () => { setStream("all"); setAreas(new Set()); setQ(""); };
-
-  const streamLabel = STREAMS.find(([k]) => k === stream)?.[1];
-  const hasFilters = stream !== "all" || areas.size > 0 || needle !== "";
-
   return (
-    <section className="sii-careers">
-      <p className="sii-stream-kicker">Your stream in Class 11–12</p>
-      <div className="sii-streams" role="group" aria-label="Filter by stream">
-        {STREAMS.map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={stream === key}
-            className={`sii-stream${stream === key ? " on" : ""}`}
-            onClick={() => setStream(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <div className="sii-careers-body">
-        <aside className="sii-facets">
-          <p className="sii-facet-kicker">Interest area</p>
-          <ul className="sii-areas">
-            {INTEREST_AREAS.map((area) => {
-              const n = counts[area];
-              return (
-                <li key={area} className={n === 0 && !areas.has(area) ? "off" : ""}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={areas.has(area)}
-                      disabled={n === 0 && !areas.has(area)}
-                      onChange={() => toggleArea(area)}
-                    />
-                    <span className="sii-area-name">{area}</span>
-                    <span className="sii-area-n">{n}</span>
-                  </label>
-                </li>
-              );
-            })}
-          </ul>
-
-          <p className="sii-facet-kicker">Search careers</p>
-          <div className="sc-search sii-career-search">
-            <Search size={16} aria-hidden="true" />
-            <input
-              aria-label="Search careers"
-              placeholder="e.g. doctor, design, pilot"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-        </aside>
-
-        <div className="sii-careers-main">
-          <div className="sii-sortbar">
-            <label className="sii-sort-lb" htmlFor="sii-sort">Sort</label>
-            <select
-              id="sii-sort"
-              className="sii-sort"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              {SORTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-            </select>
-          </div>
-
-          {hasFilters && (
-            <div className="sii-pills">
-              {stream !== "all" && (
-                <button type="button" className="sii-pill" onClick={() => setStream("all")}>
-                  {streamLabel} <span aria-hidden="true">×</span>
-                  <span className="sii-sr">Remove stream filter</span>
-                </button>
-              )}
-              {INTEREST_AREAS.filter((a) => areas.has(a)).map((a) => (
-                <button key={a} type="button" className="sii-pill" onClick={() => toggleArea(a)}>
-                  {a} <span aria-hidden="true">×</span>
-                  <span className="sii-sr">Remove interest area filter</span>
-                </button>
-              ))}
-              {needle !== "" && (
-                <button type="button" className="sii-pill" onClick={() => setQ("")}>
-                  “{q.trim()}” <span aria-hidden="true">×</span>
-                  <span className="sii-sr">Clear search</span>
-                </button>
-              )}
-              <button type="button" className="sii-clear" onClick={clearAll}>Clear all</button>
-            </div>
-          )}
-
-          {rows.length === 0 ? (
-            <div className="sii-noresult">
-              <p className="sii-noresult-h">No careers match these filters.</p>
-              <p>Try removing an area or choosing “All streams”.</p>
-              <button type="button" className="sii-clear" onClick={clearAll}>Clear all filters</button>
-            </div>
-          ) : (
-            <div className="sii-career-grid">
-              {rows.map((c) => {
-                const Icon = CAREER_ICONS[c.icon] || Lightbulb;
-                return (
-                  <article key={c.key} className="sii-career">
-                    <header className="sii-career-top">
-                      <span className="sii-career-ic" aria-hidden="true">
-                        <Icon size={18} strokeWidth={2} />
-                      </span>
-                      <div className="sii-career-id">
-                        <h3>{c.label}</h3>
-                        <p className="sii-career-area">{c.area}</p>
-                      </div>
-                    </header>
-
-                    {c.blurb && <p className="sii-career-blurb">{c.blurb}</p>}
-
-                    <p className="sii-career-subj">
-                      <BookMarked size={14} aria-hidden="true" />
-                      <span className="sii-career-subj-lb">Subjects:</span>
-                      <b>{c.subjects}</b>
-                    </p>
-
-                    <dl className="sii-career-facts">
-                      <div><dt>Course</dt><dd>{c.course}</dd></div>
-                      <div><dt>Entrance exam</dt><dd>{c.exam}</dd></div>
-                      <div><dt>Starting salary</dt><dd>{c.salary}</dd></div>
-                    </dl>
-
-                    <Link
-                      className="sii-career-go"
-                      to={`/counselling/careers/${encodeURIComponent(c.key)}`}
-                    >
-                      View career details <span aria-hidden="true">→</span>
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+    <CareerExplorer
+      careers={CAREERS}
+      areas={INTEREST_AREAS}
+      streams={STREAMS}
+      facts={INDIA_FACTS}
+    />
   );
 }
 

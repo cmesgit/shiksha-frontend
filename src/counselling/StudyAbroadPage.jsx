@@ -17,9 +17,10 @@
 //   * Guide — the phases of "Study Abroad — Complete Guide" straight from
 //     the CMS, with their own topic counts. If the import changes, this
 //     changes with it.
-//   * Explore courses — the postgraduate subject areas actually present in
-//     abroad100.js, counted at render, each linking into the universities
-//     directory already filtered to that subject.
+//   * Explore careers — CAREER_ABROAD, transcribed from the board, joined
+//     to CAREER_DETAIL for the card blurb. Replaced the old "Explore
+//     courses" subject-area browser, which the v3 board does not draw;
+//     university browsing still lives at /admission/abroad/universities.
 //
 // 🔴 The guide is addressed by SLUG, not by stage. `study-abroad` carries
 // stage "admissions" — the same stage as `study-in-india` — which is
@@ -27,19 +28,28 @@
 // a button reading "Explore colleges in India". Select guides here by the
 // one field that identifies them.
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getGuide } from "../api/guidesApi";
-import { ABROAD_100 } from "./data/abroad100";
+import CareerExplorer from "./CareerExplorer";
+import { CAREER_DETAIL } from "./data/careerDetail";
+import {
+  CAREER_ABROAD, INTEREST_AREAS, STREAMS, PAY_SOURCE, EXCLUDED_NOTE,
+} from "./data/careerAbroad";
 
 const GUIDE_SLUG = "study-abroad";
-const DIRECTORY = "/admission/abroad/universities";
 
+// The board draws exactly two: Guides · Explore careers. The old
+// "Explore courses" tab browsed ABROAD_100's postgraduate subject areas;
+// that is not on this board and the university directory it fed is its own
+// product at /admission/abroad/universities, which still exists.
+// `?tab=courses` is kept as an alias so old links land on the careers tab
+// rather than silently falling back to the guide.
 const TABS = [
-  ["guide", "Guide"],
-  ["courses", "Explore courses"],
+  ["guide", "Guides"],
+  ["careers", "Explore careers"],
 ];
 
 function GuideTab() {
@@ -104,59 +114,52 @@ function GuideTab() {
   );
 }
 
-function CoursesTab() {
-  const [q, setQ] = useState("");
+// Same control set as /counselling/india — see CareerExplorer. Only the
+// dataset and the card's three fact labels differ: the abroad board prints
+// COURSE · TESTS · US MEDIAN PAY where India prints COURSE · ENTRANCE EXAM
+// · STARTING SALARY.
+const CAREERS = CAREER_ABROAD.map((c) => {
+  const detail = CAREER_DETAIL[c.key] || {};
+  return {
+    ...c,
+    // 🔴 `blurb` comes from CAREER_ABROAD, NOT from CAREER_DETAIL.overview
+    // like the India page does. The editorial overviews are India-specific
+    // prose — "Engineering is one of India's largest…", "Software and IT is
+    // India's flagship export industry" — and rendering them on the abroad
+    // card put the word "India" on every tile of a Study-abroad screen.
+    // CAREER_DETAIL is still joined for `jobRoles`, which feeds the search.
+    haystack: [
+      c.label, c.key, c.area, c.subjects, c.course, c.tests, c.blurb || "",
+      (detail.jobRoles || []).join(" "),
+    ].join(" ").toLowerCase(),
+  };
+});
 
-  const subjects = useMemo(() => {
-    const m = new Map();
-    ABROAD_100.forEach((r) => (r.subjects || []).forEach((s) => m.set(s, (m.get(s) || 0) + 1)));
-    return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  }, []);
+const ABROAD_FACTS = [
+  ["Course", "course"],
+  ["Tests", "tests"],
+  ["US median pay", "pay"],
+];
 
-  const shown = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return needle ? subjects.filter(([s]) => s.toLowerCase().includes(needle)) : subjects;
-  }, [q, subjects]);
-
+function CareersTab() {
   return (
-    <>
-      <div className="sii-careers-bar">
-        <div className="sc-search sii-careers-search">
-          <ScribbleIcon name="search" size={16} color="rgba(14,28,15,.45)" />
-          <input
-            aria-label="Search courses"
-            placeholder="Search subject areas"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
-        </div>
-        <span className="sii-careers-count">
-          {shown.length} of {subjects.length}
-        </span>
-      </div>
-
-      {/* Subject areas as the source gives them — these are the main
-          POSTGRADUATE areas each institution lists, not a course catalogue,
-          which is why the lede says so rather than promising every degree. */}
-      {shown.length === 0 ? (
-        <div className="sc-empty">No subject area matches “{q.trim()}”.</div>
-      ) : (
-        <div className="sab-courses">
-          {shown.map(([name, n]) => (
-            <Link key={name} className="sab-course" to={`${DIRECTORY}?subject=${encodeURIComponent(name)}`}>
-              <b>{name}</b>
-              <small>{n} {n === 1 ? "university" : "universities"}</small>
-            </Link>
-          ))}
-        </div>
-      )}
-    </>
+    <CareerExplorer
+      careers={CAREERS}
+      areas={INTEREST_AREAS}
+      streams={STREAMS}
+      facts={ABROAD_FACTS}
+      tone="abroad"
+      // The board prints both sentences under the grid. The pay source is
+      // not decoration: a bare "$244k / year" with no provenance reads as a
+      // promise rather than a national median.
+      note={`${EXCLUDED_NOTE} ${PAY_SOURCE}`}
+    />
   );
 }
 
 export default function StudyAbroadPage() {
   const [params, setParams] = useSearchParams();
-  const raw = params.get("tab");
+  const raw = params.get("tab") === "courses" ? "careers" : params.get("tab");
   const tab = TABS.some(([k]) => k === raw) ? raw : "guide";
 
   const pick = (next) => {
@@ -198,7 +201,7 @@ export default function StudyAbroadPage() {
         ))}
       </div>
 
-      {tab === "guide" ? <GuideTab /> : <CoursesTab />}
+      {tab === "guide" ? <GuideTab /> : <CareersTab />}
     </CounsellingShell>
   );
 }
