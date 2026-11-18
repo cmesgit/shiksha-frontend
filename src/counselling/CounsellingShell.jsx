@@ -27,13 +27,18 @@ export const STEPS = [
 // row on the board, and rendering both gave /admission/abroad/countries two
 // chrome bars reading "Career Counselling" and "Admission Abroad / Country
 // guides" one above the other.
-export default function CounsellingShell({ crumb = "", step = null, nav = null, children }) {
+// `bare` drops the sub-bar entirely. The Career Counselling v3 board draws
+// the landing with the site header and NOTHING between it and the hero —
+// no "Career Counselling" crumb. Every other counselling screen is a page
+// INSIDE that section and still wants the crumb, so this is opt-in per page
+// rather than a change to the shell's default.
+export default function CounsellingShell({ crumb = "", step = null, nav = null, bare = false, children }) {
   const { live: counsellorsLive } = useCounsellorsLive();
   const steps = counsellorsLive ? STEPS : STEPS.slice(0, 2);
   const stepIndex = steps.findIndex(([k]) => k === step);
   return (
     <div className="sc-page">
-      <div className="sc-subbar">
+      {!bare && <div className="sc-subbar">
         <div className="sc-subbar-in">
           {nav || (
             <>
@@ -56,7 +61,7 @@ export default function CounsellingShell({ crumb = "", step = null, nav = null, 
             </>
           )}
         </div>
-      </div>
+      </div>}
       <div className="sc-wrap">{children}</div>
     </div>
   );
