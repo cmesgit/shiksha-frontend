@@ -56,6 +56,7 @@ const AdmissionIndiaOverview = lazy(() => import("../counselling/AdmissionIndiaO
 // directory — that card used to land there, which answered a question
 // about guides with a list of colleges.
 const StudyInIndia        = lazy(() => import("../counselling/StudyInIndiaPage"));
+const StudyAbroad        = lazy(() => import("../counselling/StudyAbroadPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -462,6 +463,7 @@ function App() {
             career profiles before signing up; only the report needs an
             account. `?tab=careers` opens the second tab directly. */}
         <Route path="/counselling/india"              element={<Page><StudyInIndia /></Page>} />
+        <Route path="/counselling/abroad"              element={<Page><StudyAbroad /></Page>} />
         {/* Admission in India — the Colleges-tab destination and the navbar
             entry. Public, like the guide library. */}
         <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />

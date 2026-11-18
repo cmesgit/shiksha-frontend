@@ -47,7 +47,8 @@ import CounsellingShell from "./CounsellingShell";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getGuideIndex, toGuideCard } from "../api/guidesApi";
 import { useAuth } from "../contexts/AuthContext";
-import { fullDetailKeys } from "./careerVocab";
+import { hasFullDetail } from "./careerVocab";
+import { CAREER_DETAIL } from "./data/careerDetail";
 
 // `stages` are CMS `stage` slugs (counseling/fixtures/career_guides/
 // manifest.json). `lead` names the guide that titles the card; the rest
@@ -58,10 +59,6 @@ const STAGE_CARDS = [
   { n: 3, label: "For Class 11–12", lead: "class-11-12", stages: ["class-11-12", "after-12"] },
   { n: 4, label: "For college students", lead: "undergraduate", stages: ["ug", "pg"] },
 ];
-
-// The admissions handbook is not a school stage — it is the India-specific
-// reference the whole page is named after, so it gets its own row.
-const ADMISSIONS_STAGE = "admissions";
 
 const TABS = [
   ["guides", "Guides"],
@@ -128,7 +125,6 @@ function GuidesTab({ guides, loading }) {
     guides: card.stages.flatMap((s) => byStage.get(s) || []),
   })).filter((c) => c.guides.length > 0);
 
-  const admissions = byStage.get(ADMISSIONS_STAGE) || [];
 
   if (loading) {
     return (
@@ -141,7 +137,7 @@ function GuidesTab({ guides, loading }) {
   // getGuideIndex() swallows transport failures into [] (api/guidesApi.js),
   // so an empty result here cannot be told apart from a library that is
   // genuinely empty. The copy therefore claims neither.
-  if (!cards.length && !admissions.length) {
+  if (!cards.length) {
     return (
       <div className="sc-empty">
         The guide library isn’t loading right now — try again in a moment, or{" "}
@@ -158,75 +154,126 @@ function GuidesTab({ guides, loading }) {
         ))}
       </div>
 
-      {admissions.map((g) => (
-        <section key={g.slug} className="sii-handbook">
-          <div>
-            <span className="sc-badge orange">Admissions</span>
-            <h3>{g.title}</h3>
-            <p>{g.blurb}</p>
-          </div>
-          <div className="sii-handbook-acts">
-            <Link className="sc-btn green sm" to={`/counselling/guides/${g.slug}`}>
-              Open the handbook
-            </Link>
-            {/* The NIRF directory the landing card used to lead with. It is a
-                good page — it was simply never an answer to "show me guides
-                and careers". From here it is one click, correctly labelled. */}
-            <Link className="sc-btn ghost sm" to="/admission/india">
-              Explore colleges in India
-            </Link>
-          </div>
-        </section>
-      ))}
+      {/* The admissions handbook row is GONE. It rendered every guide whose
+          stage is "admissions", and `study-abroad` carries that same stage —
+          so an ABROAD handbook was appearing on the India page, under a
+          button reading "Explore colleges in India". Neither handbook
+          belongs in a tab of short, stage-by-stage India guides: the India
+          one is reachable from its own stage cards and the abroad one from
+          /counselling/abroad. */}
     </>
   );
 }
 
 /**
- * Explore careers — a signpost, not the artboard's grid.
+ * Explore careers.
  *
- * The artboard shows ~42 careers across nine interest areas, each card
- * carrying a stream, subject list, degree, entrance exam and starting
- * salary, behind stream chips, interest facets, a search box and a sort.
- * That dataset does not exist: `data/careerDetail.js` holds 30 careers
- * with no stream, interest-area, degree or entrance-exam field, and only
- * the six in CAREER_FULL have enough content for a page at all
- * (careerVocab.js's `hasFullDetail`).
+ * This tab used to show SIX bare cards reading "Career / Engineering" under
+ * a notice saying the browser was "still being written". Six, because
+ * careerFullDetail.js has a detail PAGE for only six.
  *
- * Building the chrome over invented data would put a fabricated entrance
- * exam and salary in front of a fifteen-year-old choosing a stream. So
- * this tab ships the six careers that are real and says plainly what is
- * missing, rather than a grid that looks complete and is not.
+ * But careerDetail.js holds THIRTY careers with real content — overview,
+ * job roles, salary bands, market demand, recruiters, progression — so 24
+ * real careers were being hidden behind that notice. They are all here now,
+ * each card carrying what the data actually has.
+ *
+ * 🔴 WHAT IS STILL NOT BUILT, and why it is a DATA task, not a UI one:
+ * the board puts a stream chip row and an interest-area rail over this grid.
+ * `stream`, `interestArea`, `degree` and `entranceExam` are present on
+ * 0 of 30 careers. Inventing an entrance exam or a stream for a fifteen-
+ * year-old choosing their subjects is the one thing worth refusing, so the
+ * facets wait for the data rather than being approximated. Search and sort
+ * work on fields that DO exist.
  */
+const SORTS = [
+  ["name", "A–Z"],
+  ["demand", "Market demand"],
+];
+const DEMAND_RANK = { High: 0, "Very High": 0, Moderate: 1, Medium: 1, Low: 2 };
+
 function CareersTab() {
-  const real = fullDetailKeys();
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState("name");
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const all = Object.keys(CAREER_DETAIL).map((key) => ({ key, ...CAREER_DETAIL[key] }));
+    const hit = needle
+      ? all.filter((c) =>
+          (c.key + " " + (c.overview || "") + " " + (c.jobRoles || []).join(" "))
+            .toLowerCase()
+            .includes(needle)
+        )
+      : all;
+    return [...hit].sort((a, b) =>
+      sort === "demand"
+        ? (DEMAND_RANK[a.marketDemand] ?? 9) - (DEMAND_RANK[b.marketDemand] ?? 9) ||
+          a.key.localeCompare(b.key)
+        : a.key.localeCompare(b.key)
+    );
+  }, [q, sort]);
+
   return (
     <section className="sii-careers">
-      <div className="sii-careers-note">
-        <ScribbleIcon name="info" size={18} aria-hidden="true" />
-        <p>
-          The full career browser — streams, interest areas, entrance exams and
-          starting salaries — is still being written. These {real.length} career
-          profiles are complete and free to read now.
-        </p>
+      <div className="sii-careers-bar">
+        <div className="sc-search sii-careers-search">
+          <ScribbleIcon name="search" size={16} color="rgba(14,28,15,.45)" />
+          <input
+            aria-label="Search careers"
+            placeholder="Search careers, roles or skills"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <div className="sii-careers-sort" role="tablist" aria-label="Sort careers">
+          {SORTS.map(([key, label]) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={sort === key}
+              className={`sii-sort${sort === key ? " on" : ""}`}
+              onClick={() => setSort(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <span className="sii-careers-count">
+          {rows.length} of {Object.keys(CAREER_DETAIL).length}
+        </span>
       </div>
 
-      <div className="sc-grid3">
-        {real.map((key) => (
-          <Link key={key} to={`/counselling/careers/${encodeURIComponent(key)}`} className="sc-guide-card">
-            <span className="sc-badge teal">Career</span>
-            <h3 className="sc-guide-title">{key}</h3>
-            <span className="sii-career-go">View career details <span aria-hidden="true">→</span></span>
-          </Link>
-        ))}
-      </div>
-
-      <p className="sc-note" style={{ marginTop: 16 }}>
-        Looking for something else? The{" "}
-        <Link to="/counselling/india">Guides tab</Link> covers streams, degrees
-        and entrance exams in depth, and a{" "}
-        <Link to="/counselling/profile">career report</Link> matches them to you.
-      </p>
+      {rows.length === 0 ? (
+        <div className="sc-empty">No career matches “{q.trim()}”.</div>
+      ) : (
+        <div className="sii-career-grid">
+          {rows.map((c) => (
+            <Link
+              key={c.key}
+              to={`/counselling/careers/${encodeURIComponent(c.key)}`}
+              className="sii-career"
+            >
+              <h3>{c.key}</h3>
+              {c.overview && <p className="sii-career-blurb">{c.overview}</p>}
+              <dl className="sii-career-meta">
+                {c.salaryFresher && (
+                  <div><dt>Starting</dt><dd>{c.salaryFresher}</dd></div>
+                )}
+                {c.marketDemand && (
+                  <div><dt>Demand</dt><dd>{c.marketDemand}</dd></div>
+                )}
+              </dl>
+              {(c.jobRoles || []).length > 0 && (
+                <p className="sii-career-roles">{(c.jobRoles || []).slice(0, 3).join(" · ")}</p>
+              )}
+              <span className="sii-career-go">
+                {hasFullDetail(c.key) ? "View career details" : "View career"}{" "}
+                <span aria-hidden="true">→</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

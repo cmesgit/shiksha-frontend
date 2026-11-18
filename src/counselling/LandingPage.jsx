@@ -250,8 +250,18 @@ export default function LandingPage() {
             "Not open yet" gate. `null` (flag not yet known) is treated as
             off: better a card that turns into a link a moment later than one
             that flashes a working link and retracts it. */}
+        {/* Target is /counselling/abroad, NOT /admission/abroad. Both cards
+            in this block promise "guides and career profiles"; this one used
+            to land on the admission product's university directory while its
+            sibling went to a counselling page with tabs. /counselling/abroad
+            is the twin of /counselling/india.
+
+            The flag gate STAYS: that page's Explore-courses tab links into
+            /admission/abroad/universities, which is gated, so with the flag
+            off this card would still lead to the "Not open yet" screen one
+            click later. */}
         {abroadOn ? (
-          <Link to="/admission/abroad" className="sc-explore-card">
+          <Link to="/counselling/abroad" className="sc-explore-card">
             <span className="sc-explore-ic violet" aria-hidden="true"><ScribbleIcon name="globe" size={22} /></span>
             <h3>Study abroad</h3>
             <p>Guides on countries, tests and costs, and careers to study for abroad.</p>
