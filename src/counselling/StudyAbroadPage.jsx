@@ -167,16 +167,21 @@ export default function StudyAbroadPage() {
   };
 
   return (
-    <CounsellingShell crumb=" / Study abroad">
-      <header className="sii-head">
+    <CounsellingShell crumb=" / Study abroad" plain>
+      {/* The board draws this hero exactly like Study in India's but in the
+          module's abroad indigo rather than green — same card, same glyph
+          tile, accent bar recoloured. .sii-head is shared with
+          StudyInIndiaPage, so the --abroad modifier is what keeps the two
+          apart; without it this page inherited the green bar. */}
+      <header className="sii-head sii-head--abroad">
         <span className="sii-head-ic" aria-hidden="true">
           <ScribbleIcon name="globe" size={22} color="#6d5bd0" />
         </span>
         <div className="sii-head-tx">
           <h1 className="sc-h1">Study abroad</h1>
-          <p className="sc-sub">Guides on countries, tests and costs, and courses you can study abroad.</p>
+          <p className="sc-sub">Short guides and careers for studying abroad.</p>
         </div>
-        <Link className="sc-btn" to="/counselling/profile">Get my career report →</Link>
+        <Link className="sc-btn sii-cta--abroad" to="/counselling/profile">Get my abroad career report →</Link>
       </header>
 
       <div className="sii-tabs" role="tablist" aria-label="Study abroad">

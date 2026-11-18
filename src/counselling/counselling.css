@@ -1113,6 +1113,17 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
 .sii-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px;
   background: #fff; border: 1px solid rgba(18,45,30,.08); border-left: 5px solid #125027;
   border-radius: 14px; padding: 24px 26px }
+
+/* 🔴 .sii-head is SHARED with StudyAbroadPage. The card treatment above was
+   added for the Study in India board match and silently landed on
+   /counselling/abroad too — carded hero, green bar, still on the old tint,
+   because only the India page had been switched to sc-page--plain. These two
+   rules are the correction: abroad gets its own accent and its own CTA in
+   the module's existing indigo (#6d5bd0, already the colour of this page's
+   globe glyph), and the page itself is now `plain` like the board draws it. */
+.sii-head--abroad { border-left-color: #6d5bd0 }
+.sc-btn.sii-cta--abroad { background: #6d5bd0; border-color: #6d5bd0; color: #fff }
+.sc-btn.sii-cta--abroad:hover { background: #5b49bd; border-color: #5b49bd }
 .sii-head .sc-explore-ic { margin-bottom: 0; flex: none }
 .sii-head-tx { flex: 1; min-width: 0 }
 .sii-head-tx .sc-h1 { margin-bottom: 6px }
