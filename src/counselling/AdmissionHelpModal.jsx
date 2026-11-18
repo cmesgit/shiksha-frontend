@@ -1,19 +1,28 @@
 // PLACEMENT: src/counselling/AdmissionHelpModal.jsx   (NEW FILE)
 //
-// The lead-capture modal behind every "Get admission help" and "Talk to
-// counsellor" control on the Admission Abroad board
-// (claude.ai/artifact/4nxDHtLVf28SB9DTNzFxga#artboard-e1ccdaae93d6).
+// The lead-capture modal behind every "Get admission help" / "Request
+// brochure" / "Talk to counsellor" control on BOTH the Admission Abroad
+// board (claude.ai/artifact/4nxDHtLVf28SB9DTNzFxga#artboard-e1ccdaae93d6)
+// and the Admission in India v2 board. Shared because the field set is
+// identical except for the country field and copy — see `domain` below.
 //
 // ── Why this exists ──────────────────────────────────────────────────
 // Every one of these buttons was shipped as a <Link to="/counselling/
 // counsellors">, on the (never checked) assumption that it just navigated.
 // Clicking it on the real board — not screenshotting it — showed it opens
 // this modal instead, on BOTH the university-card button and the header's
-// global button, with two copy variants sharing one field set:
-//   * from a university: "Get admission help" / "...help you plan your
-//     application to {University}."
-//   * from the header:   "Talk to a study abroad counsellor" / "...a
-//     ShikshaCom counsellor will call you back."
+// global button, with copy variants sharing one field set:
+//   * abroad, from a university: "Get admission help" / "...help you plan
+//     your application to {University}."
+//   * abroad, generic (header nav, country page): "Talk to a study abroad
+//     counsellor" / "...a ShikshaCom counsellor will call you back."
+//   * india, from an institution's "Request brochure": "Request brochure"
+//     / "...send you {Institution}'s brochure and help with admissions."
+//   * india, generic ("Talk to a counsellor"): "Talk to a counsellor" /
+//     "...a ShikshaCom counsellor will call you back."
+// `domain="india"` drops the Preferred country field (not meaningful for a
+// domestic enquiry) and swaps "Course / study level" for the board's own
+// "Course you're interested in" label.
 //
 // ── Where it submits ─────────────────────────────────────────────────
 // There is no dedicated "admission help" endpoint, and none was built for
@@ -42,7 +51,7 @@ import { submitContactMessage } from "../api/contentApi";
 const PHONE_RE = /^[6-9]\d{9}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function AdmissionHelpModal({ open, onClose, title, subtitle, defaultCountry = "", universityName }) {
+export default function AdmissionHelpModal({ open, onClose, title, subtitle, defaultCountry = "", universityName, domain = "abroad" }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
@@ -92,13 +101,21 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
     setErrors(next);
     if (Object.keys(next).length) return;
 
-    const messageLines = [
-      universityName
-        ? `Study abroad admission help request for ${universityName}.`
-        : "Study abroad counsellor callback request.",
-      `Preferred country: ${country.trim() || "Not specified"}.`,
-      `Course / study level: ${course.trim() || "Not specified"}.`,
-    ];
+    const messageLines =
+      domain === "india"
+        ? [
+            universityName
+              ? `Brochure / admission help request for ${universityName}.`
+              : "India admissions counsellor callback request.",
+            `Course interested in: ${course.trim() || "Not specified"}.`,
+          ]
+        : [
+            universityName
+              ? `Study abroad admission help request for ${universityName}.`
+              : "Study abroad counsellor callback request.",
+            `Preferred country: ${country.trim() || "Not specified"}.`,
+            `Course / study level: ${course.trim() || "Not specified"}.`,
+          ];
 
     setSending(true);
     try {
@@ -138,7 +155,10 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
           <div className="ahm-done" role="status" aria-live="polite">
             <span className="ahm-done-tick" aria-hidden="true">✓</span>
             <h3>Thanks — we've got it.</h3>
-            <p>A ShikshaCom counsellor will call you on {mobile} about study abroad admissions.</p>
+            <p>
+              A ShikshaCom counsellor will call you on {mobile} about
+              {domain === "india" ? " admissions." : " study abroad admissions."}
+            </p>
             <button className="sc-btn green" onClick={onClose}>Close</button>
           </div>
         ) : (
@@ -155,7 +175,9 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
               <input value={mobile} onChange={(e) => setMobile(e.target.value)}
                      placeholder="10-digit Indian mobile" inputMode="numeric"
                      className={errors.mobile ? "ahm-err" : ""} />
-              <small className="ahm-hint">We'll only use this to call you about study abroad admissions.</small>
+              <small className="ahm-hint">
+                We'll only use this to call you about {domain === "india" ? "admissions" : "study abroad admissions"}.
+              </small>
               {errors.mobile && <small className="ahm-errtx">Enter a 10-digit mobile number starting with 6, 7, 8 or 9.</small>}
             </label>
 
@@ -166,21 +188,25 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
               {errors.email && <small className="ahm-errtx">That doesn't look like a valid email address.</small>}
             </label>
 
-            <label className="ahm-field">
-              <span>Preferred country</span>
-              <input value={country} onChange={(e) => setCountry(e.target.value)} />
-            </label>
+            {domain !== "india" && (
+              <label className="ahm-field">
+                <span>Preferred country</span>
+                <input value={country} onChange={(e) => setCountry(e.target.value)} />
+              </label>
+            )}
 
             <label className="ahm-field">
-              <span>Course / study level</span>
-              <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. MS Computer Science" />
+              <span>{domain === "india" ? "Course you're interested in" : "Course / study level"}</span>
+              <input value={course} onChange={(e) => setCourse(e.target.value)}
+                     placeholder={domain === "india" ? "e.g. B.Tech Computer Science" : "e.g. MS Computer Science"} />
             </label>
 
             <label className={`ahm-consent${errors.consent ? " ahm-err" : ""}`}>
               <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
               <span>
-                I agree that ShikshaCom may contact me by phone, SMS, WhatsApp or email about study
-                abroad admissions, and I have read the privacy policy. I can withdraw consent at any time.
+                I agree that ShikshaCom may contact me by phone, SMS, WhatsApp or email about
+                {domain === "india" ? " admissions" : " study abroad admissions"}, and I have read
+                the privacy policy. I can withdraw consent at any time.
               </span>
             </label>
 
