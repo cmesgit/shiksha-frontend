@@ -3,29 +3,50 @@
 // Country-guide content for Admission Abroad → Countries.
 //
 // ── Provenance ───────────────────────────────────────────────────────
-// Transcribed from the design project's Country guides board (exported as
-// `~/Downloads/Admission in India design.pdf` — the filename says India, the
-// content is Admission Abroad) plus the full card text supplied in chat on
-// 2026-11-17. The board's own source file is
-// `project/src/counselling/data/guidesAbroad.js` (23,444 bytes), which this
-// repo does not have; when it arrives, replace this module rather than
-// merging into it.
+// 47 entries were transcribed from the Country guides board plus card text
+// supplied in chat on 2026-11-17. The remaining 9 were EXTRACTED on
+// 2026-11-18 from `abroad3.docx` PHASE 13 ("COUNTRY-WISE EDUCATION GUIDE"),
+// which is in the repo's own source bundle — the design project's
+// `guidesAbroad.js` was never needed.
 //
-// ── What is NOT here, and why the count is derived ───────────────────
-// 🔴 The board's subtitle says "56 destinations". This file holds 47. The
-// supplied text ended mid-sentence inside Israel and never reached the
-// Africa or Latin America entries, even though both are region chips on the
-// board. `COUNTRY_REGIONS` therefore still lists them — the chips must exist
-// to match the design — but they will filter to an empty set until the
-// missing entries land. The screen prints `ABROAD_COUNTRIES.length`, not a
-// hardcoded 56, so it cannot claim destinations it does not have.
+// Extractor validated before use: re-deriving the 47 already here reproduced
+// 40 blurbs VERBATIM. Of the rest, 4 (Switzerland, Spain, Italy, Greece)
+// differ only in how a trailing list is joined and the hand-checked text was
+// kept, and 3 are name variants ("the UK"/"the USA"/"the UAE", as the source
+// phrases them inside "Why study in X?"). Nothing already here was rewritten.
 //
-// Known missing, from the 51 countries present in `abroad100.js`:
-//   Africa        South Africa, Egypt, Morocco, Kenya, Nigeria, Ghana
-//   Latin America Brazil, Mexico, Chile, Argentina, Colombia
-//   Asia          Türkiye, Indonesia, Philippines, Pakistan, Bangladesh,
-//                 Sri Lanka
-//   Middle East   Israel (blurb truncated in the source)
+// ── Three defects in the source the extractor had to survive ─────────
+//   * TWO Q&A shapes: most countries run question and answer together in one
+//     paragraph ("1. Why study in the UK?The UK offers..."), Germany alone
+//     uses headings with separate paragraphs.
+//   * Six blocks are headed "PHASE 13.11 — NETHERLANDS" where the rest are
+//     "13.1 UNITED KINGDOM".
+//   * 🔴 AUSTRALIA'S BLOCK HAS NO HEADING AT ALL — it begins straight at
+//     "A. Country Overview". Segmenting on 13.N therefore loses it silently.
+//     Segment on "A. Country Overview" and read the country's name out of
+//     its own "Why study in X?" question instead.
+//
+// 🔴 CANADA and GREECE are each written TWICE in the source, with different
+// text (13.5 twice; 13.26 and 13.30). The LATER block wins — the Canada
+// blurb already shipped here matches the second one, so that is the
+// established precedent, not a new judgement.
+//
+// ── The count is now the board's 56, and it is DERIVED ───────────────
+// 58 blocks minus those 2 duplicates = 56 unique countries, which is exactly
+// the "56 destinations" the board prints. The screen still renders
+// ABROAD_COUNTRIES.length rather than a literal 56, so it cannot overclaim
+// if an entry is ever removed.
+//
+// The 9 added are Israel (Middle East), South Africa / Mauritius / Egypt
+// (Africa) and Mexico / Costa Rica / Brazil / Argentina / Chile (Latin
+// America) — the Africa and Latin America chips previously filtered to an
+// empty set.
+//
+// Six of those nine DO carry QS-ranked universities and their rank lines
+// derive live from `abroad100.js`: South Africa 2, Egypt 2, Mexico 2,
+// Brazil 2, Argentina 1, Chile 1. Israel, Mauritius and Costa Rica have
+// none and render the literal "Country guide", as the board already does
+// for Iceland, Malta and Croatia. Nothing here stores a count.
 //
 // ── The rank line is DERIVED, never stored ───────────────────────────
 // Each card shows "N QS-ranked universit(y|ies)", or the literal
@@ -193,4 +214,31 @@ export const ABROAD_COUNTRIES = [
   { name: "Oman", flag: "🇴🇲", region: "Middle East",
     blurb: "Oman is an emerging study destination in the Gulf with universities and colleges offering programmes in engineering, computing, business, logistics, maritime studies, medicine, science, design and humanities. The official Study in Oman platform lists recognised higher-education institutions and their available services for international students.",
     intakes: "Intakes vary between institutions. Many programmes admit students around the September/October academic period, while some institutions offer additional intakes." },
+  { name: "Israel", flag: "🇮🇱", region: "Middle East",
+    blurb: "Israel is known for its strong research, technology and innovation ecosystem. Its higher-education system includes universities, academic colleges and teacher-training institutions, with international programmes offered in English at Bachelor's and Master's level and research opportunities at PhD/Postdoctoral level. The Israeli Council for Higher Education's international portal currently lists 61 higher-education institutions.",
+    intakes: "The main academic year generally begins around October, although individual universities and programmes may have different application deadlines and starting dates." },
+  { name: "South Africa", flag: "🇿🇦", region: "Africa",
+    blurb: "South Africa has one of the more established higher-education systems in Africa, with universities offering programmes across business, engineering, technology, medicine, science, law, humanities, agriculture and creative fields. The country also has several internationally recognised research universities.",
+    intakes: "The major academic year generally begins around January/February." },
+  { name: "Mauritius", flag: "🇲🇺", region: "Africa",
+    blurb: "Mauritius is an attractive study destination for students looking for a multicultural, relatively accessible island destination with programmes offered in English and French. It is also developing as a regional higher-education hub, with opportunities in business, ICT, engineering, tourism, health sciences, and emerging technology fields.",
+    intakes: "The September/October period is a common major intake, although some institutions and programmes may offer additional intakes." },
+  { name: "Egypt", flag: "🇪🇬", region: "Africa",
+    blurb: "Egypt is an important higher-education destination in North Africa and has a large network of universities and higher-education institutions. Its official Study in Egypt platform provides international students with information on recognised universities, programmes and application services. The platform currently lists 131 universities and thousands of study programmes/services.",
+    intakes: "The main academic cycle generally begins around September/October, although application periods and additional intakes can differ between universities and programmes." },
+  { name: "Mexico", flag: "🇲🇽", region: "Latin America",
+    blurb: "Mexico is one of Latin America's major higher-education destinations, with a large university system and programmes across engineering, technology, business, economics, medicine, architecture, social sciences, humanities and the arts.",
+    intakes: "The main academic cycle commonly begins around August/September, although universities may also have: The main academic cycle commonly begins around August/September, although universities may also have:; January/February intake; Spring intake; Programme-specific admission periods; Students should check the individual university's calendar." },
+  { name: "Costa Rica", flag: "🇨🇷", region: "Latin America",
+    blurb: "Costa Rica is a Central American study destination known for its stable higher-education system, environmental focus, biodiversity, sustainability research and Spanish-language academic environment.",
+    intakes: "The academic year commonly begins around February/March, while some universities also have admissions for later periods." },
+  { name: "Brazil", flag: "🇧🇷", region: "Latin America",
+    blurb: "Brazil is the largest higher-education destination in Latin America and offers a wide range of programmes in areas such as engineering, technology, business, medicine, agriculture, environmental science, social sciences, humanities and the arts. Students can choose between public and private universities, with Portuguese being the main language of instruction.",
+    intakes: "Brazil does not have one single international intake calendar." },
+  { name: "Argentina", flag: "🇦🇷", region: "Latin America",
+    blurb: "Argentina is one of the major higher-education destinations in South America. It offers a broad range of programmes through public and private universities, with particularly strong options in medicine, engineering, business, economics, social sciences, humanities, agriculture, environmental studies, arts and technology.",
+    intakes: "Argentina generally follows an academic year beginning around March, although some universities and programmes have different admission periods." },
+  { name: "Chile", flag: "🇨🇱", region: "Latin America",
+    blurb: "Chile is one of the stronger higher-education destinations in South America, with universities offering programmes across engineering, technology, business, finance, economics, medicine, environmental science, mining, agriculture, architecture, social sciences and humanities.",
+    intakes: "The Chilean academic year generally begins around March." },
 ];
