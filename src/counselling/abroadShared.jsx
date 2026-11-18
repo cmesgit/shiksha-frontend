@@ -30,6 +30,27 @@ export function evidenceTone(label = "") {
 export const csv = (v) =>
   v ? String(v).split(",").map((s) => s.trim()).filter(Boolean) : [];
 
+/**
+ * The directory card's fee chip. THREE labels, which is what the board
+ * draws — and they do NOT line up with evidenceTone()'s three buckets, so
+ * this is a separate rule rather than a reuse.
+ *
+ * Read off the board: MIT ("Published amount / example") → Published fee;
+ * Imperial and Oxford ("Published fee policy; programme-specific") → Fee
+ * policy; Cornell ("Not verified") → Fee not verified. evidenceTone() puts
+ * Imperial in "published", so reusing it would have mislabelled 23 rows.
+ *
+ * Order matters: a label can say both "policy" and "not verified"
+ * ("Published fee policy; amount not verified"), and the board treats that
+ * as a policy — there IS a published policy, just no number.
+ */
+export function feeChip(label = "") {
+  const l = label.toLowerCase();
+  if (l.includes("policy") || l.includes("guidance")) return { label: "Fee policy", tone: "partial" };
+  if (l.includes("not verified")) return { label: "Fee not verified", tone: "none" };
+  return { label: "Published fee", tone: "published" };
+}
+
 export function Drawer({ row, onClose }) {
   if (!row) return null;
   const tone = evidenceTone(row.feeEvidence);

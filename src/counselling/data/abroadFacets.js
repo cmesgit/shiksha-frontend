@@ -94,6 +94,39 @@ export function fundingOf(row) {
   return /private|foundation university/i.test(row.type) ? "Private" : "Public";
 }
 
+// ── Chip order on a university card ──────────────────────────────────
+// A card shows at most four areas, and the board does NOT pick the first
+// four in browse order — MIT prints Economics ahead of Sciences &
+// Mathematics although Sciences is the larger area. The board uses a fixed
+// PRIORITY, applied to whichever areas the university actually holds.
+//
+// Recovered from six cards whose chips were read off the board (MIT,
+// Stanford, Imperial, Oxford, Cambridge, Caltech) — the order below is the
+// only one consistent with all six, and CARD_CHIPS asserts it in dev.
+// Positions 8–12 are unconstrained by that evidence: no observed card
+// reached them, so they keep browse order and are a guess that nothing on
+// screen currently depends on.
+const CHIP_PRIORITY = [
+  "Engineering & Technology",
+  "Computing, AI & Data",
+  "Business & Management",
+  "Law",
+  "Medicine & Health",
+  "Economics",
+  "Sciences & Mathematics",
+  "Social Sciences & Policy",
+  "Arts & Humanities",
+  "Education",
+  "Architecture & Design",
+  "Agriculture & Forestry",
+];
+
+/** The areas a card shows, in the board's chip order, most important first. */
+export function chipAreasOf(row) {
+  const have = new Set(areasOf(row));
+  return CHIP_PRIORITY.filter((a) => have.has(a));
+}
+
 // ── Flags for countries that have no country guide ───────────────────
 // The browse cards take their flag from ABROAD_COUNTRIES, which is the 56
 // country GUIDES. 15 of the 51 countries in abroad100.js have QS-ranked
@@ -161,6 +194,25 @@ if (import.meta.env?.DEV) {
   const flagless = [...new Set(ABROAD_100.map((r) => r.country))]
     .filter((name) => !guided.has(name) && !EXTRA_FLAGS[name]);
   if (flagless.length) problems.push(`countries with no flag: ${flagless.join(", ")}`);
+
+  // The six cards whose chips were read off the board, verbatim. These pin
+  // CHIP_PRIORITY: reorder it and at least one of these stops matching.
+  const CARD_CHIPS = {
+    "Massachusetts Institute of Technology (MIT)": ["Engineering & Technology", "Computing, AI & Data", "Business & Management", "Economics"],
+    "Stanford University": ["Engineering & Technology", "Computing, AI & Data", "Business & Management", "Law"],
+    "Imperial College London": ["Engineering & Technology", "Computing, AI & Data", "Business & Management", "Medicine & Health"],
+    "University of Oxford": ["Business & Management", "Law", "Medicine & Health", "Sciences & Mathematics"],
+    "University of Cambridge": ["Engineering & Technology", "Computing, AI & Data", "Business & Management", "Law"],
+    "California Institute of Technology (Caltech)": ["Engineering & Technology", "Computing, AI & Data", "Sciences & Mathematics"],
+  };
+  Object.entries(CARD_CHIPS).forEach(([name, expected]) => {
+    const row = ABROAD_100.find((r) => r.name === name);
+    if (!row) return problems.push(`chip check: "${name}" is not in the dataset`);
+    const got = chipAreasOf(row).slice(0, 4);
+    if (got.join(" | ") !== expected.join(" | ")) {
+      problems.push(`chips for ${name}:\n      got      ${got.join(" | ")}\n      board    ${expected.join(" | ")}`);
+    }
+  });
 
   if (problems.length) {
     console.error("[abroadFacets] mapping disagrees with the board:\n  " + problems.join("\n  "));
