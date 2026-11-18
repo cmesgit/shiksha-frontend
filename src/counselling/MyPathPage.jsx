@@ -143,8 +143,9 @@ export default function MyPathPage() {
             <ol className="sc-next">
               {p.nextSteps.map((s, i) => <li key={i}>{s}</li>)}
             </ol>
-            {/* Only offered where a real career profile exists. hasFullDetail
-                is false for most path titles — see careerVocab.js. */}
+            {/* Offered wherever the title maps to one of the thirty careers.
+                Still gated: a path title that is not a career (e.g. a broad
+                stream) has nowhere to link — see careerVocab.js. */}
             {hasFullDetail(p.title) && (
               <Link className="sc-btn ghost sc-btn-sm-top" to={`/counselling/careers/${encodeURIComponent(toCareerKey(p.title))}`}>
                 Explore this career in detail →
