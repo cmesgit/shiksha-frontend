@@ -28,7 +28,24 @@ const ROWS = [
   ["Country", (r, _, flagOf) => <>{flagOf.get(r.country)} {r.country}</>],
   ["Region", (r) => r.region],
   ["Type", (r) => r.type],
-  ["Subject areas", (r) => <span className="ab-subject">{r.subjects.join(", ")}</span>],
+  [
+    "Subject areas",
+    // abroad100.js stores these lowercase ("engineering", "computing and
+    // AI"). `::first-letter` capitalises the first character of a WHOLE
+    // text node, not of each comma-separated item — joining into one
+    // string and relying on that rule left every word after the first
+    // comma lowercase. Each item needs its own element.
+    (r) => (
+      <>
+        {r.subjects.map((s, i) => (
+          <React.Fragment key={s}>
+            {i > 0 && ", "}
+            <span className="ab-subject">{s}</span>
+          </React.Fragment>
+        ))}
+      </>
+    ),
+  ],
   ["Fee reference", (r) => r.feeYear || "—"],
   ["Tuition & fees", (r) => r.feeDetail],
   ["Fee evidence", (r) => r.feeEvidence],
