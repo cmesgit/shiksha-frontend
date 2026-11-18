@@ -1678,3 +1678,42 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .sab-course b { display: block; font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
 .sab-course b::first-letter { text-transform: uppercase }
 .sab-course small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 4px }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * The landing, measured against the Career Counselling v3 board.
+ *
+ * Scoped to `.sc-page--bare` — which only the landing sets — because every
+ * selector below is shared with the other 18 counselling screens, and the
+ * board only covers this one.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* The board's canvas is WHITE with a warm wash entering from the bottom
+   left, not the flat pale green the section uses elsewhere. */
+.sc-page--bare { background: linear-gradient(168deg, #ffffff 0%, #ffffff 58%, #fdf4e8 100%) }
+
+/* The badge is white with a hairline border; the shared one is a filled
+   pale-green pill. */
+.sc-page--bare .sc-pill-dot { background: #fff; border: 1px solid rgba(18,45,30,.12) }
+
+/* Heavier and LARGER than the shared heading.
+   50px is measured, not chosen by eye: the board breaks the headline after
+   "Let's", and at the board's column share that needs a size where
+   "comes next? Let's map" overflows the column while "Confused about what"
+   still fits. At this column width that window is 49–50px — below it the
+   line reads "comes next? Let's map", above it line 1 breaks early. */
+.sc-page--bare .sc-h1 { font-weight: 800; letter-spacing: -1.1px; font-size: clamp(30px, 4.1vw, 50px) }
+.sc-page--bare .sc-herowrap .sc-h1 { font-size: clamp(30px, 4.1vw, 50px) }
+
+/* 🔴 MEASURED FROM THE BOARD, not guessed. Its hero divides as
+   47.4% copy · 14.8% gap · 37.7% card. Ours was 54.3 · 3.1 · 42.6, which is
+   why the headline wrapped "Let's map your" instead of breaking after
+   "Let's" — a too-wide column, not a font difference.
+   Percentage column-gap resolves against the grid's own width, so the three
+   shares hold at every width the two-column layout survives. */
+.sc-page--bare .sc-hero { grid-template-columns: 1.257fr 1fr; column-gap: 14.8%; align-items: center }
+
+@media (max-width: 900px) {
+  /* Below this the card stacks under the copy and a 14.8% gutter is just
+     dead space. */
+  .sc-page--bare .sc-hero { grid-template-columns: 1fr; column-gap: 0; row-gap: 28px }
+}
