@@ -102,18 +102,19 @@ export function toCareerKey(name) {
  * True only when the deep 5-tab page has REAL data for this career.
  *
  * CAREER_FULL covers six careers; CAREER_DETAIL covers thirty. The v3
- * prototype papered over the gap by generating branches, exams, admission
- * steps and prep phases from whatever it could find, which produces pages
- * full of "Varies by exam — check the official website". We would rather
- * send a student to the guide library than to a page of filler, so callers
- * gate on this before offering a link.
+ * As of the 2026-11-18 board match this is true for ALL THIRTY careers, not
+ * the six with a hand-written CAREER_FULL: the rest are assembled by
+ * synthCareerFull() from data we already hold, which is what the board does.
+ * The name is kept because MyPathPage and SparkFinder import it, and what
+ * they are really asking is "is there a page to link to?".
+ * Use fullDetailKeys() if you specifically need the hand-written six.
  */
 export function hasFullDetail(name) {
   const key = toCareerKey(name);
-  return !!key && FULL_KEYS.includes(key);
+  return !!key && DETAIL_KEYS.has(key);
 }
 
-/** The six careers that currently have a real detail page. */
+/** The six careers with a hand-written CAREER_FULL record. */
 export function fullDetailKeys() {
   return [...FULL_KEYS];
 }

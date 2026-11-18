@@ -32,12 +32,16 @@ export const STEPS = [
 // no "Career Counselling" crumb. Every other counselling screen is a page
 // INSIDE that section and still wants the crumb, so this is opt-in per page
 // rather than a change to the shell's default.
-export default function CounsellingShell({ crumb = "", step = null, nav = null, bare = false, children }) {
+// `plain` drops the section's pale-green tint for a white page, which is how
+// the v3 board draws Study in India. Separate from `bare`: `bare` also removes
+// the sub-bar and swaps in the landing's cream gradient, whereas `plain` keeps
+// the breadcrumb and only changes the backdrop.
+export default function CounsellingShell({ crumb = "", step = null, nav = null, bare = false, plain = false, children }) {
   const { live: counsellorsLive } = useCounsellorsLive();
   const steps = counsellorsLive ? STEPS : STEPS.slice(0, 2);
   const stepIndex = steps.findIndex(([k]) => k === step);
   return (
-    <div className={`sc-page${bare ? " sc-page--bare" : ""}`}>
+    <div className={`sc-page${bare ? " sc-page--bare" : ""}${plain ? " sc-page--plain" : ""}`}>
       {!bare && <div className="sc-subbar">
         <div className="sc-subbar-in">
           {nav || (
