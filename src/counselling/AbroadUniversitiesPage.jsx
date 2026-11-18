@@ -39,8 +39,8 @@ import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { SUBJECT_AREAS, EXTRA_FLAGS, areasOf, chipAreasOf, fundingLabel, fundingOf } from "./data/abroadFacets";
-import { Drawer, csv, feeChip } from "./abroadShared";
+import { SUBJECT_AREAS, EXTRA_FLAGS, areasOf, chipAreasOf, fundingLabel, fundingOf, uniSlug } from "./data/abroadFacets";
+import { csv, feeChip } from "./abroadShared";
 
 // The board's row of shortcuts, in its order. Each is a COUNTRY filter —
 // the label is the board's short form, the value is the dataset's name.
@@ -66,11 +66,18 @@ const REGION_ORDER = ["North America", "Europe", "Asia", "Oceania", "Middle East
 
 const TOP_N = 50;
 
+const SELF = "/admission/abroad/universities";
+
 export default function AbroadUniversitiesPage() {
   const [params, setParams] = useSearchParams();
-  const [open, setOpen] = useState(null);
   const [countryQuery, setCountryQuery] = useState("");
-  const [compare, setCompare] = useState([]);
+  // ?compare=<id> arrives from a university detail page's "+ Add to
+  // compare" button, which has no compare tray of its own — this is the
+  // tray, so the id is seeded in rather than lost on navigation.
+  const [compare, setCompare] = useState(() => {
+    const c = Number(params.get("compare"));
+    return Number.isFinite(c) && c > 0 ? [c] : [];
+  });
 
   const q = params.get("q") || "";
   const sort = params.get("sort") || "qs";
@@ -353,7 +360,7 @@ export default function AbroadUniversitiesPage() {
                                c.includes(r.id) ? c.filter((x) => x !== r.id) : [...c, r.id])} />
                       <span>Compare</span>
                     </label>
-                    <button className="abd-view-btn" onClick={() => setOpen(r)}>View</button>
+                    <Link className="abd-view-btn" to={`${SELF}/${uniSlug(r)}`}>View</Link>
                   </li>
                 );
               })}
@@ -398,7 +405,7 @@ export default function AbroadUniversitiesPage() {
                     </div>
                     <div className="abd-card-cta">
                       <Link className="abd-btn-help" to="/counselling/counsellors">Get admission help</Link>
-                      <button className="abd-btn-view" onClick={() => setOpen(r)}>View details</button>
+                      <Link className="abd-btn-view" to={`${SELF}/${uniSlug(r)}`}>View details</Link>
                       <label className="abd-cmp">
                         <input type="checkbox" checked={compare.includes(r.id)}
                                onChange={() => setCompare((c) =>
@@ -420,8 +427,6 @@ export default function AbroadUniversitiesPage() {
           </p>
         </div>
       </div>
-
-      <Drawer row={open} onClose={() => setOpen(null)} />
     </CounsellingShell>
   );
 }

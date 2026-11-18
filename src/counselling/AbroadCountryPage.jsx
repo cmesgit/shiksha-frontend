@@ -42,9 +42,10 @@ import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { countrySlug } from "./data/abroadFacets";
+import { countrySlug, uniSlug } from "./data/abroadFacets";
 
 const COUNTRIES = "/admission/abroad/countries";
+const UNIVERSITIES = "/admission/abroad/universities";
 const GUIDE_CHAPTER = "/counselling/guides/study-abroad?chapter=13-country-wise-education-guide";
 
 const Ic = ({ d }) => (
@@ -159,7 +160,7 @@ export default function AbroadCountryPage() {
           <ul className="abc-uni-grid">
             {unis.map((r) => (
               <li key={r.id}>
-                <Link className="abc-uni" to={`/admission/abroad/universities?q=${encodeURIComponent(r.name)}`}>
+                <Link className="abc-uni" to={`${UNIVERSITIES}/${uniSlug(r)}`}>
                   <span className={`abc-uni-rank${r.ranked ? "" : " unranked"}`}>
                     {rankLabel(r)}
                   </span>

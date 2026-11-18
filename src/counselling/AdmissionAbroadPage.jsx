@@ -38,7 +38,7 @@ import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { EXTRA_FLAGS, areasOf, fundingLabel, fundingOf } from "./data/abroadFacets";
+import { EXTRA_FLAGS, areasOf, fundingLabel, fundingOf, uniSlug } from "./data/abroadFacets";
 import { getGuide } from "../api/guidesApi";
 
 const DIRECTORY = "/admission/abroad/universities";
@@ -378,7 +378,7 @@ export default function AdmissionAbroadPage() {
             <p className="sc-note ab2-empty">No ranked university in {region} yet.</p>
           ) : preview.map((r) => (
             <Link key={r.id} className="ab2-tr" role="row"
-                  to={`${DIRECTORY}?q=${encodeURIComponent(r.name)}`}>
+                  to={`${DIRECTORY}/${uniSlug(r)}`}>
               <span className="ab2-rank" role="cell">
                 {r.ranked ? `${(tied.get(r.qsRank) || 0) > 1 ? "=" : "#"}${r.qsRank}` : "NR"}
               </span>

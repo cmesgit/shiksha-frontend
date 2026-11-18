@@ -140,6 +140,17 @@ export const countrySlug = (c) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+// Same derivation, same reasoning, for a university's own detail page
+// (/admission/abroad/universities/:slug). Checked against all 100 rows:
+// every slug is unique, so no id suffix is needed.
+export const uniSlug = (r) =>
+  (r.name || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 // ── Flags for countries that have no country guide ───────────────────
 // The browse cards take their flag from ABROAD_COUNTRIES, which is the 56
 // country GUIDES. 15 of the 51 countries in abroad100.js have QS-ranked
