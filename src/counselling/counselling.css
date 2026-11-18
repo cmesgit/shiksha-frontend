@@ -1299,13 +1299,22 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
   border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 18px;
   text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
 .ab2-facet:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
-.ab2-facet-flag { font-size: 22px; line-height: 1; flex: none }
+/* The board gives every facet card a glyph in a soft tinted tile — a flag
+   for a country, a drawn mark for the three category tabs. Fixed size, so
+   the four cards in a row keep their text baselines aligned whichever tab
+   is showing. */
+.ab2-facet-ic { flex: none; width: 38px; height: 38px; border-radius: 10px;
+  display: grid; place-items: center; background: rgba(18,80,39,.07); color: #125027 }
+.ab2-facet-flag { font-size: 21px; line-height: 1 }
 .ab2-facet-tx { min-width: 0 }
 .ab2-facet-tx b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
 .ab2-facet-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
 .ab2-viewall { display: flex; justify-content: center; margin-top: 18px }
+/* Now a <button> (it expands the grid in place) as well as a link elsewhere,
+   so it has to set cursor itself — a <button> does not inherit one. */
 .ab2-btn-ghost { font: 700 13px 'Poppins', sans-serif; color: #125027; background: #fff;
-  border: 1.5px solid rgba(18,80,39,.3); border-radius: 999px; padding: 11px 26px; text-decoration: none }
+  border: 1.5px solid rgba(18,80,39,.3); border-radius: 999px; padding: 11px 26px;
+  text-decoration: none; cursor: pointer }
 .ab2-btn-ghost:hover { border-color: #125027 }
 
 .ab2-regions { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 16px }
@@ -1392,4 +1401,10 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 }
 @media (max-width: 620px) {
   .ab2-facets, .ab2-phases, .ab2-dests, .ab2-steps { grid-template-columns: 1fr }
+  /* The browse bar went from three tabs to four, and at 375px the row needs
+     361px inside a 343px gutter — a 2px page bleed. Tighten the tabs so all
+     four fit, and let the bar scroll rather than bleed if a future label is
+     longer still. */
+  .ab2-tabs { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch }
+  .ab2-tab { padding: 8px 13px }
 }

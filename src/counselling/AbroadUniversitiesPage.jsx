@@ -31,12 +31,14 @@ import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
+import { areasOf, fundingOf } from "./data/abroadFacets";
 import { Drawer, csv, evidenceTone } from "./abroadShared";
 
 const BROWSE_TABS = [
   ["country", "Country"],
   ["region", "Region"],
   ["subject", "Subject"],
+  ["funding", "Funding"],
 ];
 
 export default function AbroadUniversitiesPage() {
@@ -50,10 +52,12 @@ export default function AbroadUniversitiesPage() {
   const countryParam = params.get("country") || "";
   const regionParam = params.get("region") || "";
   const subjectParam = params.get("subject") || "";
+  const fundingParam = params.get("funding") || "";
 
   const countries = useMemo(() => csv(countryParam), [countryParam]);
   const regions = useMemo(() => csv(regionParam), [regionParam]);
   const subjects = useMemo(() => csv(subjectParam), [subjectParam]);
+  const funding = useMemo(() => csv(fundingParam), [fundingParam]);
 
   const patch = (key, value) => {
     const next = new URLSearchParams(params);
@@ -64,6 +68,15 @@ export default function AbroadUniversitiesPage() {
   const toggle = (key, list, value) =>
     patch(key, list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
 
+  // One place that maps a facet key to its selection, so adding "funding"
+  // could not leave a call site silently falling through to `subjects` —
+  // which is what the old nested ternary would have done.
+  const listFor = (key) =>
+    key === "country" ? countries
+      : key === "region" ? regions
+      : key === "funding" ? funding
+      : subjects;
+
   const facets = useMemo(() => {
     const count = (fn) => {
       const m = new Map();
@@ -73,7 +86,10 @@ export default function AbroadUniversitiesPage() {
     return {
       country: count((r) => [r.country]),
       region: count((r) => [r.region]),
-      subject: count((r) => r.subjects),
+      // The 12 board subject areas, same vocabulary the Home browse block
+      // links with — so a facet card's href can actually filter here.
+      subject: count(areasOf),
+      funding: count((r) => [fundingOf(r)]),
     };
   }, []);
 
@@ -83,7 +99,16 @@ export default function AbroadUniversitiesPage() {
       .filter((r) => {
         if (countries.length && !countries.includes(r.country)) return false;
         if (regions.length && !regions.includes(r.region)) return false;
-        if (subjects.length && !subjects.some((s) => r.subjects.includes(s))) return false;
+        // A ?subject= token may be either vocabulary. The browse cards now
+        // send a subject AREA ("Law"), but ?subject=engineering was a live
+        // shareable link before this change and still has to resolve, so a
+        // raw dataset subject is accepted too.
+        if (subjects.length) {
+          const areas = areasOf(r);
+          const hit = subjects.some((s) => areas.includes(s) || r.subjects.includes(s));
+          if (!hit) return false;
+        }
+        if (funding.length && !funding.includes(fundingOf(r))) return false;
         if (!needle) return true;
         return (
           r.name.toLowerCase().includes(needle) ||
@@ -93,12 +118,13 @@ export default function AbroadUniversitiesPage() {
       })
       // qsSort, never qsRank: "NR" and "1001-1200" are not numbers.
       .sort((a, b) => a.qsSort - b.qsSort || a.name.localeCompare(b.name));
-  }, [q, countries, regions, subjects]);
+  }, [q, countries, regions, subjects, funding]);
 
   const active = [
     ...countries.map((v) => ["country", v]),
     ...regions.map((v) => ["region", v]),
     ...subjects.map((v) => ["subject", v]),
+    ...funding.map((v) => ["funding", v]),
   ];
 
   return (
@@ -132,7 +158,7 @@ export default function AbroadUniversitiesPage() {
 
       <section className="ab-browse" aria-label="Browse universities abroad">
         <h2 className="ab-h2">Narrow it down</h2>
-        <p className="ab-lede">Browse by destination, region or subject.</p>
+        <p className="ab-lede">Browse by destination, region, subject or type.</p>
 
         <div className="ab-tabs" role="tablist">
           {BROWSE_TABS.map(([key, label]) => (
@@ -150,7 +176,7 @@ export default function AbroadUniversitiesPage() {
 
         <div className="ab-facet-grid">
           {facets[tab].slice(0, 12).map(([value, count]) => {
-            const list = tab === "country" ? countries : tab === "region" ? regions : subjects;
+            const list = listFor(tab);
             return (
               <button
                 key={value}
@@ -186,9 +212,7 @@ export default function AbroadUniversitiesPage() {
               <button
                 key={`${key}:${value}`}
                 className="sc-fchip on"
-                onClick={() =>
-                  toggle(key, key === "country" ? countries : key === "region" ? regions : subjects, value)
-                }
+                onClick={() => toggle(key, listFor(key), value)}
               >
                 {value} ×
               </button>

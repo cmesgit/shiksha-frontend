@@ -38,6 +38,7 @@ import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
+import { EXTRA_FLAGS, areasOf, fundingLabel, fundingOf } from "./data/abroadFacets";
 import { getGuide } from "../api/guidesApi";
 
 const DIRECTORY = "/admission/abroad/universities";
@@ -55,11 +56,22 @@ const POPULAR = [
   ["QS top 50", "top", "50"],
 ];
 
+// Four, as the board draws them. "Funding" is the institution's ownership —
+// public vs private — NOT scholarships; the board's own lede calls it
+// "type". An earlier pass read it as funding-for-students, found no
+// scholarship field, and dropped the tab. `abroad100.js` has carried `type`
+// all along. See data/abroadFacets.js.
 const BROWSE_TABS = [
   ["country", "Country"],
   ["region", "Region"],
   ["subject", "Subject"],
+  ["funding", "Funding"],
 ];
+
+// The board shows four facet cards collapsed and the rest behind the
+// toggle. A tab with no more than this never renders the toggle at all —
+// which is why Funding, at two, has none.
+const FACET_PREVIEW = 4;
 
 const STEPS = [
   ["Choose your course", "Match your academic background and career goals to the right programme and study level."],
@@ -81,6 +93,27 @@ const Ic = ({ d }) => (
 const IcBank = <Ic d={<><path d="M12 3 3 8h18L12 3Z" /><path d="M6 11v7M10 11v7M14 11v7M18 11v7" /><path d="M3 21h18" /></>} />;
 const IcGlobe = <Ic d={<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" /></>} />;
 const IcBook  = <Ic d={<><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5Z" /><path d="M8 7h7M8 11h7" /></>} />;
+// The glyph a facet card carries. Country uses the destination's flag; the
+// other three tabs are categories, not places, so they take a drawn mark —
+// a globe for a region, the subject's own icon, a bank for ownership.
+const IcGlobeSm = <Ic d={<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" /></>} />;
+const IcBankSm = <Ic d={<><path d="M12 3 3 8h18L12 3Z" /><path d="M6 11v7M10 11v7M14 11v7M18 11v7" /><path d="M3 21h18" /></>} />;
+
+const SUBJECT_ICONS = {
+  "Sciences & Mathematics": <Ic d={<><path d="M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3" /><path d="M9 3h6" /></>} />,
+  "Computing, AI & Data": <Ic d={<><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20h8M12 16v4" /></>} />,
+  "Engineering & Technology": <Ic d={<><circle cx="12" cy="12" r="3" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /></>} />,
+  "Social Sciences & Policy": <Ic d={<><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 5.5a3 3 0 0 1 0 5.8M18 20a6 6 0 0 0-3-5.2" /></>} />,
+  "Arts & Humanities": <Ic d={<><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5Z" /><path d="M8 7h7M8 11h7" /></>} />,
+  "Business & Management": <Ic d={<><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /></>} />,
+  "Law": <Ic d={<><path d="M12 3v18M7 21h10" /><path d="M5 7h14M7 7l-3 6h6l-3-6ZM17 7l-3 6h6l-3-6Z" /></>} />,
+  "Medicine & Health": <Ic d={<><path d="M12 6v12M6 12h12" /><rect x="3" y="3" width="18" height="18" rx="3" /></>} />,
+  "Education": <Ic d={<><path d="m12 4 9 5-9 5-9-5 9-5Z" /><path d="M6 11.5V16c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4.5" /></>} />,
+  "Architecture & Design": <Ic d={<><path d="M4 21V7l8-4 8 4v14" /><path d="M9 21v-6h6v6" /><path d="M9 11h.01M15 11h.01" /></>} />,
+  "Economics": <Ic d={<><path d="M4 19V5" /><path d="M4 19h16" /><path d="m7 15 4-5 3 3 5-7" /></>} />,
+  "Agriculture & Forestry": <Ic d={<><path d="M12 21V9" /><path d="M12 9c0-3.3 2.7-6 6-6 0 3.3-2.7 6-6 6Z" /><path d="M12 14c0-2.8-2.2-5-5-5 0 2.8 2.2 5 5 5Z" /></>} />,
+};
+
 const IcShield = (
   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor"
        strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -93,6 +126,10 @@ export default function AdmissionAbroadPage() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [tab, setTab] = useState("country");
+  // Expansion is PER TAB and resets when the tab changes: switching from an
+  // expanded Country list to Subject should land on Subject's own preview,
+  // not drop the reader into 12 open cards they didn't ask for.
+  const [expanded, setExpanded] = useState(false);
   const [region, setRegion] = useState("Worldwide");
   const [guide, setGuide] = useState(null);
 
@@ -118,7 +155,11 @@ export default function AdmissionAbroadPage() {
     return {
       country: count((r) => [r.country]),
       region: count((r) => [r.region]),
-      subject: count((r) => r.subjects),
+      // The 12 board subject AREAS, not the dataset's 124 raw strings. The
+      // raw values are a vocabulary, not a browse axis — "law" appears 75
+      // times and "mathematical modelling" once.
+      subject: count(areasOf),
+      funding: count((r) => [fundingOf(r)]),
     };
   }, []);
 
@@ -153,6 +194,10 @@ export default function AdmissionAbroadPage() {
   const flagOf = useMemo(() => {
     const m = new Map();
     ABROAD_COUNTRIES.forEach((c) => { if (c.flag) m.set(c.qsKey || c.name, c.flag); });
+    // 15 countries hold QS-ranked universities but no country guide. The
+    // guide is still the source of record where one exists — this only
+    // fills in the rest, so a guide's flag can never be overridden here.
+    Object.entries(EXTRA_FLAGS).forEach(([name, flag]) => { if (!m.has(name)) m.set(name, flag); });
     return m;
   }, []);
 
@@ -250,35 +295,55 @@ export default function AdmissionAbroadPage() {
       <section className="ab2-sec">
         <div className="in-kicker">Browse</div>
         <h2 className="ab2-h2">Explore universities abroad</h2>
-        <p className="ab2-lede">Browse by destination, region or subject.</p>
+        <p className="ab2-lede">Browse by destination, region, subject or type.</p>
 
         <div className="ab2-tabs" role="tablist">
           {BROWSE_TABS.map(([key, label]) => (
             <button key={key} role="tab" aria-selected={tab === key}
-                    className={`ab2-tab${tab === key ? " on" : ""}`} onClick={() => setTab(key)}>
+                    className={`ab2-tab${tab === key ? " on" : ""}`}
+                    aria-controls="ab2-facet-grid"
+                    onClick={() => { setTab(key); setExpanded(false); }}>
               {label}
             </button>
           ))}
         </div>
 
-        <div className="ab2-facets">
-          {facets[tab].slice(0, 4).map(([value, count]) => (
+        <div className="ab2-facets" id="ab2-facet-grid">
+          {(expanded ? facets[tab] : facets[tab].slice(0, FACET_PREVIEW)).map(([value, count]) => (
             <Link key={value} className="ab2-facet" to={facetHref(tab, value)}>
-              {tab === "country" && flagOf.get(value) && (
-                <span className="ab2-facet-flag" aria-hidden="true">{flagOf.get(value)}</span>
-              )}
+              <span className="ab2-facet-ic" aria-hidden="true">
+                {tab === "country"
+                  ? <span className="ab2-facet-flag">{flagOf.get(value) || "🏳"}</span>
+                  : tab === "region" ? IcGlobeSm
+                  : tab === "funding" ? IcBankSm
+                  : SUBJECT_ICONS[value] || IcGlobeSm}
+              </span>
               <span className="ab2-facet-tx">
-                <b>{value}</b>
+                <b>{tab === "funding" ? fundingLabel(value) : value}</b>
                 <small>{count} {count === 1 ? "university" : "universities"}</small>
               </span>
             </Link>
           ))}
         </div>
-        <div className="ab2-viewall">
-          <Link className="ab2-btn-ghost" to={`${DIRECTORY}?tab=${tab}`}>
-            View all ({facets[tab].length})
-          </Link>
-        </div>
+
+        {/* The board EXPANDS this list in place — it does not leave the
+            screen. The old link went to the directory with a ?tab= that
+            AbroadUniversitiesPage never read, so it silently landed on an
+            unfiltered page. A tab short enough to show whole (Funding, at
+            two) renders no toggle at all. */}
+        {facets[tab].length > FACET_PREVIEW && (
+          <div className="ab2-viewall">
+            <button
+              type="button"
+              className="ab2-btn-ghost"
+              aria-expanded={expanded}
+              aria-controls="ab2-facet-grid"
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? "Show less" : `View all (${facets[tab].length})`}
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="ab2-sec">
