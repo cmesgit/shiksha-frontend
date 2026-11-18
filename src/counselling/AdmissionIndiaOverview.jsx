@@ -30,6 +30,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
+import AdmissionHelpModal from "./AdmissionHelpModal";
 import { NIRF_980 } from "./data/nirf980";
 
 const DIRECTORY = "/admission/india/all";
@@ -120,6 +121,7 @@ export default function AdmissionIndiaOverview() {
   const [category, setCategory] = useState("Overall");
   const [q, setQ] = useState("");
   const [stream, setStream] = useState("");
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const facets = useMemo(() => {
     const tally = (fn) => {
@@ -398,7 +400,7 @@ export default function AdmissionIndiaOverview() {
             <li>Exam &amp; counselling support</li>
             <li>Shortlist based on your rank</li>
           </ul>
-          <Link className="sc-btn green" to="/counselling/counsellors">Talk to a counsellor →</Link>
+          <button className="sc-btn green" onClick={() => setHelpOpen(true)}>Talk to a counsellor →</button>
         </div>
 
         <div>
@@ -458,6 +460,14 @@ export default function AdmissionIndiaOverview() {
           </details>
         </div>
       </section>
+
+      <AdmissionHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        title="Talk to a counsellor"
+        subtitle="Share your details and a ShikshaCom counsellor will call you back."
+        domain="india"
+      />
     </CounsellingShell>
   );
 }

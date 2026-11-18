@@ -676,9 +676,19 @@
 .ab-list > li { list-style: none; }
 .ab-row-meta { display: block; font: 400 12px 'Poppins', sans-serif;
   color: rgba(20,32,26,.55); margin-top: 3px; text-align: left; }
+/* No longer a <button> — "Request brochure" / "View details" / "Add to
+   compare" are each their own control now, not one whole-row click. */
 .ab-row { display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; align-items: center;
-  width: 100%; text-align: left; cursor: pointer; }
+  width: 100%; text-align: left; cursor: default; }
 .ab-row-name { font-weight: 700; color: #14201a; display: block; }
+/* Request brochure / View details / Add to compare — the board shows all
+   three on every directory card; the old cf-drawer gave the whole row one
+   click and had neither "Request brochure" nor "Add to compare" at all. */
+.ab-row-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ab-row-btn { padding: 7px 14px; font-size: 12.5px; }
+.ab-row-cmp { display: flex; align-items: center; gap: 6px; font: 500 12.5px 'Poppins', sans-serif;
+  color: #5c6b62; cursor: pointer; margin-left: auto; }
+.ab-row-cmp input { width: 15px; height: 15px; accent-color: #125027; }
 .ab-rank { color: #b06000; font-weight: 800; }
 /* An unranked row must not read as a position. */
 .ab-rank.unranked { color: #6b7a70; font-weight: 700; font-size: 13px; }
@@ -732,6 +742,7 @@
 @media (max-width: 720px) {
   .ab-row { grid-template-columns: 56px 1fr; }
   .ab-row-fee { grid-column: 1 / -1; justify-self: start; max-width: none; }
+  .ab-row-cmp { margin-left: 0; width: 100%; }
   .ab-tabs { width: 100%; overflow-x: auto; }
 }
 
@@ -1815,14 +1826,28 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .abu-combar-count { font: 700 13px 'Montserrat', sans-serif; color: #0e2a18; flex: none }
 .abu-combar-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0 }
 .abu-combar-chip { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f2;
-  border-radius: 999px; padding: 5px 6px 5px 12px; font: 600 12px 'Poppins', sans-serif; color: #14201a }
+  border-radius: 999px; padding: 5px 6px 5px 12px; font: 600 12px 'Poppins', sans-serif; color: #14201a;
+  max-width: 100% }
+/* Abroad's chip is just a flag + "QS #N" — always short. India's chip
+   includes the institution's full name (IndiaCompareBar.jsx), which can run
+   well past 40 characters and would overflow the fixed bottom bar on a
+   narrow viewport without a truncation point. */
+.abu-combar-chip-tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px }
 .abu-combar-chip button { border: none; background: none; width: 20px; height: 20px; border-radius: 50%;
-  color: rgba(20,32,26,.5); font: 600 14px sans-serif; cursor: pointer; line-height: 1 }
+  color: rgba(20,32,26,.5); font: 600 14px sans-serif; cursor: pointer; line-height: 1; flex: none }
 .abu-combar-chip button:hover { background: #e3e5e1; color: #14201a }
 .abu-combar-go { flex: none }
 @media (max-width: 640px) {
   .abu-combar { padding: 10px 16px }
-  .abu-combar-chips { order: 3; width: 100% }
+  /* `width: 100%` alone is a no-op here: the base rule's `flex: 1` resolves
+     to `flex-basis: 0%`, and a definite flex-basis wins over `width` on the
+     main axis — so this never actually dropped to its own full-width row.
+     Harmless on Abroad's short "QS #N" chips (never long enough to wrap
+     into a second line in the first place), but India's chips carry a full
+     institution name and overflowed into the row above until this was
+     caught by screenshot, not by re-reading the rule. */
+  .abu-combar-chips { order: 3; flex: 1 1 100%; width: 100% }
+  .abu-combar-chip-tx { max-width: 55vw }
 }
 
 /* The compare page — AbroadComparePage.jsx. One column per university,
