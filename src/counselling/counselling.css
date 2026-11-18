@@ -1704,6 +1704,27 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .sii-careers-body { display: grid; grid-template-columns: 236px minmax(0,1fr); gap: 22px; align-items: start }
 @media (max-width: 900px) { .sii-careers-body { grid-template-columns: 1fr } }
 
+/* Explore careers, abroad tone. The board draws this tab in each section's
+   own colour: green on Study in India, the module's indigo (#6d5bd0 — the
+   same value as this page's hero bar and globe glyph) on Study abroad.
+   Only the accents move; every size, radius and weight is shared. */
+.sii-careers--abroad .sii-stream.on { background: #6d5bd0; border-color: #6d5bd0 }
+.sii-careers--abroad .sii-stream:focus-visible { outline-color: #6d5bd0 }
+.sii-careers--abroad .sii-career-go { color: #6d5bd0 }
+.sii-careers--abroad .sii-career-ic { background: rgba(109,91,208,.1); color: #6d5bd0 }
+.sii-careers--abroad .sii-career-area { color: #6d5bd0 }
+.sii-careers--abroad .sii-area-name { color: #14201a }
+.sii-careers--abroad .sii-areas input { accent-color: #6d5bd0 }
+.sii-careers--abroad .sc-search:focus-within { border-color: #6d5bd0 }
+.sii-careers--abroad .sii-clear { color: #6d5bd0 }
+
+/* The abroad grid's footnote: which careers are hidden, and where the pay
+   column comes from. Deliberately quiet — it is provenance, not a message. */
+.sii-careers-note {
+  margin: 18px 0 0; font: 400 12px/1.6 'Poppins', sans-serif;
+  color: rgba(20,32,26,.52);
+}
+
 /* Facet rail.
    The board holds this rail in place while the card grid scrolls past it —
    checked by scrolling the prototype, not assumed from a resting screenshot.
@@ -1786,7 +1807,7 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
   letter-spacing: .1em; color: rgba(20,32,26,.45);
 }
 /* Two lines, as the board clamps it. The string is already only the first
-   sentence of `overview` (see firstSentence() in StudyInIndiaPage). */
+   sentence of `overview` (see firstSentence() in careerBlurb.js). */
 .sii-career-blurb {
   font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.7); margin: 0;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
