@@ -33,6 +33,7 @@ const AdmissionAbroadPage = lazy(() => import("./AdmissionAbroadPage"));
 const AbroadCountriesPage = lazy(() => import("./AbroadCountriesPage"));
 const AbroadUniversitiesPage = lazy(() => import("./AbroadUniversitiesPage"));
 const AbroadCountryPage = lazy(() => import("./AbroadCountryPage"));
+const AbroadUniversityDetailPage = lazy(() => import("./AbroadUniversityDetailPage"));
 
 // Every Admission Abroad screen goes through THIS component, chosen by the
 // `screen` prop, so the flag keeps exactly one gate. Adding a second route
@@ -43,6 +44,7 @@ const SCREENS = {
   universities: AbroadUniversitiesPage,
   countries: AbroadCountriesPage,
   country: AbroadCountryPage,       // one destination, /countries/:slug
+  university: AbroadUniversityDetailPage, // one university, /universities/:slug
 };
 
 const CENTRED = {

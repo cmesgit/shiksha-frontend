@@ -476,6 +476,9 @@ function App() {
         {/* One destination. Goes through AdmissionAbroadRoute like every
             other abroad screen so the feature flag keeps exactly one gate. */}
         <Route path="/admission/abroad/countries/:slug" element={<Page><AdmissionAbroad screen="country" /></Page>} />
+        {/* One university. Replaces the directory's drawer with the board's
+            own routable page — same gate, same pattern as /countries/:slug. */}
+        <Route path="/admission/abroad/universities/:slug" element={<Page><AdmissionAbroad screen="university" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
         {/* The curated NIRF **Engineering** top 50 — a different NIRF table
             with scores, founding years and admission prose the 980-row

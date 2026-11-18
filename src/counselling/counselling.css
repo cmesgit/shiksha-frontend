@@ -1677,6 +1677,95 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
   .abc-facts, .abc-uni-grid { grid-template-columns: 1fr }
 }
 
+/* One university (/admission/abroad/universities/:slug) — replaces the old
+   cf-drawer with the board's own routable page. Deliberately its own
+   `abu-` prefix rather than reusing `.cf-drawer*`/`.ab-fee*`: those classes
+   are shared by AdmissionIndiaPage, RoleDrawer, AdmissionIndiaAllPage and
+   CareerDetailPage's own drawers — restyling them for this page would have
+   restyled four unrelated screens. */
+.abu-head { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: flex-start;
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; padding: 22px 24px; margin-bottom: 18px }
+.abu-flag { font-size: 34px; line-height: 1 }
+.abu-h1 { font: 800 clamp(20px,2.6vw,26px)/1.2 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.3px }
+.abu-sub { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin: 6px 0 0 }
+.abu-sub a { color: #125027; font-weight: 600 }
+.abu-head-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px }
+.abu-rankbox { text-align: right; background: #fdf4e8; border-radius: 10px; padding: 8px 14px }
+.abu-rankbox b { display: block; font: 800 18px 'Montserrat', sans-serif; color: #b06000 }
+.abu-rankbox small { display: block; font: 400 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.abu-head-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end }
+.sc-btn.abu-help { background: #b06000; border-color: #b06000 }
+.sc-btn.abu-help:hover { background: #8f4e00; border-color: #8f4e00 }
+
+.abu-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: flex-start }
+.abu-main { min-width: 0 }
+.abu-card { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; padding: 22px 24px }
+.abu-card h2 { font: 800 18px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 12px }
+.abu-card > p { font: 400 13.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.68); margin: 0 0 16px }
+.abu-subh { font: 700 11px 'Poppins', sans-serif; color: rgba(20,32,26,.5); text-transform: uppercase;
+  letter-spacing: .07em; margin: 18px 0 8px }
+
+.abu-facts { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px 24px; margin-bottom: 16px }
+.abu-fact { border-top: 1px solid rgba(18,45,30,.08); padding-top: 8px }
+.abu-fact-label { display: block; font: 700 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px }
+.abu-fact-value { display: block; font: 600 13.5px 'Poppins', sans-serif; color: #0e2a18 }
+.abu-fact-value a { color: #125027 }
+.abu-overview { margin-top: 4px }
+.abu-source, .ab-source.abu-source { font-style: italic; color: rgba(20,32,26,.45); font-size: 11.5px; margin-top: 10px }
+
+.abu-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px }
+.abu-chips .ab-subject::first-letter { text-transform: uppercase }
+.abu-group-chip { display: inline-flex; align-items: center; gap: 4px; background: #ebf5e8; color: #125027;
+  border-radius: 999px; padding: 6px 12px; font: 600 12px 'Poppins', sans-serif; text-decoration: none }
+.abu-group-chip:hover { background: #d9ecd6 }
+
+.abu-fee-card { border: 1px solid #e9eeea; border-radius: 10px; padding: 14px; background: #fcfbf7; margin-bottom: 16px }
+.abu-fee-head { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-bottom: 8px }
+.abu-fee-badge { background: #ebf5e8; color: #125027; border-radius: 999px; padding: 3px 10px; font-weight: 700 }
+.abu-fee-card p { margin: 0; font: 400 13px/1.65 'Poppins', sans-serif; color: #14201a }
+.abu-cta-row { display: flex; gap: 10px; flex-wrap: wrap }
+
+.abu-admcards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 16px }
+.abu-admcard { border: 1px solid rgba(18,45,30,.1); border-radius: 10px; padding: 12px 14px }
+.abu-admcard b { display: block; font: 700 13px 'Montserrat', sans-serif; color: #0e2a18; margin-bottom: 4px }
+.abu-admcard p { margin: 0; font: 400 12px/1.5 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+.abu-callout { background: #ebf5e8; border-radius: 10px; padding: 14px 16px; font: 400 13px/1.6 'Poppins', sans-serif;
+  color: #14201a; margin: 0 }
+.abu-callout a { color: #125027; font-weight: 700 }
+
+.abu-side { display: flex; flex-direction: column; gap: 14px }
+.abu-sidecard { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 18px }
+.abu-sidecard h3 { font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 10px }
+.abu-sidecard-cta { background: #0e2a18; border-color: #0e2a18; color: #fff }
+.abu-sidecard-cta b { display: block; font: 700 14px 'Montserrat', sans-serif; margin-bottom: 6px }
+.abu-sidecard-cta p { font: 400 12.5px/1.55 'Poppins', sans-serif; color: rgba(255,255,255,.75); margin: 0 0 12px }
+.sc-btn.white { background: #fff; color: #0e2a18; border-color: #fff; width: 100%; justify-content: center }
+.sc-btn.white:hover { background: #ebf5e8 }
+.abu-glance { margin-bottom: 10px }
+.abu-glance b { display: block; font: 700 11px 'Poppins', sans-serif; color: rgba(20,32,26,.5);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px }
+.abu-glance p { margin: 0; font: 400 12.5px/1.55 'Poppins', sans-serif; color: #14201a }
+.abu-glance-link { display: inline-block; margin-top: 2px; font: 700 12.5px 'Poppins', sans-serif; color: #125027; text-decoration: none }
+.abu-glance-link:hover { text-decoration: underline }
+
+.abu-similar { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px }
+.abu-similar a { display: block; text-decoration: none; color: inherit; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(18,45,30,.08) }
+.abu-similar li:last-child a { border-bottom: none; padding-bottom: 0 }
+.abu-similar b { display: block; font: 700 13px 'Montserrat', sans-serif; color: #0e2a18 }
+.abu-similar small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5); margin-top: 2px }
+
+@media (max-width: 900px) {
+  .abu-grid { grid-template-columns: 1fr }
+  .abu-head { grid-template-columns: auto 1fr; }
+  .abu-head-side { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center }
+}
+@media (max-width: 600px) {
+  .abu-facts, .abu-admcards { grid-template-columns: 1fr }
+}
+
 /* Explore careers — the board's facet browser: a stream chip row, an
    interest-area rail with live counts, search, sort and 2-up cards.
    Facet data lives in data/careerIndia.js (read its header before
