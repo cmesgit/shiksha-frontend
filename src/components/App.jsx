@@ -44,6 +44,11 @@ const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPa
 // chunk (183 kB) while the feature is off.
 const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadRoute"));
 const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAllPage"));
+// One institution / the compare table — replace the directory's old
+// cf-drawer with the board's own routable pages, same precedent as
+// Admission Abroad's /universities/:slug and /compare.
+const AdmissionIndiaDetail  = lazy(() => import("../counselling/AdmissionIndiaDetailPage"));
+const AdmissionIndiaCompare = lazy(() => import("../counselling/AdmissionIndiaComparePage"));
 // The "Admission in India v2" artboard: an OVERVIEW whose ranking block is a
 // five-row preview beside an "All 980 institutions →" link. It owns
 // /admission/india because its hero covers the whole 980-row directory; the
@@ -483,6 +488,12 @@ function App() {
             other abroad screen. */}
         <Route path="/admission/abroad/compare"       element={<Page><AdmissionAbroad screen="compare" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
+        {/* One institution. Route param is `listRank` (nirf980.js's own
+            unique integer), not a name slug — 980 rows have near-collisions
+            a derived slug can't be trusted against. */}
+        <Route path="/admission/india/all/:rank"      element={<Page><AdmissionIndiaDetail /></Page>} />
+        {/* The sticky compare bar's "Compare now". */}
+        <Route path="/admission/india/compare"        element={<Page><AdmissionIndiaCompare /></Page>} />
         {/* The curated NIRF **Engineering** top 50 — a different NIRF table
             with scores, founding years and admission prose the 980-row
             directory does not carry. Career pages deep-link it with
