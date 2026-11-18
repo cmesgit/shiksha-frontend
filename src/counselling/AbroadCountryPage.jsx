@@ -36,10 +36,11 @@
 //    the source document to mark every country the same way. Until then the
 //    rail links to the chapter rather than faking a per-country index.
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
+import AdmissionHelpModal from "./AdmissionHelpModal";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
 import { countrySlug, uniSlug } from "./data/abroadFacets";
@@ -81,6 +82,7 @@ const FACTS = [
 
 export default function AbroadCountryPage() {
   const { slug } = useParams();
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const country = useMemo(
     () => ABROAD_COUNTRIES.find((c) => countrySlug(c) === slug),
@@ -127,8 +129,16 @@ export default function AbroadCountryPage() {
           <h1 className="abc-h1">Study in {country.name}</h1>
           {country.blurb && <p className="abc-blurb">{country.blurb}</p>}
         </div>
-        <Link className="abc-cta" to="/counselling/counsellors">Talk to a counsellor</Link>
+        <button className="abc-cta" onClick={() => setHelpOpen(true)}>Talk to a counsellor</button>
       </header>
+
+      <AdmissionHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        title="Talk to a study abroad counsellor"
+        subtitle="Share your details and a ShikshaCom counsellor will call you back."
+        defaultCountry={country.name}
+      />
 
       <div className="abc-facts">
         {FACTS.map((f) => {

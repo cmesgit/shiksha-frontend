@@ -37,10 +37,12 @@
 // 100 (Manchester prints "#40" here, "=40" on the board) — the safe
 // direction, not a bug to chase; see AbroadCountryPage's header comment.
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
+import AdmissionHelpModal from "./AdmissionHelpModal";
+import { useAbroadCompare } from "./useAbroadCompare";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
 import { chipAreasOf, uniSlug, countrySlug, EXTRA_FLAGS } from "./data/abroadFacets";
@@ -83,6 +85,8 @@ export default function AbroadUniversityDetailPage() {
   const { slug } = useParams();
   const [params, setParams] = useSearchParams();
   const tab = TABS.some(([k]) => k === params.get("tab")) ? params.get("tab") : "overview";
+  const [helpOpen, setHelpOpen] = useState(false);
+  const { inCompare, toggle } = useAbroadCompare();
 
   const row = useMemo(() => ABROAD_100.find((r) => uniSlug(r) === slug), [slug]);
 
@@ -149,11 +153,22 @@ export default function AbroadUniversityDetailPage() {
             <small>QS World Rankings {row.qsEdition}</small>
           </div>
           <div className="abu-head-btns">
-            <Link className="sc-btn abu-help" to="/counselling/counsellors">Get admission help</Link>
-            <Link className="sc-btn ghost" to={`${DIRECTORY}?compare=${row.id}`}>+ Add to compare</Link>
+            <button className="sc-btn abu-help" onClick={() => setHelpOpen(true)}>Get admission help</button>
+            <button className="sc-btn ghost" onClick={() => toggle(row.id)}>
+              {inCompare(row.id) ? "✓ In compare" : "+ Add to compare"}
+            </button>
           </div>
         </div>
       </header>
+
+      <AdmissionHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        title="Get admission help"
+        subtitle={`Share your details and we'll help you plan your application to ${row.name}.`}
+        defaultCountry={row.country}
+        universityName={row.name}
+      />
 
       <div className="sii-tabs" role="tablist" aria-label={row.name}>
         {TABS.map(([key, label]) => (
