@@ -50,11 +50,12 @@
 // `admission_abroad_enabled` from AdmissionAbroadRoute and cannot become a
 // second, unguarded entrance.
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import AdmissionHelpModal from "./AdmissionHelpModal";
 
 // key, label, destination (null = not built yet)
-export const ABROAD_TABS = [
+const ABROAD_TABS = [
   ["home", "Home", "/admission/abroad"],
   ["universities", "Universities", "/admission/abroad/universities"],
   ["countries", "Countries", "/admission/abroad/countries"],
@@ -62,6 +63,13 @@ export const ABROAD_TABS = [
 ];
 
 export default function AbroadNav({ current = "" }) {
+  // 🔴 Driven on the board, not screenshotted: this button does not
+  // navigate to /counselling/counsellors at all. It opens the same
+  // lead-capture modal "Get admission help" buttons open, titled "Talk to
+  // a study abroad counsellor" when reached from here with no
+  // university context. See AdmissionHelpModal.jsx.
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <nav className="ab-nav" aria-label="Admission Abroad">
       <div className="ab-nav-tabs">
@@ -87,9 +95,15 @@ export default function AbroadNav({ current = "" }) {
           );
         })}
       </div>
-      <Link className="ab-nav-cta" to="/counselling/counsellors">
+      <button className="ab-nav-cta" onClick={() => setHelpOpen(true)}>
         Talk to counsellor
-      </Link>
+      </button>
+      <AdmissionHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        title="Talk to a study abroad counsellor"
+        subtitle="Share your details and a ShikshaCom counsellor will call you back."
+      />
     </nav>
   );
 }

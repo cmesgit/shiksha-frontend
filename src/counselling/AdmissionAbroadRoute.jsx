@@ -28,12 +28,15 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPublicConfig } from "../api/publicConfig";
+import { AbroadCompareProvider } from "./AbroadCompareContext";
+import AbroadCompareBar from "./AbroadCompareBar";
 
 const AdmissionAbroadPage = lazy(() => import("./AdmissionAbroadPage"));
 const AbroadCountriesPage = lazy(() => import("./AbroadCountriesPage"));
 const AbroadUniversitiesPage = lazy(() => import("./AbroadUniversitiesPage"));
 const AbroadCountryPage = lazy(() => import("./AbroadCountryPage"));
 const AbroadUniversityDetailPage = lazy(() => import("./AbroadUniversityDetailPage"));
+const AbroadComparePage = lazy(() => import("./AbroadComparePage"));
 
 // Every Admission Abroad screen goes through THIS component, chosen by the
 // `screen` prop, so the flag keeps exactly one gate. Adding a second route
@@ -45,6 +48,7 @@ const SCREENS = {
   countries: AbroadCountriesPage,
   country: AbroadCountryPage,       // one destination, /countries/:slug
   university: AbroadUniversityDetailPage, // one university, /universities/:slug
+  compare: AbroadComparePage,       // the sticky bar's "Compare now"
 };
 
 const CENTRED = {
@@ -97,8 +101,16 @@ export default function AdmissionAbroadRoute({ screen = "directory" }) {
   if (!enabled) return <AbroadNotLive />;
 
   return (
-    <Suspense fallback={<main role="status" style={CENTRED}>Loading…</main>}>
-      <Screen />
-    </Suspense>
+    // Scoped to this gated subtree, not lifted into App.jsx's provider
+    // tree — the compare tray has nothing to do with any screen outside
+    // Admission Abroad. The bar renders alongside every screen so it
+    // survives the Home -> Universities -> a university -> Compare walk
+    // the board's own tray does.
+    <AbroadCompareProvider>
+      <Suspense fallback={<main role="status" style={CENTRED}>Loading…</main>}>
+        <Screen />
+      </Suspense>
+      <AbroadCompareBar />
+    </AbroadCompareProvider>
   );
 }

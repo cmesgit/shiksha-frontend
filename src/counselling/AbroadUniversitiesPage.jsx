@@ -37,6 +37,8 @@ import React, { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
+import AdmissionHelpModal from "./AdmissionHelpModal";
+import { useAbroadCompare } from "./useAbroadCompare";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
 import { SUBJECT_AREAS, EXTRA_FLAGS, areasOf, chipAreasOf, fundingLabel, fundingOf, uniSlug } from "./data/abroadFacets";
@@ -71,13 +73,12 @@ const SELF = "/admission/abroad/universities";
 export default function AbroadUniversitiesPage() {
   const [params, setParams] = useSearchParams();
   const [countryQuery, setCountryQuery] = useState("");
-  // ?compare=<id> arrives from a university detail page's "+ Add to
-  // compare" button, which has no compare tray of its own — this is the
-  // tray, so the id is seeded in rather than lost on navigation.
-  const [compare, setCompare] = useState(() => {
-    const c = Number(params.get("compare"));
-    return Number.isFinite(c) && c > 0 ? [c] : [];
-  });
+  // The compare tray is cross-page (the board's own bar survives a visit to
+  // a university's own page and back), so it lives in AbroadCompareContext,
+  // mounted once in AdmissionAbroadRoute — not local state re-created every
+  // time this screen mounts.
+  const { inCompare, toggle: toggleCompare } = useAbroadCompare();
+  const [helpRow, setHelpRow] = useState(null);
 
   const q = params.get("q") || "";
   const sort = params.get("sort") || "qs";
@@ -355,9 +356,7 @@ export default function AbroadUniversitiesPage() {
                     </span>
                     <span className={`abd-fee abd-fee-${fee.tone}`}>{fee.label}</span>
                     <label className="abd-cmp">
-                      <input type="checkbox" checked={compare.includes(r.id)}
-                             onChange={() => setCompare((c) =>
-                               c.includes(r.id) ? c.filter((x) => x !== r.id) : [...c, r.id])} />
+                      <input type="checkbox" checked={inCompare(r.id)} onChange={() => toggleCompare(r.id)} />
                       <span>Compare</span>
                     </label>
                     <Link className="abd-view-btn" to={`${SELF}/${uniSlug(r)}`}>View</Link>
@@ -404,12 +403,10 @@ export default function AbroadUniversitiesPage() {
                       </p>
                     </div>
                     <div className="abd-card-cta">
-                      <Link className="abd-btn-help" to="/counselling/counsellors">Get admission help</Link>
+                      <button className="abd-btn-help" onClick={() => setHelpRow(r)}>Get admission help</button>
                       <Link className="abd-btn-view" to={`${SELF}/${uniSlug(r)}`}>View details</Link>
                       <label className="abd-cmp">
-                        <input type="checkbox" checked={compare.includes(r.id)}
-                               onChange={() => setCompare((c) =>
-                                 c.includes(r.id) ? c.filter((x) => x !== r.id) : [...c, r.id])} />
+                        <input type="checkbox" checked={inCompare(r.id)} onChange={() => toggleCompare(r.id)} />
                         <span>Add to compare</span>
                       </label>
                     </div>
@@ -427,6 +424,15 @@ export default function AbroadUniversitiesPage() {
           </p>
         </div>
       </div>
+
+      <AdmissionHelpModal
+        open={!!helpRow}
+        onClose={() => setHelpRow(null)}
+        title="Get admission help"
+        subtitle={helpRow ? `Share your details and we'll help you plan your application to ${helpRow.name}.` : ""}
+        defaultCountry={helpRow?.country || ""}
+        universityName={helpRow?.name}
+      />
     </CounsellingShell>
   );
 }
