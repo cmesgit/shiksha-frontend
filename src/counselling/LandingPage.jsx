@@ -99,7 +99,7 @@ export default function LandingPage() {
   const howSteps = HOW_STEPS;
 
   return (
-    <CounsellingShell>
+    <CounsellingShell bare>
       {/* hero */}
       <div className="sc-herowrap">
         <div className="sc-hero">
