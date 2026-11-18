@@ -279,9 +279,30 @@ And three are monthly, not LPA: **Civil Services** `₹56,100/month basic`,
 
 ---
 
-## 5. What this board does NOT answer
+## 5. 🔴 The one data gap the owner owns
+
+**"View career details" works for 6 of the 30 careers.** The other 24 land on
+`/counselling/careers/<key>` → *"No detailed page for this career yet"*, which
+names the six we do have: Engineering, Medical, IT, Business, Law, Civil
+Services (`careerVocab.js`'s `FULL_KEYS`, backed by `careerFullDetail.js`).
+
+The board assumes all thirty are filled — clicking **Artificial Intelligence**
+on it opens a complete detail screen (`Overview · Specialisations · Exams &
+Prep · Colleges · Jobs & Salary`), and AI is not one of our six.
+
+This is **not a regression introduced by this rework** — the previous build
+linked all thirty to the same route and the same dead end. What changed is the
+label: it used to read "View career" for the 24 and "View career details" for
+the 6. The board prints one label on every card, so that is what ships; the
+honesty now lives on the destination page, which says plainly that a full
+profile is published only where the detail was researched.
+
+Closing it is a **content task**: 24 × `careerFullDetail.js` records. Until
+then, expect 4 in 5 card clicks to reach the "not yet" screen.
+
+## 6. What this board does NOT answer
 
 * The **career detail** screen's five tabs are designed but out of scope for
   `/counselling/india`.
-* The board shows no result count beside Sort (the current build prints
-  "N of 30"; the board does not).
+* The board shows no result count beside Sort (the previous build printed
+  "N of 30"; the board does not, so it was dropped).
