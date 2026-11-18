@@ -37,7 +37,7 @@ export default function CounsellingShell({ crumb = "", step = null, nav = null, 
   const steps = counsellorsLive ? STEPS : STEPS.slice(0, 2);
   const stepIndex = steps.findIndex(([k]) => k === step);
   return (
-    <div className="sc-page">
+    <div className={`sc-page${bare ? " sc-page--bare" : ""}`}>
       {!bare && <div className="sc-subbar">
         <div className="sc-subbar-in">
           {nav || (
