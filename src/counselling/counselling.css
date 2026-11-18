@@ -1227,7 +1227,7 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
   letter-spacing: .08em; color: rgba(20,32,26,.5); background: rgba(18,45,30,.07);
   border-radius: 999px; padding: 3px 7px }
 .ab-nav-cta { margin-left: auto; font: 700 12.5px 'Poppins', sans-serif;
-  color: #125027; background: #fff; border: 1px solid rgba(18,45,30,.18);
+  color: #125027; background: #fff; border: 1px solid rgba(18,45,30,.18); cursor: pointer;
   border-radius: 999px; padding: 8px 17px; text-decoration: none;
   white-space: nowrap; flex: none; transition: border-color .16s, background .16s }
 .ab-nav-cta:hover { border-color: #125027; background: rgba(18,80,39,.05) }
@@ -1569,7 +1569,7 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
   font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
 .abd-card-foot b { color: rgba(20,32,26,.8) }
 .abd-card-cta { display: grid; gap: 8px; align-content: start; justify-items: stretch; min-width: 148px }
-.abd-btn-help { text-align: center; text-decoration: none; border-radius: 10px; padding: 10px 14px;
+.abd-btn-help { text-align: center; text-decoration: none; border: none; cursor: pointer; border-radius: 10px; padding: 10px 14px;
   font: 700 12.5px 'Poppins', sans-serif; background: #c2560c; color: #fff }
 .abd-btn-help:hover { background: #a5480a }
 .abd-btn-view { cursor: pointer; border-radius: 10px; padding: 10px 14px;
@@ -1625,7 +1625,7 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .abc-hero-tx { min-width: 0 }
 .abc-h1 { font: 800 clamp(26px,3.6vw,38px)/1.12 'Montserrat', sans-serif; color: #0e2a18; margin: 0 }
 .abc-blurb { font: 400 14px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin: 8px 0 0 }
-.abc-cta { flex: none; text-decoration: none; border-radius: 999px; padding: 13px 24px;
+.abc-cta { flex: none; text-decoration: none; border: none; cursor: pointer; border-radius: 999px; padding: 13px 24px;
   font: 700 13px 'Poppins', sans-serif; background: #125027; color: #fff; white-space: nowrap }
 .abc-cta:hover { background: #0e3f1f }
 
@@ -1765,6 +1765,85 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 @media (max-width: 600px) {
   .abu-facts, .abu-admcards { grid-template-columns: 1fr }
 }
+
+/* AdmissionHelpModal — the lead-capture modal behind every "Get admission
+   help" / "Talk to counsellor" control on Admission Abroad. Every one of
+   those shipped as a <Link to="/counselling/counsellors">; the board opens
+   this instead. See AdmissionHelpModal.jsx's header for how that was found. */
+.ahm-mask { position: fixed; inset: 0; background: rgba(10,20,14,.5); z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 20px }
+.ahm-box { width: min(420px, 100%); max-height: 90vh; overflow-y: auto; background: #fff;
+  border-radius: 16px; padding: 24px 26px; box-shadow: 0 20px 60px rgba(10,20,14,.25) }
+.ahm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px }
+.ahm-head h2 { font: 800 19px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.2px }
+.ahm-head p { font: 400 13px/1.55 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 6px 0 0 }
+.ahm-x { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(18,45,30,.14);
+  background: none; color: rgba(20,32,26,.5); font: 600 16px sans-serif; cursor: pointer; line-height: 1 }
+.ahm-x:hover { background: #ebf5e8; color: #125027 }
+
+.ahm-field { display: block; margin-bottom: 14px }
+.ahm-field > span { display: block; font: 700 12.5px 'Poppins', sans-serif; color: #14201a; margin-bottom: 6px }
+.ahm-field > span i { color: #c2560c; font-style: normal; margin-left: 2px }
+.ahm-field input { width: 100%; box-sizing: border-box; padding: 10px 13px; border-radius: 9px;
+  border: 1.5px solid rgba(18,45,30,.16); font: 400 13.5px 'Poppins', sans-serif; color: #14201a }
+.ahm-field input:focus { outline: none; border-color: #125027 }
+.ahm-field input.ahm-err { border-color: #c2560c }
+.ahm-hint { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5); margin-top: 5px }
+.ahm-errtx { display: block; font: 600 11.5px 'Poppins', sans-serif; color: #c2560c; margin-top: 5px }
+.ahm-failed { margin: 0 0 12px }
+
+.ahm-consent { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 18px; cursor: pointer }
+.ahm-consent input { flex: none; width: 16px; height: 16px; accent-color: #125027; margin-top: 2px; cursor: pointer }
+.ahm-consent span { font: 400 12px/1.5 'Poppins', sans-serif; color: rgba(20,32,26,.68) }
+.ahm-consent.ahm-err span { color: #c2560c }
+
+.sc-btn.ahm-submit { width: 100%; justify-content: center; background: #c2560c; box-shadow: none }
+.sc-btn.ahm-submit:hover { background: #a5480a }
+.sc-btn.ahm-submit:disabled { opacity: .6; cursor: default }
+
+.ahm-done { text-align: center; padding: 10px 4px 4px }
+.ahm-done-tick { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: #ebf5e8; color: #125027; font-size: 22px; margin-bottom: 14px }
+.ahm-done h3 { font: 800 17px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 8px }
+.ahm-done p { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.65); margin: 0 0 18px }
+
+/* The sticky compare bar — AbroadCompareBar.jsx. Persists across Home,
+   Universities, a university's own page and the compare page itself;
+   renders nothing when the tray is empty. */
+.abu-combar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+  background: #fff; border-top: 1px solid rgba(18,45,30,.12); box-shadow: 0 -8px 24px rgba(10,20,14,.08);
+  padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap }
+.abu-combar-count { font: 700 13px 'Montserrat', sans-serif; color: #0e2a18; flex: none }
+.abu-combar-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0 }
+.abu-combar-chip { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f2;
+  border-radius: 999px; padding: 5px 6px 5px 12px; font: 600 12px 'Poppins', sans-serif; color: #14201a }
+.abu-combar-chip button { border: none; background: none; width: 20px; height: 20px; border-radius: 50%;
+  color: rgba(20,32,26,.5); font: 600 14px sans-serif; cursor: pointer; line-height: 1 }
+.abu-combar-chip button:hover { background: #e3e5e1; color: #14201a }
+.abu-combar-go { flex: none }
+@media (max-width: 640px) {
+  .abu-combar { padding: 10px 16px }
+  .abu-combar-chips { order: 3; width: 100% }
+}
+
+/* The compare page — AbroadComparePage.jsx. One column per university,
+   one row per fact. A plain scrollable <table> rather than abu-*'s own
+   card vocabulary: this screen IS a table on the board. */
+.abcmp-wrap { overflow-x: auto; background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px;
+  margin-bottom: 20px; padding-bottom: 60px /* room above the sticky compare bar */ }
+.abcmp-table { width: 100%; border-collapse: collapse; min-width: 480px }
+.abcmp-table th, .abcmp-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid rgba(18,45,30,.08);
+  font: 400 13px/1.5 'Poppins', sans-serif; color: #14201a; vertical-align: top }
+.abcmp-table thead th { background: #fafaf8; border-bottom: 1px solid rgba(18,45,30,.12) }
+.abcmp-table thead th:first-child { background: none; border-bottom: none }
+.abcmp-table thead a { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; text-decoration: none }
+.abcmp-table thead a:hover { color: #125027 }
+.abcmp-remove { display: block; margin-top: 4px; border: none; background: none; padding: 0;
+  font: 600 11.5px 'Poppins', sans-serif; color: #c2560c; cursor: pointer }
+.abcmp-remove:hover { text-decoration: underline }
+.abcmp-table tbody th { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55);
+  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; background: #fafaf8 }
+.abcmp-table .ab-subject::first-letter { text-transform: uppercase }
 
 /* Explore careers — the board's facet browser: a stream chip row, an
    interest-area rail with live counts, search, sort and 2-up cards.
