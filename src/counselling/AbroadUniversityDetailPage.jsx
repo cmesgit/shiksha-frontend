@@ -43,7 +43,7 @@ import CounsellingShell from "./CounsellingShell";
 import AbroadNav from "./AbroadNav";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES } from "./data/abroadCountries";
-import { areasOf, uniSlug, countrySlug, EXTRA_FLAGS } from "./data/abroadFacets";
+import { chipAreasOf, uniSlug, countrySlug, EXTRA_FLAGS } from "./data/abroadFacets";
 
 const DIRECTORY = "/admission/abroad/universities";
 const COUNTRIES = "/admission/abroad/countries";
@@ -197,7 +197,7 @@ export default function AbroadUniversityDetailPage() {
               </div>
               <h3 className="abu-subh">Subject groups</h3>
               <div className="abu-chips">
-                {areasOf(row).map((a) => (
+                {chipAreasOf(row).map((a) => (
                   <Link key={a} className="abu-group-chip" to={`${DIRECTORY}?subject=${encodeURIComponent(a)}`}>
                     {a} →
                   </Link>
