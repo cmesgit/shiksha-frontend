@@ -487,7 +487,7 @@ export default function StudyInIndiaPage() {
   };
 
   return (
-    <CounsellingShell crumb=" / Study in India">
+    <CounsellingShell crumb=" / Study in India" plain>
       <header className="sii-head">
         <span className="sc-explore-ic" aria-hidden="true">
           <ScribbleIcon name="home" size={22} />

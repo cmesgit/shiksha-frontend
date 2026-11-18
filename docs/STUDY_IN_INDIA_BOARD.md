@@ -32,6 +32,36 @@ component over NIRF data).
 **There is no page-level sub-nav.** No Home/Universities/Countries row — do
 not copy `AbroadNav` onto this page.
 
+### 🔴 Page chrome the first pass MISSED (added 2026-11-18, second read)
+
+The first transcription recorded what the hero *contains* and not how it is
+*drawn*, so the build shipped the hero as bare text on the section tint. Three
+corrections, all found by re-driving the board rather than re-reading notes:
+
+| | Board | What we had built |
+|---|---|---|
+| Page background | **unpainted → white** | `.sc-page` `#edf2e8` section tint |
+| Hero | **white card, hairline border, radius, solid dark-green bar down the left edge** | bare text, no card |
+| Facet rail | **sticky** — holds while the grid scrolls | `position: static`, scrolled away |
+
+How we know the background is white rather than some near-white: beside the
+content column **the artboard's own canvas grid shows through**. An opaque
+body would hide it. (`.sc-page`'s tint is still correct for every counselling
+screen the v3 board does not redraw, so the fix is the opt-in `plain` prop on
+`CounsellingShell`, not a change to the shared default.)
+
+⚠ **Radius, accent-bar width and hero padding are matched by eye, not
+measured.** The board renders in a cross-origin `frame.claudeusercontent.com`
+iframe, `zoom` caps near 1.2×, and the artifact's file *bytes* are not
+fetchable — only the manifest is (see the 2026-11-17 manifest note). The
+values shipped are this file's existing card vocabulary (`14px` radius,
+`rgba(18,45,30,.08)` hairline, `#125027` bar). **An export of the design
+project would settle them**; until then treat them as approximate.
+
+⚠ **Study abroad was NOT checked against its own artboard in this pass.** It
+very likely wants the same white page + hero card and still renders on the
+tint. Left alone deliberately rather than changed on an inference.
+
 The "Also considering studying abroad?" row renders on **both** tabs, above
 the site footer, separated by a dotted rule.
 

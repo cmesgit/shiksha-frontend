@@ -4,6 +4,17 @@
  * scoped under .sc- so nothing collides with existing site CSS. */
 
 .sc-page { background: #edf2e8; min-height: 70vh; font-family: 'Poppins', sans-serif; color: #16281a }
+
+/* The Study-in-India board paints NO page background: beside the content
+   column the artboard's own canvas grid shows through, which is how we know
+   the body is unpainted rather than tinted some near-white. #edf2e8 above is
+   the v1/v2 section tint and is still right for every counselling screen the
+   v3 board does not redraw, so this is opt-in per page rather than a change
+   to the shared default — flipping .sc-page itself would restyle Profile,
+   My Path, Counsellors, Assessment and Study abroad in one go.
+   NOTE: Study abroad is very likely due the same treatment; it was not
+   checked against its own artboard in this pass, so it is left alone. */
+.sc-page--plain { background: #fff }
 .sc-subbar { background: #fff; border-bottom: 1px solid rgba(18,45,30,.09) }
 .sc-subbar-in { max-width: 1240px; margin: 0 auto; padding: 14px clamp(16px,3.5vw,28px); display: flex; align-items: center; gap: 14px; flex-wrap: wrap }
 .sc-crumb { font: 600 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); white-space: nowrap }
@@ -1064,7 +1075,18 @@ a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); trans
  * site; the admin-token and tokens.css rules in CLAUDE.md govern the
  * dashboards, not this file). */
 
-.sii-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px }
+/* The board draws this hero as a white card with a hairline border and a
+   solid dark-green bar down its left edge — not as bare text on the section
+   tint. Confirmed by zooming the artboard: the bar's top corner follows the
+   card's radius, so it is a left border on the card, not a separate rule.
+   ⚠ The radius, bar width and padding below are matched by eye. The board
+   renders in a cross-origin iframe at a scale that is not 1:1 with CSS px,
+   its zoom caps near 1.2x, and the artifact's file bytes are not fetchable
+   (only the manifest is) — so these are the file's existing card vocabulary,
+   NOT measured values. An export of the design project would settle them. */
+.sii-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px;
+  background: #fff; border: 1px solid rgba(18,45,30,.08); border-left: 5px solid #125027;
+  border-radius: 14px; padding: 24px 26px }
 .sii-head .sc-explore-ic { margin-bottom: 0; flex: none }
 .sii-head-tx { flex: 1; min-width: 0 }
 .sii-head-tx .sc-h1 { margin-bottom: 6px }
@@ -1645,8 +1667,16 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .sii-careers-body { display: grid; grid-template-columns: 236px minmax(0,1fr); gap: 22px; align-items: start }
 @media (max-width: 900px) { .sii-careers-body { grid-template-columns: 1fr } }
 
-/* Facet rail */
-.sii-facets { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 16px 18px }
+/* Facet rail.
+   The board holds this rail in place while the card grid scrolls past it —
+   checked by scrolling the prototype, not assumed from a resting screenshot.
+   .skn-header is position:fixed and measures 83px on the live page, so the
+   offset clears it with a 16px gap rather than tucking the rail under it.
+   The sticky only takes effect because .sii-careers-body sets
+   align-items:start; a stretched grid item has no spare height to stick in. */
+.sii-facets { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 16px 18px;
+  position: sticky; top: 99px }
+@media (max-width: 900px) { .sii-facets { position: static } }
 .sii-facet-kicker {
   font: 700 10px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
   text-transform: uppercase; letter-spacing: .13em; margin: 0 0 10px;
