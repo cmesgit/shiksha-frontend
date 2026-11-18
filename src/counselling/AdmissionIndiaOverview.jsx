@@ -43,6 +43,10 @@ const POPULAR = [
   ["Central universities", "Central university"],
 ];
 
+// The board shows four facet cards collapsed and the rest behind the
+// toggle — the same preview size the Admission Abroad browse block uses.
+const FACET_PREVIEW = 4;
+
 const BROWSE_TABS = [
   ["stream", "Stream"],
   ["exam", "Exam"],
@@ -109,6 +113,10 @@ export default function AdmissionIndiaOverview() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [tab, setTab] = useState("stream");
+  // Per-tab, and reset when the tab changes: switching from an expanded
+  // Stream list to State should land on State's preview, not drop the
+  // reader into 32 open cards they did not ask for.
+  const [expanded, setExpanded] = useState(false);
   const [category, setCategory] = useState("Overall");
   const [q, setQ] = useState("");
   const [stream, setStream] = useState("");
@@ -248,15 +256,16 @@ export default function AdmissionIndiaOverview() {
               role="tab"
               aria-selected={tab === key}
               className={`ab-tab${tab === key ? " on" : ""}`}
-              onClick={() => setTab(key)}
+              aria-controls="in-facet-grid"
+              onClick={() => { setTab(key); setExpanded(false); }}
             >
               {label}
             </button>
           ))}
         </div>
 
-        <div className="ab-facet-grid in-facet-grid">
-          {facets[tab].slice(0, 4).map(([value, count]) => (
+        <div className="ab-facet-grid in-facet-grid" id="in-facet-grid">
+          {(expanded ? facets[tab] : facets[tab].slice(0, FACET_PREVIEW)).map(([value, count]) => (
             <Link key={value} className="sc-card ab-facet in-facet" to={facetHref(tab, value)}>
               <span className="in-facet-ico"><Icon d={facetIcon(value)} /></span>
               <span>
@@ -269,11 +278,25 @@ export default function AdmissionIndiaOverview() {
           ))}
         </div>
 
-        <div className="in-viewall">
-          <Link className="sc-btn ghost" to={`${DIRECTORY}?tab=${tab}`}>
-            View all ({facets[tab].length})
-          </Link>
-        </div>
+        {/* The board EXPANDS this grid in place and flips the label to
+            "Show less" — driven on it, not inferred. It used to leave the
+            screen for the directory, which is a different thing from
+            "show me the rest of the list". Same correction the Admission
+            Abroad browse block needed. A tab short enough to show whole
+            renders no toggle at all. */}
+        {facets[tab].length > FACET_PREVIEW && (
+          <div className="in-viewall">
+            <button
+              type="button"
+              className="sc-btn ghost"
+              aria-expanded={expanded}
+              aria-controls="in-facet-grid"
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? "Show less" : `View all (${facets[tab].length})`}
+            </button>
+          </div>
+        )}
 
         {tab === "stream" && (
           <p className="ab-caveat in-facet-note">
