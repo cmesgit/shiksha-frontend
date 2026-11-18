@@ -1,107 +1,153 @@
-// PLACEMENT: src/counselling/StudyInIndiaPage.jsx   (NEW FILE — landing/frontend app)
+// PLACEMENT: src/counselling/StudyInIndiaPage.jsx   (landing/frontend app)
 //
-// "Study in India" — the destination the landing page's own card has been
-// promising and not delivering.
-//
-// ── The bug this closes ──────────────────────────────────────────────
-// LandingPage's "Explore at your own pace" section offers a card reading
-// "Study in India — Guides for every stage and careers you can build in
-// India", and it linked to /admission/india/all: the 980-row NIRF
-// institutions directory. A visitor who asked for guides and careers got
-// a filterable list of colleges. This page is what that card means.
+// "Study in India" — /counselling/india.
 //
 // ── Source ───────────────────────────────────────────────────────────
-// The artboard at claude.ai/artifact/4nxDHtLVf2…#artboard-e1ccdaae93d6.
-// It cannot be read from a Claude Code session (the share link renders a
-// sign-in wall in the Browser pane and WebFetch returns only the SPA
-// shell), so this follows the screenshots in
-// `~/current affairs/Career_Counselling.pdf`, which show the same board:
-// breadcrumb → icon tile + title + report CTA → Guides / Explore careers
-// tabs → four numbered stage cards.
+// The board at claude.ai/artifact/Dwch7uVD5334397py5NEmD#artboard-f22323634b41
+// ("Career Counselling project" → "Career Counselling v3"), transcribed in
+// full to docs/STUDY_IN_INDIA_BOARD.md on 2026-11-18.
 //
-// ── Where this deliberately does NOT match the picture ───────────────
-//   * "5 min read · 9 topics" per card. We have `section_count` and no
-//     word count, so there is no honest read-time to print. The real
-//     section count is shown instead. The artboard's figures describe
-//     SHORT stage guides ("stage wise and shorter version of India
-//     guide", per the handoff's own flow sketch) — those do not exist.
-//     The CMS holds the long ones: 140 sections for middle school, 725
-//     for Classes 9–10. Printing "5 min read" over a 725-section guide
-//     would be a lie about a half-hour of reading.
-//   * "WHAT YOU'LL LEARN" bullets. The artboard shows hand-written
-//     teaching points per stage. The API carries one `blurb` per guide,
-//     so a stage's bullets are the real blurbs of the guides inside it.
-//     Inventing three sentences per stage would attribute copy to the
-//     counselling team that nobody wrote.
-//   * Explore careers is a signpost, not the artboard's grid. See the
-//     note on CareersTab below.
+// 🔴 That file is the spec of record. The design project is DELETED on
+// 2026-12-14; after that the board cannot be re-read. Change this screen
+// against the transcription, not against memory of the picture.
 //
-// Stage grouping is declared here rather than derived, because the CMS's
-// ten guides and the artboard's four cards are different shapes: the
-// artboard groups by school stage, and `after-10` / `after-12-*` are
-// transition guides that belong with the class either side of them.
+// The board is a LIVE PROTOTYPE and was driven, not screenshotted: every
+// stream chip, every interest checkbox, the sort select and the search box
+// were exercised. Two rules could only be recovered that way and are
+// recorded in data/careerIndia.js — stream membership is an explicit list,
+// and the starting-salary string is its own field.
+//
+// ── The one place this deliberately does NOT match the picture ────────
+// The board prints "5 min read · 9 topics" on all four stage cards. The
+// guides those cards link to are, on the live CMS: 43 / 317 / 159 / 18
+// minutes and 13 / 13 / 8 / 13 chapters. The board's figures describe short
+// stage guides that have never been written. We ship the board's exact
+// footer — clock glyph, "min read", the "·", the word "topics" — filled
+// with the real numbers. Printing "5 min read" over a 317-minute guide
+// would be a lie about half a day of reading.
+//
+// Everything else on those cards (titles, blurbs, all twelve "What you'll
+// learn" bullets) IS reproduced verbatim: it is design copy authored on the
+// board. An earlier version of this file refused the bullets as "copy
+// nobody wrote" — correct only while the board could not be read.
+//
+// ── Known, deliberately untouched ────────────────────────────────────
+// LandingPage.jsx:145 sends /counselling/india?q=<term> from a box labelled
+// "Search guides", and this page does not read it. Wiring it to the careers
+// search would route a guide query into a CAREER filter and answer "no
+// careers match" for things like "middle school" — strictly worse than
+// ignoring it. The board specifies no ?q= behaviour. Left alone on purpose.
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Activity, Atom, BookOpen, BookMarked, Briefcase, Check, Clock, Compass,
+  DollarSign, Eye, FileText, FlaskConical, Globe, GraduationCap, Hotel,
+  Landmark, Layers, LayoutGrid, Leaf, Lightbulb, LineChart, Lock, Mic,
+  Monitor, Music, Navigation, Palette, PenTool, Rocket, Scale, Search,
+  Shield, Star, Target, Wrench,
+} from "lucide-react";
 import CounsellingShell from "./CounsellingShell";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
-import { getGuideIndex, toGuideCard } from "../api/guidesApi";
+import { getGuideIndex, getGuide, toGuideCard } from "../api/guidesApi";
 import { useAuth } from "../contexts/AuthContext";
-import { hasFullDetail } from "./careerVocab";
 import { CAREER_DETAIL } from "./data/careerDetail";
-
-// `stages` are CMS `stage` slugs (counseling/fixtures/career_guides/
-// manifest.json). `lead` names the guide that titles the card; the rest
-// become supporting rows. A stage slug that stops existing just drops out.
-const STAGE_CARDS = [
-  { n: 1, label: "For Class 6–8", lead: "middle-school", stages: ["middle"] },
-  { n: 2, label: "For Class 9–10", lead: "secondary-school", stages: ["secondary", "after-10"] },
-  { n: 3, label: "For Class 11–12", lead: "class-11-12", stages: ["class-11-12", "after-12"] },
-  { n: 4, label: "For college students", lead: "undergraduate", stages: ["ug", "pg"] },
-];
+import { CAREER_INDIA, INTEREST_AREAS, STREAMS } from "./data/careerIndia";
 
 const TABS = [
   ["guides", "Guides"],
   ["careers", "Explore careers"],
 ];
 
-function StageCard({ card, guides }) {
-  if (!guides.length) return null;
-  const lead = guides.find((g) => g.slug === card.lead) || guides[0];
-  const rest = guides.filter((g) => g.slug !== lead.slug);
-  const sections = guides.reduce((n, g) => n + (g.sectionCount || 0), 0);
+/* ─────────────────────────── Guides tab ─────────────────────────── */
 
+// `stages` are CMS `stage` slugs; `lead` names the guide the card opens.
+// Everything else on this object is board copy (see the header note).
+const STAGE_CARDS = [
+  {
+    n: 1, label: "For Class 6–8", icon: Lightbulb,
+    lead: "middle-school", stages: ["middle"],
+    title: "Middle School Guide (Classes 6–8)",
+    blurb: "Know yourself, build good habits and start exploring careers — no pressure to decide yet.",
+    learn: [
+      "Middle school is for exploring, not deciding",
+      "Strengths include creative, personal, social and physical ones — not just marks",
+      "Small daily study habits beat long cramming sessions",
+    ],
+  },
+  {
+    n: 2, label: "For Class 9–10", icon: Target,
+    lead: "secondary-school", stages: ["secondary", "after-10"],
+    title: "Class 9 & 10 Guide: Boards, Skills & Choosing a Stream",
+    blurb: "Build a strong base, prepare for boards smartly and pick the right stream after Class 10.",
+    learn: [
+      "Class 9–10 builds your base for boards and for Class 11",
+      "Boards test understanding — revise weekly, practise past papers",
+      "There is no single best stream: Science, Commerce, Humanities and Vocational all lead to strong careers",
+    ],
+  },
+  {
+    n: 3, label: "For Class 11–12", icon: Compass,
+    lead: "class-11-12", stages: ["class-11-12", "after-12"],
+    title: "Class 11 & 12 Guide: Streams, Entrance Exams & Next Steps",
+    blurb: "Your stream explained, key entrance exams, colleges in India and how to plan for after Class 12.",
+    learn: [
+      "Class 11–12 is focused, concept-heavy study in one stream",
+      "Most top colleges admit through an entrance exam — know yours early",
+      "Many courses (BBA, law, design, media, hotel management) are open to every stream",
+    ],
+  },
+  {
+    n: 4, label: "For college students", icon: GraduationCap,
+    lead: "undergraduate", stages: ["ug", "pg"],
+    title: "Undergraduate (UG) Guide: Courses, Exams & Careers",
+    blurb: "UG degrees after Class 12, entrance exams, admissions, college types and what comes after graduation.",
+    learn: [
+      "UG degrees take 3–5.5 years after Class 12",
+      "Check UGC recognition and council approval before you join",
+      "Entrance exams decide most professional admissions",
+    ],
+  },
+];
+
+function StageCard({ card, meta }) {
+  const Icon = card.icon;
   return (
     <article className="sii-stage">
       <header className="sii-stage-head">
+        <span className="sii-stage-ic" aria-hidden="true"><Icon size={18} strokeWidth={2} /></span>
         <span className="sii-stage-n">Stage {card.n}</span>
         <h3>{card.label}</h3>
       </header>
 
       <div className="sii-stage-body">
-        <h4 className="sii-stage-title">{lead.title}</h4>
-        {lead.blurb && <p className="sii-stage-blurb">{lead.blurb}</p>}
+        <h4 className="sii-stage-title">{card.title}</h4>
+        <p className="sii-stage-blurb">{card.blurb}</p>
 
-        {rest.length > 0 && (
-          <>
-            <p className="sii-stage-kicker">Also in this stage</p>
-            <ul className="sii-stage-list">
-              {rest.map((g) => (
-                <li key={g.slug}>
-                  <Link to={`/counselling/guides/${g.slug}`}>{g.audience || g.title}</Link>
-                  {g.blurb && <span> — {g.blurb}</span>}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+        <p className="sii-stage-kicker">What you’ll learn</p>
+        <ul className="sii-stage-learn">
+          {card.learn.map((line) => (
+            <li key={line}>
+              <Check size={15} strokeWidth={2.6} aria-hidden="true" />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
 
         <footer className="sii-stage-foot">
+          {/* Real figures, not the board's "5 min read · 9 topics" — see
+              the header note. Rendered only once the lead guide's detail
+              has resolved, so the row never shows a placeholder number. */}
           <span className="sii-stage-meta">
-            {guides.length} guide{guides.length === 1 ? "" : "s"}
-            {sections > 0 && ` · ${sections.toLocaleString("en-IN")} sections`}
+            {meta ? (
+              <>
+                <Clock size={14} aria-hidden="true" />
+                {meta.minutes ? `${meta.minutes} min read · ` : ""}
+                {meta.topics} topic{meta.topics === 1 ? "" : "s"}
+              </>
+            ) : null}
           </span>
-          <Link className="sii-stage-go" to={`/counselling/guides/${lead.slug}`}>
+          <Link className="sc-btn green sm sii-stage-go" to={`/counselling/guides/${card.lead}`}>
             Read guide <span aria-hidden="true">→</span>
           </Link>
         </footer>
@@ -111,25 +157,41 @@ function StageCard({ card, guides }) {
 }
 
 function GuidesTab({ guides, loading }) {
-  const byStage = useMemo(() => {
-    const m = new Map();
-    guides.forEach((g) => {
-      if (!m.has(g.stage)) m.set(g.stage, []);
-      m.get(g.stage).push(g);
-    });
-    return m;
+  const [meta, setMeta] = useState({});
+
+  // Which of the four stages the CMS actually has guides for. A stage that
+  // stops existing drops its card rather than rendering an empty one.
+  const cards = useMemo(() => {
+    const stages = new Set(guides.map((g) => g.stage));
+    return STAGE_CARDS.filter((c) => c.stages.some((s) => stages.has(s)));
   }, [guides]);
 
-  const cards = STAGE_CARDS.map((card) => ({
-    card,
-    guides: card.stages.flatMap((s) => byStage.get(s) || []),
-  })).filter((c) => c.guides.length > 0);
-
+  // `reading_minutes` and the chapter count are on the guide DETAIL, not on
+  // the index row (which carries only `section_count`). getGuide() caches
+  // per slug for the tab's lifetime and is the same cache GuidePage reads,
+  // so opening a guide afterwards costs nothing.
+  useEffect(() => {
+    let alive = true;
+    Promise.all(
+      cards.map(async (c) => {
+        const res = await getGuide(c.lead);
+        if (res.status !== "ok") return null;
+        return [c.lead, {
+          minutes: res.guide.reading_minutes || 0,
+          topics: (res.guide.chapters || []).length || res.guide.section_count || 0,
+        }];
+      })
+    ).then((pairs) => {
+      if (!alive) return;
+      setMeta(Object.fromEntries(pairs.filter(Boolean)));
+    });
+    return () => { alive = false; };
+  }, [cards]);
 
   if (loading) {
     return (
       <div className="sii-stages">
-        {[0, 1, 2, 3].map((i) => <div key={i} className="sc-skel" style={{ height: 230 }} />)}
+        {[0, 1, 2, 3].map((i) => <div key={i} className="sc-skel" style={{ height: 300 }} />)}
       </div>
     );
   }
@@ -147,136 +209,246 @@ function GuidesTab({ guides, loading }) {
   }
 
   return (
-    <>
-      <div className="sii-stages">
-        {cards.map(({ card, guides: g }) => (
-          <StageCard key={card.n} card={card} guides={g} />
-        ))}
-      </div>
-
-      {/* The admissions handbook row is GONE. It rendered every guide whose
-          stage is "admissions", and `study-abroad` carries that same stage —
-          so an ABROAD handbook was appearing on the India page, under a
-          button reading "Explore colleges in India". Neither handbook
-          belongs in a tab of short, stage-by-stage India guides: the India
-          one is reachable from its own stage cards and the abroad one from
-          /counselling/abroad. */}
-    </>
+    <div className="sii-stages">
+      {cards.map((card) => <StageCard key={card.n} card={card} meta={meta[card.lead]} />)}
+    </div>
   );
 }
 
-/**
- * Explore careers.
- *
- * This tab used to show SIX bare cards reading "Career / Engineering" under
- * a notice saying the browser was "still being written". Six, because
- * careerFullDetail.js has a detail PAGE for only six.
- *
- * But careerDetail.js holds THIRTY careers with real content — overview,
- * job roles, salary bands, market demand, recruiters, progression — so 24
- * real careers were being hidden behind that notice. They are all here now,
- * each card carrying what the data actually has.
- *
- * 🔴 WHAT IS STILL NOT BUILT, and why it is a DATA task, not a UI one:
- * the board puts a stream chip row and an interest-area rail over this grid.
- * `stream`, `interestArea`, `degree` and `entranceExam` are present on
- * 0 of 30 careers. Inventing an entrance exam or a stream for a fifteen-
- * year-old choosing their subjects is the one thing worth refusing, so the
- * facets wait for the data rather than being approximated. Search and sort
- * work on fields that DO exist.
- */
+/* ────────────────────────── Explore careers ─────────────────────── */
+
+const CAREER_ICONS = {
+  Activity, Atom, BookOpen, Briefcase, DollarSign, Eye, FileText,
+  FlaskConical, Globe, Hotel, Landmark, Layers, LayoutGrid, Leaf,
+  Lightbulb, LineChart, Lock, Mic, Monitor, Music, Navigation, Palette,
+  PenTool, Rocket, Scale, Shield, Star, Target, Wrench,
+};
+
 const SORTS = [
-  ["name", "A–Z"],
-  ["demand", "Market demand"],
+  ["popular", "Most popular"],
+  ["az", "A to Z"],
 ];
-const DEMAND_RANK = { High: 0, "Very High": 0, Moderate: 1, Medium: 1, Low: 2 };
+
+/**
+ * The board's card blurb is the FIRST SENTENCE of `overview`, then clamped
+ * to two lines by CSS — not the whole paragraph clamped. Verified against
+ * all thirty: Medicine shows one short sentence with no ellipsis while its
+ * overview continues "MBBS (5.5 years including internship)…".
+ *
+ * The lookahead requires whitespace + a capital so "B.Tech", "R&D." and
+ * "₹3.5–5" do not split a sentence. Checked: reproduces all 30 exactly.
+ */
+function firstSentence(text) {
+  if (!text) return "";
+  const m = text.match(/^[\s\S]*?[.!?](?=\s+[A-Z₹])/);
+  return (m ? m[0] : text).trim();
+}
+
+const CAREERS = CAREER_INDIA.map((c) => {
+  const detail = CAREER_DETAIL[c.key] || {};
+  return {
+    ...c,
+    blurb: firstSentence(detail.overview),
+    // Matches the board's own search: "pilot" returns Aviation (Pilot) AND
+    // Defence Services, whose visible copy has no "pilot" — it is in that
+    // record's jobRoles. Verified to return exactly those two.
+    haystack: [
+      c.label, c.key, c.area, c.subjects, c.course, c.exam,
+      detail.overview || "", (detail.jobRoles || []).join(" "),
+    ].join(" ").toLowerCase(),
+  };
+});
 
 function CareersTab() {
+  const [stream, setStream] = useState("all");
+  const [areas, setAreas] = useState(() => new Set());
   const [q, setQ] = useState("");
-  const [sort, setSort] = useState("name");
+  const [sort, setSort] = useState("popular");
+
+  const needle = q.trim().toLowerCase();
+
+  // The sidebar's counts are computed over stream + search but NOT over the
+  // area checkboxes — verified on the board: ticking one area leaves the
+  // other eight counts untouched. Computing them over the area selection
+  // too would zero every box the moment one was ticked.
+  const base = useMemo(
+    () => CAREERS.filter(
+      (c) => (stream === "all" || c.streams.includes(stream)) &&
+             (!needle || c.haystack.includes(needle))
+    ),
+    [stream, needle]
+  );
+
+  const counts = useMemo(() => {
+    const out = Object.fromEntries(INTEREST_AREAS.map((a) => [a, 0]));
+    base.forEach((c) => { out[c.area] += 1; });
+    return out;
+  }, [base]);
 
   const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    const all = Object.keys(CAREER_DETAIL).map((key) => ({ key, ...CAREER_DETAIL[key] }));
-    const hit = needle
-      ? all.filter((c) =>
-          (c.key + " " + (c.overview || "") + " " + (c.jobRoles || []).join(" "))
-            .toLowerCase()
-            .includes(needle)
-        )
-      : all;
-    return [...hit].sort((a, b) =>
-      sort === "demand"
-        ? (DEMAND_RANK[a.marketDemand] ?? 9) - (DEMAND_RANK[b.marketDemand] ?? 9) ||
-          a.key.localeCompare(b.key)
-        : a.key.localeCompare(b.key)
-    );
-  }, [q, sort]);
+    const picked = areas.size ? base.filter((c) => areas.has(c.area)) : base;
+    // "Most popular" IS the CAREER_INDIA array order, so it needs no sort.
+    return sort === "az"
+      ? [...picked].sort((a, b) => a.label.localeCompare(b.label))
+      : picked;
+  }, [base, areas, sort]);
+
+  const toggleArea = (area) => {
+    setAreas((prev) => {
+      const next = new Set(prev);
+      if (next.has(area)) next.delete(area); else next.add(area);
+      return next;
+    });
+  };
+
+  const clearAll = () => { setStream("all"); setAreas(new Set()); setQ(""); };
+
+  const streamLabel = STREAMS.find(([k]) => k === stream)?.[1];
+  const hasFilters = stream !== "all" || areas.size > 0 || needle !== "";
 
   return (
     <section className="sii-careers">
-      <div className="sii-careers-bar">
-        <div className="sc-search sii-careers-search">
-          <ScribbleIcon name="search" size={16} color="rgba(14,28,15,.45)" />
-          <input
-            aria-label="Search careers"
-            placeholder="Search careers, roles or skills"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
-        </div>
-        <div className="sii-careers-sort" role="tablist" aria-label="Sort careers">
-          {SORTS.map(([key, label]) => (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={sort === key}
-              className={`sii-sort${sort === key ? " on" : ""}`}
-              onClick={() => setSort(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <span className="sii-careers-count">
-          {rows.length} of {Object.keys(CAREER_DETAIL).length}
-        </span>
+      <p className="sii-stream-kicker">Your stream in Class 11–12</p>
+      <div className="sii-streams" role="group" aria-label="Filter by stream">
+        {STREAMS.map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={stream === key}
+            className={`sii-stream${stream === key ? " on" : ""}`}
+            onClick={() => setStream(key)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {rows.length === 0 ? (
-        <div className="sc-empty">No career matches “{q.trim()}”.</div>
-      ) : (
-        <div className="sii-career-grid">
-          {rows.map((c) => (
-            <Link
-              key={c.key}
-              to={`/counselling/careers/${encodeURIComponent(c.key)}`}
-              className="sii-career"
+      <div className="sii-careers-body">
+        <aside className="sii-facets">
+          <p className="sii-facet-kicker">Interest area</p>
+          <ul className="sii-areas">
+            {INTEREST_AREAS.map((area) => {
+              const n = counts[area];
+              return (
+                <li key={area} className={n === 0 && !areas.has(area) ? "off" : ""}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={areas.has(area)}
+                      disabled={n === 0 && !areas.has(area)}
+                      onChange={() => toggleArea(area)}
+                    />
+                    <span className="sii-area-name">{area}</span>
+                    <span className="sii-area-n">{n}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+
+          <p className="sii-facet-kicker">Search careers</p>
+          <div className="sc-search sii-career-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              aria-label="Search careers"
+              placeholder="e.g. doctor, design, pilot"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+        </aside>
+
+        <div className="sii-careers-main">
+          <div className="sii-sortbar">
+            <label className="sii-sort-lb" htmlFor="sii-sort">Sort</label>
+            <select
+              id="sii-sort"
+              className="sii-sort"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
             >
-              <h3>{c.key}</h3>
-              {c.overview && <p className="sii-career-blurb">{c.overview}</p>}
-              <dl className="sii-career-meta">
-                {c.salaryFresher && (
-                  <div><dt>Starting</dt><dd>{c.salaryFresher}</dd></div>
-                )}
-                {c.marketDemand && (
-                  <div><dt>Demand</dt><dd>{c.marketDemand}</dd></div>
-                )}
-              </dl>
-              {(c.jobRoles || []).length > 0 && (
-                <p className="sii-career-roles">{(c.jobRoles || []).slice(0, 3).join(" · ")}</p>
+              {SORTS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            </select>
+          </div>
+
+          {hasFilters && (
+            <div className="sii-pills">
+              {stream !== "all" && (
+                <button type="button" className="sii-pill" onClick={() => setStream("all")}>
+                  {streamLabel} <span aria-hidden="true">×</span>
+                  <span className="sii-sr">Remove stream filter</span>
+                </button>
               )}
-              <span className="sii-career-go">
-                {hasFullDetail(c.key) ? "View career details" : "View career"}{" "}
-                <span aria-hidden="true">→</span>
-              </span>
-            </Link>
-          ))}
+              {INTEREST_AREAS.filter((a) => areas.has(a)).map((a) => (
+                <button key={a} type="button" className="sii-pill" onClick={() => toggleArea(a)}>
+                  {a} <span aria-hidden="true">×</span>
+                  <span className="sii-sr">Remove interest area filter</span>
+                </button>
+              ))}
+              {needle !== "" && (
+                <button type="button" className="sii-pill" onClick={() => setQ("")}>
+                  “{q.trim()}” <span aria-hidden="true">×</span>
+                  <span className="sii-sr">Clear search</span>
+                </button>
+              )}
+              <button type="button" className="sii-clear" onClick={clearAll}>Clear all</button>
+            </div>
+          )}
+
+          {rows.length === 0 ? (
+            <div className="sii-noresult">
+              <p className="sii-noresult-h">No careers match these filters.</p>
+              <p>Try removing an area or choosing “All streams”.</p>
+              <button type="button" className="sii-clear" onClick={clearAll}>Clear all filters</button>
+            </div>
+          ) : (
+            <div className="sii-career-grid">
+              {rows.map((c) => {
+                const Icon = CAREER_ICONS[c.icon] || Lightbulb;
+                return (
+                  <article key={c.key} className="sii-career">
+                    <header className="sii-career-top">
+                      <span className="sii-career-ic" aria-hidden="true">
+                        <Icon size={18} strokeWidth={2} />
+                      </span>
+                      <div className="sii-career-id">
+                        <h3>{c.label}</h3>
+                        <p className="sii-career-area">{c.area}</p>
+                      </div>
+                    </header>
+
+                    {c.blurb && <p className="sii-career-blurb">{c.blurb}</p>}
+
+                    <p className="sii-career-subj">
+                      <BookMarked size={14} aria-hidden="true" />
+                      <span className="sii-career-subj-lb">Subjects:</span>
+                      <b>{c.subjects}</b>
+                    </p>
+
+                    <dl className="sii-career-facts">
+                      <div><dt>Course</dt><dd>{c.course}</dd></div>
+                      <div><dt>Entrance exam</dt><dd>{c.exam}</dd></div>
+                      <div><dt>Starting salary</dt><dd>{c.salary}</dd></div>
+                    </dl>
+
+                    <Link
+                      className="sii-career-go"
+                      to={`/counselling/careers/${encodeURIComponent(c.key)}`}
+                    >
+                      View career details <span aria-hidden="true">→</span>
+                    </Link>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </section>
   );
 }
+
+/* ──────────────────────────── The page ──────────────────────────── */
 
 export default function StudyInIndiaPage() {
   const [params, setParams] = useSearchParams();
@@ -285,9 +457,6 @@ export default function StudyInIndiaPage() {
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // The tab rides the URL so a link can point at either one, and so the
-  // back button steps between them — same `?tab=` idiom the admission
-  // directory and the CMS screens use.
   const raw = params.get("tab");
   const tab = TABS.some(([k]) => k === raw) ? raw : "guides";
 
@@ -348,6 +517,12 @@ export default function StudyInIndiaPage() {
       </div>
 
       {tab === "guides" ? <GuidesTab guides={guides} loading={loading} /> : <CareersTab />}
+
+      {/* The board draws this row under BOTH tabs. */}
+      <div className="sii-crosslink">
+        Also considering studying abroad?{" "}
+        <Link to="/counselling/abroad">Go to Study abroad <span aria-hidden="true">→</span></Link>
+      </div>
     </CounsellingShell>
   );
 }
