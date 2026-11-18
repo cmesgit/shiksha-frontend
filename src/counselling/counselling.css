@@ -56,7 +56,12 @@
 .sc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
 .sc-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px }
 
-.sc-herowrap { position: relative; background: #ffffff; border: 1px solid rgba(18,45,30,.07); border-radius: 20px; padding: clamp(26px,3.5vw,48px); margin: clamp(4px,1vw,10px) 0 6px; overflow: hidden }
+/* NOT a card. The board draws the hero directly on the page background —
+   no white panel, no border, no radius. It was a card here only because the
+   section chrome used to need something to sit against. `overflow: hidden`
+   also has to go: the report card's "Live 1:1 session" badge overhangs the
+   hero's left edge by design and a clipping parent cuts it off. */
+.sc-herowrap { position: relative; padding: clamp(18px,3vw,40px) 0 clamp(10px,1.5vw,18px); margin: 0 }
 .sc-hero { display: grid; grid-template-columns: 1.12fr .88fr; gap: clamp(22px,3vw,38px); align-items: center }
 .sc-herowrap .sc-h1 { font-size: clamp(30px,3.8vw,46px); letter-spacing: -.9px }
 .sc-hero-art { position: relative; background: #f4f7f4; border: 1px solid rgba(18,45,30,.06); border-radius: 16px; padding: 24px 26px; color: #14201a; display: flex; flex-direction: column; gap: 14px }
