@@ -471,6 +471,9 @@ function App() {
             one gate and a second route cannot become an unguarded way in. */}
         <Route path="/admission/abroad/universities"  element={<Page><AdmissionAbroad screen="universities" /></Page>} />
         <Route path="/admission/abroad/countries"     element={<Page><AdmissionAbroad screen="countries" /></Page>} />
+        {/* One destination. Goes through AdmissionAbroadRoute like every
+            other abroad screen so the feature flag keeps exactly one gate. */}
+        <Route path="/admission/abroad/countries/:slug" element={<Page><AdmissionAbroad screen="country" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
         {/* The curated NIRF **Engineering** top 50 — a different NIRF table
             with scores, founding years and admission prose the 980-row

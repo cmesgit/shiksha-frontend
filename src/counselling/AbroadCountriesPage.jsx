@@ -33,6 +33,7 @@ import AbroadNav from "./AbroadNav";
 import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { ABROAD_100 } from "./data/abroad100";
 import { ABROAD_COUNTRIES, COUNTRY_REGIONS } from "./data/abroadCountries";
+import { countrySlug } from "./data/abroadFacets";
 
 const ALL = "All regions";
 
@@ -129,7 +130,10 @@ export default function AbroadCountriesPage() {
       ) : (
         <div className="ac-grid">
           {shown.map((c) => (
-            <article key={c.name} className="ac-card">
+            // The whole card is the link. These were inert from the day the
+            // screen shipped, under a Home-page promise to "compare countries
+            // on cost, intakes, visa rules, work rights and career outcomes".
+            <Link key={c.name} className="ac-card" to={`/admission/abroad/countries/${countrySlug(c)}`}>
               <div className="ac-card-head">
                 {c.flag && <span className="ac-flag" aria-hidden="true">{c.flag}</span>}
                 <div>
@@ -143,7 +147,7 @@ export default function AbroadCountriesPage() {
                   <span className="ac-intakes-l">Intakes:</span> {c.intakes}
                 </p>
               )}
-            </article>
+            </Link>
           ))}
         </div>
       )}

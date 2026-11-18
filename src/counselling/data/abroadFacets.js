@@ -127,6 +127,19 @@ export function chipAreasOf(row) {
   return CHIP_PRIORITY.filter((a) => have.has(a));
 }
 
+// ── A destination's URL slug ─────────────────────────────────────────
+// Derived from the display name, never stored, so a country's page and the
+// card that links to it cannot drift apart. Keyed on `name` rather than
+// `qsKey`: qsKey exists to join onto abroad100 ("Czech Republic"), while
+// the URL should read like the page's own title ("czechia").
+export const countrySlug = (c) =>
+  (c.name || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")  // Türkiye → turkiye
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 // ── Flags for countries that have no country guide ───────────────────
 // The browse cards take their flag from ABROAD_COUNTRIES, which is the 56
 // country GUIDES. 15 of the 51 countries in abroad100.js have QS-ranked
@@ -194,6 +207,16 @@ if (import.meta.env?.DEV) {
   const flagless = [...new Set(ABROAD_100.map((r) => r.country))]
     .filter((name) => !guided.has(name) && !EXTRA_FLAGS[name]);
   if (flagless.length) problems.push(`countries with no flag: ${flagless.join(", ")}`);
+
+  // Two destinations sharing a slug means one of their pages is unreachable
+  // — the reader lands on whichever the finder hits first, with no error.
+  const seen = new Map();
+  ABROAD_COUNTRIES.forEach((c) => {
+    const s = countrySlug(c);
+    if (!s) return problems.push(`"${c.name}" produces an empty slug`);
+    if (seen.has(s)) problems.push(`slug "${s}" is shared by ${seen.get(s)} and ${c.name}`);
+    else seen.set(s, c.name);
+  });
 
   // The six cards whose chips were read off the board, verbatim. These pin
   // CHIP_PRIORITY: reorder it and at least one of these stops matching.

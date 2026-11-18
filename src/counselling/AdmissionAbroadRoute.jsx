@@ -32,6 +32,7 @@ import { getPublicConfig } from "../api/publicConfig";
 const AdmissionAbroadPage = lazy(() => import("./AdmissionAbroadPage"));
 const AbroadCountriesPage = lazy(() => import("./AbroadCountriesPage"));
 const AbroadUniversitiesPage = lazy(() => import("./AbroadUniversitiesPage"));
+const AbroadCountryPage = lazy(() => import("./AbroadCountryPage"));
 
 // Every Admission Abroad screen goes through THIS component, chosen by the
 // `screen` prop, so the flag keeps exactly one gate. Adding a second route
@@ -41,6 +42,7 @@ const SCREENS = {
   directory: AdmissionAbroadPage,   // the board's "Home" tab
   universities: AbroadUniversitiesPage,
   countries: AbroadCountriesPage,
+  country: AbroadCountryPage,       // one destination, /countries/:slug
 };
 
 const CENTRED = {
