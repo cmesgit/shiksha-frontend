@@ -151,6 +151,16 @@ export const uniSlug = (r) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+// abroad100.js stores subject areas lowercase ("engineering", "computing
+// and AI"). `text-transform: capitalize` would title-case every word
+// ("Computing And AI"); `::first-letter` looked like the fix but does NOT
+// apply inside a flex/inline-flex container (.sc-fchip is inline-flex,
+// and the CSS Pseudo-Elements spec excludes flex containers from
+// ::first-letter/::first-line entirely) — it rendered lowercase in
+// production on the university detail page's Courses tab until this was
+// caught by zooming into the deployed page, not by re-reading the code.
+export const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
 // ── Flags for countries that have no country guide ───────────────────
 // The browse cards take their flag from ABROAD_COUNTRIES, which is the 56
 // country GUIDES. 15 of the 51 countries in abroad100.js have QS-ranked
