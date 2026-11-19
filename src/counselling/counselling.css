@@ -183,6 +183,14 @@
 .sc-on-page { display: flex; flex-wrap: wrap; gap: 7px 12px; padding: 12px 14px; margin-bottom: 18px; border: 1px solid rgba(18,80,39,.1); border-radius: 10px; background: #f7faf6 }
 .sc-on-page strong { width: 100%; font: 700 11px 'Poppins',sans-serif; text-transform: uppercase; color: #125027 }
 .sc-on-page a { font: 500 11px 'Poppins',sans-serif; color: #1b9c85; text-decoration: none }
+/* A paginated chapter's "on this page" entries are buttons now (they jump
+   to a separate section screen, not an in-page anchor) — same look as the
+   `a` tags above, reset of button defaults, plus a current-section state
+   the old anchor list never needed since everything used to be visible
+   on screen at once. */
+.sc-on-page button { font: 500 11px 'Poppins',sans-serif; color: #1b9c85; text-decoration: none;
+  border: none; background: none; padding: 0; cursor: pointer; text-align: left }
+.sc-on-page button.on { color: #125027; font-weight: 700 }
 .sc-prose section, .sc-prose h2 { scroll-margin-top: 94px }
 
 /* chapter kind tabs (Content / Worksheets / Action plan / For parents / FAQ / References) */
