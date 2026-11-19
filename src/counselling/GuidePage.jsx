@@ -246,9 +246,38 @@ function GuideReader({ slug }) {
 
   return (
     <CounsellingShell crumb={` / Guides / ${guide.audience}`}>
-      <span className={`sc-badge ${guide.accent}`} style={{ marginBottom: 10, display: "inline-block" }}>{guide.audience}</span>
-      <h1 className="sc-h1" style={{ maxWidth: 760 }}>{guide.title}</h1>
-      <p className="sc-sub">{guide.blurb}</p>
+      {/* A paginated guide (study-abroad, study-in-india, …) fetches and
+          shows ONE chapter at a time — the board gives that chapter its
+          own hero (a "Phase N of M" kicker + the CHAPTER's own name as the
+          H1), not the guide's static title. Driving the board found this:
+          clicking from chapter 1 to chapter 2 changed the H1 from
+          "Understanding Study Abroad" to "Student Profile & Academic
+          Pathway"; the live build kept showing "Study Abroad — Complete
+          Guide" for every chapter. Scoped to paginated guides only — an
+          inline guide (<=40 sections, the whole thing on one scroll) has
+          no equivalent "current chapter" the way a reader experiences it,
+          and no inline guide's board was checked to confirm it wants this.
+          The kicker reads "Phase N of M" rather than splicing in the
+          guide's own title (as the board's exact wording does for this one
+          guide) — guide.title is phrased differently across the 11 guides
+          this component serves ("Study Abroad — Complete Guide" already
+          contains the word "Guide"), so reusing that text verbatim in a
+          "PHASE N OF THE ⟨title⟩ GUIDE" template would read oddly on guides
+          whose title wasn't written for that slot. */}
+      {paginated && selectedChapter ? (
+        <>
+          <span className="sc-badge orange" style={{ marginBottom: 10, display: "inline-block" }}>
+            Phase {chapterIndex + 1} of {kindChapters.length}
+          </span>
+          <h1 className="sc-h1" style={{ maxWidth: 760 }}>{selectedChapter.title}</h1>
+        </>
+      ) : (
+        <>
+          <span className={`sc-badge ${guide.accent}`} style={{ marginBottom: 10, display: "inline-block" }}>{guide.audience}</span>
+          <h1 className="sc-h1" style={{ maxWidth: 760 }}>{guide.title}</h1>
+          <p className="sc-sub">{guide.blurb}</p>
+        </>
+      )}
 
       <div className="sc-reading-progress">
         <div><strong>{guide.chapters?.length ? `${progress?.read_count || 0} of ${guide.chapters.length} chapters read`
