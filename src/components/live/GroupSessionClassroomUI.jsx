@@ -30,6 +30,15 @@ import "../../styles/liveSessions.css";
 import api from "../../api/apiClient";
 import groupSessionService from "../../api/groupSessionService";
 import { useAuth } from "../../contexts/AuthContext";
+/* RC-011 — remote assistance. Generated from shared/; edit the canonical copy
+ * and run `npm run sync:shared`, never these files directly. Every surface
+ * below renders null until the server says the feature exists, so this import
+ * is inert in production today. */
+import AssistanceProvider, { useAssistance } from "./assistance/AssistanceProvider";
+import AssistanceMenu from "./assistance/AssistanceMenu";
+import ControlRequestDialog from "./assistance/ControlRequestDialog";
+import ControlStatusBar from "./assistance/ControlStatusBar";
+import "./assistance/assistance.css";
 import soundManager from "../../utils/soundManager";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import ScribbleIcon from "../icons/ScribbleIcon";
@@ -140,6 +149,39 @@ function ParticipantTile({ trackRef, variant, isLocal, isHost, micOn, speaking, 
         <span className="gs-tile-name">{isLocal ? `${displayName} (You)` : displayName}</span>
       </div>
     </div>
+  );
+}
+
+/* 🔴 OD-01 makes this disclosure a hard requirement on RC-011, not a nicety.
+ *
+ * The decision resolved that in an **instant collaboration** anyone the host
+ * admitted may ask to control the host's desktop — including an
+ * `InstantCollaborationGuest`, whose entire identity is a display name they
+ * typed. architecture-decisions.md: "Admitting a guest to a collab makes them
+ * eligible to ask for the host's desktop. The admit UI must say so in plain
+ * words — a host clicking 'Admit' to let someone watch, and thereby granting
+ * them standing to request desktop control, is exactly the kind of silent
+ * widening this pack exists to prevent."
+ *
+ * Two conditions, both load-bearing:
+ *   - `instant` only. In a classroom OD-01 keeps control teacher-initiated,
+ *     so admitting confers no such standing and claiming otherwise would be
+ *     a lie in the opposite direction.
+ *   - `available` only. While the feature is switched off every route answers
+ *     404 and admitting confers nothing, so saying it would be false today.
+ */
+function AdmitControlDisclosure({ instant }) {
+  const { available } = useAssistance();
+  if (!available || !instant) return null;
+  return (
+    <p
+      className="gs-ppl-empty"
+      style={{ textAlign: "left", lineHeight: 1.5, color: "#3d2f10", background: "#fff6e5", border: "1px solid #d9a441", borderRadius: 8, padding: "10px 12px" }}
+    >
+      Anyone you admit can also <strong>ask to control your screen</strong>.
+      They cannot start without you allowing it and confirming on your own
+      computer, and you can stop it at any time.
+    </p>
   );
 }
 
@@ -564,10 +606,30 @@ export default function GroupSessionClassroomUI({
   );
 
   return (
+    /* RC-011. `enabled` is the client-side half of the release gate; the
+     * server flags are the real one, and while they are off every route
+     * answers 404 and every surface below renders null. Both halves must be
+     * on before anything appears — a client flag alone cannot conjure the
+     * feature, which is the point. */
+    <AssistanceProvider
+      session={{ kind: "group", id: session?.id }}
+      participantSid={room?.localParticipant?.sid || null}
+      currentUserId={user?.id || null}
+      enabled={
+        import.meta.env.VITE_ASSISTANCE_ENABLED === "true"
+        && !!session?.id
+        && !!room?.localParticipant?.sid
+      }
+    >
     <div
       className={"gs-room" + (isFullscreen ? " gs-room--fs" : "") + (!activePanel ? " gs-room--panel-closed" : "")}
       ref={containerRef}
     >
+      {/* Persistent while control runs, and the first thing a screen reader
+        * meets in the room — Stop must never be somewhere you have to go
+        * looking for it. */}
+      <ControlStatusBar />
+      <ControlRequestDialog />
       {raiseHandToasts.length > 0 && (
         <div className="gs-rh-toasts">
           {raiseHandToasts.map((t) => (
@@ -621,6 +683,12 @@ export default function GroupSessionClassroomUI({
             setPeopleTab("requests");
           }}>{joinRequests.length} waiting to join · Review requests</button>
         )}
+        {/* Next to the existing screen controls, per frontend-ux. Identical
+          * for every role: whether a request is permitted at all is OD-01's
+          * per-context predicate and is decided on the server. Hiding this
+          * for students here would re-implement an authorization rule in the
+          * one place it cannot be enforced. */}
+        <AssistanceMenu />
         <GroupSessionControlBar
           onLeave={onLeave} role={role} activePanel={activePanel}
           onTogglePanel={togglePanel} session={session} isHost={isHost}
@@ -741,6 +809,7 @@ export default function GroupSessionClassroomUI({
                       <span className="gs-ppl-info"><span className="gs-ppl-name">Require approval to join</span></span>
                     </label>
                   )}
+                  <AdmitControlDisclosure instant={session?.sessionType === "instant"} />
                   {admitMode !== "lobby" ? (
                     <p className="gs-ppl-empty">Account guests join directly. Visitors without an account still need host approval.</p>
                   ) : joinRequests.length === 0 ? (
@@ -829,5 +898,6 @@ export default function GroupSessionClassroomUI({
         <FirstVisitTour storageKey="live.tour.v1" retentionDays={liveLimits?.file_retention_days} instant={session?.sessionType === "instant"} />
       )}
     </div>
+    </AssistanceProvider>
   );
 }
