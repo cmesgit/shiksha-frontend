@@ -1,0 +1,250 @@
+/* ============================================================
+   AnnouncementStack.css — homepage "noticeboard" announcement
+   deck (design handoff: announcements-preview.html). Values are
+   ported 1:1 from that preview; every color/shadow/font-family
+   resolves through the shared --sk-* tokens in theme.css instead
+   of the preview's own --an-* alias layer.
+   ============================================================ */
+
+.announce-section {
+  position: relative;
+  overflow: clip;
+  padding: clamp(48px, 6.2vw, 86px) 0;
+  background: var(--sk-paper);
+  border-top: 1px solid var(--sk-line);
+  font-family: var(--sk-font);
+  color: var(--sk-ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.announce-section *,
+.announce-section ::before,
+.announce-section ::after { box-sizing: border-box; }
+.announce-section h2,
+.announce-section h3 {
+  margin: 0;
+  font-family: var(--sk-font);
+  color: var(--sk-ink);
+  line-height: 1.16;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.announce-section p { margin: 0; }
+.announce-section a { color: inherit; text-decoration: none; }
+.announce-section svg { display: block; }
+
+/* Soft ambient glow, right of the stack */
+.announce-section::after {
+  content: "";
+  position: absolute;
+  right: -6%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(760px, 64vw);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(15, 157, 107, 0.1) 0%, rgba(15, 157, 107, 0) 68%);
+}
+
+.announce-section .an-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.announce-section .an-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+.announce-section .an-eyebrow {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sk-green);
+  border-bottom: 2px solid var(--sk-green);
+  padding-bottom: 5px;
+  margin: 0 0 18px;
+}
+.announce-section .an-title {
+  font-size: clamp(28px, 3.9vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.announce-section .an-lede {
+  margin-top: 14px;
+  color: var(--sk-body);
+  font-size: 15.5px;
+  max-width: 42ch;
+}
+
+.announce-section .an-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: clamp(26px, 3vw, 36px);
+}
+
+.announce-section .an-nav {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--sk-line-2);
+  color: var(--sk-green-dark);
+  cursor: pointer;
+  box-shadow: var(--sk-sh-sm);
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s, border-color 0.18s;
+}
+.announce-section .an-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sk-sh);
+  background: var(--sk-green-dark);
+  border-color: var(--sk-green-dark);
+  color: #fff;
+}
+.announce-section .an-nav:active { transform: translateY(0); }
+.announce-section .an-nav svg { width: 19px; height: 19px; }
+
+.announce-section .an-marks { display: flex; align-items: center; gap: 9px; margin-left: 4px; }
+.announce-section .an-mark {
+  position: relative;
+  height: 6px;
+  width: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sk-line-2);
+  cursor: pointer;
+  overflow: hidden;
+  transition: width 0.38s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s;
+}
+.announce-section .an-mark:hover { background: #c6dace; }
+.announce-section .an-mark.is-on { width: 62px; background: var(--sk-mint); }
+.announce-section .an-mark.is-on::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  border-radius: inherit;
+  background: var(--sk-green);
+  animation: an-fill var(--an-dur, 5600ms) linear forwards;
+}
+.announce-section.is-held .an-mark.is-on::after { animation-play-state: paused; }
+
+@keyframes an-fill {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+.announce-section .an-count {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sk-body);
+  font-variant-numeric: tabular-nums;
+}
+.announce-section .an-count b { color: var(--sk-ink); font-weight: 700; }
+
+.announce-section .an-stack {
+  position: relative;
+  height: clamp(330px, 34vw, 384px);
+  touch-action: pan-y;
+}
+
+.announce-section .an-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(26px, 2.9vw, 36px);
+  border-radius: 24px;
+  background: var(--an-wash, #fff);
+  border: 1px solid var(--an-rule, var(--sk-line));
+  box-shadow: var(--sk-sh);
+  transform-origin: 50% 100%;
+  will-change: transform;
+  transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s;
+}
+.announce-section .an-card.is-front { box-shadow: var(--sk-sh-lg); cursor: grab; }
+.announce-section .an-card.is-front:active { cursor: grabbing; }
+.announce-section .an-card.is-dragging { transition: none; }
+.announce-section .an-card.is-gone { transition: transform 0.42s ease-in, opacity 0.42s ease-in; }
+.announce-section .an-card.is-resetting { transition: none; }
+.announce-section .an-card::before {
+  content: "";
+  position: absolute;
+  left: clamp(26px, 2.9vw, 36px);
+  right: clamp(26px, 2.9vw, 36px);
+  top: 0;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: var(--an-accent, var(--sk-green));
+}
+
+.announce-section .an-kind { display: flex; align-items: center; gap: 9px; margin-bottom: auto; }
+.announce-section .an-kind b { font-size: 13.5px; font-weight: 700; color: var(--an-accent, var(--sk-green)); }
+.announce-section .an-kind span { font-size: 13px; color: var(--sk-body); }
+.announce-section .an-kind i { width: 4px; height: 4px; border-radius: 50%; background: var(--sk-line-2); flex: 0 0 auto; }
+
+.announce-section .an-card h3 { font-size: clamp(21px, 2.35vw, 27px); font-weight: 800; letter-spacing: -0.022em; max-width: 22ch; }
+.announce-section .an-card p { margin-top: 12px; color: var(--sk-body); font-size: 15px; max-width: 46ch; }
+
+.announce-section .an-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 22px;
+  align-self: flex-start;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--sk-green-dark);
+  color: #fff;
+  border: 2px solid var(--sk-green-dark);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.announce-section .an-go:hover { transform: translateY(-2px); box-shadow: var(--sk-sh); background: var(--sk-green); }
+.announce-section .an-go svg { width: 16px; height: 16px; }
+
+.announce-section .an-hint { margin-top: 16px; font-size: 12.5px; color: var(--sk-body); opacity: 0.85; }
+.announce-section .an-hint b { font-weight: 600; color: var(--sk-ink); }
+
+.announce-section :focus-visible { outline: 3px solid var(--sk-green); outline-offset: 3px; border-radius: 8px; }
+
+@media (max-width: 900px) {
+  .announce-section .an-grid { grid-template-columns: 1fr; gap: 30px; }
+  .announce-section .an-lede { max-width: none; }
+  .announce-section .an-stack { height: clamp(320px, 58vw, 370px); }
+  .announce-section::after { right: -30%; top: 72%; }
+}
+@media (max-width: 520px) {
+  .announce-section .an-card h3 { max-width: none; }
+  .announce-section .an-mark.is-on { width: 46px; }
+  .announce-section .an-nav { width: 42px; height: 42px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .announce-section .an-card,
+  .announce-section .an-mark { transition: none; }
+  .announce-section .an-mark.is-on::after { animation: none; transform: scaleX(1); }
+  .announce-section .an-stack { height: auto; display: grid; gap: 16px; }
+  .announce-section .an-card {
+    position: relative;
+    inset: auto;
+    cursor: default;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .announce-section .an-controls { display: none; }
+}
