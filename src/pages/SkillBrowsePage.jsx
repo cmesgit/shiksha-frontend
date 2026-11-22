@@ -653,9 +653,9 @@ export default function SkillBrowsePage() {
                 <span className="sk-step__ic">
                   <ScribbleIcon name="filter" />
                 </span>
-                <h3>Compare teachers</h3>
-                <p>Filter by where lessons happen, district, price, language and rating until the list matches
-                  what you need.</p>
+                <h3>Find the right fit</h3>
+                <p>Filter by where lessons happen, district, price, language and rating until you find someone
+                  who suits how you want to learn.</p>
               </article>
               <article className="sk-step sk-rv sk-d2" style={{ "--sk-g": "linear-gradient(135deg,#F59E0B 0%,#E14D2A 100%)" }}>
                 <span className="sk-step__n" aria-hidden="true">03</span>
