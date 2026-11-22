@@ -1,23 +1,24 @@
 import { homeField } from "../../content/homeDisplay";
 import { useEffect, useRef, useState } from "react";
-import { getDemoVideos } from "../../api/contentApi";
+import { getDemoVideos, getHeroHighlights } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import CtaLink from "./CtaLink";
 import { PLAY_DEMO_EVENT } from "./DemoVideoButton";
 
-/* Illustrative only (hero visual v3 — floating stack + orbit). These numbers
-   and feed entries are NOT wired to any backend data source on purpose: the
-   platform has no public endpoint for aggregate counts or a cross-entity
-   "recently published" feed, and adding one was explicitly out of scope for
-   this pass. Treat every value here as marketing dressing, not a claim about
-   real counts — same spirit as the design mockup's own hardcoded numbers. */
-const HERO_STATS = [
+/* Hero visual v3 (floating stack + orbit) is wired to
+   GET /content/home/hero-highlights/ — real counts + a real "just
+   published" feed, both already filtered server-side to public-facing rows
+   (approved+staffed teachers, published courses, course-wide assigned
+   quizzes). These FALLBACK_* arrays are what renders before that request
+   resolves, and what stays up if it fails outright — never real zeros
+   flashing to fake numbers, and never a blank card on a network error. */
+const FALLBACK_STATS = [
   { key: "teachers", label: "Teachers", to: 1240, delta: "18 new" },
   { key: "courses", label: "Courses", to: 386, delta: "7 new" },
-  { key: "quizzes", label: "Quizzes", to: 5.2, dec: 1, suffix: "k", delta: "42 new" },
+  { key: "quizzes", label: "Quizzes", to: 5200, delta: "42 new" },
 ];
 
-const HERO_FEED = [
+const FALLBACK_FEED = [
   { icon: "tutor", title: "Dr. Lalrinpuii joined", sub: "Physics · IIT-JEE & Class 12 mentor", tag: "New tutor", tagClass: "g" },
   { icon: "course", title: "Class 10 Science — MBSE", sub: "Full syllabus · 84 lessons + 12 live", tag: "New course", tagClass: "b" },
   { icon: "doc", title: "Trigonometry formula sheet", sub: "PDF · Class 11 Maths · 6 pages", tag: "Material", tagClass: "o" },
@@ -27,6 +28,18 @@ const HERO_FEED = [
   { icon: "course", title: "UPSC Prelims crash course", sub: "Live + recorded · 60-day track", tag: "New course", tagClass: "b" },
   { icon: "doc", title: "NCERT Class 9 notes bundle", sub: "12 chapters · updated for 2026", tag: "Material", tagClass: "o" },
 ];
+
+// Maps the backend's semantic `type` onto this card's icon/label/colour —
+// presentation detail the API deliberately stays agnostic of.
+const FEED_TYPE_META = {
+  new_teacher: { icon: "tutor", tag: "New tutor", tagClass: "g" },
+  new_course: { icon: "course", tag: "New course", tagClass: "b" },
+  new_material: { icon: "doc", tag: "Material", tagClass: "o" },
+  new_quiz: { icon: "quiz", tag: "New quiz", tagClass: "v" },
+  live_session: { icon: "live", tag: "Live", tagClass: "g" },
+};
+
+const STAT_KEYS = ["teachers", "courses", "quizzes"];
 
 const ROLLER_WORDS = ["new courses", "new teachers", "study material", "fresh quizzes"];
 
@@ -43,24 +56,27 @@ const ICON_CAP = <svg {...ICON_ATTRS}><path d="M12 3.3 2.5 8.1 12 12.9l9.5-4.8Z"
 const ICON_CERT = <svg {...ICON_ATTRS}><circle cx="12" cy="9" r="5.3" /><path d="m8.7 13.4-1.2 7.3 4.5-2.6 4.5 2.6-1.2-7.3" /></svg>;
 const ICON_UP = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="m5 15 7-7 7 7" /></svg>;
 
-function formatStat(n, dec, suffix) {
-  const body = dec ? n.toFixed(dec) : Math.round(n).toLocaleString("en-IN");
-  return `${body}${suffix || ""}`;
+// Magnitude-based, not per-stat: real counts can land anywhere (a fresh
+// deployment's quiz count is nothing like the illustrative "5.2k"), so the
+// same rule has to produce the right shape for any of them.
+function formatStat(n) {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return Math.round(n).toLocaleString("en-IN");
 }
 
 /* Counts up once the stat scrolls into view, same easing/duration as the
    design mockup's own vanilla-JS version. Renders the final value immediately
    under prefers-reduced-motion or without IntersectionObserver support. */
-function StatValue({ to, dec, suffix, className }) {
+function StatValue({ to, className }) {
   const ref = useRef(null);
-  const [display, setDisplay] = useState(() => formatStat(0, dec, suffix));
+  const [display, setDisplay] = useState(() => formatStat(0));
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !("IntersectionObserver" in window)) {
-      setDisplay(formatStat(to, dec, suffix));
+      setDisplay(formatStat(to));
       return undefined;
     }
     const io = new IntersectionObserver((entries) => {
@@ -71,7 +87,7 @@ function StatValue({ to, dec, suffix, className }) {
         const tick = (t) => {
           const p = Math.min((t - start) / dur, 1);
           const eased = 1 - (1 - p) ** 3;
-          setDisplay(formatStat(to * eased, dec, suffix));
+          setDisplay(formatStat(to * eased));
           if (p < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
@@ -80,7 +96,7 @@ function StatValue({ to, dec, suffix, className }) {
     }, { threshold: 0.4 });
     io.observe(el);
     return () => io.disconnect();
-  }, [to, dec, suffix]);
+  }, [to]);
 
   return <span ref={ref} className={className}>{display}</span>;
 }
@@ -243,8 +259,8 @@ const css = `.sh-hero{
 /* ============================================================
    Hero visual v3 — floating stack. Three loosely tilted cards
    (brand / stats / feed) ride a decorative orbiting ring of
-   subject icons. Everything here is illustrative — see the
-   HERO_STATS / HERO_FEED comment above. */
+   subject icons. Stats and feed are real, server-fetched data —
+   see the FALLBACK_STATS / FALLBACK_FEED comment above. */
 .sh-hero-visual{
     position:relative;min-width:0;
     display:flex;align-items:center;justify-content:center;
@@ -457,6 +473,33 @@ export default function Hero() {
     return () => { alive = false; };
   }, []);
 
+  // Real stats + feed. null until the request resolves (fallback renders
+  // meanwhile) or if it fails outright (fallback stays up indefinitely).
+  const [highlights, setHighlights] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getHeroHighlights().then((data) => { if (alive) setHighlights(data); });
+    return () => { alive = false; };
+  }, []);
+
+  const stats = highlights?.stats
+    ? STAT_KEYS.map((key) => {
+      const s = highlights.stats[key];
+      return { key, label: s.label, to: s.total, delta: `${s.new_count} new` };
+    })
+    : FALLBACK_STATS;
+
+  // A real feed of zero items is "nothing to show" — not a smaller true
+  // number like a real stat can be — so it falls back to the illustrative
+  // cards rather than rendering an empty, broken-looking scroller.
+  const feed = highlights?.feed?.length
+    ? highlights.feed.map((item) => ({
+      ...FEED_TYPE_META[item.type],
+      title: item.title,
+      sub: item.subtitle,
+    }))
+    : FALLBACK_FEED;
+
   /* "Watch the 53s sign up demo". The seconds come from Bunny via
      duration_seconds — the design mockup hardcoded "40s" for a clip that is
      really 53s, which is the drift this whole feature avoids. With no duration
@@ -559,10 +602,10 @@ export default function Hero() {
 
               <div className="sh-sc sh-sc-stats">
                 <div className="sh-st">
-                  {HERO_STATS.map((s) => (
+                  {stats.map((s) => (
                     <div className="sh-st-i" key={s.key}>
                       <span className="sh-s-k">{s.label}</span>
-                      <StatValue className="sh-s-v" to={s.to} dec={s.dec} suffix={s.suffix} />
+                      <StatValue className="sh-s-v" to={s.to} />
                       <span className="sh-s-d">{ICON_UP}{s.delta}</span>
                     </div>
                   ))}
@@ -583,7 +626,7 @@ export default function Hero() {
                 </div>
                 <div className="sh-feed">
                   <div className="sh-feed-track">
-                    {[...HERO_FEED, ...HERO_FEED].map((item, i) => (
+                    {[...feed, ...feed].map((item, i) => (
                       <div className="sh-feed-item" key={i}>
                         <span className={`sh-f-ic sh-ic-${item.icon}`}>{FEED_ICONS[item.icon]}</span>
                         <span className="sh-f-txt"><b>{item.title}</b><span>{item.sub}</span></span>
