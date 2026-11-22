@@ -316,7 +316,11 @@ const css = `.sh-hero{
 .sh-feed-track::before{content:"";position:absolute;left:22px;top:6px;bottom:6px;width:1.5px;background:var(--line)}
 .sh-feed-item{position:relative;display:flex;align-items:center;gap:12px;padding:9px 6px;margin-bottom:6px;
     border-radius:12px;transition:background .2s ease}
-.sh-feed-item:hover{background:var(--wash)}
+/* Tag-qualified on purpose: only a real <a>/<Link> (a card with a real
+   course_slug) gets the hover affordance. A plain <div> card (teacher,
+   or an illustrative fallback card) never implies it's clickable when
+   it isn't. */
+a.sh-feed-item:hover{background:var(--wash)}
 .sh-f-ic{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;
     box-shadow:0 0 0 4px var(--white),0 4px 10px -4px rgba(12,38,32,.3)}
 .sh-f-ic svg{width:15px;height:15px}
@@ -493,11 +497,22 @@ export default function Hero() {
   // A real feed of zero items is "nothing to show" — not a smaller true
   // number like a real stat can be — so it falls back to the illustrative
   // cards rather than rendering an empty, broken-looking scroller.
+  //
+  // course_slug is the only link target the backend can offer honestly:
+  // no anonymous page exists for an individual material, quiz, or live
+  // session (no "Guest Preview" despite the marketing copy — it was never
+  // built), so those three fall back to the parent course page rather
+  // than a fabricated per-item link. new_teacher has no course_slug at
+  // all — it isn't tied to one course, and there's no public teacher
+  // profile page to send it to regardless. Illustrative FALLBACK_FEED
+  // cards never get an href — they don't correspond to anything real to
+  // link to.
   const feed = highlights?.feed?.length
     ? highlights.feed.map((item) => ({
       ...FEED_TYPE_META[item.type],
       title: item.title,
       sub: item.subtitle,
+      href: item.course_slug ? `/courses/${item.course_slug}` : null,
     }))
     : FALLBACK_FEED;
 
@@ -624,13 +639,28 @@ export default function Hero() {
                 </div>
                 <div className="sh-feed">
                   <div className="sh-feed-track">
-                    {[...feed, ...feed].map((item, i) => (
-                      <div className="sh-feed-item" key={i}>
-                        <span className={`sh-f-ic sh-ic-${item.icon}`}>{FEED_ICONS[item.icon]}</span>
-                        <span className="sh-f-txt"><b>{item.title}</b><span>{item.sub}</span></span>
-                        <span className={`sh-f-tag ${item.tagClass}`}>{item.tag}</span>
-                      </div>
-                    ))}
+                    {[...feed, ...feed].map((item, i) => {
+                      const content = (
+                        <>
+                          <span className={`sh-f-ic sh-ic-${item.icon}`}>{FEED_ICONS[item.icon]}</span>
+                          <span className="sh-f-txt"><b>{item.title}</b><span>{item.sub}</span></span>
+                          <span className={`sh-f-tag ${item.tagClass}`}>{item.tag}</span>
+                        </>
+                      );
+                      // Only a card with a real course_slug behind it gets
+                      // a link — a teacher card or an illustrative fallback
+                      // card renders as a plain, non-interactive div rather
+                      // than a link that goes nowhere real.
+                      return item.href ? (
+                        <CtaLink className="sh-feed-item" to={item.href} key={i}>
+                          {content}
+                        </CtaLink>
+                      ) : (
+                        <div className="sh-feed-item" key={i}>
+                          {content}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
