@@ -1,6 +1,5 @@
 import useTickerSlot from "../ticker/useTickerSlot";
-import TickerCards, { TickerCard } from "../ticker/TickerCards";
-import "../../css/Ticker.css";
+import AnnouncementStack from "../ticker/AnnouncementStack";
 
 /* The homepage ticker band (design_handoff_live_ticker Phase 4, slot 3).
  *
@@ -12,21 +11,15 @@ import "../../css/Ticker.css";
  * this slot. An empty band with a heading would be worse than no band: it
  * takes homepage space to say nothing, and it is what an admin sees before
  * they have added anything.
+ *
+ * 2026-11-22 restyle: the home band only now renders the stacked-card
+ * "noticeboard" design (AnnouncementStack). The footer strip and the student
+ * dashboard rail still use the original TickerCards paged grid — they were
+ * out of scope for this pass.
  */
 export default function TickerBand() {
   const { items } = useTickerSlot("home_band");
   if (!items.length) return null;
 
-  return (
-    <section className="sec tk-band" aria-labelledby="tk-band-h">
-      <div className="wrap">
-        <p className="eyebrow" id="tk-band-h">Latest from ShikshaCom</p>
-        <TickerCards
-          items={items}
-          perView={3}
-          renderCard={(it) => <TickerCard key={it.id} item={it} />}
-        />
-      </div>
-    </section>
-  );
+  return <AnnouncementStack items={items} />;
 }

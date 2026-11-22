@@ -16,10 +16,12 @@
   --sk-ink-2: #2b4237;
   --sk-body: #5e7469;
   --sk-line: #edf3ee;
+  --sk-line-2: #dfeae3;       /* border/track tint one step darker than --sk-line */
 
   /* supporting accents */
   --sk-orange: #ff9900;       /* tagline accent        */
   --sk-gold: #ffb21d;
+  --sk-gold-deep: #b4750a;    /* gold's text/icon-safe twin, for small type */
   --sk-violet: #7c5cfc;
   --sk-blue: #3b82f6;
   --sk-red: #e14d2a;
