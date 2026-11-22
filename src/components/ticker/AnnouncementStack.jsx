@@ -52,18 +52,12 @@ const KIND_ACCENT = {
 };
 const DEFAULT_ACCENT = KIND_ACCENT.new_course;
 
-/* `item.body` already carries the card's long description line (the
- * preview's demo data additionally showed a short caption next to the kind
- * label — "Enrolling now", "Updated this term" — that has no backing field
- * today: Announcement.metric_label is capped at 24 chars ("Free for
- * enrolled students" alone is 27) and is never serialized at all for
- * new_course/new_mentor/current_affairs (content/serializers.py's `metric`
- * is null whenever `metric_value` is empty, which those three kinds
- * forbid). So this reads `item.metric?.label` where the backend happens to
- * supply one and otherwise omits the caption rather than guessing at it or
- * overflowing the layout. */
+/* `item.caption` is the short line next to the kind badge ("Enrolling now",
+ * "Updated this term") — a standalone field (Announcement.caption),
+ * independent of `item.metric`: unlike the metric pill, it's available on
+ * every kind, including the ones that never carry a number. */
 function Kind({ item }) {
-  const caption = item.metric?.label;
+  const caption = item.caption;
   return (
     <p className="an-kind">
       <b>{KIND_LABEL[item.kind] || ""}</b>
