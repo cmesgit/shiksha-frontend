@@ -263,6 +263,24 @@ export function getDemoVideos() {
   return entry.request;
 }
 
+// Hero v3's real stat counters + "just published" feed. The backend already
+// withholds anything not public-facing (draft courses, unapproved teachers,
+// batch-scoped quizzes) and caches for 30 min server-side, so this is a thin
+// client-side cache on top mainly to dedupe re-renders, not a freshness
+// mechanism. Returns null on failure/malformed response — never an object
+// that looks real but isn't — so the caller can fall back to the
+// illustrative placeholder instead of showing broken or zeroed-out numbers.
+let heroHighlights = null;
+export function getHeroHighlights() {
+  if (heroHighlights && heroHighlights.expires > Date.now()) return heroHighlights.request;
+  const entry = { expires: Date.now() + 30000, request: null };
+  entry.request = api.get("/content/home/hero-highlights/", { timeout: 8000 })
+    .then(({ data }) => (data?.stats && Array.isArray(data?.feed)) ? data : null)
+    .catch(() => { if (heroHighlights === entry) heroHighlights = null; return null; });
+  heroHighlights = entry;
+  return entry.request;
+}
+
 
 /* ── Contact page writes ───────────────────────────────────────── */
 //

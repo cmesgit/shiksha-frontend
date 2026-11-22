@@ -1,18 +1,106 @@
-import { homeField, homeCollection } from "../../content/homeDisplay";
+import { homeField } from "../../content/homeDisplay";
 import { useEffect, useRef, useState } from "react";
-import { getDemoVideos } from "../../api/contentApi";
+import { getDemoVideos, getHeroHighlights } from "../../api/contentApi";
 import { useHomeContent } from "../../hooks/useHomeContent";
-import useTickerSlot from "../ticker/useTickerSlot";
 import CtaLink from "./CtaLink";
 import { PLAY_DEMO_EVENT } from "./DemoVideoButton";
 import ScribbleIcon from "../icons/ScribbleIcon";
 
-// Mirrors content.models.TickerKind.
-const KIND_LABEL = {
-  new_course: "New course", enrolment: "Enrolment", new_mentor: "New mentor",
-  practice: "Practice", deadline: "Deadline", milestone: "Milestone",
-  current_affairs: "Current affairs", mentor_spotlight: "Mentors",
+/* Hero visual v3 (floating stack + orbit) is wired to
+   GET /content/home/hero-highlights/ — real counts + a real "just
+   published" feed, both already filtered server-side to public-facing rows
+   (approved+staffed teachers, published courses, course-wide assigned
+   quizzes). These FALLBACK_* arrays are what renders before that request
+   resolves, and what stays up if it fails outright — never real zeros
+   flashing to fake numbers, and never a blank card on a network error. */
+const FALLBACK_STATS = [
+  { key: "teachers", label: "Teachers", to: 1240, delta: "18 new" },
+  { key: "courses", label: "Courses", to: 386, delta: "7 new" },
+  { key: "quizzes", label: "Quizzes", to: 5200, delta: "42 new" },
+];
+
+const FALLBACK_FEED = [
+  { icon: "tutor", title: "Dr. Lalrinpuii joined", sub: "Physics · IIT-JEE & Class 12 mentor", tag: "New tutor", tagClass: "g" },
+  { icon: "course", title: "Class 10 Science — MBSE", sub: "Full syllabus · 84 lessons + 12 live", tag: "New course", tagClass: "b" },
+  { icon: "doc", title: "Trigonometry formula sheet", sub: "PDF · Class 11 Maths · 6 pages", tag: "Material", tagClass: "o" },
+  { icon: "quiz", title: "Organic Chemistry: Set 12", sub: "25 questions · 30 min · NEET", tag: "New quiz", tagClass: "v" },
+  { icon: "live", title: "Cell Biology doubt session", sub: "Starts in 20 min · 214 seats left", tag: "Live", tagClass: "g" },
+  { icon: "tutor", title: "Amit Deka joined", sub: "Mathematics · 9 years teaching", tag: "New tutor", tagClass: "g" },
+  { icon: "course", title: "UPSC Prelims crash course", sub: "Live + recorded · 60-day track", tag: "New course", tagClass: "b" },
+  { icon: "doc", title: "NCERT Class 9 notes bundle", sub: "12 chapters · updated for 2026", tag: "Material", tagClass: "o" },
+];
+
+// Maps the backend's semantic `type` onto this card's icon/label/colour —
+// presentation detail the API deliberately stays agnostic of.
+const FEED_TYPE_META = {
+  new_teacher: { icon: "tutor", tag: "New tutor", tagClass: "g" },
+  new_course: { icon: "course", tag: "New course", tagClass: "b" },
+  new_material: { icon: "doc", tag: "Material", tagClass: "o" },
+  new_quiz: { icon: "quiz", tag: "New quiz", tagClass: "v" },
+  live_session: { icon: "live", tag: "Live", tagClass: "g" },
 };
+
+const STAT_KEYS = ["teachers", "courses", "quizzes"];
+
+const ROLLER_WORDS = ["new courses", "new teachers", "study material", "fresh quizzes"];
+
+const ICON_ATTRS = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" };
+
+const FEED_ICONS = {
+  tutor: <svg {...ICON_ATTRS}><path d="M15 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20" /><circle cx="8.5" cy="7" r="3.6" /><path d="M19 8v6M22 11h-6" /></svg>,
+  course: <svg {...ICON_ATTRS}><rect x="2.6" y="4.4" width="18.8" height="15.2" rx="3" /><path d="m10.2 9.4 4.6 2.6-4.6 2.6Z" /></svg>,
+  doc: <svg {...ICON_ATTRS}><path d="M14 2.6H7a2 2 0 0 0-2 2v14.8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7.6Z" /><path d="M14 2.6v5h5" /><path d="M9 13h6M9 17h4" /></svg>,
+  quiz: <svg {...ICON_ATTRS}><circle cx="12" cy="12" r="9.2" /><path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.4" /><path d="M12 17.2h.01" /></svg>,
+  live: <svg {...ICON_ATTRS}><path d="M15 10.2 20.4 7.4a.8.8 0 0 1 1.2.7v7.8a.8.8 0 0 1-1.2.7L15 13.8" /><rect x="2.4" y="5.6" width="12.6" height="12.8" rx="2.6" /></svg>,
+};
+const ICON_CAP = <svg {...ICON_ATTRS}><path d="M12 3.3 2.5 8.1 12 12.9l9.5-4.8Z" /><path d="M6.5 10.4v4.8c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1v-4.8" /><path d="M21.5 8.1v5.6" /></svg>;
+const ICON_CERT = <svg {...ICON_ATTRS}><circle cx="12" cy="9" r="5.3" /><path d="m8.7 13.4-1.2 7.3 4.5-2.6 4.5 2.6-1.2-7.3" /></svg>;
+const ICON_UP = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="m5 15 7-7 7 7" /></svg>;
+
+// Magnitude-based, not per-stat: real counts can land anywhere (a fresh
+// deployment's quiz count is nothing like the illustrative "5.2k"), so the
+// same rule has to produce the right shape for any of them.
+function formatStat(n) {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return Math.round(n).toLocaleString("en-IN");
+}
+
+/* Counts up once the stat scrolls into view, same easing/duration as the
+   design mockup's own vanilla-JS version. Renders the final value immediately
+   under prefers-reduced-motion or without IntersectionObserver support. */
+function StatValue({ to, className }) {
+  const ref = useRef(null);
+  const [display, setDisplay] = useState(() => formatStat(0));
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) {
+      setDisplay(formatStat(to));
+      return undefined;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const start = performance.now();
+        const dur = 1500;
+        const tick = (t) => {
+          const p = Math.min((t - start) / dur, 1);
+          const eased = 1 - (1 - p) ** 3;
+          setDisplay(formatStat(to * eased));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [to]);
+
+  return <span ref={ref} className={className}>{display}</span>;
+}
 
 /* Section-scoped styles, ported from the design handoff's Hero.jsx —
    shared tokens (--wash, --brand, etc.) come from ShikshaHome.css,
@@ -145,11 +233,6 @@ const css = `.sh-hero{
     font-family:var(--display);font-size:14.5px;font-weight:700;
     color:var(--brand-deep);
     border-bottom:1.5px solid transparent;
-    /* .sh-blob is decorative but oversized: it spills well above its own
-       .sh-hero-visual box and, once the hero stacks at narrower widths, lands
-       right on top of this row — swallowing the click entirely. Measured at
-       948px: elementFromPoint over the link returned SPAN.sh-blob. Nothing
-       occupied that band before, which is why the hero never needed this. */
     position:relative;z-index:2;
   }
 .sh-hero-demo svg{width:17px;height:17px;flex:0 0 auto}
@@ -173,140 +256,135 @@ const css = `.sh-hero{
 .sh-btn-ghost:hover{background:var(--gold);border-color:var(--gold);color:#fff;transform:translateY(-2px)}
 .sh-btn-ghost:hover svg{color:#fff}
 .sh-btn:focus-visible{outline:3px solid rgba(15,157,107,.45);outline-offset:3px}
+
+/* ============================================================
+   Hero visual v3 — floating stack. Three loosely tilted cards
+   (brand / stats / feed) ride a decorative orbiting ring of
+   subject icons. Stats and feed are real, server-fetched data —
+   see the FALLBACK_STATS / FALLBACK_FEED comment above. */
 .sh-hero-visual{
     position:relative;min-width:0;
     display:flex;align-items:center;justify-content:center;
-    /* Lets a vertical page-scroll pass straight through a swipe that starts
-       here, while a horizontal drag stays ours to turn into a page change —
-       otherwise a touch swipe to flip ticker pages also tries to scroll the
-       page sideways, and the browser's own scroll gesture fights the JS one. */
-    touch-action:pan-y;
-    /* .sh-blob is position:absolute, so it contributes nothing to this
-       box's own flow-height — only whatever ticker content is in flow
-       does. A 2x2 grid (350px) and a solo image (500px) size this
-       container differently, and an empty ticker leaves it at 0, so the
-       560px blob (centered, absolute) used to overflow above and below by
-       a different amount each time, reading as the hero's padding
-       changing. aspect-ratio ties this box to its OWN width (set by the
-       grid column, not by whichever ticker variant happens to be inside),
-       so it always reserves exactly the blob's footprint. */
-    aspect-ratio:1/1;
-    /* The single animated shape .sh-blob, .sh-tickwrap and .sh-ticksolo all
-       track via border-radius:inherit. They sit side by side in the DOM, not
-       nested inside one another, so each one running its own copy of
-       sh-morph used to drift out of phase with the others — the blob mounts
-       immediately, the ticker image only once CMS data arrives, so their
-       18s clocks never lined up. One animation on the common ancestor keeps
-       every layer on the exact same frame. The actual animation shorthand is
-       set below, on .sh-hero-visual.sh-rise — this element also carries the
-       .sh-rise fade-in class, and a second same-specificity animation
-       declaration here would just lose the cascade to that rule. */
-    border-radius:58% 42% 47% 53% / 46% 52% 48% 54%;
   }
-.sh-blob{
-    position:absolute;z-index:0;
-    width:min(112%,560px);aspect-ratio:1/1;
-    background:linear-gradient(150deg,var(--wash) 5%, var(--wash-2) 95%);
-    border-radius:inherit;
-  }
-.sh-blob::after{
-    content:"";position:absolute;inset:16px;
-    border:1.5px dashed rgba(15,157,107,.22);
-    border-radius:inherit;
-  }
-/* Live ticker grid inside the blob (design_handoff_live_ticker Phase 6).
+.sh-stack{position:relative;width:min(100%,440px)}
 
-   ⚠ SIZED AS A PERCENTAGE OF THE BLOB, not in fixed px. The design specifies
-   168px cards with 14px gutters "fitting the 520px blob's square
-   inscription" — but the blob is min(112%,560px), and min(96%,470px) at
-   <=980px. 168+14+168 = 350px is exactly 62.5% of 560, so the design's
-   numbers are right for the real blob and only its 520px label was wrong.
-   Kept as 62.5% because a FIXED 350px overflows the smaller breakpoint: the
-   dashed ring there leaves a 310px safe square and 350 > 310.
+.sh-sc{position:relative;background:var(--white);border:1px solid var(--line);border-radius:20px;
+    box-shadow:0 2px 4px rgba(12,38,32,.035),0 26px 48px -24px rgba(12,38,32,.28)}
 
-   The safe square is measured against .sh-blob::after (inset:16px), not the
-   blob edge, so no card crosses the dashed ring at either size — 23px of
-   margin at 560, 16px at 470 — which also absorbs the 18s sh-morph wobble. */
-.sh-tick{
-    position:relative;z-index:2;
-    /* ⚠ MUST MIRROR .sh-blob's OWN sizing expression, scaled by 0.625 — not
-       a bare 62.5%. The blob is absolutely positioned and the grid is a
-       sibling in normal flow, so a plain percentage resolves against the
-       PARENT, not the blob. Measured: at a 900px viewport the blob capped at
-       470px while 62.5% of the parent came out 523px — a grid wider than the
-       circle it sits in, overflowing the page sideways.
-       min(112%,560px) x 0.625 = min(70%,350px), which is 62.5% of the blob
-       at every width because both are the same function of the parent. */
-    width:min(70%,350px);aspect-ratio:1/1;
-    display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
-    gap:2.5%;
-    transition:opacity .22s ease;
-  }
-/* The pager fades the batch out, swaps it, then fades the new one in — see
-   the fadeOut state in the component. Applies to whichever ticker variant
-   is actually on screen. */
-.sh-tick-fade{opacity:0}
-.sh-tickcard{
-    display:flex;flex-direction:column;justify-content:center;gap:4px;
-    min-width:0;min-height:0;padding:clamp(7px,1vw,12px);border-radius:14px;
+.sh-sc-brand{z-index:4;width:78%;padding:11px 15px;display:flex;align-items:center;gap:11px;
+    border-radius:16px;transform:rotate(-2.1deg);
+    background:linear-gradient(118deg,rgba(255,150,20,.075),rgba(255,178,29,.028) 52%,var(--white) 88%),var(--white);
+    border-color:rgba(196,120,10,.13)}
+.sh-sc-brand .sh-mark{width:34px;height:34px;object-fit:contain;flex:none;border-radius:8px}
+.sh-sc-brand .sh-who{flex:1;min-width:0}
+.sh-sc-brand b{display:block;font-family:var(--display);font-size:14px;font-weight:700;line-height:1.3;color:var(--ink)}
+.sh-sc-brand em{display:block;font-style:normal;font-size:11.5px;color:var(--body);line-height:1.3}
+.sh-live{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+    color:var(--brand-deep);background:var(--white);border:1px solid rgba(15,157,107,.24);padding:5px 11px;border-radius:999px}
+.sh-live i{width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 2s ease-out infinite}
+
+.sh-sc-stats{z-index:3;width:94%;margin:16px 0 0 auto;padding:15px 17px;transform:rotate(1.4deg);
+    background:linear-gradient(118deg,rgba(112,78,246,.07),rgba(124,92,252,.025) 54%,var(--white) 90%),var(--white);
+    border-color:rgba(86,59,196,.12)}
+.sh-st{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sh-st-i{min-width:0;padding-top:9px;border-top:2.5px solid var(--line)}
+.sh-st-i:nth-child(1){border-top-color:var(--brand)}
+.sh-st-i:nth-child(2){border-top-color:#4C93FF}
+.sh-st-i:nth-child(3){border-top-color:var(--gold)}
+.sh-s-k{display:block;font-size:11.5px;font-weight:500;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-s-v{display:block;margin-top:1px;font-family:var(--display);font-size:25px;font-weight:800;
+    letter-spacing:-.032em;line-height:1.1;font-variant-numeric:tabular-nums}
+.sh-s-d{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--brand)}
+.sh-s-d svg{width:10px;height:10px}
+
+.sh-sc-feed{z-index:2;width:100%;margin-top:18px;padding:14px 12px 10px;transform:rotate(-1deg)}
+.sh-feed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 6px}
+.sh-fh-l{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--body)}
+.sh-fh-r{flex:none;font-size:11px;font-weight:500;color:var(--body);white-space:nowrap}
+.sh-roller{height:20px;overflow:hidden}
+.sh-roller ul{margin:0;padding:0;list-style:none;animation:sh-words 13s cubic-bezier(.72,0,.24,1) infinite}
+.sh-roller li{height:20px;line-height:20px;white-space:nowrap;font-family:var(--display);font-weight:700;font-size:13px;color:var(--brand-deep)}
+@keyframes sh-words{0%,17%{transform:translateY(0)}25%,42%{transform:translateY(-20px)}
+    50%,67%{transform:translateY(-40px)}75%,92%{transform:translateY(-60px)}100%{transform:translateY(-80px)}}
+
+.sh-feed{position:relative;height:226px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 86%,transparent 100%);
+            mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 86%,transparent 100%)}
+.sh-feed-track{position:relative;animation:sh-feedscroll 34s linear infinite;will-change:transform}
+.sh-feed:hover .sh-feed-track,.sh-feed:focus-within .sh-feed-track{animation-play-state:paused}
+@keyframes sh-feedscroll{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.sh-feed-track::before{content:"";position:absolute;left:22px;top:6px;bottom:6px;width:1.5px;background:var(--line)}
+.sh-feed-item{position:relative;display:flex;align-items:center;gap:12px;padding:9px 6px;margin-bottom:6px;
+    border-radius:12px;transition:background .2s ease}
+.sh-feed-item:hover{background:var(--wash)}
+.sh-f-ic{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    box-shadow:0 0 0 4px var(--white),0 4px 10px -4px rgba(12,38,32,.3)}
+.sh-f-ic svg{width:15px;height:15px}
+.sh-ic-tutor{background:linear-gradient(140deg,var(--brand-2),var(--brand))}
+.sh-ic-course{background:linear-gradient(140deg,#5C9BFF,#2C51B0)}
+.sh-ic-doc{background:linear-gradient(140deg,#FFC85C,var(--gold))}
+.sh-ic-quiz{background:linear-gradient(140deg,#9279FF,#563BC4)}
+.sh-ic-live{background:linear-gradient(140deg,var(--brand),var(--brand-deep))}
+.sh-f-txt{flex:1;min-width:0}
+.sh-f-txt b{display:block;font-family:var(--display);font-size:13.2px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.sh-f-txt span{display:block;font-size:11.5px;color:var(--body);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-f-tag{flex:none;font-size:10.5px;font-weight:600;color:var(--brand-deep)}
+.sh-f-tag.b{color:#2C51B0}
+.sh-f-tag.o{color:#8A5D00}
+.sh-f-tag.v{color:#563BC4}
+
+/* ------------------------------------------------------------------
+   Orbit — hairline rings behind the stack, with subject-icon cards
+   riding the middle one. .sh-spin turns the whole ring; each card is
+   placed with rotate(angle) translate(radius) rotate(-angle) so its
+   own axes stay level, and .sh-sat-in counter-turns at the same speed
+   so the icons never tip over.
+   ------------------------------------------------------------------ */
+.sh-orbit{position:absolute;left:50%;top:50%;width:0;height:0;z-index:0;--r:min(290px,22vw);--spin:46s}
+.sh-orb-ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    border-radius:50%;border:1px solid rgba(12,38,32,.07);aspect-ratio:1}
+.sh-orb-ring-1{width:calc(var(--r)*2 - 170px);border-color:rgba(12,38,32,.05)}
+.sh-orb-ring-2{width:calc(var(--r)*2);border-style:dashed;border-color:rgba(15,157,107,.22)}
+.sh-orb-ring-3{width:calc(var(--r)*2 + 180px)}
+
+.sh-spin{position:absolute;left:0;top:0;width:0;height:0;animation:sh-spin-cw var(--spin) linear infinite}
+.sh-sat{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px}
+.sh-sat-in{display:grid;place-items:center;width:100%;height:100%;border-radius:15px;
     background:var(--white);border:1px solid var(--line);
-    box-shadow:var(--sh-card);text-decoration:none;overflow:hidden;
-  }
-a.sh-tickcard:hover{border-color:var(--brand)}
-/* "the hero card puts the picture full width above the copy" — the card is
-   a flex column, so the image takes the top band and the text keeps the
-   rest. object-fit:cover so a wide CMS upload never distorts. */
-.sh-tickcard img{width:100%;height:40%;min-height:0;object-fit:cover;object-position:center 25%;border-radius:9px;margin-bottom:6px;flex:none}
-.sh-tickcard b{font-size:20px;font-weight:800;color:var(--brand);line-height:1}
-.sh-tickcard .u{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
-.sh-tickcard .k{font-size:clamp(7px,.8vw,9px);font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--body)}
-.sh-tickcard .t{font-size:clamp(10px,1.1vw,12.5px);font-weight:700;line-height:1.3;color:var(--ink);text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-/* One picture filling the whole circle. Used when the hero slot holds a
-   SINGLE item that has an image — an admin controls which they get purely
-   by how many items they queue here, with no extra switch to find:
-     1 item with a picture  -> the picture fills the blob
-     anything else          -> the 2x2 card grid
-   Clipped to the blob's own morphing border-radius via inherit, so it
-   follows the 18s sh-morph instead of sitting as a square on top of it.
-   Sized the same as the old static hero art (96%/500px, not the blob's own
-   112%/560px) so the dashed ring stays visible as a frame around the
-   picture instead of the image covering it edge to edge. */
-.sh-ticksolo{position:relative;z-index:2;width:min(96%,500px);aspect-ratio:1/1;
-    border-radius:inherit;overflow:hidden;display:block}
-.sh-tickwrap{position:relative;z-index:2;width:min(96%,500px);aspect-ratio:1/1;
-    border-radius:inherit;overflow:hidden;transition:opacity .22s ease}
-.sh-tickwrap img{width:100%;height:100%;object-fit:cover;display:block}
-.sh-tickcap{position:absolute;left:0;right:0;bottom:0;z-index:3;
-    padding:38px 26px 22px;color:#fff;text-align:center;
-    background:linear-gradient(to top,rgba(11,46,32,.82),transparent)}
-.sh-tickcap .k{display:block;font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;opacity:.85}
-.sh-tickcap .t{display:block;margin-top:3px;font-size:15px;font-weight:700;line-height:1.35}
-.sh-tickdots{position:absolute;bottom:-2%;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:5px}
-.sh-tickdot{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:var(--line);cursor:pointer}
-.sh-tickdot.on{width:16px;border-radius:3px;background:var(--brand)}
-.sh-fl{
-    position:absolute;z-index:3;
-    width:54px;height:54px;border-radius:16px;
-    display:grid;place-items:center;
-    background:var(--white);box-shadow:var(--sh-card);
-    color:var(--brand-deep);
-    animation:sh-bob 5.4s ease-in-out infinite;
-  }
-.sh-fl svg{width:24px;height:24px}
-.sh-fl.sh-cap{top:5%;left:1%;color:var(--brand)}
-.sh-fl.sh-book{bottom:13%;right:0;animation-delay:1.2s;color:var(--gold)}
-.sh-fl.sh-play{top:34%;right:-2%;width:46px;height:46px;animation-delay:.6s;animation-duration:6s}
-.sh-fl.sh-play svg{width:20px;height:20px}
+    box-shadow:0 1px 2px rgba(12,38,32,.05),0 12px 24px -12px rgba(12,38,32,.35);
+    animation:sh-spin-ccw var(--spin) linear infinite}
+.sh-sat-in svg{width:20px;height:20px}
+@keyframes sh-spin-cw{to{transform:rotate(360deg)}}
+@keyframes sh-spin-ccw{to{transform:rotate(-360deg)}}
+
+.sh-s1{transform:rotate(0deg)   translate(var(--r)) rotate(0deg)}
+.sh-s2{transform:rotate(60deg)  translate(var(--r)) rotate(-60deg)}
+.sh-s3{transform:rotate(120deg) translate(var(--r)) rotate(-120deg)}
+.sh-s4{transform:rotate(180deg) translate(var(--r)) rotate(-180deg)}
+.sh-s5{transform:rotate(240deg) translate(var(--r)) rotate(-240deg)}
+.sh-s6{transform:rotate(300deg) translate(var(--r)) rotate(-300deg)}
+.sh-s2,.sh-s5{width:38px;height:38px;margin:-19px 0 0 -19px}
+.sh-s2 .sh-sat-in svg,.sh-s5 .sh-sat-in svg{width:17px;height:17px}
+
+.sh-sat-fill-brand{background:linear-gradient(140deg,var(--brand-2),var(--brand-deep));border-color:transparent;color:#fff;
+    box-shadow:0 1px 2px rgba(11,91,62,.2),0 14px 26px -12px rgba(11,91,62,.5)}
+.sh-sat-fill-gold{background:linear-gradient(140deg,#FFC85C,var(--gold));border-color:transparent;color:#fff;
+    box-shadow:0 1px 2px rgba(138,93,0,.16),0 14px 26px -12px rgba(224,138,0,.45)}
+.sh-sat-course{color:#2C51B0}
+.sh-sat-quiz{color:#563BC4}
+.sh-sat-live{color:var(--brand)}
+.sh-sat-cert{color:#0E7A54}
+
 .sh-rise{opacity:0;transform:translateY(18px);animation:sh-rise .7s cubic-bezier(.22,.61,.36,1) forwards}
-/* .sh-hero-visual also carries .sh-rise — two classes beats one, so this is
-   what actually runs on it, combining its fade-in with the shared sh-morph
-   clock every blob-shaped descendant inherits border-radius from. */
-.sh-hero-visual.sh-rise{animation:sh-rise .7s cubic-bezier(.22,.61,.36,1) forwards, sh-morph 18s ease-in-out infinite}
 .sh-d1{animation-delay:.05s}
 .sh-d2{animation-delay:.15s}
 .sh-d3{animation-delay:.27s}
 .sh-d4{animation-delay:.38s}
 .sh-d5{animation-delay:.20s}
+@media (max-width:1180px){
+  .sh-stack{width:min(100%,370px)}
+  .sh-orbit{--r:min(244px,21.5vw)}
+}
 @media (max-width:980px){
   .sh-hero-grid{
       grid-template-columns:1fr;
@@ -321,11 +399,14 @@ a.sh-tickcard:hover{border-color:var(--brand)}
   .sh-hero-sub{margin-inline:auto}
   .sh-cta-row{justify-content:center}
   .sh-hero-visual{order:2}
-  .sh-ticksolo,.sh-tickwrap{width:min(86%,430px)}
-  .sh-blob{width:min(96%,470px)}
-  /* 0.625 x the blob's own breakpoint value, for the reason above. */
-  .sh-tick{width:min(60%,294px)}
+  .sh-stack{width:min(100%,460px);text-align:left}
+  .sh-orbit{--r:min(265px,40vw)}
   .sh-dots.sh-b,.sh-ring.sh-a,.sh-squiggle{display:none}
+}
+@media (max-width:760px){
+  .sh-sc-brand{width:88%;transform:rotate(-1.5deg)}
+  .sh-sc-stats{width:100%;transform:rotate(1deg);margin-top:14px}
+  .sh-sc-feed{transform:rotate(-.8deg);margin-top:16px}
 }
 @media (max-width:620px){
   .sh-wrap{width:min(var(--wrap),100% - 34px)}
@@ -333,41 +414,40 @@ a.sh-tickcard:hover{border-color:var(--brand)}
   .sh-punch{font-size:clamp(34px,10.6vw,48px);letter-spacing:-.03em}
   .sh-hero-visual{margin-top:clamp(6px,1.6vh,14px)}
   .sh-cta-row .sh-btn{flex:1 1 auto;min-width:210px}
-  .sh-fl.sh-cap{width:44px;height:44px;left:-2%}
-  .sh-fl.sh-book{width:44px;height:44px}
-  .sh-fl svg{width:20px;height:20px}
-  .sh-fl.sh-play{display:none}
   .sh-dots.sh-a{width:130px;height:130px;bottom:20px}
+  .sh-spin{display:none}
+  .sh-orb-ring-2{border-style:solid;border-color:rgba(15,157,107,.14)}
+  .sh-sc-brand{padding:10px 13px}
+  .sh-sc-stats{padding:13px 14px}
+  .sh-st{gap:10px}
+  .sh-st-i{padding-top:8px;border-top-width:2px}
+  .sh-s-k{font-size:10.5px}
+  .sh-s-v{font-size:21px}
+  .sh-s-d{font-size:10px}
+  .sh-sc-feed{padding:12px 9px 8px}
+  .sh-feed{height:212px}
+  .sh-feed-item{gap:10px;padding:9px 4px}
+  .sh-feed-track::before{left:20px}
+}
+@media (max-width:420px){
+  .sh-s-v{font-size:19px}
+  .sh-f-ic{width:30px;height:30px}
+  .sh-feed-track::before{left:19px}
 }
 @media (max-width:380px){
   .sh-cta-row .sh-btn{width:100%;min-width:0}
+}
+@media (max-width:360px){
+  .sh-st{gap:8px}
+  .sh-s-v{font-size:17.5px}
 }
 @media (prefers-reduced-motion:reduce){
   .sh-hero *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .sh-rise{opacity:1!important;transform:none!important}
 }`;
 
-const DEFAULTS = {
-  eyebrow: "Empowerment Through Education",
-  heading: "Empowering Students Through",
-  heading_secondary: "Better Learning.",
-  subhead:
-    "ShikshaCom combines quality education, expert mentorship, collaborative " +
-    "learning, and trusted resources to help every student reach their academic goals.",
-  cta_primary_label: "Explore Courses",
-  cta_primary_href: "/courses",
-  // "Book a Tutor" is a booking intent, and 1:1 tutor booking lives on the
-  // Skill Dev expert directory — real availability slots, a real order/enrol
-  // call (see ExpertProfilePage). /counselling is career ADVICE, a different
-  // job, and its counsellor list is empty in production, so this CTA promised
-  // a booking that could not be made. Career guidance keeps its own CTA in the
-  // Resources section.
-  cta_secondary_label: "Book a Tutor",
-  cta_secondary_href: "/skill/browse",
-};
-
 export default function Hero() {
-  const { block, floaters, cmsOwnsFloaters, blockLoading: contentLoading } = useHomeContent("hero");
+  const { block, blockLoading: contentLoading } = useHomeContent("hero");
 
   const eyebrow = homeField("hero", block, "eyebrow");
   const heading = homeField("hero", block, "heading");
@@ -377,14 +457,6 @@ export default function Hero() {
   const ctaPrimaryHref = homeField("hero", block, "cta_primary_href");
   const ctaSecondaryLabel = homeField("hero", block, "cta_secondary_label");
   const ctaSecondaryHref = homeField("hero", block, "cta_secondary_href");
-
-  /* Live ticker, hero slot (design_handoff_live_ticker Phase 6). The hero
-   * visual only ever renders ticker content now — no admin-image or
-   * built-in-SVG fallback — so an empty queue just leaves the blob bare
-   * rather than switching between two differently-sized visuals. */
-  const { items: tickerItems } = useTickerSlot("hero");
-  const [tickPage, setTickPage] = useState(0);
-  const tickPages = Math.max(1, Math.ceil(tickerItems.length / 4));
 
   /* Same source the floating button reads, so the two cannot disagree about
      whether a demo exists. The endpoint is cached server-side and withholds
@@ -402,105 +474,44 @@ export default function Hero() {
     return () => { alive = false; };
   }, []);
 
+  // Real stats + feed. null until the request resolves (fallback renders
+  // meanwhile) or if it fails outright (fallback stays up indefinitely).
+  const [highlights, setHighlights] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    getHeroHighlights().then((data) => { if (alive) setHighlights(data); });
+    return () => { alive = false; };
+  }, []);
+
+  const stats = highlights?.stats
+    ? STAT_KEYS.map((key) => {
+      const s = highlights.stats[key];
+      return { key, label: s.label, to: s.total, delta: `${s.new_count} new` };
+    })
+    : FALLBACK_STATS;
+
+  // A real feed of zero items is "nothing to show" — not a smaller true
+  // number like a real stat can be — so it falls back to the illustrative
+  // cards rather than rendering an empty, broken-looking scroller.
+  const feed = highlights?.feed?.length
+    ? highlights.feed.map((item) => ({
+      ...FEED_TYPE_META[item.type],
+      title: item.title,
+      sub: item.subtitle,
+    }))
+    : FALLBACK_FEED;
+
   /* "Watch the 53s sign up demo". The seconds come from Bunny via
      duration_seconds — the design mockup hardcoded "40s" for a clip that is
      really 53s, which is the drift this whole feature avoids. With no duration
      synced yet the label simply omits it. */
   // CMS text used to replace already-animating fallback copy.
-  // Reveal one settled group instead of staggering every line independently.
   const copyLoading = contentLoading;
 
   const demoLabel = demo
     ? `Watch the ${demo.duration_seconds ? `${demo.duration_seconds}s ` : ""}`
       + `${(demo.title || "demo").toLowerCase()}`
     : "";
-
-  /* The pager used to swap `shown` straight from one batch of 4 (or the
-     solo item) to the next — React just unmounts the old cards and mounts
-     the new ones on the same tick, with no transition, which read as a
-     hard instant cut every 5s. fadeOut now runs first and the page only
-     advances once that's had time to play, so the content is invisible at
-     the moment it changes and reappears already on the new page.
-
-     fadeToPage is the one place that drives it, so the auto-timer and a
-     manual swipe (below) can't fall out of sync with each other — e.g. a
-     swipe landing mid-fade from the timer, or vice versa, double-firing the
-     transition. */
-  const [fadeOut, setFadeOut] = useState(false);
-  const fadeTimeoutRef = useRef(null);
-  const visualRef = useRef(null);
-
-  const fadeToPage = (next) => {
-    setFadeOut(true);
-    clearTimeout(fadeTimeoutRef.current);
-    fadeTimeoutRef.current = setTimeout(() => {
-      setTickPage(next);
-      setFadeOut(false);
-    }, 220);
-  };
-
-  useEffect(() => {
-    if (tickPages < 2) return undefined;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
-    const id = setInterval(() => {
-      // "the pager advances all four together"
-      if (document.visibilityState !== "visible" || visualRef.current?.matches(":hover, :focus-within")) return;
-      fadeToPage((p) => (p + 1) % tickPages);
-    }, 5000);
-    return () => {
-      clearInterval(id);
-      clearTimeout(fadeTimeoutRef.current);
-    };
-  }, [tickPages]);
-
-  /* Swipe/drag between pages, on top of the dots and the timer — none of
-     the three can get out of sync since all three only ever call
-     fadeToPage. Pointer events unify touch, mouse and pen in one handler.
-     A short drag is still a tap: onClickCapture on the same element swallows
-     the click that would otherwise follow a real drag, so dragging across a
-     ticker card doesn't also open its link. */
-  const dragRef = useRef({ active: false, startX: 0, moved: false });
-
-  const handleDragStart = (e) => {
-    if (tickPages < 2) return;
-    dragRef.current = { active: true, startX: e.clientX, moved: false };
-  };
-  const handleDragMove = (e) => {
-    if (!dragRef.current.active) return;
-    if (Math.abs(e.clientX - dragRef.current.startX) > 8) dragRef.current.moved = true;
-  };
-  const handleDragEnd = (e) => {
-    if (!dragRef.current.active) return;
-    const dx = e.clientX - dragRef.current.startX;
-    dragRef.current.active = false;
-    if (Math.abs(dx) < 40) return;
-    if (dx < 0) fadeToPage((p) => (p + 1) % tickPages);
-    else fadeToPage((p) => (p - 1 + tickPages) % tickPages);
-  };
-  const handleDragClickCapture = (e) => {
-    if (dragRef.current.moved) {
-      e.preventDefault();
-      e.stopPropagation();
-      dragRef.current.moved = false;
-    }
-  };
-
-  const page = tickPage < tickPages ? tickPage : 0;
-  const shown = tickerItems.slice(page * 4, page * 4 + 4);
-  const tickFadeClass = fadeOut ? " sh-tick-fade" : "";
-
-  // Hero's floating chips are a fixed icon-only trio by design (no text slot
-  // exists in the CSS) — CMS control here is deliberately limited to
-  // show/hide per slot, not icon swap or label text.
-  //
-  // The row's mere PRESENCE is the switch: these slots carry no label or icon
-  // that this component reads, so a hero floater row exists only to be there
-  // or not. Removing it in the CMS hides the chip. Until the section reports
-  // any rows at all (still loading, empty table, or the API down) all three
-  // show, which is the original static look. See useHomeContent.
-  const showCap = cmsOwnsFloaters ? Boolean(floaters.cap) : true;
-  const showBook = cmsOwnsFloaters ? Boolean(floaters.book) : true;
-  const showPlay = cmsOwnsFloaters ? Boolean(floaters.play) : true;
 
   return (
     <>
@@ -561,80 +572,69 @@ export default function Hero() {
             </div>
           </div>
 
-          <div
-            ref={visualRef}
-            className="sh-hero-visual sh-rise sh-d5"
-            onPointerDown={handleDragStart}
-            onPointerMove={handleDragMove}
-            onPointerUp={handleDragEnd}
-            onPointerCancel={handleDragEnd}
-            onClickCapture={handleDragClickCapture}
-          >
-            <span className="sh-blob" aria-hidden="true"></span>
+          <div className="sh-hero-visual sh-rise sh-d5">
+            <div
+              className="sh-stack"
+              role="figure"
+              aria-label="Illustrative snapshot of activity on ShikshaCom: new teachers, courses, study materials and quizzes being published"
+            >
+              <div className="sh-orbit" aria-hidden="true">
+                <span className="sh-orb-ring sh-orb-ring-1"></span>
+                <span className="sh-orb-ring sh-orb-ring-2"></span>
+                <span className="sh-orb-ring sh-orb-ring-3"></span>
+                <div className="sh-spin">
+                  <span className="sh-sat sh-s1"><span className="sh-sat-in sh-sat-fill-brand">{ICON_CAP}</span></span>
+                  <span className="sh-sat sh-s2"><span className="sh-sat-in sh-sat-course">{FEED_ICONS.course}</span></span>
+                  <span className="sh-sat sh-s3"><span className="sh-sat-in sh-sat-fill-gold">{FEED_ICONS.doc}</span></span>
+                  <span className="sh-sat sh-s4"><span className="sh-sat-in sh-sat-quiz">{FEED_ICONS.quiz}</span></span>
+                  <span className="sh-sat sh-s5"><span className="sh-sat-in sh-sat-live">{FEED_ICONS.live}</span></span>
+                  <span className="sh-sat sh-s6"><span className="sh-sat-in sh-sat-cert">{ICON_CERT}</span></span>
+                </div>
+              </div>
 
-            {showCap && (
-              <span className="sh-fl sh-cap" aria-hidden="true">
-                <ScribbleIcon name="graduation-cap" />
-              </span>
-            )}
-            {showBook && (
-              <span className="sh-fl sh-book" aria-hidden="true">
-                <ScribbleIcon name="book" color="#228B22" />
-              </span>
-            )}
-            {showPlay && (
-              <span className="sh-fl sh-play" aria-hidden="true">
-                <ScribbleIcon name="video" color="#FF6B00" />
-              </span>
-            )}
+              <div className="sh-sc sh-sc-brand">
+                <img className="sh-mark" alt="" aria-hidden="true" src="/Shiksha.png" />
+                <span className="sh-who"><b>ShikshaCom</b><em>Platform activity</em></span>
+                <span className="sh-live"><i aria-hidden="true"></i>Live</span>
+              </div>
 
-            {shown.length === 1 && shown[0].img ? (
-              /* One queued item WITH a picture: it takes the whole circle. */
-              (() => {
-                const it = shown[0];
-                const art = (
-                  <div className={`sh-tickwrap${tickFadeClass}`}>
-                    <img src={it.img} alt="" />
-                    <span className="sh-tickcap">
-                      {it.kind && <span className="k">{KIND_LABEL[it.kind]}</span>}
-                      <span className="t">{it.message}</span>
+              <div className="sh-sc sh-sc-stats">
+                <div className="sh-st">
+                  {stats.map((s) => (
+                    <div className="sh-st-i" key={s.key}>
+                      <span className="sh-s-k">{s.label}</span>
+                      <StatValue className="sh-s-v" to={s.to} />
+                      <span className="sh-s-d">{ICON_UP}{s.delta}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="sh-sc sh-sc-feed">
+                <div className="sh-feed-head">
+                  <span className="sh-fh-l">Just published
+                    <span className="sh-roller" aria-hidden="true">
+                      <ul>
+                        {ROLLER_WORDS.map((w) => <li key={w}>{w}</li>)}
+                        <li>{ROLLER_WORDS[0]}</li>
+                      </ul>
                     </span>
-                  </div>
-                );
-                return it.link_url ? <a href={it.link_url} className="sh-ticksolo">{art}</a> : art;
-              })()
-            ) : shown.length > 0 ? (
-              <div className={`sh-tick${tickFadeClass}`}>
-                {shown.map((it) => {
-                  const inner = (
-                    <>
-                      {it.img && <img src={it.img} alt="" />}
-                      {it.metric
-                        ? <span><b>{it.metric.value}</b> <span className="u">{it.metric.label}</span></span>
-                        : null}
-                      {it.kind && <span className="k">{KIND_LABEL[it.kind]}</span>}
-                      <span className="t">{it.message}</span>
-                    </>
-                  );
-                  return it.link_url
-                    ? <a key={it.id} className="sh-tickcard" href={it.link_url}>{inner}</a>
-                    : <div key={it.id} className="sh-tickcard">{inner}</div>;
-                })}
-                {tickPages > 1 && (
-                  <div className="sh-tickdots">
-                    {Array.from({ length: tickPages }, (_, i) => (
-                      <button
-                        key={i} type="button"
-                        className={`sh-tickdot${i === page ? " on" : ""}`}
-                        aria-label={`Updates ${i + 1} of ${tickPages}`}
-                        aria-current={i === page}
-                        onClick={() => fadeToPage(i)}
-                      />
+                  </span>
+                  <span className="sh-fh-r">Updating live</span>
+                </div>
+                <div className="sh-feed">
+                  <div className="sh-feed-track">
+                    {[...feed, ...feed].map((item, i) => (
+                      <div className="sh-feed-item" key={i}>
+                        <span className={`sh-f-ic sh-ic-${item.icon}`}>{FEED_ICONS[item.icon]}</span>
+                        <span className="sh-f-txt"><b>{item.title}</b><span>{item.sub}</span></span>
+                        <span className={`sh-f-tag ${item.tagClass}`}>{item.tag}</span>
+                      </div>
                     ))}
                   </div>
-                  )}
+                </div>
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
       </section>
