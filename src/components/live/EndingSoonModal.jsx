@@ -25,7 +25,7 @@
  * (ACADEMY_BROWSE_URL).
  */
 import { Link } from "react-router-dom";
-import { IcCheck } from "../home/HomeIcons";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { formatClock } from "../../hooks/useRemainingTime";
 import { ACADEMY_BROWSE_URL } from "../../config/urls";
 import { useState } from "react";
@@ -36,9 +36,9 @@ const RING_C = 2 * Math.PI * RING_R;
 function Bullet({ children, tone = "brand" }) {
   return (
     <div className="gs-eos-bullet">
-      <IcCheck
-        width={14}
-        height={14}
+      <ScribbleIcon
+        name="check"
+        size={14}
         style={{ color: tone === "brand" ? "#0F9D6B" : "#5E7469", flex: "none", marginTop: 3 }}
       />
       <span>{children}</span>
@@ -80,6 +80,27 @@ export default function EndingSoonModal({
     setDismissed(true);
     onDismiss?.();
   };
+
+  if (variant === "collaboration") {
+    return (
+      <div className="gs-eos-overlay" role="dialog" aria-modal="true" aria-label="Collaboration ending soon">
+        <div className="gs-eos-scrim" />
+        <div className={"gs-eos-card" + (urgent ? " gs-eos-card--urgent" : "")}>
+          <div className="gs-eos-head">
+            <div className="gs-eos-headline">
+              <div className="gs-eos-eyebrow">{clock} left</div>
+              <h3>Collaboration ending soon</h3>
+              <p>The host-selected room time is nearly up. Everyone will be disconnected when it ends.</p>
+            </div>
+          </div>
+          <div className="gs-eos-footer">
+            <span>You can start a new timed room after this one ends.</span>
+            {!urgent && <button type="button" className="gs-eos-link" onClick={handleDismiss}>Remind me later</button>}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="gs-eos-overlay" role="dialog" aria-modal="true" aria-label="Session ending soon">

@@ -5,7 +5,7 @@
 //
 // Fetches from the backend guide CMS (getGuide) instead of the retired
 // static data/guides.js. A bad slug and a down API used to look
-// identical (both fell through to <Navigate to="/counselling/guides">});
+// identical (both fell through to <Navigate to="/counselling/india">});
 // they're now distinguished: "notfound" redirects, "error" shows a retry
 // banner, because the guide really might still exist.
 //
@@ -48,6 +48,13 @@ function GuideReader({ slug }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedChapter = searchParams.get("chapter");
+  // "?section=" is 0-based within the CURRENT chapter's own sections —
+  // the board paginates one section at a time (e.g. "section 1 of 12")
+  // with its own Previous/Next, not the whole chapter on one scroll. The
+  // sentinel "last" is how "Previous" from a chapter's first section asks
+  // for the end of the PRECEDING chapter, whose section count isn't known
+  // until that chapter's own fetch resolves.
+  const requestedSection = searchParams.get("section");
   const { isAuthenticated } = useAuth();
   const [state, setState] = useState({ status: "loading" });
   const [related, setRelated] = useState([]);
@@ -174,6 +181,19 @@ function GuideReader({ slug }) {
     return rows;
   }, [paginated, chapter.sections, chapterStatus, state, chaptersById, activeKind]);
 
+  // One section on screen at a time, matching the board — a long chapter
+  // (study-abroad's "Country-wise Education Guide" alone carries 1,850
+  // section records, one per country sub-topic) rendered as a single
+  // scroll was the "too long" complaint; the board's own chapter-1 screen
+  // showing one ~300-word section at a time is the "short" one. Clamped
+  // rather than trusting the URL: a stale `?section=` from a shorter
+  // chapter must not point past the end of a longer one.
+  const sectionCount = paginated ? bodySections.length : 0;
+  const sectionIndex = !paginated || sectionCount === 0 ? 0
+    : requestedSection === "last" ? sectionCount - 1
+    : Math.min(Math.max(0, parseInt(requestedSection, 10) || 0), sectionCount - 1);
+  const currentSection = paginated ? bodySections[sectionIndex] : null;
+
   const tocItems = useMemo(() => {
     if (paginated) {
       return (state.guide?.chapters || [])
@@ -194,7 +214,7 @@ function GuideReader({ slug }) {
     return () => cancelAnimationFrame(frame);
   }, [paginated, requestedChapter, bodySections]);
 
-  if (state.status === "notfound") return <Navigate to="/counselling/guides" replace />;
+  if (state.status === "notfound") return <Navigate to="/counselling/india" replace />;
 
   if (state.status === "error") {
     return (
@@ -222,10 +242,26 @@ function GuideReader({ slug }) {
   // the whole point of separating them into tabs.
   const kindChapters = (guide.chapters || []).filter((c) => groupKind(c.kind) === activeKind);
   const chapterIndex = kindChapters.findIndex((c) => c.slug === chapterSlug);
-  const goToChapter = (targetSlug) => {
-    setSearchParams({ chapter: targetSlug }, { replace: true });
+  const goToChapter = (targetSlug, atSection) => {
+    setSearchParams(atSection != null ? { chapter: targetSlug, section: atSection } : { chapter: targetSlug }, { replace: true });
     if (paginated) window.scrollTo({ top: 0, behavior: "smooth" });
     else requestAnimationFrame(() => document.getElementById(`sc-chapter-${targetSlug}`)?.scrollIntoView({ behavior: "smooth" }));
+  };
+  const goToSection = (targetIndex) => {
+    setSearchParams({ chapter: chapterSlug, section: targetIndex }, { replace: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  // One pager for the whole reading sequence — Previous/Next move by
+  // section and only cross into the next/previous CHAPTER at either end,
+  // rather than running two separate pagers (section-level and
+  // chapter-level) the way the old chapter-nav bar alone used to.
+  const goPrevSection = () => {
+    if (sectionIndex > 0) return goToSection(sectionIndex - 1);
+    if (chapterIndex > 0) return goToChapter(kindChapters[chapterIndex - 1].slug, "last");
+  };
+  const goNextSection = () => {
+    if (sectionIndex < sectionCount - 1) return goToSection(sectionIndex + 1);
+    if (chapterIndex < kindChapters.length - 1) return goToChapter(kindChapters[chapterIndex + 1].slug, 0);
   };
   const markRead = async () => {
     try {
@@ -246,9 +282,43 @@ function GuideReader({ slug }) {
 
   return (
     <CounsellingShell crumb={` / Guides / ${guide.audience}`}>
-      <span className={`sc-badge ${guide.accent}`} style={{ marginBottom: 10, display: "inline-block" }}>{guide.audience}</span>
-      <h1 className="sc-h1" style={{ maxWidth: 760 }}>{guide.title}</h1>
-      <p className="sc-sub">{guide.blurb}</p>
+      {/* A paginated guide (study-abroad, study-in-india, …) fetches and
+          shows ONE chapter at a time — the board gives that chapter its
+          own hero (a "Phase N of M" kicker + the CHAPTER's own name as the
+          H1), not the guide's static title. Driving the board found this:
+          clicking from chapter 1 to chapter 2 changed the H1 from
+          "Understanding Study Abroad" to "Student Profile & Academic
+          Pathway"; the live build kept showing "Study Abroad — Complete
+          Guide" for every chapter. Scoped to paginated guides only — an
+          inline guide (<=40 sections, the whole thing on one scroll) has
+          no equivalent "current chapter" the way a reader experiences it,
+          and no inline guide's board was checked to confirm it wants this.
+          The kicker reads "Phase N of M" rather than splicing in the
+          guide's own title (as the board's exact wording does for this one
+          guide) — guide.title is phrased differently across the 11 guides
+          this component serves ("Study Abroad — Complete Guide" already
+          contains the word "Guide"), so reusing that text verbatim in a
+          "PHASE N OF THE ⟨title⟩ GUIDE" template would read oddly on guides
+          whose title wasn't written for that slot. */}
+      {paginated && selectedChapter ? (
+        <>
+          <span className="sc-badge orange" style={{ marginBottom: 10, display: "inline-block" }}>
+            Phase {chapterIndex + 1} of {kindChapters.length}
+          </span>
+          <h1 className="sc-h1" style={{ maxWidth: 760 }}>{selectedChapter.title}</h1>
+          {chapterStatus === "ok" && sectionCount > 0 && (
+            <p className="sc-sub" style={{ marginBottom: 10 }}>
+              {sectionCount} section{sectionCount === 1 ? "" : "s"} · section {sectionIndex + 1} of {sectionCount}
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <span className={`sc-badge ${guide.accent}`} style={{ marginBottom: 10, display: "inline-block" }}>{guide.audience}</span>
+          <h1 className="sc-h1" style={{ maxWidth: 760 }}>{guide.title}</h1>
+          <p className="sc-sub">{guide.blurb}</p>
+        </>
+      )}
 
       <div className="sc-reading-progress">
         <div><strong>{guide.chapters?.length ? `${progress?.read_count || 0} of ${guide.chapters.length} chapters read`
@@ -312,49 +382,118 @@ function GuideReader({ slug }) {
             </div>
           )}
 
-          {paginated && bodySections.filter((s) => s.displayTitle).length > 3 && <nav className="sc-on-page" aria-label="On this page">
-            <strong>On this page</strong>
-            {bodySections.filter((s) => s.displayTitle).slice(0, 20).map((s) =>
-              <a key={s.id} href={`#sec-${s.id}`}>{s.displayTitle}</a>)}
-          </nav>}
+          {/* One section's own title per button, not an anchor scroll — the
+              board's "on this page" box jumps between SEPARATE section
+              screens, which is also why it still lists every section even
+              though only one renders below at a time. Capped at 20 like
+              the anchor version this replaced: the "Country-wise Education
+              Guide" chapter alone carries 1,850 sections, and the board's
+              own box was never driven against a chapter anywhere near that
+              size. */}
+          {paginated && bodySections.filter((s) => s.displayTitle).length > 1 && (
+            <nav className="sc-on-page" aria-label="On this page">
+              <strong>On this page</strong>
+              {bodySections
+                .map((s, i) => ({ s, i }))
+                .filter(({ s }) => s.displayTitle)
+                .slice(0, 20)
+                .map(({ s, i }) => (
+                  <button key={s.id ?? i} className={i === sectionIndex ? "on" : undefined} onClick={() => goToSection(i)}>
+                    {s.displayTitle}
+                  </button>
+                ))}
+            </nav>
+          )}
 
-          {bodySections.map((s) => (
-            <section key={s.id ?? s.displayTitle} id={s.isChapterStart ? `sc-chapter-${s.chapterSlug}` : undefined}
-              className={s.audience === "parent" ? "sc-parent-section" : undefined}>
-              {s.displayTitle && (
-                <h2
-                  id={paginated ? `sec-${s.id}` : `sec-${slugify(s.displayTitle)}-${s.id ?? ""}`}
-                  className={s.isChapterHeading ? "sc-chapter-heading" : undefined}
-                >
-                  {s.displayTitle}
-                </h2>
-              )}
-              {(s.blocks || []).map((b, i) => (
-                <Block key={i} b={b} storageKey={`sc-activity:${canonicalSlug}:${s.id ?? s.displayTitle}:${i}`} />
-              ))}
-            </section>
-          ))}
+          {paginated ? (
+            currentSection && (
+              <section className={currentSection.audience === "parent" ? "sc-parent-section" : undefined}>
+                {currentSection.displayTitle && (
+                  <h2 className={currentSection.isChapterHeading ? "sc-chapter-heading" : undefined}>
+                    {currentSection.displayTitle}
+                  </h2>
+                )}
+                {(currentSection.blocks || []).map((b, i) => (
+                  <Block key={i} b={b} storageKey={`sc-activity:${canonicalSlug}:${currentSection.id ?? currentSection.displayTitle}:${i}`} />
+                ))}
+              </section>
+            )
+          ) : (
+            bodySections.map((s) => (
+              <section key={s.id ?? s.displayTitle} id={s.isChapterStart ? `sc-chapter-${s.chapterSlug}` : undefined}
+                className={s.audience === "parent" ? "sc-parent-section" : undefined}>
+                {s.displayTitle && (
+                  <h2 id={`sec-${slugify(s.displayTitle)}-${s.id ?? ""}`}
+                    className={s.isChapterHeading ? "sc-chapter-heading" : undefined}>
+                    {s.displayTitle}
+                  </h2>
+                )}
+                {(s.blocks || []).map((b, i) => (
+                  <Block key={i} b={b} storageKey={`sc-activity:${canonicalSlug}:${s.id ?? s.displayTitle}:${i}`} />
+                ))}
+              </section>
+            ))
+          )}
 
-          {kindChapters.length > 0 && (!paginated || chapterStatus === "ok") && (
+          {/* Section-level pager — matches the board's "‹ {prev title} /
+              {next title} ›" directly under a section's content. Crosses a
+              chapter boundary at either end rather than stopping there, so
+              it IS the sequential "read through the whole guide" control;
+              the chapter-nav bar below keeps only the jump-by-chapter and
+              mark-as-read controls so the two don't duplicate each other. */}
+          {paginated && chapterStatus === "ok" && sectionCount > 0 && (
             <div className="sc-chapter-nav">
               <button
                 className="sc-btn ghost sm"
-                disabled={chapterIndex <= 0}
-                onClick={() => goToChapter(kindChapters[chapterIndex - 1].slug)}
+                disabled={sectionIndex === 0 && chapterIndex <= 0}
+                onClick={goPrevSection}
               >
-                ← Previous chapter
+                ‹ {sectionIndex > 0 ? bodySections[sectionIndex - 1].displayTitle
+                  : chapterIndex > 0 ? kindChapters[chapterIndex - 1].title : ""}
               </button>
+              <span className="sc-note">Section {sectionIndex + 1} of {sectionCount}</span>
+              <button
+                className="sc-btn sm"
+                disabled={sectionIndex === sectionCount - 1 && chapterIndex >= kindChapters.length - 1}
+                onClick={goNextSection}
+              >
+                {sectionIndex < sectionCount - 1 ? bodySections[sectionIndex + 1].displayTitle
+                  : chapterIndex < kindChapters.length - 1 ? kindChapters[chapterIndex + 1].title : ""} ›
+              </button>
+            </div>
+          )}
+
+          {/* Jump-a-whole-chapter + mark-as-read. Previous/Next CHAPTER
+              buttons are dropped when paginated — the section pager above
+              already crosses chapter boundaries at either end, and a
+              second pair of Prev/Next controls doing the same thing one
+              screen length away is what the board never has. Inline
+              guides keep both buttons exactly as before: they have no
+              section pager, so this bar is their only chapter nav. */}
+          {kindChapters.length > 0 && (!paginated || chapterStatus === "ok") && (
+            <div className="sc-chapter-nav">
+              {!paginated && (
+                <button
+                  className="sc-btn ghost sm"
+                  disabled={chapterIndex <= 0}
+                  onClick={() => goToChapter(kindChapters[chapterIndex - 1].slug)}
+                >
+                  ← Previous chapter
+                </button>
+              )}
               <span className="sc-note">Chapter {chapterIndex + 1} of {kindChapters.length}</span>
               {isAuthenticated ? <button className="sc-btn ghost sm" disabled={marked} onClick={markRead}>
                 {marked ? "Read ✓" : "Mark chapter as read"}
               </button> : <Link className="sc-btn ghost sm" to="/login" state={{ from: window.location.pathname + window.location.search }}>Log in to save progress</Link>}
-              <button
-                className="sc-btn sm"
-                disabled={chapterIndex >= kindChapters.length - 1}
-                onClick={() => goToChapter(kindChapters[chapterIndex + 1].slug)}
-              >
-                Next chapter →
-              </button>
+              {!paginated && (
+                <button
+                  className="sc-btn sm"
+                  disabled={chapterIndex >= kindChapters.length - 1}
+                  onClick={() => goToChapter(kindChapters[chapterIndex + 1].slug)}
+                >
+                  Next chapter →
+                </button>
+              )}
             </div>
           )}
 
@@ -368,10 +507,10 @@ function GuideReader({ slug }) {
 
           <div style={{ marginTop: 30, display: "flex", gap: 10, flexWrap: "wrap", borderTop: "1px solid rgba(9,62,5,.1)", paddingTop: 22 }}>
             {["study-in-india", "after-12-science"].includes(canonicalSlug) && (
-              <Link className="sc-btn green" to="/admission/india">Explore engineering colleges in India →</Link>
+              <Link className="sc-btn green" to="/admission/india/engineering">Explore engineering colleges in India →</Link>
             )}
             <Link className="sc-btn" to="/counselling/counsellors">Find counsellors for this →</Link>
-            <Link className="sc-btn ghost" to="/counselling/guides">All guides</Link>
+            <Link className="sc-btn ghost" to="/counselling/india">All guides</Link>
           </div>
         </article>
       </div>

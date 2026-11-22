@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Flag, ShieldAlert, Users, BarChart3, MessageSquare, History,
-  MessagesSquare, TriangleAlert, UserX, ShieldCheck,
-} from "lucide-react";
+import { Flag, ShieldAlert, TriangleAlert, UserX, ShieldCheck } from "lucide-react";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import ReportedContent from "./ReportedContent";
 import AutoRejected from "./AutoRejected";
 import UserManagement from "./UserManagement";
@@ -16,17 +14,22 @@ import { getModAnalytics } from "../api/moderation";
 import "../css/Dashboard.css";
 import "../css/Moderator.css";
 
+const UsersIcon = (p) => <ScribbleIcon name="users" {...p} />;
+const ProgressIcon = (p) => <ScribbleIcon name="progress" {...p} />;
+const MessageIcon = (p) => <ScribbleIcon name="message" {...p} />;
+const ClockIcon = (p) => <ScribbleIcon name="clock" {...p} />;
+
 const TABS = [
   { id: "reports", label: "Reported Content", icon: Flag },
   { id: "auto-rejected", label: "Auto-Rejected", icon: ShieldAlert },
-  { id: "users", label: "User Management", icon: Users },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "threads", label: "All Threads", icon: MessageSquare },
-  { id: "log", label: "Activity Log", icon: History },
+  { id: "users", label: "User Management", icon: UsersIcon },
+  { id: "analytics", label: "Analytics", icon: ProgressIcon },
+  { id: "threads", label: "All Threads", icon: MessageIcon },
+  { id: "log", label: "Activity Log", icon: ClockIcon },
 ];
 
 const STAT_CARDS = [
-  { key: "open_reports", label: "Open reports", icon: MessagesSquare, tone: "blue" },
+  { key: "open_reports", label: "Open reports", icon: MessageIcon, tone: "blue" },
   { key: "high_priority", label: "High priority", icon: TriangleAlert, tone: "red" },
   { key: "banned_users", label: "Banned users", icon: UserX, tone: "purple" },
   { key: "actions_today", label: "Actions today", icon: ShieldCheck, tone: "green" },

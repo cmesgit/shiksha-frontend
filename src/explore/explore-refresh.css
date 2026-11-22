@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Explore refresh: same look as the forum and blogs (the homepage hero's
+   palette, Plus Jakarta Sans headings, pill buttons, white 18px cards with a
+   hairline border and soft shadow). The landing hero itself comes from
+   components/hero/heroLook.css.
+
+   Loaded after Explore.css (from ExploreToolbar, which every public Explore
+   page renders, and from ExploreLanding). Rules use `html .exp` so they beat
+   Explore.css's single-class `.exp` rules without editing that file.
+   ========================================================================== */
+html .exp {
+  --forest: #0B5B3E;
+  --forest-d: #0B5B3E;
+  --forest-dd: #094B33;
+  --teal: #0F9D6B;
+  --teal-l: #12B47A;
+  --amber: #FFB21D;
+  --ink: #0C2620;
+  --muted: #5A7268;
+  --line: #E4EEE8;
+  --shadow: 0 1px 2px rgba(12,38,32,.04), 0 4px 14px -6px rgba(12,38,32,.08);
+  --shadow-h: 0 10px 30px -8px rgba(12,38,32,.14);
+  --r: 18px;
+  --hl-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --hl-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  background: #F7FCF9;
+  font-family: var(--hl-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- type ---------- */
+html .exp h1, html .exp h2, html .exp h3 { font-family: var(--hl-display); color: var(--ink); letter-spacing: -.02em; }
+html .exp .exp-secttitle { font: 800 clamp(22px, 2.6vw, 28px) var(--hl-display); color: var(--ink); letter-spacing: -.025em; }
+html .exp .exp-sub { color: var(--muted); font-size: 14px; }
+html .exp .exp-eyebrow { font-family: var(--hl-sans); color: var(--teal); letter-spacing: .14em; }
+html .exp .exp-viewall { color: var(--forest); font: 700 13.5px var(--hl-display); }
+html .exp .exp-viewall:hover { color: var(--teal); border-color: currentColor; }
+
+/* ---------- landing hero (markup from components/hero) ---------- */
+html .exp .exp-fh .fh-title { font-family: var(--display); margin: 18px 0 0; color: inherit; }
+html .exp .exp-fh .fh-search svg { flex: none; color: var(--faint); }
+html .exp .exp-fh .exp-trendrow { justify-content: flex-start; margin-top: 18px; }
+html .exp .exp-fh .exp-trendrow .lbl { font: 700 10.5px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-right: 2px; }
+html .exp .exp-fh-upload { margin-top: 20px; margin-left: 0; font-size: 13.5px; }
+html .exp .exp-fh-upload svg { width: 15px; height: 15px; }
+
+/* ---------- buttons, chips, tags ---------- */
+html .exp .exp-btn { font-family: var(--hl-display); border-radius: 999px; padding: 12px 24px; }
+html .exp .exp-btn-primary { background: linear-gradient(135deg, #12B47A, #0B5B3E); color: #fff; box-shadow: none; }
+html .exp .exp-btn-primary:hover { background: linear-gradient(135deg, #0F9D6B, #0B5B3E); transform: translateY(-2px); }
+html .exp .exp-btn-ghost { background: #fff; color: var(--forest); border: 1.6px solid #CFEADB; }
+html .exp .exp-btn-ghost:hover { background: var(--amber); border-color: var(--amber); color: #fff; }
+html .exp .exp-chip { font: 600 12.5px var(--hl-sans); color: var(--forest); background: #fff; border: 1px solid #CFEADB; }
+html .exp .exp-chip:hover { background: #EAF7F0; border-color: #9FD8BC; }
+html .exp .exp-tag { background: #EAF7F0; color: var(--forest); border-radius: 999px; padding: 3px 9px; font-family: var(--hl-sans); }
+html .exp .exp-like-btn.on { background: #EAF7F0; }
+
+/* ---------- cards ---------- */
+html .exp .exp-cat,
+html .exp .exp-doc,
+html .exp .exp-doc-mini,
+html .exp .exp-authcard,
+html .exp .exp-card { border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); background: #fff; }
+html .exp .exp-cat:hover,
+html .exp .exp-doc:hover,
+html .exp .exp-doc-mini:hover,
+html .exp .exp-authcard:hover { border-color: #BFE3D0; box-shadow: var(--shadow-h); }
+html .exp .exp-cat h3 { font: 700 16px var(--hl-display); color: var(--ink); letter-spacing: -.01em; }
+html .exp .exp-cat p, html .exp .exp-doc-mini p, html .exp .exp-doc-meta { color: var(--muted); }
+html .exp .exp-cat .cnt { font-family: var(--hl-sans); }
+html .exp .exp-doc-body h3, html .exp .exp-doc-mini h3 { font: 700 14.5px/1.4 var(--hl-display); color: var(--ink); }
+html .exp .exp-authcard h3 { font: 700 15px var(--hl-display); }
+html .exp .exp-avatar { font-family: var(--hl-display); }
+
+/* ---------- bottom CTA: light wash card instead of the dark slab ---------- */
+html .exp .exp-cta-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: radial-gradient(700px 360px at 85% -20%, #D8F0E4 0%, rgba(216,240,228,0) 70%), linear-gradient(150deg, #EAF7F0, #F7FCF9);
+  border: 1px solid #CFEADB; border-radius: 26px; box-shadow: none;
+}
+html .exp .exp-cta-card::before {
+  content: ""; position: absolute; left: -20px; bottom: -30px; width: 150px; height: 150px; z-index: -1;
+  background-image: radial-gradient(#D8F0E4 2px, transparent 2px); background-size: 18px 18px;
+}
+html .exp .exp-cta-card h2 { color: var(--ink); font: 800 clamp(24px, 3vw, 32px) var(--hl-display); letter-spacing: -.03em; }
+html .exp .exp-cta-card p { color: var(--muted); font-family: var(--hl-sans); }
+html .exp .exp-cta-actions .exp-btn-primary { background: linear-gradient(135deg, #12B47A, #0B5B3E); color: #fff; box-shadow: none; }
+html .exp .exp-cta-actions .exp-btn-primary:hover { background: linear-gradient(135deg, #0F9D6B, #0B5B3E); opacity: 1; transform: translateY(-2px); }
+html .exp .exp-cta-actions .exp-btn-ghost { background: #fff; color: var(--forest); border: 1.6px solid #CFEADB; }
+html .exp .exp-cta-actions .exp-btn-ghost:hover { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+/* ---------- Explore sub-nav (toolbar) ---------- */
+html .exp-toolbar { font-family: 'Inter', system-ui, -apple-system, sans-serif; border-bottom-color: #E4EEE8; box-shadow: none; background: #fff; }
+html .exp-tblink { font: 600 13px 'Plus Jakarta Sans', system-ui, sans-serif; color: #5A7268; border-radius: 999px; padding: 7px 14px; }
+html .exp-tblink:hover { background: #EAF7F0; color: #0B5B3E; }
+html .exp-tblink.active { background: #EAF7F0; color: #0B5B3E; box-shadow: inset 0 0 0 1px #CFEADB; }
+html .exp-tbbtn { font: 700 12.5px 'Plus Jakarta Sans', system-ui, sans-serif; color: #0B5B3E; border: 1.6px solid #CFEADB; border-radius: 999px; padding: 7px 15px; }
+html .exp-tbbtn:hover { background: #EAF7F0; border-color: #0F9D6B; }
+html .exp-tbbtn.active { background: #EAF7F0; border-color: #9FD8BC; }
+html .exp-tbbtn.primary { background: linear-gradient(135deg, #12B47A, #0B5B3E); border-color: transparent; color: #fff; box-shadow: none; }
+html .exp-tbbtn.primary:hover { background: linear-gradient(135deg, #0F9D6B, #0B5B3E); border-color: transparent; }

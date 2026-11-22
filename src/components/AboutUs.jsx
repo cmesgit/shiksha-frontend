@@ -6,6 +6,7 @@ import { useHomeContent } from "../hooks/useHomeContent";
 import { sanitizeInline } from "../utils/sanitizeInline";
 import { EcoIllustration, VisionScene, ValueScene } from "./about/aboutArt";
 import { ICONS, icon } from "./about/aboutIcons";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 /**
  * ShikshaCom — About Us.
@@ -775,7 +776,7 @@ export default function AboutUs() {
                   : <ValueScene />}
               </div>
               <div className="ap-chip br">
-                <span className="ap-chip-ic" style={{ background: 'var(--ap-emerald)' }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <span className="ap-chip-ic" style={{ background: 'var(--ap-emerald)' }}><ScribbleIcon name="laptop" /></span>
                 {VALUES_DEFAULTS.chip}
               </div>
             </div>)}

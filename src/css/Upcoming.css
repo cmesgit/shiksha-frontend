@@ -713,3 +713,76 @@
   grid-template-columns: 1fr;
 }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Hero look (same as the forum, blogs, Explore, current affairs and
+   quizzes). The hero header comes from components/hero/heroLook.css; these
+   rules bring the roadmap cards and closing card below it into the same
+   tokens. Scoped under .up-fresh so the counselling styles in this file
+   are untouched.
+   ══════════════════════════════════════════════════════════════════════ */
+.up-fresh.upcoming-page { background: #F7FCF9; background-image: none; font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.up-fresh.upcoming-page::before, .up-fresh.upcoming-page::after { display: none; }
+.up-fresh .fh-btn { text-decoration: none; }
+
+/* simple centred hero, no illustration */
+.up-fresh .fh-hero.up-simple .fh-wrap { display: block; padding-bottom: clamp(44px, 7vh, 72px); }
+.up-fresh .up-simple .fh-body { max-width: 720px; margin: clamp(26px, 5vh, 52px) auto 0; text-align: center; }
+.up-fresh .up-simple .fh-sub { margin-inline: auto; }
+.up-fresh .up-simple .fh-cta-row { justify-content: center; }
+.up-fresh .up-simple .fh-ring { left: 12%; top: 40px; }
+.up-fresh .up-simple .fh-squiggle { left: auto; right: 14%; bottom: 52px; }
+
+/* the "Coming soon" highlight: a larger gold pill with a pulsing dot */
+.up-fresh .up-soon {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 20px 9px 15px; border-radius: 999px;
+  background: #FFF4DB; border: 1px solid #FBDFA3; color: #8A5200;
+  font: 800 13px var(--display); letter-spacing: .14em; text-transform: uppercase;
+  box-shadow: 0 8px 22px -10px rgba(255, 178, 29, .7);
+}
+.up-fresh .up-soon i { width: 9px; height: 9px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 0 rgba(255, 178, 29, .55); animation: up-pulse 2s ease-out infinite; }
+@keyframes up-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 178, 29, .55); } 100% { box-shadow: 0 0 0 10px rgba(255, 178, 29, 0); } }
+@media (prefers-reduced-motion: reduce) { .up-fresh .up-soon i { animation: none; } }
+
+.up-fresh .upcoming-container { padding: 40px 24px 72px; }
+.up-fresh .up-head { margin: 0 0 22px; }
+.up-fresh .up-head h2 { margin: 0; font: 800 clamp(22px, 2.6vw, 28px) var(--display); letter-spacing: -.025em; color: var(--ink); }
+.up-fresh .up-head p { margin: 6px 0 0; font-size: 14.5px; color: var(--body); }
+
+/* roadmap cards: white, rounded, soft shadow */
+.up-fresh .upcoming-features-grid { gap: 18px; margin-bottom: 0; }
+.up-fresh .upcoming-feature-card {
+  background: #fff; backdrop-filter: none; border: 1px solid var(--line); border-radius: var(--r-card);
+  box-shadow: var(--sh-sm); padding: 22px 22px 20px; gap: 10px;
+}
+.up-fresh .upcoming-feature-card:hover { transform: translateY(-3px); border-color: #BFE3D0; box-shadow: var(--sh-card); }
+.up-fresh .upcoming-feature-header h3 { font: 700 16px/1.35 var(--display); letter-spacing: -.01em; color: var(--ink); }
+.up-fresh .upcoming-feature-description { color: var(--body); font-size: 13.5px; line-height: 1.65; }
+.up-fresh .upcoming-feature-footer { display: none; }
+
+/* status pills: light tints on white */
+.up-fresh .upcoming-status-badge { font: 700 10px var(--sans); letter-spacing: .08em; padding: 4px 10px; }
+.up-fresh .upcoming-status-badge.coming-soon { background: var(--wash); color: var(--brand-deep); border-color: #CFEADB; }
+.up-fresh .upcoming-status-badge.in-development { background: #FFF4DB; color: #9A5B00; border-color: #FBDFA3; }
+.up-fresh .upcoming-status-badge.research-phase { background: #EAF2FE; color: #2D5FB0; border-color: #CFE0FB; }
+.up-fresh .upcoming-status-badge.concept-phase { background: #F3EEFE; color: #6A4CC7; border-color: #E0D5FB; }
+
+/* closing card: light wash instead of the dark slab */
+.up-fresh .upcoming-cta-section {
+  margin-top: 48px; padding: 44px 28px; border-radius: 26px;
+  background: radial-gradient(700px 360px at 85% -20%, var(--wash-2) 0%, rgba(216,240,228,0) 70%), linear-gradient(150deg, var(--wash), #F7FCF9);
+  border: 1px solid #CFEADB; box-shadow: none;
+}
+.up-fresh .upcoming-cta-section::before { display: none; }
+.up-fresh .upcoming-cta-section h2 { font: 800 clamp(24px, 3vw, 32px) var(--display); letter-spacing: -.03em; color: var(--ink); }
+.up-fresh .upcoming-cta-section p { color: var(--body); margin-bottom: 24px; }
+.up-fresh .upcoming-cta-links { margin-bottom: 14px; }
+.up-fresh .upcoming-cta-link { border-radius: 999px; background: linear-gradient(135deg, var(--brand-2), var(--brand-deep)); box-shadow: none; font: 700 14.5px var(--display); padding: 13px 28px; }
+.up-fresh .upcoming-cta-link:hover { background: linear-gradient(135deg, var(--brand), var(--brand-deep)); box-shadow: none; }
+.up-fresh .upcoming-back-btn { border-radius: 999px; background: #fff; border: 1.6px solid #CFEADB; color: var(--brand-deep); font: 700 14.5px var(--display); padding: 12px 28px; }
+.up-fresh .upcoming-back-btn:hover { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+@media (max-width: 600px) {
+  .up-fresh .upcoming-container { padding: 28px 16px 56px; }
+}

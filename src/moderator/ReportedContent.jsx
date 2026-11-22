@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Check, TriangleAlert, Lock, Unlock, CircleUserRound, Ban, Trash2, ShieldCheck } from "lucide-react";
+import { TriangleAlert, Unlock, Ban, ShieldCheck } from "lucide-react";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import {
   getReports, dismissReport, deleteReport, warnReportTarget, banReportTarget,
   suspendReportTarget, lockReport, unlockReport,
@@ -252,7 +253,7 @@ const ReportedContent = ({ onCount, onAction }) => {
                   <div className="mod-review-section-label">Take action</div>
                   <div className="mod-review-actions">
                     <button className="mod-btn ghost" onClick={() => dismiss(selected)}>
-                      <Check size={14} /> Dismiss
+                      <ScribbleIcon name="check" size={14} /> Dismiss
                     </button>
                     <button className="mod-btn warn" onClick={() => setConfirm({ kind: "warn", row: selected })}>
                       <TriangleAlert size={14} /> Warn user
@@ -263,11 +264,11 @@ const ReportedContent = ({ onCount, onAction }) => {
                       </button>
                     ) : (
                       <button className="mod-btn info" onClick={() => setConfirm({ kind: "lock", row: selected })}>
-                        <Lock size={14} /> Lock thread
+                        <ScribbleIcon name="lock" size={14} /> Lock thread
                       </button>
                     )}
                     <button className="mod-btn suspend" onClick={() => setConfirm({ kind: "suspend", row: selected })}>
-                      <CircleUserRound size={14} /> Suspend
+                      <ScribbleIcon name="user" size={14} /> Suspend
                     </button>
                     <button className="mod-btn danger" onClick={() => setConfirm({ kind: "ban", row: selected })}>
                       <Ban size={14} /> Ban user
@@ -278,7 +279,7 @@ const ReportedContent = ({ onCount, onAction }) => {
                       </button>
                     ) : (
                       <button className="mod-btn danger" onClick={() => setConfirm({ kind: "delete", row: selected })}>
-                        <Trash2 size={14} /> Delete thread
+                        <ScribbleIcon name="trash" size={14} /> Delete thread
                       </button>
                     )}
                   </div>

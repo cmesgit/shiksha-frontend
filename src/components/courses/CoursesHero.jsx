@@ -25,6 +25,7 @@ import { homeField, homeCollection } from "../../content/homeDisplay";
 
 import { useHomeContent } from '../../hooks/useHomeContent';
 import CoursesHeroArt from './CoursesHeroArt';
+import ScribbleIcon from '../icons/ScribbleIcon';
 
 // Add entries only when the number is real. Empty array = row not rendered.
 // e.g. [{ value: '12', label: 'Structured courses' }]
@@ -127,22 +128,20 @@ const css = `.ch-grid:not(:has(.ch-vis)){grid-template-columns:minmax(0,1fr)}
 }
 `;
 
-const ArrowIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-);
+const ArrowIcon = () => <ScribbleIcon name="arrow-right" />;
 
 const CHIPS = [
   {
     cls: 'ch-chip--a', bg: '#0F9D6B', title: 'Live classes', note: 'Taught in real time',
-    icon: <><rect x="2" y="6" width="14" height="12" rx="3" /><path d="m16 11 6-3.5v9L16 13z" /></>,
+    icon: 'video',
   },
   {
     cls: 'ch-chip--b', bg: '#3b82f6', title: 'Practice tests', note: 'Chapter-wise',
-    icon: <><path d="M15 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M15 3v5h5" /><path d="M9 13h6M9 17h4" /></>,
+    icon: 'quiz',
   },
   {
     cls: 'ch-chip--c', bg: '#FFB21D', title: 'Certificate', note: 'On completion',
-    icon: <><path d="M7 4h10v5a5 5 0 0 1-10 0z" /><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" /><path d="M12 14v3M8.5 20h7" /></>,
+    icon: 'certificate',
   },
 ];
 
@@ -199,9 +198,7 @@ export default function CoursesHero({ onBrowse, onBrowseCategories }) {
               {CHIPS.map((c) => (
                 <div className={`ch-chip ${c.cls}`} key={c.title}>
                   <span className="ch-chip-ic" style={{ background: c.bg }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      {c.icon}
-                    </svg>
+                    <ScribbleIcon name={c.icon} />
                   </span>
                   <span><b>{c.title}</b><span>{c.note}</span></span>
                 </div>

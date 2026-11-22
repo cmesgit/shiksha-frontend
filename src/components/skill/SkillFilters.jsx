@@ -13,20 +13,11 @@
 import {
   MODES, LANGS, RATINGS, EXPERIENCE, PRICE_ANY, priceLabel,
 } from "./directoryOptions";
+import ScribbleIcon from "../icons/ScribbleIcon";
 
-const IcFilters = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M4 5h16M7 12h10M10 19h4" />
-  </svg>
-);
+const IcFilters = <ScribbleIcon name="filter" />;
 
-const IcStar = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-       strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 3l2.6 5.8 6.4.7-4.8 4.3 1.4 6.2L12 17l-5.6 3 1.4-6.2L3 9.5l6.4-.7z" />
-  </svg>
-);
+const IcStar = <ScribbleIcon name="star" />;
 
 export default function SkillFilters({
   filters, categories, locations, onChange, onClear, open,
@@ -149,19 +140,30 @@ export default function SkillFilters({
           </>
         )}
 
-        <label className="sk-sr" htmlFor="sk-district">District</label>
-        <select
-          className="sk-select"
-          id="sk-district"
-          value={filters.district}
-          onChange={(e) => onChange("district", e.target.value)}
-          /* Nothing to choose from until the fetch lands, and an empty roster
-             has no districts at all. */
-          disabled={districts.length === 0}
-        >
-          <option value="all">Any district</option>
-          {districts.map((d) => <option key={d} value={d}>{d}</option>)}
-        </select>
+        {/* Rendered only when there is something to choose.
+            `district` is optional on ExpertProfile, is never collected at
+            signup, and is only editable in the teacher dashboard behind an
+            offline class mode — which defaults to online. So on a roster of
+            online experts this list is permanently empty, and a disabled
+            "Any district" select reads as a broken control rather than an
+            absent one. That is what the audit saw. Hiding it is honest: the
+            filter reappears by itself the moment any expert fills a district
+            in, because the options cache is invalidated on write now
+            (skills/profile_ops.py). */}
+        {districts.length > 0 && (
+          <>
+            <label className="sk-sr" htmlFor="sk-district">District</label>
+            <select
+              className="sk-select"
+              id="sk-district"
+              value={filters.district}
+              onChange={(e) => onChange("district", e.target.value)}
+            >
+              <option value="all">Any district</option>
+              {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </>
+        )}
 
         <label className="sk-sr" htmlFor="sk-pin">PIN code</label>
         <input

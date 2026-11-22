@@ -29,7 +29,6 @@ const GeneralStudies   = lazy(() => import("./GeneralStudies"));
 const Blogs            = lazy(() => import("./Blogs"));
 const BlogDetail       = lazy(() => import("./BlogDetail"));
 const CounsellingLanding    = lazy(() => import("../counselling/LandingPage"));
-const CounsellingLibrary    = lazy(() => import("../counselling/LibraryPage"));
 const CounsellingGuide      = lazy(() => import("../counselling/GuidePage"));
 const CounsellingProfile    = lazy(() => import("../counselling/ProfileWizard"));
 const CounsellingSpark      = lazy(() => import("../counselling/SparkFinder"));
@@ -45,6 +44,24 @@ const AdmissionIndia        = lazy(() => import("../counselling/AdmissionIndiaPa
 // chunk (183 kB) while the feature is off.
 const AdmissionAbroad       = lazy(() => import("../counselling/AdmissionAbroadRoute"));
 const AdmissionIndiaAll     = lazy(() => import("../counselling/AdmissionIndiaAllPage"));
+// One institution / the compare table — replace the directory's old
+// cf-drawer with the board's own routable pages, same precedent as
+// Admission Abroad's /universities/:slug and /compare.
+const AdmissionIndiaDetail  = lazy(() => import("../counselling/AdmissionIndiaDetailPage"));
+const AdmissionIndiaCompare = lazy(() => import("../counselling/AdmissionIndiaComparePage"));
+// The "Admission in India v2" artboard: an OVERVIEW whose ranking block is a
+// five-row preview beside an "All 980 institutions →" link. It owns
+// /admission/india because its hero covers the whole 980-row directory; the
+// curated 50-institution ENGINEERING list moved to /admission/india/engineering
+// so the two NIRF tables stay separate (Overall vs Engineering — IIT Delhi is
+// #4 on one and #2 on the other).
+const AdmissionIndiaOverview = lazy(() => import("../counselling/AdmissionIndiaOverview"));
+// The guides-and-careers hub the landing page's "Study in India" card
+// promises. Distinct from /admission/india, which is the institutions
+// directory — that card used to land there, which answered a question
+// about guides with a list of colleges.
+const StudyInIndia        = lazy(() => import("../counselling/StudyInIndiaPage"));
+const StudyAbroad        = lazy(() => import("../counselling/StudyAbroadPage"));
 // ── Instant Scholarship — pre-enrollment exam + discount flow ──
 const ScholarshipLanding      = lazy(() => import("../scholarship/Landing"));
 const ScholarshipCourse       = lazy(() => import("../scholarship/CourseSelect"));
@@ -66,7 +83,12 @@ const CollectionsList  = lazy(() => import("../explore/CollectionsPage").then((m
 const CollectionPage   = lazy(() => import("../explore/CollectionsPage").then((m) => ({ default: m.CollectionPage })));
 const ExploreUpload    = lazy(() => import("../explore/UploadPage"));
 const ResearchHub = lazy(() => import("../explore/ResearchHub"));
-const ExploreDashboard = lazy(() => import("../explore/DashboardPage"));
+/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — /explore/dashboard is now the
+   design's single saved-sets list. DashboardPage.jsx (the six-tab version) is
+   still on disk and unchanged; restoring it is this one line. Nothing it read
+   was deleted — see MyLibraryPage.jsx's header for what moved where. */
+const ExploreDashboard = lazy(() => import("../explore/MyLibraryPage"));
+const ExploreVerify = lazy(() => import("../explore/VerifyPage"));
 const CurrentAffairs   = lazy(() => import("./CurrentAffairs"));
 const CurrentAffairDetail = lazy(() => import("./CurrentAffairDetail"));
 const Payment          = lazy(() => import("./Payment"));
@@ -78,11 +100,13 @@ const QuizRoute        = lazy(() => import("./QuizRoute"));
 const SkillBrowsePage  = lazy(() => import("../pages/SkillBrowsePage"));
 const LiveLanding      = lazy(() => import("../pages/LiveLanding"));
 const LivePreJoin      = lazy(() => import("../pages/LivePreJoin"));
+const InstantGuestRoom = lazy(() => import("../pages/InstantGuestRoom"));
 const LiveSummary      = lazy(() => import("../pages/LiveSummary"));
 const GroupSessionLive = lazy(() => import("../pages/GroupSessionLive"));
 const ExpertProfilePage= lazy(() => import("../pages/ExpertProfilePage"));
 const FacultyIntro     = lazy(() => import("../pages/FacultyIntro"));
 const SkillIntro       = lazy(() => import("../pages/SkillIntro"));
+const CounsellorIntro  = lazy(() => import("../pages/CounsellorIntro"));
 const ModeratorPanel   = lazy(() => import("../moderator/ModeratorPanel"));
 const ExploreModeratorPanel = lazy(() => import("../exploreModerator/ExploreModeratorPanel"));
 const AboutUs          = lazy(() => import("./AboutUs"));
@@ -202,8 +226,8 @@ function RedirectExternal({ to }) {
 }
 
 // Where to send a user who just authenticated on /login. Prefer wherever they
-// were actually headed — an explicit ?next=, router state from a counselling
-// page, or the post_auth_redirect stored by ProtectedRoute — so logging in from the
+// were actually headed — an explicit ?next=, the router state set by a
+// counselling page, or the post_auth_redirect stored by ProtectedRoute — so logging in from the
 // forum/explore/etc. returns there. Only when there is NO in-app destination do
 // we fall back to the context dashboard (the old always-dashboard behaviour).
 function LoginRedirect() {
@@ -229,6 +253,8 @@ function LoginRedirect() {
     return <AlreadySignedIn onContinue={() => setShowRedirect(true)} />;
   }
 
+  // A multi-profile account has a session but no learner selected yet.
+  // Carry the destination through the picker; it consumes it after selection.
   if (isLocalTarget && !isLearnerContext && !isTeacherContext) {
     return <Navigate to="/pick-profile" replace state={{ from: target }} />;
   }
@@ -258,6 +284,17 @@ function RetiredSignupRedirect() {
   params.delete("role");
   const qs = params.toString();
   return <Navigate to={`/register${qs ? `?${qs}` : ""}`} replace />;
+}
+
+/**
+ * /blog/<anything> → /blogs/<anything>, preserving the rest of the path,
+ * the query string and the hash. A link written with the singular spelling
+ * lands on the article it meant rather than on a 404.
+ */
+function BlogSlugRedirect() {
+  const location = useLocation();
+  const rest = location.pathname.replace(/^\/blog(?=\/|$)/, "");
+  return <Navigate to={`/blogs${rest}${location.search}${location.hash}`} replace />;
 }
 
 function App() {
@@ -396,6 +433,14 @@ function App() {
         <Route path="/courses/:slug"   element={<Page><Courses /></Page>} />
         <Route path="/general-studies" element={<Page><GeneralStudies /></Page>} />
         <Route path="/blogs"           element={<Page><Blogs /></Page>} />
+        {/* The singular form 404'd. It is the spelling people type and the one
+            other sites link to, and both the nav and the footer say "Blogs",
+            so the plural stays canonical and this redirects into it. In code
+            rather than an admin Redirect row because the catch-all resolver
+            only ever sees paths that match no route — and /blog/<slug> would
+            not reach it anyway, since /blogs/* already prefix-matches. */}
+        <Route path="/blog"            element={<Navigate to="/blogs" replace />} />
+        <Route path="/blog/*"          element={<BlogSlugRedirect />} />
         {/* More specific than the wildcard below — React Router ranks static
             segments above wildcards regardless of declaration order, so this
             always wins for any path starting with /blogs/hi/, but declaring
@@ -407,7 +452,10 @@ function App() {
         <Route path="/faculty/signup"  element={<FacultySignup />} />
         
         <Route path="/counselling"                    element={<Page><CounsellingLanding /></Page>} />
-        <Route path="/counselling/guides"             element={<Page><CounsellingLibrary /></Page>} />
+        {/* The standalone Career Guidance Library is retired: the design
+            reaches guides through Study in India's Guides tab, not a separate
+            index. Old links and bookmarks redirect there rather than 404. */}
+        <Route path="/counselling/guides"             element={<Navigate to="/counselling/india" replace />} />
         <Route path="/counselling/guides/:slug"       element={<Page><CounsellingGuide /></Page>} />
         <Route path="/counselling/profile"            element={<Page key={cKey}><CounsellingProfile /></Page>} />
         <Route path="/counselling/spark"              element={<Page key={cKey}><CounsellingSpark /></Page>} />
@@ -416,11 +464,41 @@ function App() {
             gate: a visitor can read a full career profile before signing up,
             same as the guide library. */}
         <Route path="/counselling/careers/:key"       element={<Page><CounsellingCareer /></Page>} />
-        {/* Admission in India — the Colleges-tab destination. Public, like
-            the guide library; the navbar entry points here too. */}
-        <Route path="/admission/india"                element={<Page><AdmissionIndia /></Page>} />
+        {/* Ungated like the guide library — a visitor reads guides and
+            career profiles before signing up; only the report needs an
+            account. `?tab=careers` opens the second tab directly. */}
+        <Route path="/counselling/india"              element={<Page><StudyInIndia /></Page>} />
+        <Route path="/counselling/abroad"              element={<Page><StudyAbroad /></Page>} />
+        {/* Admission in India — the Colleges-tab destination and the navbar
+            entry. Public, like the guide library. */}
+        <Route path="/admission/india"                element={<Page><AdmissionIndiaOverview /></Page>} />
         <Route path="/admission/abroad"               element={<Page><AdmissionAbroad /></Page>} />
+        {/* Admission Abroad → Countries, from the Country guides board. Gated
+            by the SAME AdmissionAbroadRoute as the directory, so the flag has
+            one gate and a second route cannot become an unguarded way in. */}
+        <Route path="/admission/abroad/universities"  element={<Page><AdmissionAbroad screen="universities" /></Page>} />
+        <Route path="/admission/abroad/countries"     element={<Page><AdmissionAbroad screen="countries" /></Page>} />
+        {/* One destination. Goes through AdmissionAbroadRoute like every
+            other abroad screen so the feature flag keeps exactly one gate. */}
+        <Route path="/admission/abroad/countries/:slug" element={<Page><AdmissionAbroad screen="country" /></Page>} />
+        {/* One university. Replaces the directory's drawer with the board's
+            own routable page — same gate, same pattern as /countries/:slug. */}
+        <Route path="/admission/abroad/universities/:slug" element={<Page><AdmissionAbroad screen="university" /></Page>} />
+        {/* The sticky compare bar's "Compare now" — same gate as every
+            other abroad screen. */}
+        <Route path="/admission/abroad/compare"       element={<Page><AdmissionAbroad screen="compare" /></Page>} />
         <Route path="/admission/india/all"            element={<Page><AdmissionIndiaAll /></Page>} />
+        {/* One institution. Route param is `listRank` (nirf980.js's own
+            unique integer), not a name slug — 980 rows have near-collisions
+            a derived slug can't be trusted against. */}
+        <Route path="/admission/india/all/:rank"      element={<Page><AdmissionIndiaDetail /></Page>} />
+        {/* The sticky compare bar's "Compare now". */}
+        <Route path="/admission/india/compare"        element={<Page><AdmissionIndiaCompare /></Page>} />
+        {/* The curated NIRF **Engineering** top 50 — a different NIRF table
+            with scores, founding years and admission prose the 980-row
+            directory does not carry. Career pages deep-link it with
+            ?program= (admissionLinks.js). */}
+        <Route path="/admission/india/engineering"    element={<Page><AdmissionIndia /></Page>} />
         <Route path="/counselling/counsellors"        element={<Page key={cKey}><CounsellingMatches /></Page>} />
         <Route path="/counselling/counsellors/:id"    element={<Page key={cKey}><CounsellingCounsellor /></Page>} />
         <Route path="/counselling/appointments/:id/assessment"
@@ -454,6 +532,12 @@ function App() {
         <Route path="/explore/library"         element={<Navigate to="/explore/dashboard" replace />} />
         <Route path="/explore/dashboard"       element={<ExplorePage><ExploreDashboard /></ExplorePage>} />
         <Route path="/explore/research" element={<ExplorePage><ResearchHub /></ExplorePage>} />
+        {/* Community verification (shiksha-backend/docs/EXPLORE_VERIFICATION.md).
+            Deliberately NOT wrapped in ProtectedRoute: the page itself
+            handles both the signed-out case and the feature flag being off,
+            and a route guard would bounce a guest to login for a page that
+            should simply explain itself. */}
+        <Route path="/explore/verify"          element={<ExplorePage><ExploreVerify /></ExplorePage>} />
         <Route path="/explore/upload"          element={<ExplorePage><ExploreUpload /></ExplorePage>} />
         {/* Explore Moderation panel — the SECOND, separate moderator surface
             (distinct from the forum's /moderator). Renders the shared site
@@ -482,9 +566,8 @@ function App() {
             specific static "/lobby" segment above the param-only route
             regardless of order, but declaring it first keeps the intent
             readable, same precedent as the /blogs/hi/* comment above). */}
-        <Route path="/live/room/:id/lobby" element={
-          <ProtectedRoute><LivePreJoin /></ProtectedRoute>
-        } />
+        <Route path="/live/room/:id/lobby" element={<LivePreJoin />} />
+        <Route path="/live/guest/:id" element={<InstantGuestRoom />} />
         <Route path="/live/room/:id" element={
           <ProtectedRoute><GroupSessionLive /></ProtectedRoute>
         } />
@@ -526,6 +609,13 @@ function App() {
         <Route path="/become-faculty" element={<FacultyIntro />} />
         <Route path="/become-expert"  element={<SkillIntro />} />
         <Route path="/expert-apply"   element={<Navigate to="/become-expert" replace />} />
+        {/* The third provider track's door, added for the same reason the two
+            above exist: the counsellor console had NO public entry point, so
+            the only way in was already knowing the teacher-app URL. It is an
+            in-app route rather than a cross-app link because `safeReturnPath`
+            correctly refuses a cross-origin ?next=, so a signed-out visitor
+            needs somewhere on this origin to come back to. */}
+        <Route path="/become-counsellor" element={<CounsellorIntro />} />
 
         {/*
           Moderator Panel — ported from the internal Admin-dashboard app so

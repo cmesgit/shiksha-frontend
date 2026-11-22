@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { resolveReturnPath } from "../auth/returnTo";
 import {
   HOME_URL, LOGIN_URL, APP_DASHBOARD_URL,
   TEACHER_ACADEMY_URL, TEACHER_SKILL_URL,
@@ -20,6 +22,14 @@ import "./ProfilePicker.css";
 
 const TRACK_NAME = { academy: "Academy", skill: "Skill Dev" };
 const ALL_TRACKS = ["academy", "skill"];
+const readPendingReturn = (from) => {
+  let stored = null;
+  try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
+  return resolveReturnPath(from, stored);
+};
+const clearPendingReturn = () => {
+  try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* unavailable */ }
+};
 
 const Avatar = ({ profile }) => {
   if (profile.avatar_type === "image" && profile.avatar) {
@@ -34,6 +44,7 @@ const Avatar = ({ profile }) => {
 };
 
 const ProfilePicker = () => {
+  const location = useLocation();
   const {
     profiles, teacherInfo, context, isAuthenticated, loading,
     selectProfile, enterTeacherMode, setProfilePin,
@@ -82,11 +93,16 @@ const ProfilePicker = () => {
 
   // Bounce out if there's no account session, or a context is already chosen.
   useEffect(() => {
-    if (loading) return;
+    if (loading || busy || leaving) return;
     if (!isAuthenticated) {
       window.location.href = LOGIN_URL;
     } else if (context === "learner") {
-      window.location.href = APP_DASHBOARD_URL;
+      // Selecting a profile bootstraps the app and remounts this route. The
+      // destination must survive that remount instead of falling back to the
+      // dashboard before the selection handler's own redirect can run.
+      const destination = readPendingReturn(location.state?.from);
+      clearPendingReturn();
+      window.location.href = destination || APP_DASHBOARD_URL;
     } else if (context === "teacher") {
       // Route by the track actually in context — not always Academy — so a
       // Skill-Dev-only expert returning here (e.g. via back navigation) with
@@ -94,32 +110,27 @@ const ProfilePicker = () => {
       window.location.href = teacherInfo?.active_track === "skill"
         ? TEACHER_SKILL_URL : TEACHER_ACADEMY_URL;
     }
-  }, [loading, isAuthenticated, context, teacherInfo]);
+  }, [loading, busy, leaving, isAuthenticated, context, teacherInfo, location.state]);
 
   // A profile/track choice ends in a full-page navigation. Play a short
   // fade-out + "Opening…" state first so the hard jump doesn't feel abrupt.
-  const fadeThenGo = (url, label) => {
+  const fadeThenGo = (url, label, clearReturn = false) => {
     setLeaving(label || "Opening…");
-    window.setTimeout(() => { window.location.href = url; }, 340);
+    window.setTimeout(() => {
+      if (clearReturn) clearPendingReturn();
+      window.location.href = url;
+    }, 340);
   };
   // Honour wherever the user was actually headed before landing here (e.g.
   // Enroll.jsx's learner-context gate sends them here to pick/create a
   // profile, then wants them back at /enroll/:courseId) — same safety rule
   // as App.jsx's LoginRedirect: only a same-site path, never an auth/gate
   // page loop. Falls back to the external student-dashboard app otherwise.
-  const consumeStoredRedirect = () => {
-    let stored = null;
-    try { stored = sessionStorage.getItem("post_auth_redirect"); } catch { /* unavailable */ }
-    const isSafe = !!stored && stored.startsWith("/") && !stored.startsWith("//")
-      && !/^\/(login|signup|pick-profile|forgot-password|reset-password)(\/|\?|$)/.test(stored);
-    if (!isSafe) return null;
-    try { sessionStorage.removeItem("post_auth_redirect"); } catch { /* noop */ }
-    return stored;
-  };
   const goLearner = (name) =>
     fadeThenGo(
-      consumeStoredRedirect() || APP_DASHBOARD_URL,
-      name ? `Opening ${name}'s space…` : "Opening…"
+      readPendingReturn(location.state?.from) || APP_DASHBOARD_URL,
+      name ? `Opening ${name}'s space…` : "Opening…",
+      true
     );
   const goTeacherTrack = (track) =>
     fadeThenGo(

@@ -35,5 +35,5 @@ export function admissionLinkFor(careerKey) {
   if (!hasAdmissionCoverage(careerKey)) return null;
   const wanted = (CAREER_PROGRAMS[careerKey] || []).filter((p) => PROGRAMS.includes(p));
   const qs = wanted.length ? `?program=${encodeURIComponent(wanted.join(","))}` : "";
-  return `/admission/india${qs}`;
+  return `/admission/india/engineering${qs}`;
 }

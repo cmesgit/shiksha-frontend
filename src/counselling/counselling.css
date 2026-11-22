@@ -4,6 +4,17 @@
  * scoped under .sc- so nothing collides with existing site CSS. */
 
 .sc-page { background: #edf2e8; min-height: 70vh; font-family: 'Poppins', sans-serif; color: #16281a }
+
+/* The Study-in-India board paints NO page background: beside the content
+   column the artboard's own canvas grid shows through, which is how we know
+   the body is unpainted rather than tinted some near-white. #edf2e8 above is
+   the v1/v2 section tint and is still right for every counselling screen the
+   v3 board does not redraw, so this is opt-in per page rather than a change
+   to the shared default — flipping .sc-page itself would restyle Profile,
+   My Path, Counsellors, Assessment and Study abroad in one go.
+   NOTE: Study abroad is very likely due the same treatment; it was not
+   checked against its own artboard in this pass, so it is left alone. */
+.sc-page--plain { background: #fff }
 .sc-subbar { background: #fff; border-bottom: 1px solid rgba(18,45,30,.09) }
 .sc-subbar-in { max-width: 1240px; margin: 0 auto; padding: 14px clamp(16px,3.5vw,28px); display: flex; align-items: center; gap: 14px; flex-wrap: wrap }
 .sc-crumb { font: 600 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); white-space: nowrap }
@@ -17,6 +28,24 @@
 .sc-wrap { max-width: 1280px; margin: 0 auto; padding: clamp(18px,2.5vw,26px) clamp(16px,3.5vw,28px) clamp(36px,5vw,56px) }
 .sc-h1 { font: 700 clamp(28px, 3.4vw, 40px)/1.15 'Montserrat', sans-serif; color: #14201a; margin: 0 0 14px; letter-spacing: -.7px }
 .sc-h1 em { font-style: normal; color: #125027 }
+
+/* The landing hero's "Let's map your career path." carries a marker-stroke
+   highlight on the board: a pale mint band behind the LOWER part of the
+   text, not a full-height background. A linear-gradient with a hard stop is
+   what gives it the flat top edge the board has.
+
+   Its own class, NOT `.sc-h1 em` — that selector is shared with
+   AdmissionAbroadPage ("Admission abroad") and AdmissionIndiaPage
+   ("...admission in India"), and neither of those boards has a highlight.
+
+   box-decoration-break: clone is load-bearing. The phrase wraps across two
+   lines; without it the band paints as one box spanning both, leaving a
+   stripe through the gap and no stroke under the second line. */
+.sc-mark {
+  background: linear-gradient(to top, rgba(27,156,133,.20) 0, rgba(27,156,133,.20) 58%, transparent 58%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
 .sc-sub { font: 400 15px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.58); max-width: 640px; margin: 0 0 20px }
 .sc-h2 { font: 700 22px 'Montserrat', sans-serif; color: #14201a; margin: 0; letter-spacing: -.4px }
 .sc-h2row { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: clamp(22px,3vw,34px) 0 14px; flex-wrap: wrap }
@@ -38,7 +67,12 @@
 .sc-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
 .sc-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px }
 
-.sc-herowrap { position: relative; background: #ffffff; border: 1px solid rgba(18,45,30,.07); border-radius: 20px; padding: clamp(26px,3.5vw,48px); margin: clamp(4px,1vw,10px) 0 6px; overflow: hidden }
+/* NOT a card. The board draws the hero directly on the page background —
+   no white panel, no border, no radius. It was a card here only because the
+   section chrome used to need something to sit against. `overflow: hidden`
+   also has to go: the report card's "Live 1:1 session" badge overhangs the
+   hero's left edge by design and a clipping parent cuts it off. */
+.sc-herowrap { position: relative; padding: clamp(18px,3vw,40px) 0 clamp(10px,1.5vw,18px); margin: 0 }
 .sc-hero { display: grid; grid-template-columns: 1.12fr .88fr; gap: clamp(22px,3vw,38px); align-items: center }
 .sc-herowrap .sc-h1 { font-size: clamp(30px,3.8vw,46px); letter-spacing: -.9px }
 .sc-hero-art { position: relative; background: #f4f7f4; border: 1px solid rgba(18,45,30,.06); border-radius: 16px; padding: 24px 26px; color: #14201a; display: flex; flex-direction: column; gap: 14px }
@@ -47,6 +81,21 @@
 .sc-search:focus-within { border-color: #1b9c85 }
 .sc-search input { flex: 1; border: none; outline: none; font: 500 14px 'Poppins', sans-serif; background: transparent; color: #14201a; padding: 9px 0 }
 .sc-search-hero { margin-top: 16px; max-width: 540px; box-shadow: 0 8px 24px -18px rgba(14,28,15,.35) }
+/* The board's hero search carries its own Search button, inside the field
+   on the right. The field is a <form>, so this submits it — Enter and the
+   button take the same path rather than the magnifier being decorative,
+   which is the bug Navbar.jsx's own search once had. */
+.sc-search-go { flex: none; border: 0; cursor: pointer; background: #125027; color: #fff;
+  font: 700 13px 'Poppins', sans-serif; border-radius: 9px; padding: 10px 20px;
+  transition: background .18s }
+.sc-search-go:hover { background: #0e3f1f }
+
+/* "Not sure who to pick? Find my counsellor →" — board copy, centred under
+   the counsellor grid. */
+.sc-cslr-pick { text-align: center; margin: 18px 0 0;
+  font: 500 13.5px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.sc-cslr-pick a { color: #125027; font-weight: 700; text-decoration: none; border-bottom: 1.5px solid rgba(18,80,39,.35) }
+.sc-cslr-pick a:hover { border-bottom-color: #125027 }
 
 .sc-guide-card { display: flex; flex-direction: column; gap: 10px; min-height: 172px; background: #ffffff; border: 1px solid rgba(18,45,30,.07); border-radius: 14px; padding: 22px 22px; text-decoration: none; color: inherit; transition: box-shadow .18s, transform .18s, border-color .18s; cursor: pointer; box-shadow: 0 1px 2px rgba(14,28,15,.03) }
 .sc-guide-card:hover { box-shadow: 0 14px 32px -22px rgba(14,28,15,.22); transform: translateY(-2px); border-color: rgba(18,80,39,.18) }
@@ -103,6 +152,13 @@
 .lms-ctaband p { font: 400 15px/1.6 'Poppins', sans-serif; color: rgba(255,255,255,.78); max-width: 520px; margin: 0 auto 18px }
 .lms-ctaband .sc-btn { background: #fff; border-color: #fff; color: #103f22 }
 .lms-ctaband .sc-btn:hover { background: #e9eeea; border-color: #e9eeea; color: #103f22 }
+/* The provider-side door at the foot of the closing CTA. Quieter than the
+   student CTA above it on purpose — it serves a much smaller audience and
+   must not look like the page's main action. The `.lms-ctaband p` rule above
+   would otherwise centre-cap it at 520px and bury it. */
+.lms-ctaband .sc-counsel-door { font: 400 14px/1.6 'Poppins', sans-serif; color: rgba(255,255,255,.62); margin: 18px auto 0 }
+.lms-ctaband .sc-counsel-door a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px }
+.lms-ctaband .sc-counsel-door a:hover { color: #e9eeea }
 
 @media (max-width: 900px) {
   .sc-grid2, .sc-grid3, .sc-hero, .lms-steps { grid-template-columns: 1fr }
@@ -127,6 +183,14 @@
 .sc-on-page { display: flex; flex-wrap: wrap; gap: 7px 12px; padding: 12px 14px; margin-bottom: 18px; border: 1px solid rgba(18,80,39,.1); border-radius: 10px; background: #f7faf6 }
 .sc-on-page strong { width: 100%; font: 700 11px 'Poppins',sans-serif; text-transform: uppercase; color: #125027 }
 .sc-on-page a { font: 500 11px 'Poppins',sans-serif; color: #1b9c85; text-decoration: none }
+/* A paginated chapter's "on this page" entries are buttons now (they jump
+   to a separate section screen, not an in-page anchor) — same look as the
+   `a` tags above, reset of button defaults, plus a current-section state
+   the old anchor list never needed since everything used to be visible
+   on screen at once. */
+.sc-on-page button { font: 500 11px 'Poppins',sans-serif; color: #1b9c85; text-decoration: none;
+  border: none; background: none; padding: 0; cursor: pointer; text-align: left }
+.sc-on-page button.on { color: #125027; font-weight: 700 }
 .sc-prose section, .sc-prose h2 { scroll-margin-top: 94px }
 
 /* chapter kind tabs (Content / Worksheets / Action plan / For parents / FAQ / References) */
@@ -139,6 +203,18 @@
 /* library filter rail (guide library page) */
 .sc-lib-layout { display: grid; grid-template-columns: 280px minmax(0,1fr); gap: 24px; align-items: start }
 @media (max-width: 900px) { .sc-lib-layout { grid-template-columns: 1fr } .sc-rail { position: static } }
+/* Between 901px and 1100px the 280px rail leaves under 237px per card, and a
+   `.sc-grid3` track cannot shrink below its card's min-content because
+   `.sc-badge` is `white-space: nowrap` ("Secondary School · Classes 9–10" is
+   194px). The three tracks then total 688px inside a 592px column and the whole
+   PAGE scrolls sideways — 96px at a 952px viewport, 147px at 901px.
+   Measured alternatives, both rejected: `repeat(3, minmax(0,1fr))` stops the
+   page bleed but relocates it, spilling 3 of 10 badges out of their own card by
+   up to 51px; `repeat(auto-fit, minmax(214px,1fr))` is clean here but goes
+   FOUR-up at 1280px, which spills again and is not the design. Dropping to two
+   columns in the dead zone keeps every card above its min-content at every
+   width from 901px up, and below 900px the rule above already collapses it. */
+@media (max-width: 1100px) { .sc-lib-layout .sc-grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .sc-rail { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 18px }
 .sc-railcard { background: #fff; border: 1px solid rgba(18,45,30,.09); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(14,28,15,.03); display: flex; flex-direction: column }
 .sc-rail-search { display: flex; align-items: center; gap: 9px; padding: 13px 15px; border-bottom: 1px solid rgba(18,45,30,.09); flex: none }
@@ -305,11 +381,37 @@
 .cf-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px }
 .cf-back { appearance: none; background: #fff; border: 1.5px solid rgba(9,62,5,.14); border-radius: 10px; padding: 8px 14px; font: 600 12.5px 'Poppins', sans-serif; color: #125027; cursor: pointer; flex: none }
 .cf-back:hover { border-color: #125027; background: #ebf5e8 }
-.cf-title { margin: 0; flex: 1 1 auto; min-width: 0 }
-.cf-head-cta { margin-left: auto }
+.cf-title { margin: 0; min-width: 0 }
+.cf-head-cta { flex: none }
+
+/* Board header: back control · (stream eyebrow + title) · "Study in India"
+   pill · Find a counsellor. .cf-back is an <a> now — it names its
+   destination instead of calling navigate(-1), which dead-ends on a direct
+   visit — so it needs the link reset the <button> version never did. */
+.cf-back { text-decoration: none; display: inline-flex; align-items: center }
+.cf-head-tx { flex: 1 1 auto; min-width: 0 }
+.cf-eyebrow {
+  display: block; font: 700 10px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .13em; margin: 0 0 2px;
+}
+.cf-head-pill {
+  flex: none; display: inline-flex; align-items: center; gap: 7px;
+  background: #ebf5e8; border: 1px solid rgba(18,80,39,.14); border-radius: 999px;
+  padding: 6px 14px; font: 600 12px 'Poppins', sans-serif; color: #125027;
+}
+.cf-head-pill::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: #1b9c85; flex: 0 0 auto;
+}
+@media (max-width: 760px) {
+  .cf-head-pill { display: none }
+  .cf-head-cta { width: 100%; justify-content: center }
+}
 /* top matches .sc-toc's 84px: the site header is position:fixed at 72px, so
  * a sticky top:0 parks the tab strip underneath it and it disappears. */
-.cf-tabs { position: sticky; top: 84px; z-index: 5; background: #edf2e8; overflow-x: auto; scrollbar-width: none; padding-top: 4px }
+/* White, not #edf2e8: this screen now renders on .sc-page--plain to match the
+   board, and a sticky strip still painted the section tint left a green band
+   sliding over white content. */
+.cf-tabs { position: sticky; top: 84px; z-index: 5; background: #fff; overflow-x: auto; scrollbar-width: none; padding-top: 4px }
 .cf-tabs::-webkit-scrollbar { display: none }
 
 .cf-sec { margin: 0 0 28px }
@@ -582,9 +684,19 @@
 .ab-list > li { list-style: none; }
 .ab-row-meta { display: block; font: 400 12px 'Poppins', sans-serif;
   color: rgba(20,32,26,.55); margin-top: 3px; text-align: left; }
+/* No longer a <button> — "Request brochure" / "View details" / "Add to
+   compare" are each their own control now, not one whole-row click. */
 .ab-row { display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; align-items: center;
-  width: 100%; text-align: left; cursor: pointer; }
+  width: 100%; text-align: left; cursor: default; }
 .ab-row-name { font-weight: 700; color: #14201a; display: block; }
+/* Request brochure / View details / Add to compare — the board shows all
+   three on every directory card; the old cf-drawer gave the whole row one
+   click and had neither "Request brochure" nor "Add to compare" at all. */
+.ab-row-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ab-row-btn { padding: 7px 14px; font-size: 12.5px; }
+.ab-row-cmp { display: flex; align-items: center; gap: 6px; font: 500 12.5px 'Poppins', sans-serif;
+  color: #5c6b62; cursor: pointer; margin-left: auto; }
+.ab-row-cmp input { width: 15px; height: 15px; accent-color: #125027; }
 .ab-rank { color: #b06000; font-weight: 800; }
 /* An unranked row must not read as a position. */
 .ab-rank.unranked { color: #6b7a70; font-weight: 700; font-size: 13px; }
@@ -638,6 +750,7 @@
 @media (max-width: 720px) {
   .ab-row { grid-template-columns: 56px 1fr; }
   .ab-row-fee { grid-column: 1 / -1; justify-self: start; max-width: none; }
+  .ab-row-cmp { margin-left: 0; width: 100%; }
   .ab-tabs { width: 100%; overflow-x: auto; }
 }
 
@@ -784,4 +897,1220 @@
   content: ""; position: absolute; left: 5px; top: 8px;
   width: 5px; height: 8px; border: solid #125027; border-width: 0 1.8px 1.8px 0;
   transform: rotate(45deg);
+}
+
+/* =====================================================
+ * Landing v3 artboard — sections 2/3/4 and the counsellor
+ * pre-launch panel. Spec of record:
+ * design_handoff_career_counselling_v3/reference/landing-v3-artboard.md
+ *
+ * Literal hex is this module's convention (counselling.css carries no
+ * custom properties); the no-hex rule applies to Teacher/Student only.
+ * The violet here is the module's existing .ai-mono[data-cat="private"]
+ * colour, not a new one.
+ * ============================================================ */
+
+/* 2 — "From confused to clear in 3 steps".
+   ONE card with hairline rules between columns, not three cards; that is
+   what separates it visually from the .lms-steps block it replaces. */
+.sc-steps3 { display: grid; grid-template-columns: repeat(3, 1fr); background: #fff; border: 1px solid rgba(18,45,30,.07); border-radius: 14px; overflow: hidden }
+.sc-steps3 > * + * { border-left: 1px solid rgba(18,45,30,.07) }
+.sc-step3 { padding: 26px 24px; display: flex; gap: 14px; align-items: flex-start }
+.sc-step3-n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #125027; color: #fff; display: flex; align-items: center; justify-content: center; font: 700 13px 'Poppins', sans-serif }
+.sc-step3 h3 { font: 700 15.5px 'Montserrat', sans-serif; color: #14201a; margin: 3px 0 7px; letter-spacing: -.3px }
+.sc-step3 p { font: 400 13px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 0 }
+
+/* 3 — "Ready to find your path?" */
+.sc-start { background: linear-gradient(105deg,#eef7ec 0%,#f7fbf5 46%,#fff 100%); border: 1px solid #d8e6c8; border-radius: 18px; padding: clamp(24px,3vw,34px); margin-top: clamp(26px,3.5vw,44px) }
+.sc-start-grid { display: grid; grid-template-columns: 1fr minmax(0,320px); gap: clamp(20px,3vw,40px); align-items: start }
+.sc-start h2 { font: 700 clamp(23px,2.6vw,29px) 'Montserrat', sans-serif; color: #14201a; margin: 0 0 10px; letter-spacing: -.6px }
+.sc-start p { font: 400 14px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.62); margin: 0 }
+.sc-qs-label { display: block; font: 700 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5); text-transform: uppercase; letter-spacing: .13em; margin: 22px 0 11px }
+.sc-qs-chips { display: flex; flex-wrap: wrap; gap: 9px }
+.sc-qs-chip { font: 600 13px 'Poppins', sans-serif; color: #14201a; background: #fff; border: 1px solid #d8e6c8; border-radius: 100px; padding: 9px 18px; cursor: pointer; transition: border-color .15s, background .15s, transform .1s }
+.sc-qs-chip:hover { border-color: #125027; background: #ebf5e8; transform: translateY(-1px) }
+.sc-qs-chip:active { transform: translateY(0) }
+.sc-start-r { display: flex; flex-direction: column; gap: 12px }
+.sc-start-r .sc-btn { justify-content: center; width: 100% }
+
+/* The Spark Finder promo, as the artboard places it — inside this card.
+   The standalone .sc-spark-invite banner was removed in the same commit;
+   shipping both would promote one quiz twice on one screen. */
+.sc-spark-mini { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #d8e6c8; border-radius: 12px; padding: 13px 15px; text-decoration: none; transition: border-color .15s, transform .1s }
+.sc-spark-mini:hover { border-color: #125027; transform: translateY(-1px) }
+.sc-spark-mini-ic { flex: none; width: 30px; height: 30px; border-radius: 8px; background: #ebf5e8; color: #125027; display: flex; align-items: center; justify-content: center; font-size: 14px }
+.sc-spark-mini-b { flex: 1; min-width: 0 }
+/* `display: block` is load-bearing, not cosmetic: these are <span>s nested
+   inside an <a> (a <div> there would be invalid HTML), so without it they
+   lay out inline and render as "Play Spark FinderA 2-minute tap quiz…" on
+   one line, with the margin-top silently ignored. */
+.sc-spark-mini-t { display: block; font: 700 13px 'Montserrat', sans-serif; color: #14201a; letter-spacing: -.2px }
+.sc-spark-mini-s { display: block; font: 400 11.5px/1.5 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin-top: 2px }
+.sc-spark-mini-go { flex: none; color: rgba(20,32,26,.4); font-size: 16px; line-height: 1 }
+
+/* 4 — "Explore at your own pace" */
+.sc-explore2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px }
+.sc-explore-card { display: flex; flex-direction: column; background: #fff; border: 1px solid rgba(18,45,30,.07); border-radius: 14px; padding: 24px 24px 0; text-decoration: none; transition: box-shadow .18s, transform .18s, border-color .18s }
+a.sc-explore-card:hover { box-shadow: 0 12px 28px -20px rgba(14,28,15,.2); transform: translateY(-2px); border-color: rgba(18,80,39,.16) }
+.sc-explore-ic { width: 46px; height: 46px; border-radius: 12px; background: #ebf5e8; color: #125027; display: flex; align-items: center; justify-content: center; margin-bottom: 20px }
+.sc-explore-ic.violet { background: rgba(122,61,143,.1); color: #7a3d8f }
+.sc-explore-card h3 { font: 700 20px 'Montserrat', sans-serif; color: #14201a; margin: 0 0 9px; letter-spacing: -.4px }
+.sc-explore-card p { font: 400 13.5px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 0 0 20px }
+.sc-explore-foot { margin-top: auto; border-top: 1px solid rgba(18,45,30,.07); padding: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.sc-explore-link { font: 700 13.5px 'Poppins', sans-serif; color: #125027 }
+.sc-explore-link.violet { color: #7a3d8f }
+.sc-explore-go { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(18,45,30,.12); color: #125027; display: flex; align-items: center; justify-content: center }
+.sc-explore-go.violet { color: #7a3d8f }
+.sc-explore-card.soon { opacity: .72 }
+.sc-explore-soon { font: 700 11px 'Poppins', sans-serif; color: #6b4a00; background: rgba(224,138,0,.13); border-radius: 100px; padding: 5px 11px; text-transform: uppercase; letter-spacing: .1em }
+
+/* 5 — counsellors, pre-launch. Replaces a section that was hidden
+   outright. Says plainly that nobody is bookable yet and points at the
+   thing that DOES work, rather than showing an empty grid or inventing
+   placeholder people. */
+.sc-cslr-soon { display: flex; align-items: center; gap: clamp(18px,3vw,34px); background: #fff; border: 1px dashed #c4dab4; border-radius: 16px; padding: clamp(22px,3vw,30px); flex-wrap: wrap }
+.sc-cslr-soon-b { flex: 1 1 320px; min-width: 0 }
+.sc-cslr-soon h3 { font: 700 19px 'Montserrat', sans-serif; color: #14201a; margin: 0 0 8px; letter-spacing: -.4px }
+.sc-cslr-soon p { font: 400 13.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.62); margin: 0 }
+.sc-cslr-soon-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px }
+.sc-cslr-soon-tag { font: 600 11.5px 'Poppins', sans-serif; color: #0d7a67; background: rgba(13,122,103,.09); border-radius: 100px; padding: 5px 12px }
+
+@media (max-width: 860px) {
+  .sc-steps3 { grid-template-columns: 1fr }
+  .sc-steps3 > * + * { border-left: none; border-top: 1px solid rgba(18,45,30,.07) }
+  .sc-start-grid { grid-template-columns: 1fr }
+  .sc-explore2 { grid-template-columns: 1fr }
+}
+/* ── Admission in India overview (AdmissionIndiaOverview.jsx) ───────────
+   The "Admission in India v2" artboard. Literal hex throughout, matching
+   this module's own convention — see the note on .cs-site: these colours
+   are the PUBLIC SITE's, not the admin token system's.
+   Palette: #125027 green · #14201a ink · #1b9c85 teal · #ebf5e8 wash. */
+
+.sc-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* hero search: field + stream select + button, one rounded bar */
+.in-searchrow {
+  display: flex; align-items: stretch; gap: 0; margin: 22px auto 0;
+  max-width: 720px; width: 100%; background: #ffffff; border: 1px solid #e9eeea;
+  border-radius: 999px; padding: 6px; box-shadow: 0 6px 22px rgba(18, 80, 39, .07);
+}
+.in-searchfield { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; padding: 0 8px 0 16px; min-width: 0; }
+.in-searchfield svg { width: 18px; height: 18px; color: #6b7a70; flex: none; }
+.in-searchfield input {
+  flex: 1 1 auto; min-width: 0; border: 0; outline: none; background: transparent;
+  font: 400 15px 'Poppins', sans-serif; color: #14201a; padding: 12px 0;
+}
+.in-searchfield input::placeholder { color: #8c9a91; }
+.in-searchstream {
+  flex: none; border: 0; border-left: 1px solid #e9eeea; background: transparent;
+  font: 500 14px 'Poppins', sans-serif; color: #14201a; padding: 0 14px;
+  cursor: pointer; outline: none; max-width: 190px;
+}
+.in-searchbtn { flex: none; border-radius: 999px; padding: 12px 26px; }
+
+.ab-popular .sc-fchip { text-decoration: none; }
+
+/* stats band */
+.in-statband {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  background: #ebf5e8; border-radius: 18px; padding: 20px 8px; margin: 26px 0 8px;
+}
+.in-stat {
+  display: flex; align-items: center; gap: 12px; justify-content: center;
+  padding: 4px 10px; text-decoration: none; color: inherit;
+}
+.in-stat + .in-stat { border-left: 1px solid #d3e6d3; }
+.in-stat-ico {
+  flex: none; width: 44px; height: 44px; border-radius: 12px; background: #ffffff;
+  display: grid; place-items: center; color: #125027;
+}
+.in-stat-ico svg { width: 22px; height: 22px; }
+.in-stat b { display: block; font: 700 17px 'Poppins', sans-serif; color: #14201a; }
+.in-stat small {
+  display: block; font: 400 12.5px 'Poppins', sans-serif; color: #4d6356;
+  margin-top: 2px; white-space: nowrap;
+}
+.in-stat:hover small { color: #125027; }
+
+/* explore: icon cards + view-all */
+.in-facet-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.in-facet {
+  flex-direction: row; align-items: center; gap: 14px; text-decoration: none;
+}
+.in-facet-ico {
+  flex: none; width: 40px; height: 40px; border-radius: 10px; background: #f2f8f2;
+  display: grid; place-items: center; color: #125027;
+}
+.in-facet-ico svg { width: 20px; height: 20px; }
+.in-facet .ab-facet-name,
+.in-facet .ab-facet-count { display: block; }
+.in-viewall { display: flex; justify-content: center; margin-top: 18px; }
+.in-viewall .sc-btn { border-radius: 999px; padding: 10px 26px; }
+
+/* rankings preview */
+.in-allink {
+  font: 700 14px 'Poppins', sans-serif; color: #125027; text-decoration: none;
+  white-space: nowrap; align-self: center;
+}
+.in-allink:hover { text-decoration: underline; }
+
+.in-table {
+  width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 16px;
+  background: #ffffff; border: 1px solid #e9eeea; border-radius: 16px; overflow: hidden;
+}
+.in-table th {
+  text-align: left; font: 700 11px 'Poppins', sans-serif; letter-spacing: .09em;
+  text-transform: uppercase; color: #6b7a70; background: #f7faf7;
+  padding: 12px 18px; border-bottom: 1px solid #e9eeea;
+}
+.in-table td { padding: 14px 18px; vertical-align: middle; border-bottom: 1px solid #f0f4f1; }
+.in-table tr:last-child td { border-bottom: 0; }
+.in-td-rank { font: 700 15px 'Poppins', sans-serif; color: #125027; width: 86px; white-space: nowrap; }
+.in-td-name {
+  display: block; font: 700 14.5px 'Poppins', sans-serif; color: #14201a; text-decoration: none;
+}
+.in-td-name:hover { color: #125027; text-decoration: underline; }
+.in-td-place { display: block; font-size: 12.5px; color: #6b7a70; margin-top: 2px; }
+.in-td-type { font-size: 13px; color: #4d6356; }
+.in-td-go { width: 28px; text-align: right; color: #9aa9a0; font-size: 18px; }
+
+@media (max-width: 820px) {
+  .in-searchrow { flex-direction: column; border-radius: 18px; gap: 6px; }
+  .in-searchstream { border-left: 0; border-top: 1px solid #e9eeea; max-width: none; padding: 10px 14px; }
+  .in-searchbtn { border-radius: 12px; }
+  .in-statband { grid-template-columns: 1fr; gap: 14px; }
+  .in-stat + .in-stat { border-left: 0; border-top: 1px solid #d3e6d3; padding-top: 14px; }
+  .in-table thead { display: none; }
+  .in-table td { display: inline-block; border-bottom: 0; padding: 4px 18px; }
+  .in-table tr { display: block; border-bottom: 1px solid #f0f4f1; padding: 10px 0; }
+  .in-td-go { display: none; }
+}
+
+/* The artboard's floating session badge on the example report card —
+   landing-v3-artboard.md §1 records it as the one hero item not built.
+   Rendered only when a counsellor is bookable (ExampleReportCard's
+   sessionsLive prop), because it states a service, not an illustration.
+
+   It hangs off the card's bottom-left CORNER rather than floating inside:
+   placed within the card it sat straight over the TOP COLLEGES chips and
+   hid "IIT Madras" outright. */
+.er-card { position: relative; }
+.er-session {
+  position: absolute; left: -18px; bottom: -18px; z-index: 2;
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 14px; border-radius: 12px;
+  background: #0f3d22; color: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 61, 34, .28);
+}
+.er-session-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: #5eead4; }
+.er-session b { display: block; font: 700 12.5px 'Poppins', sans-serif; line-height: 1.2; }
+.er-session small {
+  display: block; font: 400 11px 'Poppins', sans-serif;
+  color: rgba(255,255,255,.72); margin-top: 1px; white-space: nowrap;
+}
+@media (max-width: 900px) { .er-session { left: 8px; bottom: -14px; } }
+
+/* ── Study in India (sii-) ────────────────────────────────────────────
+ * /counselling/india — the artboard in Career_Counselling.pdf. Colours
+ * are the section's existing literals (this is the public marketing
+ * site; the admin-token and tokens.css rules in CLAUDE.md govern the
+ * dashboards, not this file). */
+
+/* The board draws this hero as a white card with a hairline border and a
+   solid dark-green bar down its left edge — not as bare text on the section
+   tint. Confirmed by zooming the artboard: the bar's top corner follows the
+   card's radius, so it is a left border on the card, not a separate rule.
+   ⚠ The radius, bar width and padding below are matched by eye. The board
+   renders in a cross-origin iframe at a scale that is not 1:1 with CSS px,
+   its zoom caps near 1.2x, and the artifact's file bytes are not fetchable
+   (only the manifest is) — so these are the file's existing card vocabulary,
+   NOT measured values. An export of the design project would settle them. */
+.sii-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 22px;
+  background: #fff; border: 1px solid rgba(18,45,30,.08); border-left: 5px solid #125027;
+  border-radius: 14px; padding: 24px 26px }
+
+/* 🔴 .sii-head is SHARED with StudyAbroadPage. The card treatment above was
+   added for the Study in India board match and silently landed on
+   /counselling/abroad too — carded hero, green bar, still on the old tint,
+   because only the India page had been switched to sc-page--plain. These two
+   rules are the correction: abroad gets its own accent and its own CTA in
+   the module's existing indigo (#6d5bd0, already the colour of this page's
+   globe glyph), and the page itself is now `plain` like the board draws it. */
+.sii-head--abroad { border-left-color: #6d5bd0 }
+.sc-btn.sii-cta--abroad { background: #6d5bd0; border-color: #6d5bd0; color: #fff }
+.sc-btn.sii-cta--abroad:hover { background: #5b49bd; border-color: #5b49bd }
+.sii-head .sc-explore-ic { margin-bottom: 0; flex: none }
+.sii-head-tx { flex: 1; min-width: 0 }
+.sii-head-tx .sc-h1 { margin-bottom: 6px }
+.sii-head-tx .sc-sub { margin-bottom: 0 }
+.sii-head > .sc-btn { flex: none; margin-top: 4px }
+
+/* Underline tabs, as the artboard draws them — not the .ab-tab pill
+   segment used on /admission/india. */
+.sii-tabs { display: flex; gap: 26px; border-bottom: 1px solid rgba(18,45,30,.12); margin-bottom: 22px }
+.sii-tab {
+  border: 0; background: none; cursor: pointer; padding: 0 0 12px;
+  font: 600 14.5px 'Poppins', sans-serif; color: rgba(20,32,26,.52);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s;
+}
+.sii-tab:hover { color: #125027 }
+.sii-tab.on { color: #125027; font-weight: 700; border-bottom-color: #125027 }
+.sii-tab:focus-visible { outline: 2px solid #1b9c85; outline-offset: 3px; border-radius: 4px }
+
+/* Four stage cards, 2-up, as the board draws them: a dark header band
+   carrying a glyph tile + "STAGE N" + the class range, then the guide
+   title, its blurb, three ticked "what you'll learn" lines, and a footer
+   of real read-time/topic figures beside a solid Read guide button. */
+.sii-stages { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+@media (max-width: 820px) { .sii-stages { grid-template-columns: 1fr } }
+.sii-stage {
+  display: flex; flex-direction: column; background: #fff;
+  border: 1px solid rgba(18,45,30,.08); border-radius: 14px; overflow: hidden;
+}
+.sii-stage-head {
+  position: relative; overflow: hidden; color: #fff; padding: 15px 20px 16px 62px;
+  background: linear-gradient(105deg, #125027 0%, #17633a 100%);
+}
+.sii-stage-ic {
+  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
+  background: rgba(255,255,255,.16); color: #fff;
+}
+.sii-stage-n {
+  display: block; font: 700 10px 'Poppins', sans-serif; text-transform: uppercase;
+  letter-spacing: .16em; color: rgba(255,255,255,.72); margin-bottom: 3px;
+}
+.sii-stage-head h3 { font: 700 17px 'Montserrat', sans-serif; margin: 0; letter-spacing: -.3px }
+.sii-stage-body { display: flex; flex-direction: column; flex: 1; padding: 18px 20px 0 }
+.sii-stage-title { font: 700 15.5px/1.4 'Montserrat', sans-serif; color: #14201a; margin: 0 0 8px; letter-spacing: -.2px }
+.sii-stage-blurb { font: 400 13.5px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.64); margin: 0 0 14px }
+.sii-stage-kicker {
+  font: 700 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .12em; margin: 0 0 9px;
+}
+.sii-stage-learn { list-style: none; margin: 0 0 14px; padding: 0 }
+.sii-stage-learn li {
+  display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start;
+  font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin-bottom: 7px;
+}
+.sii-stage-learn svg { color: #1b9c85; margin-top: 2px }
+.sii-stage-foot {
+  margin-top: auto; border-top: 1px solid rgba(18,45,30,.07); padding: 13px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.sii-stage-meta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5);
+}
+.sii-stage-go { text-decoration: none; white-space: nowrap }
+
+/* The board repeats this row under both tabs. */
+.sii-crosslink {
+  margin-top: 26px; padding-top: 22px; border-top: 1px dashed rgba(18,45,30,.16);
+  text-align: center; font: 400 13.5px 'Poppins', sans-serif; color: rgba(20,32,26,.62);
+}
+.sii-crosslink a { color: #125027; font-weight: 700; text-decoration: underline; text-underline-offset: 3px }
+
+@media (max-width: 860px) {
+  .sii-stages { grid-template-columns: 1fr }
+  .sii-head { flex-wrap: wrap }
+  .sii-head > .sc-btn { width: 100%; justify-content: center }
+  .sii-handbook-acts { width: 100% }
+  .sii-handbook-acts .sc-btn { flex: 1 1 auto; justify-content: center }
+}
+
+/* ── Admission Abroad → the product sub-nav (AbroadNav.jsx) ─────────────
+   Occupies .sc-subbar, the white strip under the site Navbar, which is the
+   row the board draws this in. Literal hexes here match the rest of this
+   file — it carries the PUBLIC site's palette (#125027 deep green), not the
+   dashboards' token system, which is why counselling.css has never resolved
+   through --action/--ink. */
+.ab-nav { flex: 1 1 auto; display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap; min-width: 0 }
+.ab-nav-tabs { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; min-width: 0 }
+.ab-navlink { font: 600 13px 'Poppins', sans-serif; color: rgba(20,32,26,.7);
+  text-decoration: none; padding: 7px 14px; border-radius: 999px;
+  white-space: nowrap; transition: background .16s, color .16s }
+.ab-navlink:hover { color: #125027; background: rgba(18,80,39,.06) }
+.ab-navlink.on { background: #125027; color: #fff; font-weight: 700 }
+.ab-navlink.on:hover { background: #0e3f1f; color: #fff }
+/* Not a link: there is no study-abroad guide screen yet. Rendered because
+   the board draws the tab, inert because it has nowhere to go. */
+.ab-navlink.is-soon { display: inline-flex; align-items: center; gap: 7px;
+  color: rgba(20,32,26,.4); cursor: default }
+.ab-nav-soon { font: 700 9.5px 'Poppins', sans-serif; text-transform: uppercase;
+  letter-spacing: .08em; color: rgba(20,32,26,.5); background: rgba(18,45,30,.07);
+  border-radius: 999px; padding: 3px 7px }
+.ab-nav-cta { margin-left: auto; font: 700 12.5px 'Poppins', sans-serif;
+  color: #125027; background: #fff; border: 1px solid rgba(18,45,30,.18); cursor: pointer;
+  border-radius: 999px; padding: 8px 17px; text-decoration: none;
+  white-space: nowrap; flex: none; transition: border-color .16s, background .16s }
+.ab-nav-cta:hover { border-color: #125027; background: rgba(18,80,39,.05) }
+@media (max-width: 560px) {
+  .ab-nav-cta { margin-left: 0 }
+  .ab-navlink { padding: 6px 11px; font-size: 12.5px }
+}
+
+/* ── Admission Abroad → Country guides ──────────────────────────────────
+   Built to the Country guides board. The card clamps its blurb to 3 lines
+   and its Intakes line to 2, as the board does — several entries visibly
+   truncate there by design, the full text belonging on the country page.
+   Clamping is what lets every card in a row share a height without the
+   grid falling back to min-content, the trap fixed above for .sc-grid3. */
+.ac-crumb { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 2px 0 14px }
+.ac-crumb a { color: #125027; text-decoration: none }
+.ac-crumb a:hover { text-decoration: underline }
+
+.ac-band { background: linear-gradient(180deg, #fdf3e3 0%, #fbf7ef 100%);
+  border: 1px solid rgba(18,45,30,.07); border-radius: 18px;
+  padding: clamp(22px,3vw,34px) clamp(20px,3vw,32px); margin-bottom: 20px }
+.ac-h1 { font: 800 clamp(28px,4vw,40px)/1.12 'Montserrat', sans-serif; color: #0e2a18; margin: 0 }
+.ac-sub { font: 500 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.62); margin: 8px 0 0 }
+
+.ac-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px }
+.ac-find { flex: 0 1 300px; min-width: 200px; margin: 0 }
+.ac-chips { display: flex; gap: 8px; flex-wrap: wrap; min-width: 0 }
+.ac-chip { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.68);
+  background: #fff; border: 1px solid rgba(18,45,30,.14); border-radius: 999px;
+  padding: 8px 15px; cursor: pointer; white-space: nowrap }
+.ac-chip:hover { border-color: rgba(18,80,39,.4) }
+.ac-chip.on { background: #125027; border-color: #125027; color: #fff }
+
+/* minmax(0,1fr), not 1fr — see the .sc-grid3 note above: a 1fr track's
+   automatic minimum is min-content, and a long country name plus a flag
+   would otherwise push the row wider than its container. */
+.ac-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start }
+@media (max-width: 1040px) { .ac-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 680px)  { .ac-grid { grid-template-columns: 1fr } }
+
+/* Now an <a> (the whole card links to the destination), so it has to reset
+   link styling itself or every card renders underlined in link blue. */
+.ac-card { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 1px 2px rgba(14,28,15,.03); min-width: 0;
+  text-decoration: none; color: inherit; transition: border-color .16s, transform .12s }
+.ac-card:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
+.ac-card-head { display: flex; align-items: flex-start; gap: 11px; min-width: 0 }
+.ac-flag { font-size: 22px; line-height: 1.1; flex: none }
+.ac-name { font: 700 15px/1.3 'Montserrat', sans-serif; color: #0e2a18; margin: 0; overflow-wrap: anywhere }
+.ac-rank { font: 500 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 3px 0 0 }
+.ac-blurb { font: 400 12.5px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.74); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }
+.ac-intakes { font: 400 11.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.66);
+  margin: auto 0 0; padding-top: 10px; border-top: 1px solid rgba(18,45,30,.07);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.ac-intakes-l { font-weight: 700; color: #125027 }
+
+.ac-empty { margin-top: 18px }
+.ac-linkbtn { background: none; border: 0; padding: 0; cursor: pointer;
+  font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: underline }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Admission Abroad → HOME (ab2-*), built to the Admission Abroad board.
+ *
+ * Its own namespace rather than extending `ab-*`: those classes still dress
+ * AbroadUniversitiesPage, and the board gives Home a different hero, a
+ * tinted stats band and a real ranking TABLE that the directory does not
+ * have. Sharing them would have meant one set of rules serving two layouts.
+ *
+ * 🔴 Every interactive card here is an <a>. `text-decoration: none` is
+ * therefore load-bearing, not cosmetic — the facet cards and ranking rows
+ * shipped UNDERLINED when they were converted from <button> to <Link> in
+ * the Home/Universities split.
+ * ───────────────────────────────────────────────────────────────────────── */
+.ab2-hero { text-align: center; padding: clamp(26px,4vw,52px) clamp(16px,3vw,28px) clamp(20px,3vw,32px) }
+.ab2-badge { display: inline-block; font: 700 11px 'Poppins', sans-serif; letter-spacing: .14em;
+  text-transform: uppercase; color: #125027; background: rgba(27,156,133,.12);
+  border-radius: 999px; padding: 7px 16px }
+.ab2-h1 { font: 800 clamp(32px,5vw,54px)/1.08 'Montserrat', sans-serif; color: #0e2a18;
+  letter-spacing: -1.2px; margin: 16px 0 0 }
+.ab2-h1 em { font-style: normal; color: #1b9c85 }
+.ab2-sub { font: 400 clamp(14px,1.5vw,16px)/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.62);
+  max-width: 660px; margin: 14px auto 0 }
+
+.ab2-search { display: flex; align-items: center; gap: 8px; background: #fff;
+  border: 1px solid rgba(18,45,30,.12); border-radius: 16px; padding: 7px 7px 7px 18px;
+  max-width: 600px; margin: 26px auto 0; box-shadow: 0 10px 30px -22px rgba(14,28,15,.5);
+  transition: border-color .18s }
+.ab2-search:focus-within { border-color: #1b9c85 }
+.ab2-search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
+  font: 500 14.5px 'Poppins', sans-serif; color: #14201a; padding: 11px 0 }
+.ab2-search-go { flex: none; border: 0; cursor: pointer; background: #125027; color: #fff;
+  font: 700 13.5px 'Poppins', sans-serif; border-radius: 11px; padding: 11px 24px;
+  transition: background .18s }
+.ab2-search-go:hover { background: #0e3f1f }
+
+.ab2-popular { display: flex; align-items: center; justify-content: center; gap: 9px;
+  flex-wrap: wrap; margin-top: 18px }
+.ab2-popular-label { font: 500 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.52) }
+.ab2-chip { font: 600 12.5px 'Poppins', sans-serif; color: #14201a; background: #fff;
+  border: 1px solid rgba(18,45,30,.14); border-radius: 999px; padding: 8px 16px;
+  text-decoration: none; white-space: nowrap; transition: border-color .16s, color .16s }
+.ab2-chip:hover { border-color: #125027; color: #125027 }
+
+.ab2-source { display: inline-flex; align-items: center; gap: 7px; margin: 18px auto 0;
+  font: 500 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.ab2-source svg { color: #1b9c85; flex: none }
+
+.ab2-stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
+  background: rgba(27,156,133,.07); border-radius: 18px;
+  padding: clamp(18px,2.4vw,26px) clamp(14px,2vw,22px); margin-bottom: clamp(26px,3.5vw,44px) }
+.ab2-stat { display: flex; align-items: center; gap: 13px; justify-content: center;
+  text-decoration: none; color: inherit; padding: 4px 10px; transition: transform .12s }
+.ab2-stat + .ab2-stat { border-left: 1px solid rgba(18,45,30,.1) }
+.ab2-stat:hover { transform: translateY(-1px) }
+.ab2-stat-ic { flex: none; width: 40px; height: 40px; border-radius: 12px; color: #125027;
+  background: #fff; display: grid; place-items: center }
+.ab2-stat b { display: block; font: 700 15.5px 'Montserrat', sans-serif; color: #0e2a18 }
+.ab2-stat small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 2px }
+
+.ab2-sec { margin-bottom: clamp(30px,4vw,52px) }
+.ab2-h2 { font: 800 clamp(23px,2.8vw,32px) 'Montserrat', sans-serif; color: #0e2a18;
+  letter-spacing: -.7px; margin: 4px 0 0 }
+.ab2-lede { font: 400 13.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin: 8px 0 0 }
+.ab2-sechead { display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap }
+.ab2-allink { font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: none; white-space: nowrap }
+.ab2-allink:hover { text-decoration: underline }
+
+.ab2-tabs { display: inline-flex; gap: 2px; background: rgba(18,45,30,.05);
+  border-radius: 12px; padding: 4px; margin-top: 18px }
+.ab2-tab { border: 0; cursor: pointer; background: transparent; border-radius: 9px;
+  padding: 8px 18px; font: 600 13px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.ab2-tab.on { background: #fff; color: #0e2a18; box-shadow: 0 1px 3px rgba(14,28,15,.1) }
+
+.ab2-facets { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 16px }
+.ab2-facet { display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 18px;
+  text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
+.ab2-facet:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
+/* The board gives every facet card a glyph in a soft tinted tile — a flag
+   for a country, a drawn mark for the three category tabs. Fixed size, so
+   the four cards in a row keep their text baselines aligned whichever tab
+   is showing. */
+.ab2-facet-ic { flex: none; width: 38px; height: 38px; border-radius: 10px;
+  display: grid; place-items: center; background: rgba(18,80,39,.07); color: #125027 }
+.ab2-facet-flag { font-size: 21px; line-height: 1 }
+.ab2-facet-tx { min-width: 0 }
+.ab2-facet-tx b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-facet-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
+.ab2-viewall { display: flex; justify-content: center; margin-top: 18px }
+/* Now a <button> (it expands the grid in place) as well as a link elsewhere,
+   so it has to set cursor itself — a <button> does not inherit one. */
+.ab2-btn-ghost { font: 700 13px 'Poppins', sans-serif; color: #125027; background: #fff;
+  border: 1.5px solid rgba(18,80,39,.3); border-radius: 999px; padding: 11px 26px;
+  text-decoration: none; cursor: pointer }
+.ab2-btn-ghost:hover { border-color: #125027 }
+
+.ab2-regions { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 16px }
+.ab2-region { border: 1px solid rgba(18,45,30,.14); background: #fff; cursor: pointer;
+  border-radius: 999px; padding: 8px 16px; font: 600 12.5px 'Poppins', sans-serif;
+  color: rgba(20,32,26,.68); white-space: nowrap }
+.ab2-region:hover { border-color: rgba(18,80,39,.4) }
+.ab2-region.on { background: #125027; border-color: #125027; color: #fff }
+
+.ab2-table { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; overflow: hidden }
+/* minmax(0,…) on the name column: a long university name must wrap, not push
+   the country column off the card. */
+.ab2-tr { display: grid; grid-template-columns: 88px minmax(0,1fr) 190px 18px;
+  align-items: center; gap: 12px; padding: 14px 18px; text-decoration: none; color: inherit }
+.ab2-tr + .ab2-tr { border-top: 1px solid rgba(18,45,30,.07) }
+a.ab2-tr:hover { background: rgba(27,156,133,.04) }
+.ab2-th { background: rgba(18,45,30,.03); font: 700 10.5px 'Poppins', sans-serif;
+  text-transform: uppercase; letter-spacing: .1em; color: rgba(20,32,26,.5) }
+.ab2-rank { font: 800 14.5px 'Montserrat', sans-serif; color: #b4540a }
+.ab2-uni b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-uni small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 2px }
+.ab2-country { display: flex; align-items: center; gap: 8px; font: 500 13px 'Poppins', sans-serif; color: rgba(20,32,26,.78) }
+.ab2-country i { font-style: normal; font-size: 16px }
+.ab2-chev { color: rgba(20,32,26,.35); font-size: 17px; text-align: right }
+.ab2-empty { padding: 20px 18px }
+
+.ab2-dests { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin-top: 18px }
+.ab2-dest { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 18px; display: flex; flex-direction: column; gap: 11px; min-width: 0 }
+.ab2-dest-head { display: flex; align-items: flex-start; gap: 11px; min-width: 0 }
+.ab2-dest-flag { font-size: 22px; line-height: 1.1; flex: none }
+.ab2-dest h3 { font: 700 15px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; overflow-wrap: anywhere }
+.ab2-dest-head p { font: 500 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 3px 0 0 }
+/* Clamped exactly as the board clamps it — several entries truncate
+   mid-sentence by design, the full text being on the country guide. */
+.ab2-dest-intakes { font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.ab2-dest-intakes b { color: #125027 }
+.ab2-dest-go { margin-top: auto; font: 700 12.5px 'Poppins', sans-serif; color: #125027; text-decoration: none }
+.ab2-dest-go:hover { text-decoration: underline }
+
+/* The board rules a hairline between the step numbers. It is drawn on the
+   <li>, stopping before the last one so the line does not run off the end. */
+.ab2-steps { list-style: none; margin: 22px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 14px }
+.ab2-steps li { position: relative; min-width: 0 }
+.ab2-steps li:not(:last-child)::after { content: ""; position: absolute; left: 34px; right: -14px;
+  top: 13px; height: 2px; background: rgba(18,80,39,.18) }
+.ab2-steps a { text-decoration: none; color: inherit; display: block }
+.ab2-step-n { position: relative; z-index: 1; display: grid; place-items: center;
+  width: 27px; height: 27px; border-radius: 50%; background: #125027; color: #fff;
+  font: 700 12.5px 'Poppins', sans-serif }
+.ab2-step-t { display: block; font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; margin-top: 12px }
+.ab2-step-d { display: block; font: 400 12px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin-top: 6px }
+.ab2-steps a:hover .ab2-step-t { color: #125027 }
+
+.ab2-phases { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: 18px }
+.ab2-phase { display: flex; align-items: center; gap: 12px; background: #fff;
+  border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 15px 16px;
+  text-decoration: none; color: inherit; min-width: 0; transition: border-color .16s, transform .12s }
+.ab2-phase:hover { border-color: rgba(18,80,39,.4); transform: translateY(-1px) }
+.ab2-phase-n { flex: none; width: 26px; height: 26px; border-radius: 8px;
+  background: rgba(255,143,1,.14); color: #a85c00; display: grid; place-items: center;
+  font: 700 12px 'Poppins', sans-serif }
+.ab2-phase-tx { min-width: 0 }
+.ab2-phase-tx b { display: block; font: 700 13px/1.35 'Montserrat', sans-serif; color: #0e2a18; overflow-wrap: anywhere }
+.ab2-phase-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-top: 3px }
+
+.ab2-provenance { font: 400 11.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.48);
+  border-top: 1px solid rgba(18,45,30,.08); padding-top: 18px; margin-top: clamp(26px,3.5vw,44px) }
+
+@media (max-width: 1040px) {
+  .ab2-facets, .ab2-phases { grid-template-columns: repeat(2, minmax(0,1fr)) }
+  .ab2-dests { grid-template-columns: repeat(2, minmax(0,1fr)) }
+  .ab2-steps { grid-template-columns: repeat(3, minmax(0,1fr)) }
+  .ab2-steps li::after { display: none }
+}
+@media (max-width: 760px) {
+  .ab2-stats { grid-template-columns: 1fr; gap: 14px }
+  .ab2-stat + .ab2-stat { border-left: 0; border-top: 1px solid rgba(18,45,30,.1); padding-top: 14px }
+  .ab2-tr { grid-template-columns: 56px minmax(0,1fr); gap: 8px }
+  .ab2-country, .ab2-chev { display: none }
+  .ab2-th { display: none }
+}
+@media (max-width: 620px) {
+  .ab2-facets, .ab2-phases, .ab2-dests, .ab2-steps { grid-template-columns: 1fr }
+  /* The browse bar went from three tabs to four, and at 375px the row needs
+     361px inside a 343px gutter — a 2px page bleed. Tighten the tabs so all
+     four fit, and let the bar scroll rather than bleed if a future label is
+     longer still. */
+  .ab2-tabs { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch }
+  .ab2-tab { padding: 8px 13px }
+}
+
+/* ── Admission Abroad → Universities directory (.abd-*) ───────────────
+   The board's two-column directory: a filter sidebar beside a results
+   column with its own toolbar. Replaces the facet-tab grid the screen
+   used to carry. Tones reuse .ab-pill-* so the fee vocabulary reads the
+   same here as it does in the drawer. */
+.abd-grid { display: grid; grid-template-columns: 196px minmax(0,1fr); gap: 22px;
+  align-items: start; margin-top: clamp(18px,2.4vw,28px) }
+
+.abd-side { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 15px;
+  padding: 16px 16px 8px; position: sticky; top: 16px }
+.abd-side-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px }
+.abd-side-title { font: 800 15px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 }
+.abd-clear { border: 0; background: none; cursor: pointer; padding: 0;
+  font: 700 12px 'Poppins', sans-serif; color: #125027; text-decoration: underline }
+.abd-group { padding: 14px 0; border-bottom: 1px solid rgba(18,45,30,.08) }
+.abd-group-plain { border-bottom: 0 }
+.abd-group-h { font: 700 10.5px/1 'Poppins', sans-serif; letter-spacing: .09em;
+  text-transform: uppercase; color: rgba(20,32,26,.5); margin: 0 0 9px }
+
+.abd-chk { display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 5px 0;
+  font: 500 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.82) }
+.abd-chk input { width: 14px; height: 14px; flex: none; accent-color: #125027; cursor: pointer; margin: 0 }
+.abd-chk.on { color: #0e2a18; font-weight: 600 }
+.abd-chk-tx { min-width: 0; overflow-wrap: anywhere }
+.abd-chk-n { margin-left: auto; flex: none; font: 500 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.45) }
+
+.abd-find { width: 100%; box-sizing: border-box; border: 1px solid rgba(18,45,30,.16);
+  border-radius: 9px; padding: 7px 10px; font: 400 12.5px 'Poppins', sans-serif;
+  color: #0e2a18; background: #fff; margin-bottom: 6px }
+.abd-find:focus { outline: 2px solid rgba(18,80,39,.35); outline-offset: 1px }
+/* Both long lists scroll rather than running the sidebar past the results. */
+.abd-scroll { max-height: 188px; overflow-y: auto; padding-right: 2px }
+.abd-none { font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5); margin: 6px 0 }
+
+.abd-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 13px; padding: 10px 12px }
+.abd-search { display: flex; align-items: center; gap: 8px; flex: 1 1 220px; min-width: 0;
+  color: rgba(20,32,26,.45) }
+.abd-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none;
+  font: 400 13px 'Poppins', sans-serif; color: #0e2a18 }
+.abd-sort { display: flex; align-items: center; gap: 8px; flex: none;
+  font: 600 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.abd-sort select { border: 1px solid rgba(18,45,30,.16); border-radius: 9px; padding: 6px 8px;
+  font: 600 12.5px 'Poppins', sans-serif; color: #0e2a18; background: #fff; cursor: pointer }
+.abd-view { display: inline-flex; flex: none; border: 1px solid rgba(18,45,30,.14);
+  border-radius: 10px; overflow: hidden }
+.abd-view-b { border: 0; background: #fff; cursor: pointer; padding: 7px 14px;
+  font: 700 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.abd-view-b.on { background: #125027; color: #fff }
+
+.abd-quick { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0 }
+.abd-qchip { border: 1px solid rgba(18,45,30,.14); background: #fff; cursor: pointer;
+  border-radius: 999px; padding: 7px 15px; font: 600 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.72) }
+.abd-qchip.on { background: #125027; border-color: #125027; color: #fff }
+
+.abd-active { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px }
+.abd-pill { border: 1px solid rgba(18,80,39,.3); background: #ebf5e8; color: #125027; cursor: pointer;
+  border-radius: 999px; padding: 6px 13px; font: 600 12.5px 'Poppins', sans-serif }
+
+/* ── Detailed cards ── */
+.abd-cards, .abd-rows { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px }
+.abd-card { display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 14px;
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 15px; padding: 16px 18px }
+.abd-card-flag { font-size: 26px; line-height: 1 }
+.abd-card-body { min-width: 0 }
+.abd-card-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 7px }
+.abd-qs { font: 800 11px 'Poppins', sans-serif; color: #b06000; background: #fff4e0;
+  border-radius: 6px; padding: 3px 8px }
+.abd-qs.unranked { color: #6b7a70; background: #f3f4f2 }
+.abd-chip-region { font: 600 11px 'Poppins', sans-serif; color: rgba(20,32,26,.62);
+  background: #f3f4f2; border-radius: 6px; padding: 3px 8px }
+.abd-fee { font: 700 11px 'Poppins', sans-serif; border-radius: 6px; padding: 3px 8px; white-space: nowrap }
+.abd-fee-published { background: #ebf5e8; color: #125027 }
+.abd-fee-partial   { background: #fff4e0; color: #b06000 }
+.abd-fee-none      { background: #f3f4f2; color: #6b7a70 }
+.abd-card-name { font: 800 16px/1.3 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 4px;
+  overflow-wrap: anywhere }
+.abd-card-meta { font: 400 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 0 0 9px;
+  overflow-wrap: anywhere }
+.abd-card-meta a { color: #125027; text-decoration: none }
+.abd-card-meta a:hover { text-decoration: underline }
+.abd-card-areas { display: flex; gap: 6px; flex-wrap: wrap }
+.abd-area { font: 600 11px 'Poppins', sans-serif; color: #125027; background: #ebf5e8;
+  border-radius: 6px; padding: 4px 9px }
+.abd-card-foot { display: flex; gap: 16px; flex-wrap: wrap; margin: 11px 0 0; padding-top: 10px;
+  border-top: 1px dashed rgba(18,45,30,.14);
+  font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.62) }
+.abd-card-foot b { color: rgba(20,32,26,.8) }
+.abd-card-cta { display: grid; gap: 8px; align-content: start; justify-items: stretch; min-width: 148px }
+.abd-btn-help { text-align: center; text-decoration: none; border: none; cursor: pointer; border-radius: 10px; padding: 10px 14px;
+  font: 700 12.5px 'Poppins', sans-serif; background: #c2560c; color: #fff }
+.abd-btn-help:hover { background: #a5480a }
+.abd-btn-view { cursor: pointer; border-radius: 10px; padding: 10px 14px;
+  font: 700 12.5px 'Poppins', sans-serif; background: #fff; color: #0e2a18;
+  border: 1.5px solid rgba(18,45,30,.18) }
+.abd-btn-view:hover { border-color: #125027 }
+.abd-cmp { display: flex; align-items: center; gap: 7px; justify-content: center; cursor: pointer;
+  font: 500 12px 'Poppins', sans-serif; color: rgba(20,32,26,.65) }
+.abd-cmp input { width: 14px; height: 14px; accent-color: #125027; cursor: pointer; margin: 0 }
+
+/* ── Compact rows ── */
+.abd-row { display: grid; grid-template-columns: 46px minmax(0,1fr) auto auto auto; gap: 14px;
+  align-items: center; background: #fff; border: 1px solid rgba(18,45,30,.1);
+  border-radius: 13px; padding: 12px 16px }
+.abd-rank { font: 800 13px 'Poppins', sans-serif; color: #b06000 }
+.abd-rank.unranked { color: #6b7a70 }
+.abd-row-tx { min-width: 0 }
+.abd-row-tx b { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18;
+  overflow-wrap: anywhere }
+.abd-row-tx small { display: block; font: 400 12px 'Poppins', sans-serif;
+  color: rgba(20,32,26,.58); margin-top: 2px; overflow-wrap: anywhere }
+.abd-view-btn { cursor: pointer; border-radius: 9px; padding: 7px 16px;
+  font: 700 12.5px 'Poppins', sans-serif; background: #fff; color: #0e2a18;
+  border: 1.5px solid rgba(18,45,30,.18) }
+.abd-view-btn:hover { border-color: #125027 }
+.abd-linkbtn { border: 0; background: none; cursor: pointer; padding: 0;
+  font: 700 13px 'Poppins', sans-serif; color: #125027; text-decoration: underline }
+
+@media (max-width: 900px) {
+  /* The sidebar stops being a sidebar before the results column gets too
+     narrow to hold a card's three columns. */
+  .abd-grid { grid-template-columns: 1fr }
+  .abd-side { position: static }
+  .abd-scroll { max-height: 160px }
+  .abd-card { grid-template-columns: 34px minmax(0,1fr) }
+  .abd-card-cta { grid-column: 1 / -1; grid-auto-flow: column; justify-items: stretch }
+}
+@media (max-width: 620px) {
+  .abd-card-cta { grid-auto-flow: row }
+  .abd-row { grid-template-columns: 40px minmax(0,1fr) auto; row-gap: 8px }
+  .abd-row .abd-cmp, .abd-row .abd-view-btn { grid-column: span 1 }
+}
+
+/* ── Admission Abroad → one destination (.abc-*) ──────────────────────
+   /admission/abroad/countries/:slug. The board's page: flag + title +
+   blurb beside a counsellor CTA, four fact cards, the QS grid, then the
+   guide. */
+.abc-hero { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 20px;
+  align-items: center; background: linear-gradient(180deg, #fdf3e3 0%, #fbf7ef 100%);
+  border-radius: 18px; padding: clamp(20px,3vw,32px) clamp(18px,3vw,34px);
+  margin-top: 14px }
+.abc-flag { font-size: clamp(40px,5vw,56px); line-height: 1 }
+.abc-hero-tx { min-width: 0 }
+.abc-h1 { font: 800 clamp(26px,3.6vw,38px)/1.12 'Montserrat', sans-serif; color: #0e2a18; margin: 0 }
+.abc-blurb { font: 400 14px/1.65 'Poppins', sans-serif; color: rgba(20,32,26,.72); margin: 8px 0 0 }
+.abc-cta { flex: none; text-decoration: none; border: none; cursor: pointer; border-radius: 999px; padding: 13px 24px;
+  font: 700 13px 'Poppins', sans-serif; background: #125027; color: #fff; white-space: nowrap }
+.abc-cta:hover { background: #0e3f1f }
+
+.abc-facts { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px;
+  margin-top: clamp(16px,2.4vw,24px) }
+.abc-fact { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 15px; padding: 16px 18px }
+.abc-fact p { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.74); margin: 0 }
+.abc-fact-h { display: flex; align-items: center; gap: 8px; margin: 0 0 9px;
+  font: 700 10.5px/1 'Poppins', sans-serif; letter-spacing: .09em; text-transform: uppercase;
+  color: rgba(20,32,26,.55) }
+.abc-fact-ic { color: #125027; display: inline-flex }
+/* A field the dataset does not carry yet reads as missing, not as blank —
+   the three unfilled cards are a content task, and hiding them would
+   quietly redesign the board's four-card row into a one-card row. */
+.abc-fact.empty { border-style: dashed; background: #fcfcfb }
+.abc-missing { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.5); font-style: italic }
+.abc-missing a { color: #125027 }
+
+.abc-h2 { font: 800 clamp(18px,2.2vw,22px)/1.2 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 14px }
+.abc-unis, .abc-guide { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px;
+  padding: clamp(16px,2.4vw,24px); margin-top: clamp(16px,2.4vw,24px) }
+.abc-uni-grid { list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px }
+.abc-uni { display: flex; align-items: center; gap: 11px; text-decoration: none; color: inherit;
+  background: #fbfaf7; border: 1px solid rgba(18,45,30,.08); border-radius: 12px; padding: 11px 13px;
+  transition: border-color .16s }
+.abc-uni:hover { border-color: rgba(18,80,39,.4) }
+.abc-uni-rank { flex: none; font: 800 12px 'Poppins', sans-serif; color: #b06000;
+  background: #fff4e0; border-radius: 7px; padding: 5px 8px }
+.abc-uni-rank.unranked { color: #6b7a70; background: #f3f4f2 }
+.abc-uni-tx { min-width: 0 }
+.abc-uni-tx b { display: block; font: 700 13px/1.3 'Montserrat', sans-serif; color: #0e2a18;
+  overflow-wrap: anywhere }
+.abc-uni-tx small { display: block; font: 400 11.5px 'Poppins', sans-serif;
+  color: rgba(20,32,26,.55); margin-top: 2px }
+.abc-guide-link { display: inline-block; margin-top: 12px; text-decoration: none;
+  font: 700 13px 'Poppins', sans-serif; color: #125027;
+  border: 1.5px solid rgba(18,80,39,.3); border-radius: 999px; padding: 10px 20px }
+.abc-guide-link:hover { border-color: #125027 }
+
+@media (max-width: 1040px) {
+  .abc-facts { grid-template-columns: repeat(2, minmax(0,1fr)) }
+  .abc-uni-grid { grid-template-columns: repeat(2, minmax(0,1fr)) }
+}
+@media (max-width: 640px) {
+  /* The CTA drops under the title rather than squeezing it to a word a line. */
+  .abc-hero { grid-template-columns: auto minmax(0,1fr); row-gap: 14px }
+  .abc-cta { grid-column: 1 / -1; text-align: center }
+  .abc-facts, .abc-uni-grid { grid-template-columns: 1fr }
+}
+
+/* One university (/admission/abroad/universities/:slug) — replaces the old
+   cf-drawer with the board's own routable page. Deliberately its own
+   `abu-` prefix rather than reusing `.cf-drawer*`/`.ab-fee*`: those classes
+   are shared by AdmissionIndiaPage, RoleDrawer, AdmissionIndiaAllPage and
+   CareerDetailPage's own drawers — restyling them for this page would have
+   restyled four unrelated screens. */
+.abu-head { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: flex-start;
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; padding: 22px 24px; margin-bottom: 18px }
+.abu-flag { font-size: 34px; line-height: 1 }
+.abu-h1 { font: 800 clamp(20px,2.6vw,26px)/1.2 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.3px }
+.abu-sub { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.58); margin: 6px 0 0 }
+.abu-sub a { color: #125027; font-weight: 600 }
+.abu-head-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px }
+.abu-rankbox { text-align: right; background: #fdf4e8; border-radius: 10px; padding: 8px 14px }
+.abu-rankbox b { display: block; font: 800 18px 'Montserrat', sans-serif; color: #b06000 }
+.abu-rankbox small { display: block; font: 400 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.abu-head-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end }
+.sc-btn.abu-help { background: #b06000; border-color: #b06000 }
+.sc-btn.abu-help:hover { background: #8f4e00; border-color: #8f4e00 }
+
+.abu-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: flex-start }
+.abu-main { min-width: 0 }
+.abu-card { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; padding: 22px 24px }
+.abu-card h2 { font: 800 18px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 12px }
+.abu-card > p { font: 400 13.5px/1.7 'Poppins', sans-serif; color: rgba(20,32,26,.68); margin: 0 0 16px }
+.abu-subh { font: 700 11px 'Poppins', sans-serif; color: rgba(20,32,26,.5); text-transform: uppercase;
+  letter-spacing: .07em; margin: 18px 0 8px }
+
+.abu-facts { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px 24px; margin-bottom: 16px }
+.abu-fact { border-top: 1px solid rgba(18,45,30,.08); padding-top: 8px }
+.abu-fact-label { display: block; font: 700 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px }
+.abu-fact-value { display: block; font: 600 13.5px 'Poppins', sans-serif; color: #0e2a18 }
+.abu-fact-value a { color: #125027 }
+.abu-overview { margin-top: 4px }
+.abu-source, .ab-source.abu-source { font-style: italic; color: rgba(20,32,26,.45); font-size: 11.5px; margin-top: 10px }
+
+.abu-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px }
+.abu-group-chip { display: inline-flex; align-items: center; gap: 4px; background: #ebf5e8; color: #125027;
+  border-radius: 999px; padding: 6px 12px; font: 600 12px 'Poppins', sans-serif; text-decoration: none }
+.abu-group-chip:hover { background: #d9ecd6 }
+
+.abu-fee-card { border: 1px solid #e9eeea; border-radius: 10px; padding: 14px; background: #fcfbf7; margin-bottom: 16px }
+.abu-fee-head { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin-bottom: 8px }
+.abu-fee-badge { background: #ebf5e8; color: #125027; border-radius: 999px; padding: 3px 10px; font-weight: 700 }
+.abu-fee-card p { margin: 0; font: 400 13px/1.65 'Poppins', sans-serif; color: #14201a }
+.abu-cta-row { display: flex; gap: 10px; flex-wrap: wrap }
+
+.abu-admcards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 16px }
+.abu-admcard { border: 1px solid rgba(18,45,30,.1); border-radius: 10px; padding: 12px 14px }
+.abu-admcard b { display: block; font: 700 13px 'Montserrat', sans-serif; color: #0e2a18; margin-bottom: 4px }
+.abu-admcard p { margin: 0; font: 400 12px/1.5 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+.abu-callout { background: #ebf5e8; border-radius: 10px; padding: 14px 16px; font: 400 13px/1.6 'Poppins', sans-serif;
+  color: #14201a; margin: 0 }
+.abu-callout a { color: #125027; font-weight: 700 }
+
+.abu-side { display: flex; flex-direction: column; gap: 14px }
+.abu-sidecard { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 18px }
+.abu-sidecard h3 { font: 700 13.5px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 10px }
+.abu-sidecard-cta { background: #0e2a18; border-color: #0e2a18; color: #fff }
+.abu-sidecard-cta b { display: block; font: 700 14px 'Montserrat', sans-serif; margin-bottom: 6px }
+.abu-sidecard-cta p { font: 400 12.5px/1.55 'Poppins', sans-serif; color: rgba(255,255,255,.75); margin: 0 0 12px }
+.sc-btn.white { background: #fff; color: #0e2a18; border-color: #fff; width: 100%; justify-content: center }
+.sc-btn.white:hover { background: #ebf5e8 }
+.abu-glance { margin-bottom: 10px }
+.abu-glance b { display: block; font: 700 11px 'Poppins', sans-serif; color: rgba(20,32,26,.5);
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px }
+.abu-glance p { margin: 0; font: 400 12.5px/1.55 'Poppins', sans-serif; color: #14201a }
+.abu-glance-link { display: inline-block; margin-top: 2px; font: 700 12.5px 'Poppins', sans-serif; color: #125027; text-decoration: none }
+.abu-glance-link:hover { text-decoration: underline }
+
+.abu-similar { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px }
+.abu-similar a { display: block; text-decoration: none; color: inherit; padding-bottom: 8px;
+  border-bottom: 1px solid rgba(18,45,30,.08) }
+.abu-similar li:last-child a { border-bottom: none; padding-bottom: 0 }
+.abu-similar b { display: block; font: 700 13px 'Montserrat', sans-serif; color: #0e2a18 }
+.abu-similar small { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5); margin-top: 2px }
+
+@media (max-width: 900px) {
+  .abu-grid { grid-template-columns: 1fr }
+  .abu-head { grid-template-columns: auto 1fr; }
+  .abu-head-side { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center }
+}
+@media (max-width: 600px) {
+  .abu-facts, .abu-admcards { grid-template-columns: 1fr }
+}
+
+/* AdmissionHelpModal — the lead-capture modal behind every "Get admission
+   help" / "Talk to counsellor" control on Admission Abroad. Every one of
+   those shipped as a <Link to="/counselling/counsellors">; the board opens
+   this instead. See AdmissionHelpModal.jsx's header for how that was found. */
+.ahm-mask { position: fixed; inset: 0; background: rgba(10,20,14,.5); z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 20px }
+.ahm-box { width: min(420px, 100%); max-height: 90vh; overflow-y: auto; background: #fff;
+  border-radius: 16px; padding: 24px 26px; box-shadow: 0 20px 60px rgba(10,20,14,.25) }
+.ahm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px }
+.ahm-head h2 { font: 800 19px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.2px }
+.ahm-head p { font: 400 13px/1.55 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 6px 0 0 }
+.ahm-x { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(18,45,30,.14);
+  background: none; color: rgba(20,32,26,.5); font: 600 16px sans-serif; cursor: pointer; line-height: 1 }
+.ahm-x:hover { background: #ebf5e8; color: #125027 }
+
+.ahm-field { display: block; margin-bottom: 14px }
+.ahm-field > span { display: block; font: 700 12.5px 'Poppins', sans-serif; color: #14201a; margin-bottom: 6px }
+.ahm-field > span i { color: #c2560c; font-style: normal; margin-left: 2px }
+.ahm-field input { width: 100%; box-sizing: border-box; padding: 10px 13px; border-radius: 9px;
+  border: 1.5px solid rgba(18,45,30,.16); font: 400 13.5px 'Poppins', sans-serif; color: #14201a }
+.ahm-field input:focus { outline: none; border-color: #125027 }
+.ahm-field input.ahm-err { border-color: #c2560c }
+.ahm-hint { display: block; font: 400 11.5px 'Poppins', sans-serif; color: rgba(20,32,26,.5); margin-top: 5px }
+.ahm-errtx { display: block; font: 600 11.5px 'Poppins', sans-serif; color: #c2560c; margin-top: 5px }
+.ahm-failed { margin: 0 0 12px }
+
+.ahm-consent { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 18px; cursor: pointer }
+.ahm-consent input { flex: none; width: 16px; height: 16px; accent-color: #125027; margin-top: 2px; cursor: pointer }
+.ahm-consent span { font: 400 12px/1.5 'Poppins', sans-serif; color: rgba(20,32,26,.68) }
+.ahm-consent.ahm-err span { color: #c2560c }
+
+.sc-btn.ahm-submit { width: 100%; justify-content: center; background: #c2560c; box-shadow: none }
+.sc-btn.ahm-submit:hover { background: #a5480a }
+.sc-btn.ahm-submit:disabled { opacity: .6; cursor: default }
+
+.ahm-done { text-align: center; padding: 10px 4px 4px }
+.ahm-done-tick { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: #ebf5e8; color: #125027; font-size: 22px; margin-bottom: 14px }
+.ahm-done h3 { font: 800 17px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 8px }
+.ahm-done p { font: 400 13px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.65); margin: 0 0 18px }
+
+/* The sticky compare bar — AbroadCompareBar.jsx. Persists across Home,
+   Universities, a university's own page and the compare page itself;
+   renders nothing when the tray is empty. */
+.abu-combar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+  background: #fff; border-top: 1px solid rgba(18,45,30,.12); box-shadow: 0 -8px 24px rgba(10,20,14,.08);
+  padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap }
+.abu-combar-count { font: 700 13px 'Montserrat', sans-serif; color: #0e2a18; flex: none }
+.abu-combar-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0 }
+.abu-combar-chip { display: inline-flex; align-items: center; gap: 6px; background: #f3f4f2;
+  border-radius: 999px; padding: 5px 6px 5px 12px; font: 600 12px 'Poppins', sans-serif; color: #14201a;
+  max-width: 100% }
+/* Abroad's chip is just a flag + "QS #N" — always short. India's chip
+   includes the institution's full name (IndiaCompareBar.jsx), which can run
+   well past 40 characters and would overflow the fixed bottom bar on a
+   narrow viewport without a truncation point. */
+.abu-combar-chip-tx { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px }
+.abu-combar-chip button { border: none; background: none; width: 20px; height: 20px; border-radius: 50%;
+  color: rgba(20,32,26,.5); font: 600 14px sans-serif; cursor: pointer; line-height: 1; flex: none }
+.abu-combar-chip button:hover { background: #e3e5e1; color: #14201a }
+.abu-combar-go { flex: none }
+@media (max-width: 640px) {
+  .abu-combar { padding: 10px 16px }
+  /* `width: 100%` alone is a no-op here: the base rule's `flex: 1` resolves
+     to `flex-basis: 0%`, and a definite flex-basis wins over `width` on the
+     main axis — so this never actually dropped to its own full-width row.
+     Harmless on Abroad's short "QS #N" chips (never long enough to wrap
+     into a second line in the first place), but India's chips carry a full
+     institution name and overflowed into the row above until this was
+     caught by screenshot, not by re-reading the rule. */
+  .abu-combar-chips { order: 3; flex: 1 1 100%; width: 100% }
+  .abu-combar-chip-tx { max-width: 55vw }
+}
+
+/* The compare page — AbroadComparePage.jsx. One column per university,
+   one row per fact. A plain scrollable <table> rather than abu-*'s own
+   card vocabulary: this screen IS a table on the board. */
+.abcmp-wrap { overflow-x: auto; background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px;
+  margin-bottom: 20px; padding-bottom: 60px /* room above the sticky compare bar */ }
+.abcmp-table { width: 100%; border-collapse: collapse; min-width: 480px }
+.abcmp-table th, .abcmp-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid rgba(18,45,30,.08);
+  font: 400 13px/1.5 'Poppins', sans-serif; color: #14201a; vertical-align: top }
+.abcmp-table thead th { background: #fafaf8; border-bottom: 1px solid rgba(18,45,30,.12) }
+.abcmp-table thead th:first-child { background: none; border-bottom: none }
+.abcmp-table thead a { display: block; font: 700 14px 'Montserrat', sans-serif; color: #0e2a18; text-decoration: none }
+.abcmp-table thead a:hover { color: #125027 }
+.abcmp-remove { display: block; margin-top: 4px; border: none; background: none; padding: 0;
+  font: 600 11.5px 'Poppins', sans-serif; color: #c2560c; cursor: pointer }
+.abcmp-remove:hover { text-decoration: underline }
+.abcmp-table tbody th { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55);
+  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; background: #fafaf8 }
+
+/* Explore careers — the board's facet browser: a stream chip row, an
+   interest-area rail with live counts, search, sort and 2-up cards.
+   Facet data lives in data/careerIndia.js (read its header before
+   changing anything here — stream membership and the salary string are
+   both explicit fields, not derivations). */
+.sii-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.sii-stream-kicker {
+  font: 700 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .12em; margin: 0 0 10px;
+}
+.sii-streams { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px }
+.sii-stream {
+  cursor: pointer; border: 1px solid rgba(18,45,30,.16); background: #fff;
+  border-radius: 999px; padding: 9px 18px; color: #14201a;
+  font: 600 13px 'Poppins', sans-serif; transition: background .15s, border-color .15s, color .15s;
+}
+.sii-stream:hover { border-color: rgba(18,80,39,.45) }
+.sii-stream.on { background: #125027; border-color: #125027; color: #fff }
+.sii-stream:focus-visible { outline: 2px solid #1b9c85; outline-offset: 2px }
+
+.sii-careers-body { display: grid; grid-template-columns: 236px minmax(0,1fr); gap: 22px; align-items: start }
+@media (max-width: 900px) { .sii-careers-body { grid-template-columns: 1fr } }
+
+/* Explore careers, abroad tone. The board draws this tab in each section's
+   own colour: green on Study in India, the module's indigo (#6d5bd0 — the
+   same value as this page's hero bar and globe glyph) on Study abroad.
+   Only the accents move; every size, radius and weight is shared. */
+.sii-careers--abroad .sii-stream.on { background: #6d5bd0; border-color: #6d5bd0 }
+.sii-careers--abroad .sii-stream:focus-visible { outline-color: #6d5bd0 }
+.sii-careers--abroad .sii-career-go { color: #6d5bd0 }
+.sii-careers--abroad .sii-career-ic { background: rgba(109,91,208,.1); color: #6d5bd0 }
+.sii-careers--abroad .sii-career-area { color: #6d5bd0 }
+.sii-careers--abroad .sii-area-name { color: #14201a }
+.sii-careers--abroad .sii-areas input { accent-color: #6d5bd0 }
+.sii-careers--abroad .sc-search:focus-within { border-color: #6d5bd0 }
+.sii-careers--abroad .sii-clear { color: #6d5bd0 }
+
+/* The abroad grid's footnote: which careers are hidden, and where the pay
+   column comes from. Deliberately quiet — it is provenance, not a message. */
+.sii-careers-note {
+  margin: 18px 0 0; font: 400 12px/1.6 'Poppins', sans-serif;
+  color: rgba(20,32,26,.52);
+}
+
+/* Facet rail.
+   The board holds this rail in place while the card grid scrolls past it —
+   checked by scrolling the prototype, not assumed from a resting screenshot.
+   .skn-header is position:fixed and measures 83px on the live page, so the
+   offset clears it with a 16px gap rather than tucking the rail under it.
+   The sticky only takes effect because .sii-careers-body sets
+   align-items:start; a stretched grid item has no spare height to stick in. */
+.sii-facets { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px; padding: 16px 16px 18px;
+  position: sticky; top: 99px }
+@media (max-width: 900px) { .sii-facets { position: static } }
+.sii-facet-kicker {
+  font: 700 10px 'Poppins', sans-serif; color: rgba(20,32,26,.45);
+  text-transform: uppercase; letter-spacing: .13em; margin: 0 0 10px;
+}
+.sii-areas { list-style: none; margin: 0 0 18px; padding: 0 }
+.sii-areas label {
+  display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: center;
+  padding: 7px 0; cursor: pointer; font: 500 12.5px/1.45 'Poppins', sans-serif; color: #14201a;
+}
+.sii-areas input { width: 15px; height: 15px; accent-color: #125027; cursor: pointer; margin: 0 }
+.sii-area-n { font: 600 12px 'Poppins', sans-serif; color: rgba(20,32,26,.45) }
+/* A zero-count area is disabled, not hidden — the board greys the row so
+   the rail keeps its full shape as the stream changes. */
+.sii-areas li.off label { cursor: default; color: rgba(20,32,26,.34) }
+.sii-areas li.off .sii-area-n { color: rgba(20,32,26,.28) }
+.sii-areas li.off input { cursor: default }
+.sii-career-search { margin: 0; max-width: none }
+.sii-career-search input { font-size: 12.5px; padding: 7px 0 }
+.sii-career-search svg { color: rgba(14,28,15,.45); flex: none }
+
+/* Sort + active filters */
+.sii-sortbar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 14px }
+.sii-sort-lb { font: 500 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+.sii-sort {
+  border: 1px solid rgba(18,45,30,.16); background: #fff; border-radius: 9px;
+  padding: 8px 10px; font: 600 12.5px 'Poppins', sans-serif; color: #14201a; cursor: pointer;
+}
+.sii-sort:focus-visible { outline: 2px solid #1b9c85; outline-offset: 2px }
+
+.sii-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px }
+.sii-pill {
+  cursor: pointer; border: 1px solid rgba(27,156,133,.35); background: rgba(27,156,133,.09);
+  color: #0d6b4f; border-radius: 999px; padding: 6px 12px;
+  font: 600 12px 'Poppins', sans-serif; display: inline-flex; align-items: center; gap: 7px;
+}
+.sii-pill:hover { background: rgba(27,156,133,.16) }
+.sii-clear {
+  border: 0; background: none; cursor: pointer; padding: 0;
+  font: 600 12.5px 'Poppins', sans-serif; color: #125027;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+.sii-noresult {
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 40px 20px; text-align: center;
+}
+.sii-noresult p { margin: 0 0 6px; font: 400 13px 'Poppins', sans-serif; color: rgba(20,32,26,.6) }
+.sii-noresult-h { font-weight: 700 !important; font-size: 14.5px !important; color: #14201a !important }
+.sii-noresult .sii-clear { margin-top: 8px }
+
+/* Cards — 2-up, matching the board. */
+.sii-career-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px }
+@media (max-width: 680px) { .sii-career-grid { grid-template-columns: 1fr } }
+
+.sii-career {
+  background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 14px;
+  padding: 18px; display: flex; flex-direction: column; gap: 11px; min-width: 0;
+  transition: border-color .16s, box-shadow .16s;
+}
+.sii-career:hover { border-color: rgba(18,80,39,.3); box-shadow: 0 6px 20px -16px rgba(14,28,15,.55) }
+.sii-career-top { display: flex; align-items: flex-start; gap: 12px }
+.sii-career-ic {
+  flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+  background: rgba(27,156,133,.1); color: #125027;
+}
+.sii-career-id { min-width: 0 }
+.sii-career-id h3 { font: 700 15.5px 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 3px; overflow-wrap: anywhere }
+.sii-career-area {
+  margin: 0; font: 700 9.5px 'Poppins', sans-serif; text-transform: uppercase;
+  letter-spacing: .1em; color: rgba(20,32,26,.45);
+}
+/* Two lines, as the board clamps it. The string is already only the first
+   sentence of `overview` (see firstSentence() in careerBlurb.js). */
+.sii-career-blurb {
+  font: 400 12.5px/1.6 'Poppins', sans-serif; color: rgba(20,32,26,.7); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sii-career-subj {
+  margin: 0; display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
+  font: 400 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.6);
+}
+.sii-career-subj svg { color: rgba(20,32,26,.4); flex: none; transform: translateY(2px) }
+.sii-career-subj b { color: #14201a; font-weight: 600 }
+
+.sii-career-facts {
+  margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px;
+  background: rgba(18,45,30,.035); border-radius: 10px; padding: 11px 13px;
+}
+.sii-career-facts dt {
+  font: 700 8.5px 'Poppins', sans-serif; text-transform: uppercase;
+  letter-spacing: .09em; color: rgba(20,32,26,.45); margin-bottom: 3px;
+}
+.sii-career-facts dd { margin: 0; font: 600 12px/1.4 'Poppins', sans-serif; color: #14201a; overflow-wrap: anywhere }
+
+.sii-career-go {
+  margin-top: auto; font: 700 12.5px 'Poppins', sans-serif; color: #125027;
+  text-decoration: none; align-self: flex-start;
+}
+.sii-career-go:hover { text-decoration: underline }
+
+/* Study abroad (/counselling/abroad) — the twin of Study in India.
+ * Guide tab: 3 STEP groups of step-grouped mini-guide cards, matching
+ * artboard-f22323634b41 exactly in shape. Each card's violet header band
+ * uses the module's established abroad indigo (#6d5bd0, same as
+ * .sii-head--abroad / .sii-cta--abroad) rather than eyedropping the
+ * board's own gradient — consistent tone over a guessed-at pixel match. */
+.sab-step { margin-bottom: 26px }
+.sab-step-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 14px }
+.sab-step-badge { flex: none; background: rgba(109,91,208,.14); color: #4b3bb0; font: 700 11px 'Poppins', sans-serif;
+  letter-spacing: .3px; padding: 3px 9px; border-radius: 999px }
+.sab-step-head h3 { font: 800 19px 'Montserrat', sans-serif; color: #0e2a18; margin: 0; letter-spacing: -.3px }
+.sab-step-head p { flex-basis: 100%; font: 400 13px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 0 }
+
+.sab-stepcards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px }
+@media (max-width: 760px) { .sab-stepcards { grid-template-columns: 1fr } }
+
+.sab-gcard { background: #fff; border: 1px solid rgba(18,45,30,.1); border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column; min-width: 0 }
+.sab-gcard-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px;
+  background: linear-gradient(135deg, #8577e0, #5b4bc4); color: #fff }
+.sab-gcard-ic { flex: none; width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.18);
+  display: grid; place-items: center }
+.sab-gcard-head small { display: block; font: 700 10px 'Poppins', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase; opacity: .8 }
+.sab-gcard-head b { display: block; font: 700 14.5px 'Montserrat', sans-serif; margin-top: 1px }
+.sab-gcard-body { padding: 16px 18px; flex: 1 }
+.sab-gcard-body h4 { font: 700 15.5px/1.35 'Montserrat', sans-serif; color: #0e2a18; margin: 0 0 6px; letter-spacing: -.2px }
+.sab-gcard-body p { font: 400 12.5px/1.55 'Poppins', sans-serif; color: rgba(20,32,26,.6); margin: 0 0 12px }
+.sab-gcard-learn { display: block; font: 700 10.5px 'Poppins', sans-serif; letter-spacing: .4px;
+  text-transform: uppercase; color: rgba(20,32,26,.45); margin-bottom: 7px }
+.sab-gcard-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.sab-gcard-body li { display: flex; align-items: flex-start; gap: 7px; font: 400 12.5px/1.45 'Poppins', sans-serif; color: #15291c }
+.sab-gcard-body li svg { flex: none; margin-top: 2px }
+.sab-gcard-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 18px; border-top: 1px solid rgba(18,45,30,.08) }
+.sab-gcard-foot > span { font: 400 12px 'Poppins', sans-serif; color: rgba(20,32,26,.5) }
+.sc-btn.sii-cta--abroad.sm { padding: 7px 14px; font-size: 12.5px; border-radius: 10px }
+
+.sab-gfoot { text-align: center; font: 400 13px 'Poppins', sans-serif; color: rgba(20,32,26,.55); margin: 4px 0 0 }
+.sab-gfoot a { color: #4b3bb0; font-weight: 700; text-decoration: none }
+.sab-gfoot a:hover { text-decoration: underline }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * The landing, measured against the Career Counselling v3 board.
+ *
+ * Scoped to `.sc-page--bare` — which only the landing sets — because every
+ * selector below is shared with the other 18 counselling screens, and the
+ * board only covers this one.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* The board's canvas is WHITE with a warm wash entering from the bottom
+   left, not the flat pale green the section uses elsewhere. */
+.sc-page--bare { background: linear-gradient(168deg, #ffffff 0%, #ffffff 58%, #fdf4e8 100%) }
+
+/* The badge is white with a hairline border; the shared one is a filled
+   pale-green pill. */
+.sc-page--bare .sc-pill-dot { background: #fff; border: 1px solid rgba(18,45,30,.12) }
+
+/* Heavier and LARGER than the shared heading.
+   50px is measured, not chosen by eye: the board breaks the headline after
+   "Let's", and at the board's column share that needs a size where
+   "comes next? Let's map" overflows the column while "Confused about what"
+   still fits. At this column width that window is 49–50px — below it the
+   line reads "comes next? Let's map", above it line 1 breaks early. */
+.sc-page--bare .sc-h1 { font-weight: 800; letter-spacing: -1.1px; font-size: clamp(30px, 4.1vw, 50px) }
+.sc-page--bare .sc-herowrap .sc-h1 { font-size: clamp(30px, 4.1vw, 50px) }
+
+/* 🔴 MEASURED FROM THE BOARD, not guessed. Its hero divides as
+   47.4% copy · 14.8% gap · 37.7% card. Ours was 54.3 · 3.1 · 42.6, which is
+   why the headline wrapped "Let's map your" instead of breaking after
+   "Let's" — a too-wide column, not a font difference.
+   Percentage column-gap resolves against the grid's own width, so the three
+   shares hold at every width the two-column layout survives. */
+.sc-page--bare .sc-hero { grid-template-columns: 1.257fr 1fr; column-gap: 14.8%; align-items: center }
+
+@media (max-width: 900px) {
+  /* Below this the card stacks under the copy and a 14.8% gutter is just
+     dead space. */
+  .sc-page--bare .sc-hero { grid-template-columns: 1fr; column-gap: 0; row-gap: 28px }
 }

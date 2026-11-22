@@ -10,19 +10,67 @@ import { useExplore } from "../ExploreStore";
 import { useAuth } from "../../contexts/AuthContext";
 import { toggleLike as toggleLikeApi } from "../exploreApi";
 import { CategoryIcon } from "./categoryIcons";
-import {
-  PiBookmarkSimple, PiBookmarkSimpleFill, PiHeart, PiHeartFill,
-} from "react-icons/pi";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
+import "../Verification.css";
 
 // ── icons (kept inline so there's no icon-lib dependency) ─────────────────────
 export const Icon = {
-  search: (p) => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>),
-  arrow: (p) => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>),
-  back: (p) => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" {...p}><path d="M19 12H5M11 18l-6-6 6-6" /></svg>),
-  x: (p) => (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" {...p}><path d="M18 6 6 18M6 6l12 12" /></svg>),
+  search: (p) => (<ScribbleIcon name="search" size={18} {...p} />),
+  arrow: (p) => (<ScribbleIcon name="arrow-right" size={14} {...p} />),
+  back: (p) => (<ScribbleIcon name="arrow-left" size={16} {...p} />),
+  x: (p) => (<ScribbleIcon name="close" size={12} {...p} />),
 };
 
+// ── verification badge ────────────────────────────────────────────────────────
+// shiksha-backend/docs/EXPLORE_VERIFICATION.md §8.
+//
+// ⚠ `doc.verification` is NULL while the feature flag is off, and that must
+// render NOTHING — not an "Unverified" pill. The two say different things:
+// one claims nobody has checked this document, the other that checking does
+// not exist here yet. Putting an amber pill on every item in the library the
+// day before launch would be the second dressed up as the first.
+//
+// The server also decides WHICH badge the public sees: a set with changes
+// requested reports `badge: "unverified"`, because the design keeps it in
+// Browse marked Unverified rather than letting one reviewer publicly brand
+// someone's upload.
+export function VerificationBadge({ verification, withProgress = true }) {
+  if (!verification) return null;
+  const label = verification.badge === "verified" ? "Verified" : "Unverified";
+  return (
+    <span className="vf-status">
+      <span className={`vf-pill vf-${verification.badge}`}>{label}</span>
+      {withProgress && <small>{verification.label}</small>}
+    </span>
+  );
+}
+
+// "You specialise in X. Have you checked these files?" — shown only to a
+// confirmed specialist who may actually act, so the button never leads to a
+// refusal. `can_review` and `my_subject` are computed by the same
+// verification.can_review() the POST endpoint enforces.
+export function ReviewPrompt({ verification, onReview }) {
+  if (!verification?.can_review || !verification.my_subject) return null;
+  return (
+    <div className="vf-prompt" onClick={(e) => e.stopPropagation()}>
+      <p>You specialise in {verification.my_subject}. Have you checked these files?</p>
+      <button type="button" onClick={onReview}>Review this set</button>
+    </div>
+  );
+}
+
 // ── format helpers ────────────────────────────────────────────────────────────
+// Shared rather than duplicated: the upload picker, the review panel and the
+// document page all print file sizes, and three copies would drift on the
+// first rounding tweak. Returns "" for 0 — a backfilled DocumentFile row has
+// no size, and "0 B" is a claim about the file rather than about what we know.
+export const humanSize = (bytes) => {
+  if (!bytes) return "";
+  const u = ["B", "KB", "MB"]; let i = 0; let n = bytes;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${u[i]}`;
+};
+
 export const fileGlyph = (ft) => ({ PDF: "PDF", DOCX: "DOC", PPT: "PPT" }[ft] || "DOC");
 
 // #rrggbb -> rgba(..., alpha), for the tinted icon chips.
@@ -91,7 +139,7 @@ export function LikeButton({ doc, className = "" }) {
       disabled={busy}
       title={liked ? "Unlike" : "Like"}
     >
-      <span aria-hidden="true" className="exp-like-glyph">{liked ? <PiHeartFill /> : <PiHeart />}</span> {count}
+      <span aria-hidden="true" className="exp-like-glyph"><ScribbleIcon name="heart" filled={liked} /></span> {count}
     </button>
   );
 }
@@ -112,7 +160,7 @@ export function DocCard({ doc }) {
           className={`fsave${saved ? " on" : ""}`}
           title={saved ? "Remove from library" : "Save to library"}
           onClick={(e) => { e.stopPropagation(); toggleSave(doc.id); }}
-        >{saved ? <PiBookmarkSimpleFill aria-hidden="true" /> : <PiBookmarkSimple aria-hidden="true" />}</button>
+        ><ScribbleIcon name="bookmark" filled={saved} aria-hidden="true" /></button>
         <span className="ficon"><CategoryIcon meta={meta} /></span>
       </div>
       <div className="exp-doc-body">
@@ -121,11 +169,25 @@ export function DocCard({ doc }) {
         <div className="exp-doc-tags">
           {(doc.tags || []).slice(0, 2).map((t) => <span key={t} className="exp-tag">{t}</span>)}
         </div>
+        <VerificationBadge verification={doc.verification} />
+        {/* "2 files: DOCX, XLSX" — only when the set holds more than one.
+            On a single-file set the line is noise: the cover already shows
+            the type and the count would always read "1 file". */}
+        {(doc.files?.length || 0) > 1 && (
+          <p className="exp-doc-files">
+            {doc.files.length} files:{" "}
+            {[...new Set(doc.files.map((f) => f.filetype).filter(Boolean))].join(", ")}
+          </p>
+        )}
         <div className="exp-doc-stats">
           <LikeButton doc={doc} className="mini" />
           <span>{doc.views} views</span>
           <span>{doc.downloads} ↓</span>
         </div>
+        <ReviewPrompt
+          verification={doc.verification}
+          onReview={() => nav(`/explore/verify?tab=queue&set=${doc.id}`)}
+        />
       </div>
     </article>
   );
@@ -143,6 +205,7 @@ export function MiniDocCard({ doc }) {
       </div>
       <h3>{doc.title}</h3>
       <p>{doc.author?.name}</p>
+      <VerificationBadge verification={doc.verification} withProgress={false} />
       <span className="date">{doc.dateLabel}</span>
     </article>
   );

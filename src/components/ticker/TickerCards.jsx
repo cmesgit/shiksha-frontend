@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../css/Ticker.css";
+import { KIND_LABEL } from "./tickerKinds";
 
 /* Open item #7, settled 2026-09-10: 5s, the design's own `rotationSeconds`
  * default. The site's two existing hand-rolled rotators use 3200ms, but they
@@ -117,7 +118,12 @@ export function TickerCard({ item, tone = "light" }) {
     <>
       {/* "the band goes full-bleed for something you actually want people to
           attend" — the picture spans the card's whole width above the copy. */}
-      {item.img && <img className="tk-card__img" src={item.img} alt="" />}
+      {/* alt="" is deliberate and stays. `item.message` renders immediately
+          below as the card's title and is never hidden, so the picture is
+          decorative beside it — alt={item.message} would make a screen
+          reader announce the same sentence twice. Same reasoning as the
+          header/footer logos, which the site audit also flagged. */}
+      {item.img && <img className="tk-card__img" src={item.img} alt="" loading="lazy" />}
       {item.metric && (
         <span className="tk-card__metric">
           <b>{item.metric.value}</b> <small>{item.metric.label}</small>
@@ -134,15 +140,3 @@ export function TickerCard({ item, tone = "light" }) {
     ? <Link to={item.link_url} className={cls}>{inner}</Link>
     : <a className={cls} href={item.link_url} target="_blank" rel="noopener noreferrer">{inner}</a>;
 }
-
-// Mirrors content.models.TickerKind. Shown as the card's small eyebrow.
-const KIND_LABEL = {
-  new_course: "New course",
-  enrolment: "Enrolment",
-  new_mentor: "New mentor",
-  practice: "Practice",
-  deadline: "Deadline",
-  milestone: "Milestone",
-  current_affairs: "Current affairs",
-  mentor_spotlight: "Mentor spotlight",
-};

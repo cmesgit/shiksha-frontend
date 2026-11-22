@@ -2,6 +2,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import '../css/Upcoming.css';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import ScribbleIcon from './icons/ScribbleIcon';
+import { HeroDeco } from './hero/HeroLook';
 
 const Upcoming = () => {
   const navigate = useNavigate();
@@ -66,19 +68,50 @@ const Upcoming = () => {
   ];
 
   return (
-    <div className="upcoming-page">
+    <div className="upcoming-page up-fresh hl-scope">
       <div className="upcoming-page-content">
 
         <Navbar />
-        
+
+        {/* Same hero look as the other pages (components/hero), kept simple
+            here: centred, no illustration, and led by "Coming soon" — the
+            placement board is what every "Placement" link promises. */}
+        <header className="fh-hero up-simple">
+          <HeroDeco />
+          <div className="fh-wrap">
+            <div className="fh-body">
+              <span className="up-soon"><i />Coming soon</span>
+              <h1 className="fh-title">
+                <span className="fh-lead">Placements &amp; career support</span>
+                <span className="fh-punch">are on their way.</span>
+              </h1>
+              <p className="fh-sub">
+                A dedicated placement board with openings, internships and career support is
+                coming to ShikshaCom.
+              </p>
+              <div className="fh-cta-row">
+                <Link className="fh-btn fh-btn-primary" to="/contact">
+                  Contact us
+                  <ScribbleIcon name="arrow-right" size={17} />
+                </Link>
+                <button type="button" className="fh-btn fh-btn-ghost" onClick={goBack}>
+                  Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <div className="upcoming-container">
-          <h1>Coming Soon</h1>
-          <p className="upcoming-page-description">
-            We're working hard to bring you exciting new features. Here's what's on our roadmap:
-          </p>
+          <div className="up-head">
+            <h2>Also on our roadmap</h2>
+            <p>What else we are building, and where each piece stands.</p>
+          </div>
 
           <div className="upcoming-features-grid">
-            {upcomingFeatures.map((feature, index) => (
+            {/* Placements (the first entry) is the hero above, so it is not
+                repeated as a card. */}
+            {upcomingFeatures.slice(1).map((feature, index) => (
               <div key={index} className="upcoming-feature-card">
                 <div className="upcoming-feature-header">
                   <h3>{feature.title}</h3>
@@ -93,28 +126,8 @@ const Upcoming = () => {
               </div>
             ))}
           </div>
-
-          <div className="upcoming-cta-section">
-            {/* Was "Stay Updated" + a Notify Me button. There is no notify
-                backend for this page, so the promise was never kept — the
-                button only navigated to /contact. Copy now matches what the
-                page can actually do. */}
-            <h2>Have something in mind?</h2>
-            <p>
-              Tell us what you would like us to build next, or ask about
-              anything on this roadmap.
-            </p>
-            <div className="upcoming-cta-links">
-              <Link className="upcoming-cta-link" to="/contact">
-                Contact us
-              </Link>
-            </div>
-            <div className="upcoming-cta-buttons">
-              <button type="button" className="upcoming-back-btn" onClick={goBack}>
-                Back
-              </button>
-            </div>
-          </div>
+          {/* The old closing "Have something in mind?" card repeated the
+              hero's Contact us / Back buttons, so it was dropped. */}
         </div>
         <Footer />
       </div>

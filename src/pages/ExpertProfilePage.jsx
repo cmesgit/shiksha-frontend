@@ -328,7 +328,14 @@ export default function ExpertProfilePage() {
   const listings = (expert.listings || []).filter(l => l.is_active && !l.is_suspended);
   const pausedListings = (expert.listings || []).filter(l => !l.is_active && !l.is_suspended);
   const multi = listings.length > 1;
-  const primaryListing = listings[0] || null;
+  // `default_listing_id` is the server's own answer to "which listing do we
+  // charge for when the client names none" (ExpertProfile.default_listing).
+  // `listings[0]` agreed with it only by luck: CreateOrderView used to sort
+  // by `order` alone, whose tie-break is undefined on equal orders, so the
+  // amount written to the session could differ from the figure shown here.
+  // Falls back to listings[0] for an older payload.
+  const primaryListing =
+    listings.find(l => l.id === expert.default_listing_id) || listings[0] || null;
   const heroPrice = primaryListing ? primaryListing.price_rupees : expert.rate;
   const locationLine = expert.class_mode === "online"
     ? MODE_TEXT.online
@@ -444,7 +451,17 @@ export default function ExpertProfilePage() {
         <aside className="ep-panelWrap">
               <div className="ep-panel">
                 <div className="ep-panel__price">{heroPrice === 0 ? "Free" : `₹${heroPrice}`}</div>
-                <div className="ep-panel__sub">{multi ? "from · per 60-min session" : "per 60-min session"}</div>
+                {/* NOT "from". This panel prices the DEFAULT listing — the
+                    one the booking form preselects and the one the server
+                    charges for when the client names none — which is not
+                    necessarily the cheapest. Here that is the ₹900 guitar
+                    lesson while the ₹500 tabla taster is the floor, so
+                    "from ₹900" was simply false. "from" belongs on the
+                    directory card, which really does show min(listings). */}
+                <div className="ep-panel__sub">
+                  {multi ? `${primaryListing?.title || "Default skill"} · per 60-min session`
+                         : "per 60-min session"}
+                </div>
                 <div className="ep-panel__chips">
                   {expert.open_slots_week != null && (
                     <span className={`ep-panel__chip${expert.open_slots_week > 0 ? " on" : ""}`}>
@@ -627,8 +644,12 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
   // Multi-skill: an expert can publish several separately-priced offerings.
   // The directory / skills-and-pricing section arrive here with a listing id.
   const listings = (expert.listings || []).filter(l => l.is_active && !l.is_suspended);
+  // Same default as the hero and the server, so the price in the panel,
+  // the price in this form and the amount charged are one number.
+  const serverDefault =
+    listings.find(l => l.id === expert.default_listing_id)?.id || listings[0]?.id;
   const [listingId, setListingId] = useState(
-    () => (listings.some(l => l.id === initialListing) ? initialListing : listings[0]?.id) || ""
+    () => (listings.some(l => l.id === initialListing) ? initialListing : serverDefault) || ""
   );
   useEffect(() => {
     if (initialListing && listings.some(l => l.id === initialListing)) setListingId(initialListing);
@@ -725,7 +746,11 @@ function BookForm({ expert, onBook, avail, availLoaded, initialListing }) {
         </>
       )}
 
-      <div className="ep-book-price">{price === 0 ? "Free for now" : `₹${price} per session`}</div>
+      {/* "Free", not "Free for now". The same session said "Free" in the
+          hero, "Free for now" here and "Free" again in the sticky bar —
+          three wordings for one price, one of which promises a future
+          change nobody has decided on. */}
+      <div className="ep-book-price">{price === 0 ? "Free" : `₹${price} per session`}</div>
 
       <label className="ep-book-label">Pick a time · this week</label>
       {!availLoaded ? (

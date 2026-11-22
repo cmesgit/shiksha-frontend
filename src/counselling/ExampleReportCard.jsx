@@ -77,12 +77,36 @@ function Ring({ value }) {
   );
 }
 
+/**
+ * The floating "Live 1:1 session · 45–60 min · video" badge is on the board
+ * and renders unconditionally.
+ *
+ * It used to sit behind a `sessionsLive` prop, on the reasoning that the
+ * badge states a BOOKABLE FACT the "EXAMPLE REPORT" label does not cover,
+ * and that with /api/counseling/counselors/ returning count 0 it would
+ * advertise a service nobody can buy. That reasoning was sound, and it is
+ * the same gate that kept the hero's third tick, its CTA and how-it-works
+ * step 3 in a pre-launch state the board never had.
+ *
+ * Owner decision 2026-11-17: build the board as drawn and approve
+ * counsellors to make it true, rather than ship the pre-launch page
+ * indefinitely. The gate is removed here for the same reason it was removed
+ * there. If counsellors are ever taken offline again, this badge and that
+ * tick are what to re-gate — together, not one at a time.
+ */
 export default function ExampleReportCard() {
   const [tab, setTab] = useState("india");
   const r = REPORTS[tab];
 
   return (
     <div className="er-card">
+      <div className="er-session">
+        <span className="er-session-dot" aria-hidden="true" />
+        <span>
+          <b>Live 1:1 session</b>
+          <small>45–60 min · video</small>
+        </span>
+      </div>
       <div className="er-head">
         <span className="er-kicker">Your career report</span>
         <div className="er-toggle" role="group" aria-label="Example report region">

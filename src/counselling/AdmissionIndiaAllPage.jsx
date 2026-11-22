@@ -35,10 +35,15 @@
 // The detail payload (~450 KB of course text) is imported on demand when a
 // profile is opened, so browsing the list does not download it.
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import CounsellingShell from "./CounsellingShell";
+import AdmissionHelpModal from "./AdmissionHelpModal";
+import IndiaCompareBar from "./IndiaCompareBar";
+import { IndiaCompareProvider } from "./IndiaCompareContext";
+import { useIndiaCompare } from "./useIndiaCompare";
 import { NIRF_980 } from "./data/nirf980";
+import { csv, rankStart, rankLabel, isBand, rankParam } from "./data/nirfFacets";
 
 const POPULAR = [
   ["IITs", "IIT"],
@@ -64,147 +69,45 @@ const CATEGORIES = [
   "Agriculture",
 ];
 
-const csv = (v) => (v ? String(v).split(",").map((s) => s.trim()).filter(Boolean) : []);
+// PLACEMENT NOTE: the old inline `Drawer` (cf-drawer modal) that used to
+// live here was replaced by the board's own routable
+// AdmissionIndiaDetailPage.jsx (/admission/india/all/:rank) — same reason
+// AbroadUniversitiesPage.jsx's drawer was replaced: "View details" opens a
+// real page with a URL, Similar institutions and tabs, not a cf-drawer with
+// none of that. "Request brochure" and "+ Add to compare" are new — the
+// board showed both on every directory card and neither existed here.
 
-// A NIRF rank is EITHER a position (number) OR a band (string, "101-150").
-// NIRF ranks the top ~100 of each list individually and bands the rest, so
-// 576 of the 980 carry at least one band. The two must never be flattened
-// into one another: a band is a range the institution sits somewhere inside,
-// and printing "#101" for "101-150" would invent a position it never held.
-const rankStart = (v) =>
-  v === undefined ? Infinity : typeof v === "number" ? v : parseInt(v, 10);
-const rankLabel = (v) =>
-  v === undefined ? "—" : typeof v === "number" ? `#${v}` : `#${v.replace("-", "–")}`;
-const isBand = (v) => typeof v === "string";
+const DETAIL = "/admission/india/all";
 
-const FEE_TEXT = {
-  verified: "Fees verified from official documents",
-  source_found: "Fee source found — values not verified",
-  not_verified: "Fees not verified for this edition",
-};
-
-function Drawer({ row, onClose }) {
-  const [detail, setDetail] = useState(null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (!row) return;
-    let live = true;
-    setDetail(null);
-    setFailed(false);
-    // Loaded here, not at module scope: the detail payload is ~450 KB and
-    // the list never renders any of it.
-    import("./data/nirf980-detail")
-      .then((m) => {
-        if (!live) return;
-        setDetail(m.NIRF_980_DETAIL.find((d) => d.listRank === row.listRank) || null);
-      })
-      .catch(() => live && setFailed(true));
-    return () => { live = false; };
-  }, [row]);
-
-  if (!row) return null;
-
+// The compare tray has to persist across this directory, the detail page
+// and the compare page — three SEPARATE top-level routes (unlike Abroad's
+// single gated route swapping internal "screens"), so there is no one
+// shared ancestor to mount IndiaCompareProvider on. Each page mounts its
+// own; the tray is localStorage-backed, so selections made on one page are
+// already there the moment the next page's provider reads storage.
+export default function AdmissionIndiaAllPage() {
   return (
-    <div className="cf-drawer-mask" onClick={onClose}>
-      <aside
-        className="cf-drawer"
-        role="dialog"
-        aria-modal="true"
-        aria-label={row.name}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="cf-drawer-head">
-          <div>
-            <div className="cf-drawer-kicker">
-              {Object.entries(row.ranks)
-                .map(([k, v]) => `${k} ${isBand(v) ? v.replace("-", "–") : v}`)
-                .join(" · ") || "NIRF 2025"}
-            </div>
-            <h2 className="cf-drawer-title">{row.name}</h2>
-            <div className="cf-drawer-summary">
-              {[row.city, row.state].filter(Boolean).join(", ")} · {row.type} · {row.ownership}
-            </div>
-          </div>
-          <button className="cf-drawer-x" onClick={onClose} aria-label="Close">×</button>
-        </div>
-
-        <div className="cf-drawer-body">
-          <section className="cf-drawer-sec">
-            <h3>Courses</h3>
-            <div className={`ab-fee ab-fee-${row.courseSource === "official" ? "published" : "partial"}`}>
-              <div className="ab-fee-label">
-                {row.courseSource === "official"
-                  ? "From the institution's official programme list"
-                  : "Indicative course groups — not individually verified"}
-              </div>
-              {row.courseSource !== "official" && (
-                <p className="ab-caveat">
-                  These are standard groups for this kind of institution, not a checked
-                  catalogue. Confirm the current offering on the official website.
-                </p>
-              )}
-            </div>
-            {failed && <p className="ab-caveat">Course list could not be loaded.</p>}
-            {!failed && !detail && <p className="ab-caveat">Loading courses…</p>}
-            {detail && detail.courses.length > 0 && (
-              <ul className="in-courses">
-                {detail.courses.map((c, i) => <li key={i}>{c}</li>)}
-              </ul>
-            )}
-          </section>
-
-          <section className="cf-drawer-sec">
-            <h3>Admission</h3>
-            {detail ? (
-              <dl className="sc-kv in-kv">
-                {detail.ugEntrance && (<><dt>UG entrance</dt><dd>{detail.ugEntrance}</dd></>)}
-                {detail.pgEntrance && (<><dt>PG entrance</dt><dd>{detail.pgEntrance}</dd></>)}
-                {detail.admissionRoute && (<><dt>Route</dt><dd>{detail.admissionRoute}</dd></>)}
-                {!detail.ugEntrance && !detail.pgEntrance && !detail.admissionRoute && (
-                  <><dt>Entrance</dt><dd>Not listed in this edition.</dd></>
-                )}
-              </dl>
-            ) : <p className="ab-caveat">Loading…</p>}
-          </section>
-
-          <section className="cf-drawer-sec">
-            <h3>Fees</h3>
-            <div className={`ab-fee ab-fee-${row.feeStatus === "verified" ? "published" : row.feeStatus === "source_found" ? "partial" : "none"}`}>
-              <div className="ab-fee-label">{FEE_TEXT[row.feeStatus]}</div>
-              <p className="ab-caveat">
-                {row.feeStatus === "verified"
-                  ? "Taken from the institution's own fee document. Fees change every year — confirm on the official website before applying."
-                  : "This directory does not show an estimated fee where it could not verify one. Check the current fee notice on the official website."}
-              </p>
-            </div>
-          </section>
-
-          {detail?.website && (
-            <div className="cf-drawer-cta-row">
-              <a
-                className="sc-btn green"
-                href={`https://${detail.website.replace(/^https?:\/\//, "")}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Official website →
-              </a>
-              {row.websiteVerify && (
-                <span className="ab-pill ab-pill-partial">Address not re-checked this edition</span>
-              )}
-            </div>
-          )}
-        </div>
-      </aside>
-    </div>
+    <IndiaCompareProvider>
+      <AdmissionIndiaAllPageInner />
+      <IndiaCompareBar />
+    </IndiaCompareProvider>
   );
 }
 
-export default function AdmissionIndiaAllPage() {
+function AdmissionIndiaAllPageInner() {
   const [params, setParams] = useSearchParams();
-  const [open, setOpen] = useState(null);
-  const [tab, setTab] = useState("stream");
+  const [helpRow, setHelpRow] = useState(null);
+  const { inCompare, toggle: toggleCompare } = useIndiaCompare();
+  // ?tab= opens this page on a chosen browse axis. The overview at
+  // /admission/india links in with it ("View all (16)", and the entrance-exam
+  // stat); without it those links land on Stream whatever they asked for,
+  // which reads as the link being broken rather than ignored. Validated
+  // against the known tabs so a junk value falls back instead of rendering
+  // an empty facet list.
+  const wantedTab = params.get("tab");
+  const [tab, setTab] = useState(
+    BROWSE_TABS.some(([k]) => k === wantedTab) ? wantedTab : "stream",
+  );
   const [category, setCategory] = useState("Overall");
   const [limit, setLimit] = useState(60);
 
@@ -330,7 +233,7 @@ export default function AdmissionIndiaAllPage() {
             980-row directory does not. Say what is actually over there. */}
         <p className="ai-switch ab-switch">
           Comparing engineering colleges?{" "}
-          <Link to="/admission/india">
+          <Link to="/admission/india/engineering">
             Open the NIRF Engineering top 50 →
           </Link>
           <span className="ai-switch-note">
@@ -453,7 +356,7 @@ export default function AdmissionIndiaAllPage() {
             <ul className="ai-list ab-list">
               {rows.slice(0, limit).map((r) => (
                 <li key={r.listRank}>
-                  <button className="sc-card ai-row ab-row" onClick={() => setOpen(r)}>
+                  <div className="sc-card ai-row ab-row">
                     <span
                       className={`ai-rank ab-rank${r.ranks[category] === undefined ? " unranked" : ""}${isBand(r.ranks[category]) ? " banded" : ""}`}
                       title={isBand(r.ranks[category])
@@ -473,7 +376,23 @@ export default function AdmissionIndiaAllPage() {
                         {r.feeStatus === "verified" ? "Fees verified" : "Fees not verified"}
                       </span>
                     </span>
-                  </button>
+                    <span className="ab-row-actions">
+                      <button className="sc-btn ghost ab-row-btn" onClick={() => setHelpRow(r)}>
+                        Request brochure
+                      </button>
+                      <Link className="sc-btn ghost ab-row-btn" to={`${DETAIL}/${rankParam(r)}`}>
+                        View details
+                      </Link>
+                      <label className="ab-row-cmp">
+                        <input
+                          type="checkbox"
+                          checked={inCompare(r.listRank)}
+                          onChange={() => toggleCompare(r.listRank)}
+                        />
+                        Add to compare
+                      </label>
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -521,7 +440,9 @@ export default function AdmissionIndiaAllPage() {
             <li>Exam &amp; counselling support</li>
             <li>Shortlist based on your rank</li>
           </ul>
-          <Link className="sc-btn green" to="/counselling/counsellors">Talk to a counsellor →</Link>
+          <button className="sc-btn green" onClick={() => setHelpRow({})}>
+            Talk to a counsellor →
+          </button>
         </div>
 
         <div>
@@ -582,7 +503,18 @@ export default function AdmissionIndiaAllPage() {
         </div>
       </section>
 
-      <Drawer row={open} onClose={() => setOpen(null)} />
+      <AdmissionHelpModal
+        open={!!helpRow}
+        onClose={() => setHelpRow(null)}
+        title={helpRow?.name ? "Request brochure" : "Talk to a counsellor"}
+        subtitle={
+          helpRow?.name
+            ? `Share your details and we'll send you ${helpRow.name}'s brochure and help with admissions.`
+            : "Share your details and a ShikshaCom counsellor will call you back."
+        }
+        universityName={helpRow?.name}
+        domain="india"
+      />
     </CounsellingShell>
   );
 }

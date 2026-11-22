@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Lock, Unlock, Trash2, RotateCcw } from "lucide-react";
+import { Unlock, RotateCcw } from "lucide-react";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getModThreads, lockThread, unlockThread, deleteModThread, restoreModThread } from "../api/moderation";
 import NoteConfirmModal from "../components/NoteConfirmModal";
 
@@ -109,7 +110,7 @@ const AllThreads = ({ onAction }) => {
                         </button>
                       ) : (
                         <button className="mod-btn info small" onClick={() => setConfirm({ kind: "lock", row: t })}>
-                          <Lock size={13} /> Lock
+                          <ScribbleIcon name="lock" size={13} /> Lock
                         </button>
                       )}
                       {t.is_removed ? (
@@ -118,7 +119,7 @@ const AllThreads = ({ onAction }) => {
                         </button>
                       ) : (
                         <button className="mod-btn danger small" onClick={() => setConfirm({ kind: "delete", row: t })}>
-                          <Trash2 size={13} /> Remove
+                          <ScribbleIcon name="trash" size={13} /> Remove
                         </button>
                       )}
                     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Trash2, CircleCheck, ShieldOff } from "lucide-react";
+import { ShieldOff } from "lucide-react";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import { getAutoRejected, deleteAutoRejected, restoreAutoRejected, banAutoRejectedAuthor } from "../api/moderation";
 import NoteConfirmModal from "../components/NoteConfirmModal";
 
@@ -102,10 +103,10 @@ const AutoRejected = ({ onCount }) => {
 
             <div className="mod-actions">
               <button className="mod-btn danger" onClick={() => setConfirm({ type: "delete", row: p })}>
-                <Trash2 size={14} /> Confirm &amp; Delete
+                <ScribbleIcon name="trash" size={14} /> Confirm &amp; Delete
               </button>
               <button className="mod-btn ghost" onClick={() => restore(p)}>
-                <CircleCheck size={14} /> Override — Restore Post
+                <ScribbleIcon name="check" size={14} /> Override — Restore Post
               </button>
               <button className="mod-btn ghost" style={{ color: "#c0392b" }} onClick={() => setConfirm({ type: "ban", row: p })}>
                 <ShieldOff size={14} /> Ban Author

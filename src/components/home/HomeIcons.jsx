@@ -1,6 +1,8 @@
 /* Lightweight inline icon set for the redesigned marketing pages.
    Stroke icons inherit `currentColor`, so tinting is done in CSS. */
 
+import ScribbleIcon from "../icons/ScribbleIcon";
+
 const S = ({ children, sw = 2, ...rest }) => (
   <svg
     viewBox="0 0 24 24"
@@ -16,43 +18,17 @@ const S = ({ children, sw = 2, ...rest }) => (
   </svg>
 );
 
-export const IcArrowRight = (p) => (
-  <S sw={2.4} {...p}>
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </S>
-);
+export const IcArrowRight = (p) => <ScribbleIcon name="arrow-right" {...p} />;
 
-export const IcArrowLeft = (p) => (
-  <S sw={2.4} {...p}>
-    <path d="M19 12H5M11 18l-6-6 6-6" />
-  </S>
-);
+export const IcArrowLeft = (p) => <ScribbleIcon name="arrow-left" {...p} />;
 
-export const IcSearch = (p) => (
-  <S sw={2.2} {...p}>
-    <circle cx="11" cy="11" r="7" />
-    <path d="M21 21l-4.3-4.3" />
-  </S>
-);
+export const IcSearch = (p) => <ScribbleIcon name="search" {...p} />;
 
-export const IcVideo = (p) => (
-  <S sw={2.2} {...p}>
-    <path d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 6h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" />
-  </S>
-);
+export const IcVideo = (p) => <ScribbleIcon name="video" {...p} />;
 
-export const IcCheck = (p) => (
-  <S sw={2.6} {...p}>
-    <path d="M20 6L9 17l-5-5" />
-  </S>
-);
+export const IcCheck = (p) => <ScribbleIcon name="check" {...p} />;
 
-export const IcGradCap = (p) => (
-  <S {...p}>
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-    <path d="M6 12v5c3 3 9 3 12 0v-5" />
-  </S>
-);
+export const IcGradCap = (p) => <ScribbleIcon name="graduation-cap" {...p} />;
 
 export const IcShield = (p) => (
   <S {...p}>
@@ -61,12 +37,7 @@ export const IcShield = (p) => (
   </S>
 );
 
-export const IcLock = (p) => (
-  <S {...p}>
-    <rect x="3" y="11" width="18" height="11" rx="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </S>
-);
+export const IcLock = (p) => <ScribbleIcon name="lock" {...p} />;
 
 export const IcPhone = (p) => (
   <S {...p}>
@@ -75,25 +46,11 @@ export const IcPhone = (p) => (
   </S>
 );
 
-export const IcEye = (p) => (
-  <S {...p}>
-    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
-    <circle cx="12" cy="12" r="3" />
-  </S>
-);
+export const IcEye = (p) => <ScribbleIcon name="eye" {...p} />;
 
-export const IcChat = (p) => (
-  <S {...p}>
-    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-  </S>
-);
+export const IcChat = (p) => <ScribbleIcon name="message" {...p} />;
 
-export const IcBook = (p) => (
-  <S {...p}>
-    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
-  </S>
-);
+export const IcBook = (p) => <ScribbleIcon name="book" {...p} />;
 
 export const IcTarget = (p) => (
   <S {...p}>
@@ -111,40 +68,15 @@ export const IcBriefcase = (p) => (
   </S>
 );
 
-export const IcClock = (p) => (
-  <S {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 7v5l3 2" />
-  </S>
-);
+export const IcClock = (p) => <ScribbleIcon name="clock" {...p} />;
 
-export const IcHeart = (p) => (
-  <S sw={1.9} {...p}>
-    <path d="M12 20.5s-8-4.9-8-11a4.6 4.6 0 0 1 8-3.1 4.6 4.6 0 0 1 8 3.1c0 6.1-8 11-8 11z" />
-  </S>
-);
+export const IcHeart = (p) => <ScribbleIcon name="heart" {...p} />;
 
-export const IcPlay = (p) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
-    <path d="M8 5v14l11-7z" />
-  </svg>
-);
+export const IcPlay = (p) => <ScribbleIcon name="play" filled {...p} />;
 
-export const IcPlayCircle = (p) => (
-  <S sw={1.9} {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M10 8.5 16 12l-6 3.5Z" />
-  </S>
-);
+export const IcPlayCircle = (p) => <ScribbleIcon name="play" {...p} />;
 
-export const IcCalendar = (p) => (
-  <S {...p}>
-    <rect x="3" y="4" width="18" height="18" rx="2" />
-    <path d="M16 2v4" />
-    <path d="M8 2v4" />
-    <path d="M3 10h18" />
-  </S>
-);
+export const IcCalendar = (p) => <ScribbleIcon name="calendar" {...p} />;
 
 export const IcStar = ({ off = false, ...p }) => (
   <svg viewBox="0 0 24 24" fill={off ? "#E3E8E4" : "#FFB21D"} aria-hidden="true" {...p}>
@@ -152,37 +84,15 @@ export const IcStar = ({ off = false, ...p }) => (
   </svg>
 );
 
-export const IcMenu = (p) => (
-  <S sw={2} {...p}>
-    <path d="M4 6h16M4 12h16M4 18h16" />
-  </S>
-);
+export const IcMenu = (p) => <ScribbleIcon name="menu" {...p} />;
 
-export const IcX = (p) => (
-  <S sw={2} {...p}>
-    <path d="M18 6L6 18M6 6l12 12" />
-  </S>
-);
+export const IcX = (p) => <ScribbleIcon name="close" {...p} />;
 
-export const IcChevronDown = (p) => (
-  <S sw={2.2} {...p}>
-    <path d="M6 9l6 6 6-6" />
-  </S>
-);
+export const IcChevronDown = (p) => <ScribbleIcon name="chevron-down" {...p} />;
 
-export const IcFileText = (p) => (
-  <S {...p}>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
-  </S>
-);
+export const IcFileText = (p) => <ScribbleIcon name="file-text" {...p} />;
 
-export const IcGlobe = (p) => (
-  <S {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
-  </S>
-);
+export const IcGlobe = (p) => <ScribbleIcon name="globe" {...p} />;
 
 export const IcForum = (p) => (
   <S {...p}>
@@ -191,13 +101,7 @@ export const IcForum = (p) => (
   </S>
 );
 
-export const IcLibrary = (p) => (
-  <S {...p}>
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-    <path d="M9 7h6" />
-  </S>
-);
+export const IcLibrary = (p) => <ScribbleIcon name="books" {...p} />;
 
 export const IcCompass = (p) => (
   <S {...p}>
@@ -206,40 +110,15 @@ export const IcCompass = (p) => (
   </S>
 );
 
-export const IcInfo = (p) => (
-  <S {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 16v-4M12 8h.01" />
-  </S>
-);
+export const IcInfo = (p) => <ScribbleIcon name="info" {...p} />;
 
-export const IcMail = (p) => (
-  <S {...p}>
-    <rect x="3" y="5" width="18" height="14" rx="2" />
-    <path d="m3 7 9 6 9-6" />
-  </S>
-);
+export const IcMail = (p) => <ScribbleIcon name="mail" {...p} />;
 
-export const IcHelp = (p) => (
-  <S {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4M12 17.5h.01" />
-  </S>
-);
+export const IcHelp = (p) => <ScribbleIcon name="help" {...p} />;
 
-export const IcUsers = (p) => (
-  <S {...p}>
-    <path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-    <circle cx="9.5" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87M15.5 3.13a4 4 0 0 1 0 7.75" />
-  </S>
-);
+export const IcUsers = (p) => <ScribbleIcon name="users" {...p} />;
 
-export const IcPlus = (p) => (
-  <S sw={2.6} {...p}>
-    <path d="M12 5v14M5 12h14" />
-  </S>
-);
+export const IcPlus = (p) => <ScribbleIcon name="plus" {...p} />;
 
 export const IcExternal = (p) => (
   <S sw={2.2} {...p}>
@@ -247,13 +126,7 @@ export const IcExternal = (p) => (
   </S>
 );
 
-export const IcLightbulb = (p) => (
-  <S {...p}>
-    <path d="M9 18h6" />
-    <path d="M10 22h4" />
-    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8a6 6 0 0 0-12 0c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5" />
-  </S>
-);
+export const IcLightbulb = (p) => <ScribbleIcon name="idea" {...p} />;
 
 export const IcSparkles = (p) => (
   <S {...p}>
@@ -265,16 +138,6 @@ export const IcSparkles = (p) => (
   </S>
 );
 
-export const IcTrendingUp = (p) => (
-  <S {...p}>
-    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-    <polyline points="16 7 22 7 22 13" />
-  </S>
-);
+export const IcTrendingUp = (p) => <ScribbleIcon name="progress" {...p} />;
 
-export const IcMonitor = (p) => (
-  <S {...p}>
-    <rect x="2" y="3" width="20" height="14" rx="2" />
-    <path d="M8 21h8M12 17v4" />
-  </S>
-);
+export const IcMonitor = (p) => <ScribbleIcon name="laptop" {...p} />;

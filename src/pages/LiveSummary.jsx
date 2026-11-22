@@ -40,6 +40,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { IcStar } from "../components/home/HomeIcons";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import liveSessionService from "../api/liveSessionService";
 import apiClient from "../api/apiClient";
 import { extractApiError } from "../api/groupSessionService";
@@ -104,10 +105,9 @@ function NextStepCard({ session }) {
       ) : (
         <>
           <div className="ls-next-title">Host your own room any time</div>
-          <p>This was a free instant room — hosts are never time-capped. Open a new one from /live whenever you like, or go all-access to remove the joiner cap everywhere.</p>
+          <p>Start another collaboration, choose its duration, and share the new room code.</p>
           <div className="ls-next-actions">
             <Link to="/live" className="ls-next-btn ls-next-btn--solid">Host a room</Link>
-            <a href={ACADEMY_BROWSE_URL} className="ls-next-btn ls-next-btn--outline">See plans</a>
           </div>
         </>
       )}
@@ -282,7 +282,7 @@ export default function LiveSummary() {
                     </span>
                     <span className="gs-file__actions">
                       <a href={f.url} download target="_blank" rel="noreferrer" className="gs-file__btn" title="Download">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                        <ScribbleIcon name="download" size={13} />
                       </a>
                     </span>
                   </div>

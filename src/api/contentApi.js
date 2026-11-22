@@ -25,6 +25,9 @@ export const toBlogCard = (post) => ({
   tags: post.tags || [],
   chapterNumber: post.chapter_number,
   readingMinutes: post.reading_minutes,
+  // Dropped before, which left the listing cards with no date and
+  // foreclosed any client-side date sort.
+  publishAt: post.publish_at,
   fromCms: true,
 });
 
@@ -90,6 +93,28 @@ export async function getBlogPost(slug, locale) {
   } catch (err) {
     if (err?.response?.status === 404) return { status: "notfound" };
     return { status: "error" };
+  }
+}
+
+/**
+ * Prev / next chapter and related posts for one article.
+ *
+ * Degrades to empty rather than throwing: this feeds the foot of an article
+ * that has already rendered, so a failure here should cost the reader a
+ * footer, not the page they came for.
+ */
+export async function getRelatedBlogPosts(slug, locale, { signal } = {}) {
+  try {
+    const { data } = await api.get(`/content/blogs/${encodeURI(slug)}/related/`, {
+      params: locale ? { locale } : undefined, signal, timeout: 8000,
+    });
+    return {
+      prev: data.prev ? toBlogCard(data.prev) : null,
+      next: data.next ? toBlogCard(data.next) : null,
+      related: (data.related || []).map(toBlogCard),
+    };
+  } catch {
+    return { prev: null, next: null, related: [] };
   }
 }
 

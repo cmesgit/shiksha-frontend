@@ -1,0 +1,323 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   src/explore/Verification.css
+   Community verification — /explore/verify and the badges it puts on cards.
+   Spec: shiksha-backend/docs/EXPLORE_VERIFICATION.md
+
+   Everything is scoped under .vf (page) or .vf-pill / .vf-prompt (the bits
+   that ride on Explore cards), so it never touches the rest of the app.
+
+   ⚠ Colours resolve through Explore's own tokens — --forest, --teal, --ink,
+   --muted, --line, declared on .exp in Explore.css. This file re-declares
+   them on .vf because the Verify page is a sibling of .exp, not a child of
+   it, so it is outside that cascade. The three state tints are new and have
+   no token in Explore.css; they are declared here, once, as --vf-* and used
+   by name everywhere below rather than as literals.
+
+   ⚠ Vertical padding longhands, never the `padding` shorthand, on anything
+   that also carries .exp-wrap — that class sets `padding: 0 24px` at equal
+   specificity, and a shorthand here silently wipes the page gutter. This bit
+   this module once already; see the note on .exp-docpage in Explore.css.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.vf {
+  --forest: #125027;
+  --teal: #1b9c85;
+  --ink: #0e1c0f;
+  --muted: #5b6b60;
+  --line: rgba(9, 62, 5, 0.12);
+
+  /* State tints. Amber = waiting on people, red = something is wrong. */
+  --vf-ok-bg: #e4f3e8;
+  --vf-ok-fg: #0b5b3e;
+  --vf-wait-bg: #fff3d6;
+  --vf-wait-fg: #8a5a00;
+  --vf-bad-bg: #fdece7;
+  --vf-bad-fg: #8a2b10;
+
+  background: #fff;
+  color: var(--ink);
+  font-family: Poppins, system-ui, sans-serif;
+  min-height: 70vh;
+  padding-top: 28px;
+  padding-bottom: 64px;
+}
+.vf *, .vf *::before, .vf *::after { box-sizing: border-box; }
+
+.vf-eyebrow {
+  font: 700 11px Poppins, sans-serif;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin: 0 0 6px;
+}
+.vf-title {
+  font: 800 clamp(26px, 4vw, 40px) Montserrat, sans-serif;
+  color: var(--forest);
+  letter-spacing: -0.8px;
+  margin: 0 0 10px;
+}
+.vf-lede { color: var(--muted); font-size: 14.5px; line-height: 1.65; max-width: 60ch; margin: 0 0 26px; }
+.vf-caption { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+.vf-sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+.vf-meta { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+
+/* ── tabs ──────────────────────────────────────────────────────────────────── */
+.vf-tabs {
+  display: flex;
+  flex-wrap: wrap;            /* five tabs do not fit on a phone */
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.vf-tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 12px 14px;
+  min-height: 44px;           /* the design's hit target */
+  font: 600 14px Poppins, sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+}
+.vf-tab:hover { color: var(--ink); }
+.vf-tab.active { color: var(--forest); border-bottom-color: var(--forest); }
+
+/* ── status pills ──────────────────────────────────────────────────────────── */
+.vf-pill {
+  display: inline-block;
+  font: 700 11.5px Poppins, sans-serif;
+  padding: 3px 11px;
+  border-radius: 50px;
+  white-space: nowrap;
+}
+.vf-verified, .vf-confirmed { background: var(--forest); color: #fff; }
+.vf-unverified, .vf-pending { background: var(--vf-wait-bg); color: var(--vf-wait-fg); }
+.vf-changes_requested, .vf-hidden, .vf-declined { background: var(--vf-bad-bg); color: var(--vf-bad-fg); }
+
+/* ── rows ──────────────────────────────────────────────────────────────────── */
+.vf-row, .vf-spec, .vf-not {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+.vf-row-main { flex: 1 1 260px; min-width: 0; }
+.vf-row h3, .vf-spec h3 {
+  font: 700 17px Montserrat, sans-serif;
+  color: var(--forest);
+  margin: 0 0 2px;
+  /* Titles are user-supplied and can be long; wrap rather than overflow the
+     card and push the Review button off the row. */
+  overflow-wrap: anywhere;
+}
+.vf-progress { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+
+.vf-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+.vf-tag {
+  font: 600 12px Poppins, sans-serif;
+  background: #eef7f1;
+  color: var(--forest);
+  padding: 4px 10px;
+  border-radius: 50px;
+  overflow-wrap: anywhere;
+}
+
+/* ── buttons ───────────────────────────────────────────────────────────────── */
+.vf-cta, .vf-send {
+  appearance: none;
+  border: 0;
+  background: var(--forest);
+  color: #fff;
+  font: 700 14px Poppins, sans-serif;
+  padding: 0 22px;
+  min-height: 44px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+.vf-cta:hover, .vf-send:hover { background: #0b3d1e; }
+.vf-send { width: 100%; margin-top: 14px; }
+.vf-send:disabled { background: #cfdbd3; color: #7b8a81; cursor: not-allowed; }
+
+.vf-ghost, .vf-chip, .vf-open {
+  appearance: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--forest);
+  font: 600 13px Poppins, sans-serif;
+  padding: 0 16px;
+  min-height: 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.vf-ghost:hover, .vf-chip:hover, .vf-open:hover { border-color: var(--forest); }
+.vf-chip:disabled { opacity: 0.5; cursor: wait; }
+.vf-dead { color: var(--vf-bad-fg); border-color: var(--vf-bad-bg); cursor: not-allowed; }
+
+.vf-back {
+  appearance: none; background: none; border: 0;
+  color: var(--forest); font: 600 14px Poppins, sans-serif;
+  padding: 10px 0; min-height: 44px; cursor: pointer;
+}
+.vf-x {
+  appearance: none; background: none; border: 0;
+  color: var(--muted); font-size: 20px; line-height: 1;
+  width: 44px; height: 44px; cursor: pointer; border-radius: 50%;
+}
+.vf-x:hover { background: #f3f6f4; color: var(--ink); }
+
+/* ── review form ───────────────────────────────────────────────────────────── */
+.vf-review-grid {
+  display: grid;
+  /* auto-fit so the two columns collapse to one on a phone with no breakpoint */
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+}
+.vf-card { border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: #fff; }
+.vf-card h2 { font: 800 21px Montserrat, sans-serif; color: var(--forest); margin: 0 0 4px; overflow-wrap: anywhere; }
+.vf-form { background: #f7fcf9; }
+.vf-filehead { font: 700 13px Poppins, sans-serif; color: var(--ink); margin: 18px 0 8px; }
+
+.vf-files { list-style: none; margin: 0; padding: 0; }
+.vf-files li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; margin-bottom: 8px;
+}
+.vf-fname { font: 600 13.5px Poppins, sans-serif; min-width: 0; overflow-wrap: anywhere; }
+.vf-fname em { display: block; font-style: normal; font-weight: 500; font-size: 12px; color: var(--muted); }
+.vf-empty { color: var(--muted); font-size: 13px; border-style: dashed; }
+
+.vf-check {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; padding: 10px 0;
+}
+.vf-check > span { font-size: 14px; flex: 1 1 160px; }
+.vf-yn { display: flex; gap: 8px; }
+.vf-yes, .vf-no {
+  appearance: none; background: #fff; border: 1px solid var(--line);
+  font: 600 13.5px Poppins, sans-serif; color: var(--ink);
+  min-width: 56px; min-height: 44px; border-radius: 50px; cursor: pointer;
+}
+.vf-yes.on { background: var(--forest); border-color: var(--forest); color: #fff; }
+.vf-no.on { background: var(--vf-bad-bg); border-color: #f0b6a4; color: var(--vf-bad-fg); }
+.vf-yes:disabled, .vf-no:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vf-label { display: block; font: 600 13px Poppins, sans-serif; margin: 14px 0 6px; }
+.vf-note {
+  width: 100%; border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; font: 400 13.5px Poppins, sans-serif;
+  color: var(--ink); resize: vertical;
+}
+.vf-foot { color: var(--muted); font-size: 12.5px; text-align: center; margin: 8px 0 0; }
+.vf-error { color: var(--vf-bad-fg); font-size: 13px; margin: 10px 0 0; }
+.vf-notice {
+  background: var(--vf-wait-bg); color: var(--vf-wait-fg);
+  border-radius: 12px; font-size: 13.5px;
+  padding: 10px 14px; margin: 0 0 16px;
+}
+
+.vf-note-box {
+  background: var(--vf-bad-bg); border-radius: 12px;
+  padding: 12px 14px; margin: 10px 0 0;
+}
+.vf-note-box strong { display: block; font: 700 12px Poppins, sans-serif; color: var(--vf-bad-fg); margin-bottom: 4px; }
+.vf-note-box p { margin: 0; font-size: 13.5px; color: var(--vf-bad-fg); }
+
+/* ── notifications ─────────────────────────────────────────────────────────── */
+.vf-nothead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.vf-not h4 { font: 700 14.5px Poppins, sans-serif; margin: 0 0 2px; color: var(--ink); overflow-wrap: anywhere; }
+.vf-not p { margin: 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.vf-not-body { flex: 1 1 240px; min-width: 0; }
+.vf-dot { width: 8px; height: 8px; border-radius: 50%; background: transparent; flex: 0 0 auto; }
+.vf-dot.on { background: var(--teal); }
+
+/* ── specializations ───────────────────────────────────────────────────────── */
+.vf-addhead { font: 700 14px Poppins, sans-serif; margin: 22px 0 10px; color: var(--ink); }
+.vf-addchips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ── how it works ──────────────────────────────────────────────────────────── */
+.vf-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.vf-step { border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.vf-step > span { font: 700 13px Poppins, sans-serif; color: var(--teal); }
+.vf-step h3 { font: 700 17px Montserrat, sans-serif; color: var(--forest); margin: 6px 0 6px; }
+.vf-step p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.vf-step.vf-warn { background: #f7fcf9; }
+.vf-warnlabel { color: var(--vf-bad-fg) !important; font-weight: 700; }
+.vf-ruleshead { font: 800 22px Montserrat, sans-serif; color: var(--forest); margin: 28px 0 12px; }
+.vf-rules { margin: 0; padding-left: 20px; }
+.vf-rules li { font-size: 14px; color: var(--ink); line-height: 1.75; margin-bottom: 4px; }
+
+/* ── states ────────────────────────────────────────────────────────────────── */
+.vf-loading { color: var(--muted); font-size: 14px; padding: 40px 0; text-align: center; }
+.vf-blank { text-align: center; padding: 48px 20px; }
+.vf-blank h3 { font: 800 20px Montserrat, sans-serif; color: var(--forest); margin: 0 0 8px; }
+.vf-blank p { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Badges on Explore cards and the document page.
+   Scoped to .vf-pill / .vf-prompt, which ride INSIDE .exp, so these inherit
+   Explore's own tokens and only re-declare the three state tints.
+   ───────────────────────────────────────────────────────────────────────────── */
+.exp .vf-pill { --vf-wait-bg: #fff3d6; --vf-wait-fg: #8a5a00; --vf-bad-bg: #fdece7; --vf-bad-fg: #8a2b10; }
+.exp .vf-verified { background: var(--forest); color: #fff; }
+.exp .vf-unverified { background: #fff3d6; color: #8a5a00; }
+.exp .vf-changes_requested, .exp .vf-hidden { background: #fdece7; color: #8a2b10; }
+
+.exp .vf-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; }
+.exp .vf-status small { color: var(--muted); font-size: 12px; }
+
+/* "You specialise in X. Have you checked these files?" */
+.exp .vf-prompt {
+  background: #eef7f1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0 0;
+}
+.exp .vf-prompt p { margin: 0 0 10px; font-size: 13px; color: var(--ink); line-height: 1.55; }
+.exp .vf-prompt button {
+  appearance: none; border: 0; background: var(--forest); color: #fff;
+  font: 700 13px Poppins, sans-serif; padding: 0 18px;
+  min-height: 40px; border-radius: 50px; cursor: pointer;
+}
+
+/* Document page verification + history panels */
+.exp .vf-panelcard { border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-bottom: 14px; background: #f7fcf9; }
+.exp .vf-panelcard h3 { font: 800 18px Montserrat, sans-serif; color: var(--forest); margin: 6px 0 6px; }
+.exp .vf-panelcard p { margin: 0 0 10px; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.exp .vf-who { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; font-size: 13.5px; }
+.exp .vf-tick { width: 20px; height: 20px; border-radius: 50%; background: var(--forest); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex: 0 0 auto; }
+.exp .vf-histrow { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: 10px 0; font-size: 13.5px; }
+.exp .vf-histrow:last-child { border-bottom: 0; }
+.exp .vf-histrow time { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vf * { transition: none !important; animation: none !important; }
+}
+
+/* ── status filter row (ExploreBrowse) ─────────────────────────────────────── */
+/* Lives outside .vf because the browse page is .exp. Declares nothing it does
+   not need — the chip shape is shared with .vf-chip above, this only adds the
+   row and the selected state. */
+.exp .vf-statusrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.exp .vf-chip {
+  appearance: none;
+  background: #fff;
+  border: 1px solid rgba(9, 62, 5, 0.12);
+  color: #125027;
+  font: 600 13px Poppins, sans-serif;
+  padding: 0 16px;
+  min-height: 40px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+.exp .vf-chip:hover { border-color: #125027; }
+.exp .vf-chip.on { background: #eef7f1; border-color: #125027; font-weight: 700; }

@@ -1,5 +1,6 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { resolveCourseVideo } from '../utils/courseVideo';
 
 import '../css/SubjectList.css';
 
@@ -27,12 +28,14 @@ const Breadcrumb = ({ items, onNavigate }) => {
   );
 };
 
-const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, selectedClass, onBack, onEnroll }) => {
+const SubjectList = ({ course, boardGroup, board, selectedClass, onBack, onEnroll }) => {
   const [expandedIndex, setExpandedIndex] = useState(0);
   const purchaseCardRef = useRef(null);
   const [purchaseCardVisible, setPurchaseCardVisible] = useState(false);
   const [showMobileHero, setShowMobileHero] = useState(false);
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [playDemo, setPlayDemo] = useState(false);
+  const demoVideo = resolveCourseVideo(course?.promoVideoUrl);
 
 
 
@@ -60,21 +63,14 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
 
   // CMS-authored description (Course.description) wins when present, same
   // fallback pattern as highlights/includes below.
-  const summaryText = useMemo(() => {
-    if (course.desc?.trim()) return course.desc.trim();
-
-    if (isMbse) {
-      return `${courseName} complete curriculum for ${boardName} with subject-wise structured coverage, chapter breakdown, and board-aligned academic preparation.`;
-    }
-
-    return `${courseName} complete curriculum with subject-wise structured coverage, chapter breakdown, and strong board exam preparation support.`;
-  }, [course.desc, courseName, boardName, isMbse]);
+  const summaryText = course.desc?.trim() || (isMbse
+    ? `${courseName} complete curriculum for ${boardName} with subject-wise structured coverage, chapter breakdown, and board-aligned academic preparation.`
+    : `${courseName} complete curriculum with subject-wise structured coverage, chapter breakdown, and strong board exam preparation support.`);
 
   // CMS-authored highlights/includes (CourseDetail.highlights/.includes, one
   // item per line) win when present; otherwise fall back to the generated
   // copy below so unedited courses still show something useful.
-  const generatedLearnItems = useMemo(
-    () => [
+  const generatedLearnItems = [
       `Master complete ${courseName} curriculum across all subjects`,
       'Attend live interactive classes with expert educators',
       'Access recorded sessions for unlimited revision',
@@ -85,9 +81,7 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
       isMbse
         ? 'Learn from MBSE / textbook-aligned curriculum'
         : 'Learn from textbook-aligned curriculum',
-    ],
-    [courseName, boardName, isMbse]
-  );
+    ];
 
   const generatedIncludeItems = [
     `${course.topics.length} subject sections included in this course`,
@@ -178,6 +172,37 @@ const SubjectList = ({ course, courseId, enrollmentStatus, boardGroup, board, se
       <div className="course-detail-container">
         <div className="course-page-layout">
           <div className="course-page-left">
+            {demoVideo && (
+              <section className="course-detail-panel course-demo" aria-label="Course preview video">
+                <div className="course-demo__heading">
+                  <h2 className="course-section-heading">Watch the course preview</h2>
+                  <p>See what this course covers before you enroll.</p>
+                </div>
+                {demoVideo.type === 'link' ? (
+                  <a href={demoVideo.href} target="_blank" rel="noopener noreferrer" className="course-demo__open">
+                    Open preview video ↗
+                  </a>
+                ) : playDemo ? (
+                  demoVideo.type === 'file' ? (
+                    <video className="course-demo__media" controls playsInline autoPlay src={demoVideo.src} poster={course.thumbnail || undefined}>
+                      Your browser cannot play this video. <a href={demoVideo.href}>Open it directly</a>.
+                    </video>
+                  ) : (
+                    <iframe className="course-demo__media" src={demoVideo.src} title={`${courseName} course preview`} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+                  )
+                ) : (
+                  <button type="button" className="course-demo__play" onClick={() => setPlayDemo(true)} style={course.thumbnail ? { backgroundImage: `linear-gradient(rgba(0, 35, 24, .45), rgba(0, 35, 24, .65)), url(${course.thumbnail})` } : undefined}>
+                    <span className="course-demo__play-icon" aria-hidden="true">▶</span>
+                    <span>Play course preview</span>
+                  </button>
+                )}
+                {playDemo && demoVideo.type !== 'link' && (
+                  <a href={demoVideo.href} target="_blank" rel="noopener noreferrer" className="course-demo__open">
+                    Having trouble playing it? Open the video ↗
+                  </a>
+                )}
+              </section>
+            )}
             <div className="course-detail-panel">
               <section className="course-learn-box">
                 <h2 className="course-section-heading">What you'll learn</h2>

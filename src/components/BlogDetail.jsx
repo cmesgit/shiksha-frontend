@@ -5,10 +5,11 @@
 // (class-9/economics/chapter-1), so every /blogs/<slug> link resolves via
 // the content API alone — no static-fragment/CDN fallback needed anymore.
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
-import { getBlogPost } from "../api/contentApi";
+import { getBlogPost, getRelatedBlogPosts } from "../api/contentApi";
+import { formatSiteDate, sameSiteDay, toDateTimeAttr } from "../utils/siteDate";
 import { BLOG_BODY_CSS } from "../css/blogBodyStyles";
 import { BLOG_BLOCKS_CSS } from "../blogBlocks/blocksCss";
 import { renderDocument, themeStyleText, neutralizeViewportUnits } from "../blogBlocks/render";
@@ -211,6 +212,157 @@ const ChapterLoading = () => (
 // extra cache-shape complexity for two small fields.
 const LOCALE_LABELS = { en: "English", hi: "हिंदी" };
 
+/**
+ * The article byline.
+ *
+ * `author_name`, `publish_at`, `updated_at` and `reading_minutes` have always
+ * been on the detail response (content/serializers.py:59-67) — this page just
+ * never read them, so every article rendered with no author, no date and no
+ * reading time while the listing cards showed a reading time.
+ *
+ * It sits OUTSIDE the body iframe deliberately. The body is an `about:srcdoc`
+ * document, so anything rendered in there is invisible to crawlers and to
+ * in-page find. The byline is the one piece of article metadata that belongs
+ * in the host document.
+ *
+ * "Updated" is suppressed when it falls on the publication day — a post saved
+ * twice within an hour of publishing should not advertise itself as revised.
+ */
+const ArticleMeta = ({ meta }) => {
+  if (!meta) return null;
+  const published = formatSiteDate(meta.publish_at);
+  const updated = formatSiteDate(meta.updated_at);
+  const showUpdated =
+    updated && !sameSiteDay(meta.updated_at, meta.publish_at);
+  const minutes = Number(meta.reading_minutes) || 0;
+
+  const bits = [];
+  if (meta.author_name) bits.push(<span key="by">By {meta.author_name}</span>);
+  if (published) {
+    bits.push(
+      <time key="pub" dateTime={toDateTimeAttr(meta.publish_at)}>{published}</time>
+    );
+  }
+  if (showUpdated) {
+    bits.push(
+      <time key="upd" dateTime={toDateTimeAttr(meta.updated_at)}>Updated {updated}</time>
+    );
+  }
+  if (minutes > 0) bits.push(<span key="min">{minutes} min read</span>);
+  if (!bits.length) return null;
+
+  return (
+    <div
+      style={{
+        maxWidth: 880,
+        margin: "0 auto 4px",
+        padding: "14px 20px 0",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "6px 10px",
+        color: "#55665e",
+        fontSize: "14px",
+        fontWeight: 500,
+        letterSpacing: "0.2px",
+      }}
+    >
+      {bits.map((bit, i) => (
+        <Fragment key={bit.key}>
+          {i > 0 && <span aria-hidden="true" style={{ opacity: 0.45 }}>·</span>}
+          {bit}
+        </Fragment>
+      ))}
+    </div>
+  );
+};
+
+/**
+ * The way out of an article.
+ *
+ * Until now the only navigation on a chapter page was the fixed "Back"
+ * button to /blogs and a scroll-to-top — a reader finishing Chapter 3 of
+ * Class 9 Science had no route to Chapter 4 but the listing and its
+ * filters. Everything here comes from blogs/<slug>/related/, which reads
+ * chapter_number and (class_level, subject): columns that have existed
+ * since launch with nothing using them.
+ *
+ * Rendered outside the body iframe for the same reason as the byline —
+ * links inside an `about:srcdoc` document are invisible to crawlers.
+ */
+const ArticleFooter = ({ nav, basePath }) => {
+  if (!nav) return null;
+  const { prev, next, related } = nav;
+  if (!prev && !next && !related.length) return null;
+
+  const href = (card) => `${basePath}/${card.slug}`;
+  const linkStyle = {
+    display: "block", padding: "14px 18px", borderRadius: 12,
+    border: "1px solid #d8e6d8", background: "#fff", color: "inherit",
+    textDecoration: "none", minWidth: 0,
+  };
+  const kicker = {
+    display: "block", fontSize: 11, fontWeight: 700, letterSpacing: ".1em",
+    textTransform: "uppercase", color: "#6b7f74", marginBottom: 4,
+  };
+
+  return (
+    <nav
+      aria-label="More articles"
+      style={{ maxWidth: 880, margin: "28px auto 48px", padding: "0 20px" }}
+    >
+      {(prev || next) && (
+        <div style={{
+          display: "grid", gap: 12, marginBottom: related.length ? 28 : 0,
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        }}>
+          {/* An absent neighbour renders nothing rather than a disabled
+              box — the first chapter of a series has no previous, and a
+              greyed-out control invites a click that cannot work. */}
+          {prev && (
+            <Link to={href(prev)} style={linkStyle}>
+              <span style={kicker}>&larr; Previous</span>
+              <span style={{ fontWeight: 600 }}>{prev.title}</span>
+            </Link>
+          )}
+          {next && (
+            <Link to={href(next)} style={{ ...linkStyle, textAlign: prev ? "right" : "left" }}>
+              <span style={kicker}>Next &rarr;</span>
+              <span style={{ fontWeight: 600 }}>{next.title}</span>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {related.length > 0 && (
+        <>
+          <h2 style={{
+            fontSize: 15, fontWeight: 700, letterSpacing: ".06em",
+            textTransform: "uppercase", color: "#55665e", margin: "0 0 12px",
+          }}>
+            More like this
+          </h2>
+          <div style={{
+            display: "grid", gap: 12,
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          }}>
+            {related.map((card) => (
+              <Link key={card.slug} to={href(card)} style={linkStyle}>
+                <span style={{ fontWeight: 600, display: "block" }}>{card.title}</span>
+                {card.readingMinutes > 0 && (
+                  <span style={{ fontSize: 13, color: "#6b7f74" }}>
+                    {card.readingMinutes} min read
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+    </nav>
+  );
+};
+
 const BlogDetail = ({ locale = "en" }) => {
   const { "*": slug } = useParams();
   const navigate = useNavigate();
@@ -222,6 +374,8 @@ const BlogDetail = ({ locale = "en" }) => {
   const [status, setStatus] = useState("loading"); // loading | ready | notfound | error
   const [translations, setTranslations] = useState([]);
   const [isFallbackLocale, setIsFallbackLocale] = useState(false);
+  const [meta, setMeta] = useState(null);
+  const [nav, setNav] = useState(null);
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -249,6 +403,7 @@ const BlogDetail = ({ locale = "en" }) => {
       setTheme(cached.theme);
       setTranslations(cached.translations);
       setIsFallbackLocale(cached.isFallbackLocale);
+      setMeta(cached.meta);
       setStatus("ready");
       return;
     }
@@ -257,20 +412,38 @@ const BlogDetail = ({ locale = "en" }) => {
     setHtml(null);
     setBlocks(null);
     setTheme(null);
+    setMeta(null);
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const show = (text, postBlocks, postTheme, title, translationList, fallback) => {
+    // Takes the whole post rather than a positional argument per field: the
+    // byline added four more values to carry, and a seven-argument call of
+    // bare strings and booleans is where the wrong one quietly gets passed.
+    const show = (post) => {
+      const text = post.body_html;
+      const postBlocks = post.body_blocks;
+      const postTheme = post.body_theme;
+      const title = post.seo_title || post.title;
+      const translationList = post.translations || [];
+      const fallback = !!post.is_fallback_locale;
+      const postMeta = {
+        author_name: post.author_name,
+        publish_at: post.publish_at,
+        updated_at: post.updated_at,
+        reading_minutes: post.reading_minutes,
+      };
       htmlCache.set(cacheKey, {
         html: text, blocks: postBlocks, theme: postTheme,
         translations: translationList, isFallbackLocale: fallback,
+        meta: postMeta,
       });
       setHtml(text);
       setBlocks(postBlocks);
       setTheme(postTheme);
       setTranslations(translationList);
       setIsFallbackLocale(fallback);
+      setMeta(postMeta);
       setStatus("ready");
       const heading =
         title ||
@@ -286,14 +459,7 @@ const BlogDetail = ({ locale = "en" }) => {
     getBlogPost(slug, locale).then((result) => {
       if (ctrl.signal.aborted) return;
       if (result.status === "ok") {
-        show(
-          result.post.body_html,
-          result.post.body_blocks,
-          result.post.body_theme,
-          result.post.seo_title || result.post.title,
-          result.post.translations || [],
-          !!result.post.is_fallback_locale
-        );
+        show(result.post);
       } else if (result.status === "notfound") {
         setStatus("notfound");
       } else {
@@ -302,6 +468,23 @@ const BlogDetail = ({ locale = "en" }) => {
     });
 
     return () => ctrl.abort();
+  }, [slug, locale]);
+
+  // Fetched separately from the body, and deliberately NOT cached with it:
+  // the footer is cheap, and a cached one would go stale the moment a new
+  // chapter is published while the body it rides on has not changed.
+  // Stamped with the slug it belongs to rather than cleared on the way in.
+  // A synchronous setNav(null) in the effect body is a cascading render
+  // (react-hooks/set-state-in-effect), and reading the stamp also stops the
+  // previous article's footer flashing under the new one while its own
+  // request is still out.
+  useEffect(() => {
+    if (!slug) return undefined;
+    let alive = true;
+    const ctrl = new AbortController();
+    getRelatedBlogPosts(slug, locale, { signal: ctrl.signal })
+      .then((rows) => { if (alive) setNav({ key: `${locale}:${slug}`, ...rows }); });
+    return () => { alive = false; ctrl.abort(); };
   }, [slug, locale]);
 
   // Only shown when a translation actually exists in another locale —
@@ -434,6 +617,8 @@ const BlogDetail = ({ locale = "en" }) => {
         </div>
       )}
 
+      {status === "ready" && <ArticleMeta meta={meta} />}
+
       {status === "ready" && (
         (blocks && blocks.length > 0) || !bodyLooksEmpty(html)
           ? <BlogBody html={html} blocks={blocks} theme={theme} />
@@ -445,6 +630,13 @@ const BlogDetail = ({ locale = "en" }) => {
               This chapter doesn’t have any content yet.
             </p>
           )
+      )}
+
+      {status === "ready" && (
+        <ArticleFooter
+          nav={nav?.key === `${locale}:${slug}` ? nav : null}
+          basePath={locale === "en" ? "/blogs" : `/blogs/${locale}`}
+        />
       )}
 
       {status === "notfound" && <h2>Blog not found</h2>}

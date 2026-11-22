@@ -1,0 +1,67 @@
+/* AuthArt.css — motion for the Login / Signup brand-panel illustrations.
+   transform-box: view-box makes every transform-origin in AuthArt.jsx a
+   plain SVG coordinate, so rotations and pulses pivot where they are drawn. */
+.af-art {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.af-art svg {
+  width: 100%;
+  height: 100%;
+  max-height: 440px;
+  display: block;
+  overflow: visible;
+}
+.af-art svg * { transform-box: view-box; }
+
+/* Signup: the art is the hero of the panel — larger, with a soft spotlight
+   behind it. */
+.af-art--signup { position: relative; isolation: isolate; }
+.af-art--signup::before {
+  content: "";
+  position: absolute;
+  inset: 4% 6%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0) 100%);
+  animation: aa-glow 6s ease-in-out infinite;
+}
+.af-art--signup svg {
+  max-height: 520px;
+  filter: drop-shadow(0 18px 30px rgba(4, 40, 28, 0.28));
+}
+@keyframes aa-glow { 0%, 100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+
+@keyframes aa-float      { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes aa-float-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes aa-breathe    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes aa-wave       { 0%, 60%, 100% { transform: rotate(0deg); } 10%, 30% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(8deg); } }
+@keyframes aa-pop        { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes aa-spin       { to { transform: rotate(360deg); } }
+@keyframes aa-twinkle    { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes aa-dash       { to { stroke-dashoffset: -56; } }
+/* profile cards rise in one after another, hold, then fade, on a loop */
+@keyframes aa-join {
+  0%   { opacity: 0; transform: translateY(14px) scale(.92); }
+  12%  { opacity: 1; transform: translateY(0) scale(1); }
+  78%  { opacity: 1; transform: translateY(0) scale(1); }
+  92%, 100% { opacity: 0; transform: translateY(-6px) scale(.98); }
+}
+
+.af-art .aa-float      { animation: aa-float 6s ease-in-out infinite; }
+.af-art .aa-float-slow { animation: aa-float-slow 8s ease-in-out infinite; }
+.af-art .aa-breathe    { animation: aa-breathe 5s ease-in-out infinite; }
+.af-art .aa-wave       { animation: aa-wave 4.5s ease-in-out infinite; }
+.af-art .aa-pop        { animation: aa-pop 2.6s ease-in-out infinite; }
+.af-art .aa-spin       { animation: aa-spin 60s linear infinite; }
+.af-art .aa-twinkle    { animation: aa-twinkle 3s ease-in-out infinite; }
+.af-art .aa-dash       { animation: aa-dash 3.5s linear infinite; }
+.af-art .aa-join       { animation: aa-join 6s cubic-bezier(.2, .7, .2, 1) infinite both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .af-art *, .af-art, .af-art--signup::before { animation: none !important; }
+  .af-art .aa-join { opacity: 1; transform: none; }
+}

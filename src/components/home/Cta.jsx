@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useHomeContent } from "../../hooks/useHomeContent";
 import { useAuth } from "../../contexts/AuthContext";
 import CtaLink from "./CtaLink";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import { sanitizeInline } from "../../utils/sanitizeInline";
 
 /* Section-scoped styles, ported from the design handoff's Cta.jsx — shared
@@ -92,11 +93,11 @@ export default function Cta() {
               <div className="cta-actions">
                 {(ctaPrimaryLabel && ctaPrimaryHref) && (<CtaLink className="btn btn-white" to={ctaPrimaryHref}>
                   {ctaPrimaryLabel}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  <ScribbleIcon name="arrow-right" />
                 </CtaLink>)}
                 {(ctaSecondaryLabel && ctaSecondaryHref) && (<CtaLink className="btn btn-out" to={ctaSecondaryHref}>
                   {ctaSecondaryLabel}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
+                  <ScribbleIcon name="eye" />
                 </CtaLink>)}
               </div>
             </div>

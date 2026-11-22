@@ -14,7 +14,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
-import { LayoutDashboard } from "lucide-react";
+import ScribbleIcon from "./icons/ScribbleIcon";
 
 import { useAuth } from "../contexts/AuthContext";
 import { APP_URL, TEACHER_URL, TEACHER_DASHBOARD_URL } from "../config/urls";
@@ -378,13 +378,58 @@ function IconCard({ item, onGo }) {
 
 /* ────────────────────────── MEGA PANELS ────────────────────────── */
 
+/* A link list that starts short. The catalog decides how long these lists
+   are (the live menu already sends 37 state-board links and 15 exam tracks),
+   so showing them all made the panel a wall of rows with a scrollbar from the
+   first moment. Now the first `limit` links show, with "See more (N)" below;
+   expanded, the full list scrolls inside a capped box (`scroll`), and "Show
+   less" folds it back. The phone drawer passes scroll={false}: it already
+   scrolls as a whole, so the list just grows in place there. */
+const LINK_LIMIT = 6;
+function CollapsibleLinks({ links, viewAll, onGo, limit = LINK_LIMIT, scroll = true, wide = false, keyPrefix = "" }) {
+  const [open, setOpen] = useState(false);
+  const extra = links.length - limit;
+  const shown = open || extra <= 0 ? links : links.slice(0, limit);
+  return (
+    <>
+      <ul className={`${wide ? "skn-list--wide" : ""}${open && scroll ? " skn-list--open" : ""}`.trim() || undefined}>
+        {shown.map((l, i) => (
+          <li key={`${keyPrefix}${l.label ?? l.title}-${i}`}>
+            <MenuLink link={l} onGo={onGo} />
+          </li>
+        ))}
+        {viewAll && (open || extra <= 0) && (
+          <li className="skn-viewall">
+            <MenuLink link={viewAll} onGo={onGo} className="skn-strong" />
+          </li>
+        )}
+      </ul>
+      {extra > 0 && (
+        <button type="button" className="skn-more" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+          {open ? "Show less" : `See more (${extra})`}
+          <span className={`skn-more-chev${open ? " skn-up" : ""}`} aria-hidden="true">
+            <ScribbleIcon name="chevron-down" size={14} />
+          </span>
+        </button>
+      )}
+    </>
+  );
+}
+
 const CoursesMega = memo(function CoursesMega({ onGo, menu }) {
-  const [schoolTab, setSchoolTab] = useState("central");
+  const [schoolTabPick, setSchoolTab] = useState("central");
 
   return (
     <div className="skn-mega-grid skn-mega-courses">
       {menu.map((cat) => {
         const Icon = cat.icon;
+        // The static menu's tabs are "central"/"state", but a CMS-curated
+        // menu names them t0, t1, … — so the "central" default matched no tab
+        // and the School Education column rendered its tabs with no list under
+        // either. Fall back to the first tab whenever the pick isn't present.
+        const schoolTab = cat.tabs?.some((t) => t.id === schoolTabPick)
+          ? schoolTabPick
+          : cat.tabs?.[0]?.id;
         return (
           <div className="skn-mcol" key={cat.title}>
             <div className="skn-mcol-head">
@@ -420,44 +465,18 @@ const CoursesMega = memo(function CoursesMega({ onGo, menu }) {
                        flows a long list into two columns instead of one tall
                        one — nothing is hidden, it just stops growing downward.
                        See SiteNav.css for the scroll backstop beyond that. */
-                    <div
-                      className={`skn-msec${t.links.length > 6 ? " skn-msec--wide" : ""}`}
-                      key={t.id}
-                    >
+                    /* Keyed by tab, so switching tabs starts the list folded. */
+                    <div className="skn-msec" key={t.id}>
                       <h4>{t.heading}</h4>
-                      <ul>
-                        {t.links.map((l) => (
-                          <li key={l.label}>
-                            <MenuLink link={l} onGo={onGo} />
-                          </li>
-                        ))}
-                        {t.viewAll && (
-                          <li className="skn-viewall">
-                            <MenuLink
-                              link={t.viewAll}
-                              onGo={onGo}
-                              className="skn-strong"
-                            />
-                          </li>
-                        )}
-                      </ul>
+                      <CollapsibleLinks links={t.links} viewAll={t.viewAll} onGo={onGo} />
                     </div>
                   ))}
               </>
             ) : (
               cat.sections.map((sec) => (
-                <div
-                  className={`skn-msec${sec.links.length > 6 ? " skn-msec--wide" : ""}`}
-                  key={sec.heading}
-                >
+                <div className="skn-msec" key={sec.heading}>
                   <h4>{sec.heading}</h4>
-                  <ul>
-                    {sec.links.map((l) => (
-                      <li key={l.label}>
-                        <MenuLink link={l} onGo={onGo} />
-                      </li>
-                    ))}
-                  </ul>
+                  <CollapsibleLinks links={sec.links} onGo={onGo} />
                 </div>
               ))
             )}
@@ -869,23 +888,34 @@ const Navbar = () => {
                 <IcSearch />
               </button>
             ) : (
-              <div className={`skn-search${isForumRoute ? " skn-search-expanded" : ""}`}>
-                <IcSearch />
+              // A <form>, not a <div>: the magnifier used to be a bare <svg>
+              // with no handler, so Enter was the ONLY way to run a search and
+              // the thing that looks like a button did nothing. Submit also
+              // gives mobile keyboards a "Go" key. The Enter handler is gone
+              // because the form already does it — keeping both fired
+              // goSearch twice.
+              <form
+                className={`skn-search${isForumRoute ? " skn-search-expanded" : ""}`}
+                role="search"
+                onSubmit={(e) => { e.preventDefault(); goSearch(); }}
+              >
+                <button type="submit" className="skn-search__go" aria-label="Search courses">
+                  <IcSearch />
+                </button>
                 <input
                   ref={searchRef}
-                  type="text"
+                  type="search"
                   placeholder="Search courses…"
                   aria-label="Search courses"
                   value={query}
                   autoFocus={isForumRoute}
                   onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && goSearch()}
                   onBlur={() => {
                     if (isForumRoute && !query.trim()) setForumSearchOpen(false);
                   }}
                 />
                 {!isForumRoute && <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>}
-              </div>
+              </form>
             )}
 
             {!loading &&
@@ -910,7 +940,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —
@@ -947,12 +977,17 @@ const Navbar = () => {
         </div>
 
         {/* Mega menu panel */}
-        <div
-          className={`skn-mega${openMenu ? " skn-open" : ""}`}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <div className="skn-mega-inner" aria-hidden={!openMenu}>
+        {/* Hover handlers sit on the visible panel, not the full-width
+            .skn-mega strip — otherwise the empty space either side of the
+            panel counted as "inside" and the menu never closed when the
+            pointer moved off it sideways. */}
+        <div className={`skn-mega${openMenu ? " skn-open" : ""}`}>
+          <div
+            className="skn-mega-inner"
+            aria-hidden={!openMenu}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
             {(openMenu || lastMenu) && megaFor(openMenu || lastMenu)}
           </div>
         </div>
@@ -988,17 +1023,25 @@ const Navbar = () => {
         </div>
 
         <div className="skn-drawer-search">
-          <div className="skn-search skn-full">
-            <IcSearch />
+          {/* Below 1024px the header search is hidden entirely (SiteNav.css),
+              so this drawer copy is the only search a phone or small-laptop
+              visitor ever sees — it needs the tappable submit most of all. */}
+          <form
+            className="skn-search skn-full"
+            role="search"
+            onSubmit={(e) => { e.preventDefault(); goSearch(); }}
+          >
+            <button type="submit" className="skn-search__go" aria-label="Search courses">
+              <IcSearch />
+            </button>
             <input
-              type="text"
+              type="search"
               placeholder="Search courses…"
               aria-label="Search courses"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && goSearch()}
             />
-          </div>
+          </form>
         </div>
 
         <div className="skn-drawer-body">
@@ -1013,21 +1056,18 @@ const Navbar = () => {
             {navMenu.map((cat) => (
               <div className="skn-dgroup" key={cat.title}>
                 <h5>{cat.title}</h5>
-                {(cat.tabs
-                  ? cat.tabs.flatMap((t) => [
-                      ...t.links,
-                      ...(t.viewAll ? [t.viewAll] : []),
-                    ])
-                  : cat.sections.flatMap((s) => s.links)
-                ).map((l, i) => (
-                  // Index, because this list is FLATTENED across board tabs and
-                  // the label alone is not unique across them: CBSE and MBSE
-                  // both offer Class 8-12, so `cat.title + l.label` collided on
-                  // nine rows. The backend now qualifies each label with its
-                  // board, but the key must not depend on the catalog staying
-                  // that way.
-                  <MenuLink link={l} onGo={closeAll} key={`${cat.title}-${l.label}-${i}`} />
-                ))}
+                {/* Flattened across board tabs; folded to the first few with
+                    "See more", growing in place (the drawer scrolls itself).
+                    Keys carry the index because labels repeat across boards
+                    (CBSE and MBSE both offer Class 8-12). */}
+                <CollapsibleLinks
+                  links={cat.tabs
+                    ? cat.tabs.flatMap((t) => [...t.links, ...(t.viewAll ? [t.viewAll] : [])])
+                    : cat.sections.flatMap((s) => s.links)}
+                  onGo={closeAll}
+                  scroll={false}
+                  keyPrefix={`${cat.title}-`}
+                />
               </div>
             ))}
           </DrawerAccordion>
@@ -1100,7 +1140,7 @@ const Navbar = () => {
                     quickActions={[
                       {
                         label: "Dashboard",
-                        icon: <LayoutDashboard size={17} />,
+                        icon: <ScribbleIcon name="dashboard" size={17} />,
                         // Delegate, don't re-implement. This used to inline
                         // `isTeacherContext ? TEACHER_DASHBOARD_URL : APP_URL`,
                         // which sent a TEACHER browsing in learner context —

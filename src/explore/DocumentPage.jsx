@@ -35,13 +35,10 @@ import {
 } from "./exploreApi";
 import { useExplore } from "./ExploreStore";
 import { useAuth } from "../contexts/AuthContext";
-import { DocCard, Icon, Loading, fileGlyph, tint } from "./components/ui";
+import { DocCard, Icon, Loading, VerificationBadge, fileGlyph, humanSize, tint } from "./components/ui";
 import { CategoryIcon } from "./components/categoryIcons";
-import {
-  PiBookmarkSimple, PiBookmarkSimpleFill, PiCheck, PiFlag, PiEye,
-  PiHeart, PiHeartFill, PiPlus, PiShareNetwork, PiDownloadSimple, PiBookOpen,
-  PiFolderSimplePlus,
-} from "react-icons/pi";
+import { PiFlag, PiFolderSimplePlus } from "react-icons/pi";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 import "./Explore.css";
 
 // Only these can be shown in a frame. Everything else (docx, ppt, xls) has no
@@ -118,6 +115,10 @@ export default function DocumentPage() {
   const accent = meta.color || "#125027";
   const saved = store.isSaved(doc.id);
   const following = doc.author && store.isFollowing(doc.author.id);
+  // The SET's size, not the first file's — the title block describes the
+  // whole set. Backfilled rows carry 0, so this is 0 until they are filled
+  // in and the line is hidden rather than claiming "0 B".
+  const totalSize = (doc?.files || []).reduce((sum, f) => sum + (f.size || 0), 0);
   const inlinePreview = canPreviewInline(doc);
 
   const share = async () => {
@@ -218,13 +219,17 @@ export default function DocumentPage() {
             )}
           </div>
           <h1>{doc.title}</h1>
+          <VerificationBadge verification={doc.verification} />
           {doc.research && <aside className="exp-upload-error" aria-label="Research review information"><strong>Reviewed on Shiksha · v{doc.research.version}</strong><p>Authors: {doc.research.authors}</p><p>{doc.research.review_scope}</p>{doc.research.corrections?.map(c => <p key={c.version}><strong>Correction · version {c.version}:</strong> {c.public_note}</p>)}{doc.research.original_url && <a href={doc.research.original_url} target="_blank" rel="noreferrer">Original publication</a>}</aside>}
           {/* The read-only half of the like pair — reflects the same state the
               rail button writes, so the number moves the moment you like. */}
           <div className="exp-docmeta">
-            <span><PiEye aria-hidden="true" /> {doc.views} views</span>
+            {doc.author?.name && <span>{doc.author.name}</span>}
+            {totalSize > 0 && <span>{humanSize(totalSize)}</span>}
+            <span>{doc.downloads} downloads</span>
+            <span><ScribbleIcon name="eye" aria-hidden="true" /> {doc.views} views</span>
             <span className={liked ? "is-liked" : undefined}>
-              {liked ? <PiHeartFill aria-hidden="true" /> : <PiHeart aria-hidden="true" />} {likes} likes
+              <ScribbleIcon name="heart" filled={liked} aria-hidden="true" /> {likes} likes
             </span>
             {doc.dateLabel && <span>{doc.dateLabel}</span>}
           </div>
@@ -275,6 +280,55 @@ export default function DocumentPage() {
               </section>
             )}
 
+            {/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8 — FILES.
+                ⚠ Not cosmetic. A set holds several files and the viewer and
+                the Download button both only ever point at the FIRST one, so
+                without this panel a set's second and third files are
+                unreachable from the page that is supposed to be about them. */}
+            {doc.files?.length > 0 && (
+              <section className="exp-docsect">
+                <h2>Files</h2>
+                <ul className="exp-filelist">
+                  {doc.files.map((f) => (
+                    <li key={f.id}>
+                      <span className="exp-filename">
+                        {f.name}
+                        {f.size > 0 && <em>{humanSize(f.size)}</em>}
+                      </span>
+                      {f.url
+                        ? <a className="exp-btn exp-btn-ghost" href={f.url}
+                             target="_blank" rel="noreferrer">Preview</a>
+                        : <span className="exp-btn exp-btn-ghost exp-filedead"
+                                title="This file is missing from storage">Missing</span>}
+                    </li>
+                  ))}
+                </ul>
+                {doc.files.length > 1 && (
+                  <button className="exp-btn exp-btn-ghost" style={{ marginTop: 10 }}
+                    onClick={() => doc.files.forEach((f) => f.url && window.open(f.url, "_blank", "noopener"))}>
+                    Open all {doc.files.length} files
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* §8 — TAGS. The full `field › subject › branch` paths, which
+                are what decide who may verify the set. The legacy free-text
+                #tags above are a different thing and both are shown. */}
+            {doc.topics?.length > 0 && (
+              <section className="exp-docsect">
+                <h2>Tags</h2>
+                <div className="exp-doc-tags">
+                  {doc.topics.map((t, i) => (
+                    <button key={i} className="exp-tag" style={{ cursor: "pointer", border: "none" }}
+                      onClick={() => nav(`/explore/browse?field=${encodeURIComponent(t.field)}&tsubject=${encodeURIComponent(t.subject)}${t.branch ? `&branch=${encodeURIComponent(t.branch)}` : ""}`)}>
+                      {t.path}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {info.length > 0 && (
               <section className="exp-docsect">
                 <h2>Document information</h2>
@@ -299,23 +353,62 @@ export default function DocumentPage() {
 
           {/* ── action rail ───────────────────────────────────────────────── */}
           <aside className="exp-docrail">
+            {/* shiksha-backend/docs/EXPLORE_VERIFICATION.md §8. Absent entirely while
+                the feature flag is off — `verification_detail` is null, not an
+                empty panel, so the page looks exactly as it did before. */}
+            {doc.verification_detail && (
+              <>
+                <div className="vf-panelcard">
+                  <p className="exp-raileyebrow">Verification</p>
+                  <h3>{doc.verification_detail.heading}</h3>
+                  <p>{doc.verification_detail.sentence}</p>
+                  {doc.verification_detail.confirmers.map((name) => (
+                    <div key={name} className="vf-who">
+                      <span className="vf-tick" aria-hidden="true">✓</span> {name}
+                    </div>
+                  ))}
+                  <button
+                    className="exp-btn exp-btn-ghost exp-railbtn"
+                    style={{ marginTop: 10 }}
+                    onClick={() => nav("/explore/verify?tab=how")}
+                  >How verification works ›</button>
+                </div>
+
+                {doc.verification_detail.history.length > 0 && (
+                  <div className="vf-panelcard">
+                    <p className="exp-raileyebrow">History</p>
+                    {doc.verification_detail.history.map((h, i) => (
+                      <div key={i} className="vf-histrow">
+                        <span>{h.label}</span>
+                        <time dateTime={h.at}>
+                          {new Date(h.at).toLocaleDateString(undefined, {
+                            day: "numeric", month: "short", year: "numeric",
+                          })}
+                        </time>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="exp-railcard">
               <button className="exp-btn exp-btn-primary exp-railbtn" onClick={readOnline}>
-                <PiBookOpen aria-hidden="true" /> Read online
+                <ScribbleIcon name="book" aria-hidden="true" /> Read online
               </button>
               <button className="exp-btn exp-btn-ghost exp-railbtn" onClick={downloadNow}>
-                <PiDownloadSimple aria-hidden="true" /> Download{doc.filetype ? ` (${doc.filetype})` : ""}
+                <ScribbleIcon name="download" aria-hidden="true" /> Download{doc.filetype ? ` (${doc.filetype})` : ""}
               </button>
               <div className="exp-railgrid">
                 {/* The functional half of the like pair. */}
                 <button className={`exp-iconbtn${liked ? " on" : ""}`} onClick={onLike} disabled={likeBusy}>
-                  {liked ? <><PiHeartFill aria-hidden="true" /> Liked</> : <><PiHeart aria-hidden="true" /> Like</>}
+                  <ScribbleIcon name="heart" filled={liked} aria-hidden="true" /> {liked ? "Liked" : "Like"}
                 </button>
                 <button className={`exp-iconbtn${saved ? " on" : ""}`} onClick={() => store.toggleSave(doc.id)}>
-                  {saved ? <><PiBookmarkSimpleFill aria-hidden="true" /> Saved</> : <><PiBookmarkSimple aria-hidden="true" /> Save</>}
+                  <ScribbleIcon name="bookmark" filled={saved} aria-hidden="true" /> {saved ? "Saved" : "Save"}
                 </button>
                 <button className="exp-iconbtn" onClick={share}>
-                  <PiShareNetwork aria-hidden="true" /> Share
+                  <ScribbleIcon name="share" aria-hidden="true" /> Share
                 </button>
                 <button className="exp-iconbtn danger" onClick={() => setReport({ reason: "", detail: "" })}>
                   <PiFlag aria-hidden="true" /> Report
@@ -353,7 +446,7 @@ export default function DocumentPage() {
                   className={`exp-btn ${following ? "exp-btn-ghost" : "exp-btn-primary"} exp-railbtn`}
                   style={{ marginTop: 8 }}
                   onClick={() => store.toggleFollow(doc.author.id)}
-                >{following ? <><PiCheck aria-hidden="true" /> Following</> : <><PiPlus aria-hidden="true" /> Follow</>}</button>
+                >{following ? <><ScribbleIcon name="check" aria-hidden="true" /> Following</> : <><ScribbleIcon name="plus" aria-hidden="true" /> Follow</>}</button>
               </div>
             )}
 

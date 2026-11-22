@@ -12,6 +12,7 @@
  */
 import { useMemo, useState } from "react";
 import { RatingStars } from "./RatingStars";
+import ScribbleIcon from "../icons/ScribbleIcon";
 import "./ReviewList.css";
 
 const SORTS = [
@@ -39,10 +40,7 @@ export function RatingBreakdown({ average, count, distribution }) {
         <RatingStars value={average || 0} size={16} />
         <div className="rv-breakdown__count">{count} {count === 1 ? "review" : "reviews"}</div>
         <div className="rv-verified">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"
-               strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
+          <ScribbleIcon name="check" />
           Every review follows a completed session
         </div>
       </div>

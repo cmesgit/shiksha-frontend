@@ -12,12 +12,27 @@ export const BLOG_CLASSES = [
 ];
 export const BLOG_PAGE_SIZE = 12;
 
+// Must match content/views.py's BlogPostListView.SORTS. "newest" is the
+// default and is sent as the empty string so the common case keeps the
+// clean URL it has always had — and so an existing bookmark is unchanged.
+export const BLOG_SORTS = [
+  ["", "Newest first"],
+  ["oldest", "Oldest first"],
+  ["popular", "Most read"],
+  ["title", "A–Z"],
+];
+
 export function blogFilters(params) {
   const page = Number(params.get("page"));
+  const sort = params.get("sort") || "";
   return {
     q: (params.get("q") || "").trim().slice(0, 200),
     subject: BLOG_SUBJECTS.some(([value]) => value === params.get("subject")) ? params.get("subject") : "",
     class_level: BLOG_CLASSES.some(([value]) => value === params.get("class_level")) ? params.get("class_level") : "",
+    // Validated here as well as server-side: an unrecognised value should
+    // not ride along in the request at all. `?sort=` used to be dropped
+    // silently, which is why no sort control could exist.
+    sort: BLOG_SORTS.some(([value]) => value === sort) ? sort : "",
     page: Number.isSafeInteger(page) && page > 0 ? page : 1,
   };
 }

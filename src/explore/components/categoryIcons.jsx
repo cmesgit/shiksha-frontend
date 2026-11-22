@@ -28,16 +28,24 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
-  PiBooks,
-  PiBookOpenText,
   PiClipboardText,
   PiFile,
-  PiFileText,
   PiNewspaper,
-  PiNotePencil,
-  PiPresentationChart,
-  PiQuestion,
 } from "react-icons/pi";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
+
+// Scribble-set equivalents, shaped like the react-icons components they
+// replace (a component taking svg props) so BY_KEY / categoryIcon keep working.
+const scribble = (name) => {
+  const Ic = (props) => <ScribbleIcon name={name} {...props} />;
+  return Ic;
+};
+const ScFileText = scribble("file-text");
+const ScBooks = scribble("books");
+const ScNotebook = scribble("notebook");
+const ScBook = scribble("book");
+const ScBlackboard = scribble("blackboard");
+const ScHelp = scribble("help");
 
 /** Category key → icon component.
  *
@@ -59,22 +67,22 @@ import {
  */
 const BY_KEY = {
   // ── API slugs (what dev and prod actually serve) ──
-  "research-papers": PiFileText,
-  "books":           PiBooks,
+  "research-papers": ScFileText,
+  "books":           ScBooks,
   "articles":        PiNewspaper,
-  "notes":           PiNotePencil,
-  "study-materials": PiBookOpenText,
-  "presentations":   PiPresentationChart,
+  "notes":           ScNotebook,
+  "study-materials": ScBook,
+  "presentations":   ScBlackboard,
   "assignments":     PiClipboardText,
-  "question-papers": PiQuestion,
+  "question-papers": ScHelp,
   "other":           PiFile,
 
   // ── exploreSeed.js keys (USE_MOCK only) ──
-  "research":   PiFileText,
-  "study":      PiBookOpenText,
-  "ppt":        PiPresentationChart,
+  "research":   ScFileText,
+  "study":      ScBook,
+  "ppt":        ScBlackboard,
   "assignment": PiClipboardText,
-  "question":   PiQuestion,
+  "question":   ScHelp,
 };
 
 /**

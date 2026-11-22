@@ -180,3 +180,110 @@ a.aft__linecontent:hover .aft__linetext > span { text-decoration: underline; }
 .afm--vertical .afm__meta { width: 100%; }
 .afm--vertical .afm__pause { width: auto; padding-inline: 12px; font-size: 11px; }
 @media (prefers-reduced-motion: reduce) { .afm--vertical .afm__slide { transition: none; transform: none; } }
+
+/* ════════════════════════════════════════════════════════════════
+   Simpler promos (2026-11). Same content and controls, lighter frames,
+   so they sit quietly next to the animated AuthArt scene and the form.
+   Layered here; the rules above are unchanged.
+════════════════════════════════════════════════════════════════ */
+
+/* ── "Explore ShikshaCom" — brand panel card ── */
+.af .aft {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+}
+.af .aft__label { font-size: 10.5px; letter-spacing: 0.14em; opacity: 0.72; }
+.af .aft__count { font-size: 11px; opacity: 0.6; }
+
+/* rotate (login): small thumbnail beside the copy instead of a full banner,
+   and no fixed 280px height */
+.af .aft--rotate {
+  height: auto;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+}
+.af .aft--rotate.aft--banner { padding-top: 14px; overflow: visible; }
+.af .aft--rotate > * { grid-column: 1 / -1; }
+.af .aft--rotate .aft__head { grid-row: 1; margin-bottom: 10px; }
+.af .aft--rotate .aft__img {
+  grid-column: 1; grid-row: 2 / span 3;
+  width: 48px; height: 48px; margin: 0;
+  border-radius: 12px; object-fit: cover;
+  background: rgba(255, 255, 255, 0.14);
+}
+.af .aft--rotate.aft--banner .aft__kind,
+.af .aft--rotate.aft--banner .aft__text,
+.af .aft--rotate.aft--banner .aft__body { grid-column: 2; }
+.af .aft__kind {
+  justify-self: start;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #FFD27A;
+}
+.af .aft--rotate .aft__text { margin: 2px 0 0; font-size: 14px; font-weight: 700; line-height: 1.4; -webkit-line-clamp: 2; }
+.af .aft--rotate .aft__body { margin-top: 3px; font-size: 12px; -webkit-line-clamp: 1; opacity: 0.8; }
+.af .aft--rotate .aft__footer { padding-top: 12px; margin-top: 0; }
+.af .aft__link { font-size: 12.5px; font-weight: 700; opacity: 1; }
+.af .aft__controls { gap: 6px; }
+.af .aft__control {
+  min-width: 28px; height: 28px; border-radius: 999px;
+  border-color: rgba(255, 255, 255, 0.28);
+  font-size: 16px; line-height: 1;
+  display: inline-grid; place-items: center;
+  transition: background 0.18s, border-color 0.18s;
+}
+.af .aft__control:hover { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.45); }
+.af .aft__control--pause { padding: 0 10px; font-size: 10.5px; font-weight: 700; }
+/* each rotation fades the new item in */
+@keyframes aft-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.af .aft__in { animation: aft-in 0.45s ease both; }
+@media (prefers-reduced-motion: reduce) { .af .aft__in { animation: none; } }
+
+/* list (signup): slim rows with small thumbnails and one line of detail */
+.af .aft--list .aft__list { margin-top: 10px; gap: 0; }
+.af .aft--list .aft__line { padding-top: 9px; padding-bottom: 9px; border-top: 1px solid rgba(255, 255, 255, 0.12); }
+.af .aft--list .aft__line:first-child { border-top: 0; padding-top: 2px; }
+.af .aft--list .aft__line:last-child { padding-bottom: 0; }
+.af .aft__thumb { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; background: rgba(255, 255, 255, 0.14); }
+.af .aft__linetext > span { font-size: 13px; font-weight: 700; }
+.af .aft__linebody { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; margin-top: 1px; }
+
+/* ── "New on ShikshaCom" / spotlight — form column ── */
+.af .afm {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #E4EEE8;
+}
+.af .afm__label { font-size: 10.5px; letter-spacing: 0.14em; color: #0F9D6B; }
+.af .afm--updates { padding: 18px 0 0; background: none; border: 0; border-top: 1px solid #E4EEE8; border-radius: 0; }
+.af .afm__card,
+.af .afm--vertical .afm__card { flex-direction: row; align-items: center; gap: 12px; margin-top: 10px; }
+.af .afm__photo,
+.af .afm--vertical .afm__photo,
+.af .afm--updates .afm__photo { width: 52px; height: 52px; flex: none; border-radius: 14px; object-fit: cover; }
+.af .afm--vertical .afm__meta { width: auto; flex: 1; min-width: 0; }
+.af .afm__name { font-size: 14.5px; color: #0C2620; }
+.af .afm__subject { margin-top: 2px; font-size: 12.5px; color: #5A7268; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.af .afm__link { margin-top: 4px; font-size: 12.5px; color: #0B5B3E; }
+.af .afm__pager { margin-top: 10px; gap: 6px; font-size: 11.5px; color: #8BA096; }
+.af .afm__pager button {
+  width: 28px; height: 28px; border-radius: 999px;
+  border-color: #DCE8E1; font-size: 15px;
+  display: inline-grid; place-items: center;
+}
+.af .afm__pager button:hover { background: #EAF7F0; }
+.af .afm--vertical .afm__pause { width: auto; padding-inline: 10px; font-size: 10.5px; font-weight: 700; }
+.af .afm__dot.is-on { background: #0F9D6B; }
+
+@media (max-width: 760px) {
+  /* the brand panel is a slim header strip on phones; its card stays hidden
+     there (as before) — the grid layout above must not bring it back */
+  .af .af-brand .aft { display: none; }
+  .af .af-mobile-updates .aft { background: #fff; border: 1px solid #E4EEE8; color: #0C2620; backdrop-filter: none; }
+  .af .afm__photo { width: 48px; height: 48px; }
+}

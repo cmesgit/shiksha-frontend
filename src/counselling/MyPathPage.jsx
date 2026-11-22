@@ -94,7 +94,7 @@ export default function MyPathPage() {
             <Link to="/counselling/profile" style={{ color: "#1b9c85", fontWeight: 700 }}>Edit profile</Link>
           </p>
         </div>
-        <Link className="sc-btn" to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+        <Link className="sc-btn" to={counsellorsLive ? "/counselling/counsellors" : "/counselling/india"}>
           {counsellorsLive ? "Find my counsellors →" : "All career guides →"}
         </Link>
       </div>
@@ -117,7 +117,7 @@ export default function MyPathPage() {
             <span className="sc-meaning-number">03</span>
             <h3>Talk it through</h3>
             <p>A counsellor can help turn this shortlist into a practical plan.</p>
-            <Link to={counsellorsLive ? "/counselling/counsellors" : "/counselling/guides"}>
+            <Link to={counsellorsLive ? "/counselling/counsellors" : "/counselling/india"}>
               {counsellorsLive ? "Find a counsellor →" : "Explore guides →"}
             </Link>
           </div>
@@ -143,8 +143,9 @@ export default function MyPathPage() {
             <ol className="sc-next">
               {p.nextSteps.map((s, i) => <li key={i}>{s}</li>)}
             </ol>
-            {/* Only offered where a real career profile exists. hasFullDetail
-                is false for most path titles — see careerVocab.js. */}
+            {/* Offered wherever the title maps to one of the thirty careers.
+                Still gated: a path title that is not a career (e.g. a broad
+                stream) has nowhere to link — see careerVocab.js. */}
             {hasFullDetail(p.title) && (
               <Link className="sc-btn ghost sc-btn-sm-top" to={`/counselling/careers/${encodeURIComponent(toCareerKey(p.title))}`}>
                 Explore this career in detail →

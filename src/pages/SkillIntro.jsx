@@ -47,19 +47,10 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { TEACHER_SKILL_URL } from "../config/urls";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
 
-const Star = ({ size = 12 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-);
-const Cap = ({ size = 12 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
-  </svg>
-);
+const Star = ({ size = 12 }) => <ScribbleIcon name="star" size={size} />;
+const Cap = ({ size = 12 }) => <ScribbleIcon name="graduation-cap" size={size} />;
 
 /* Same rows as FacultyIntro's table, same values — deliberately. Two pages
    describing the same choice must not disagree about it. The columns are
@@ -74,13 +65,13 @@ const CMP = [
 
 const FEATURES = [
   { title: "Teach what you actually know", body: "Languages, music, coding, trades, exam coaching, anything you can teach well. You are not limited to a school syllabus.",
-    icon: <><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></> },
+    icon: "edit" },
   { title: "Your hours, your rates", body: "You set your own availability and decide what your sessions are worth. Nobody assigns you a timetable.",
-    icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
+    icon: "clock" },
   { title: "No application to wait on", body: "There is no review queue and no approval step. The track is added the moment you ask for it.",
-    icon: <><polyline points="20 6 9 17 4 12"/></> },
+    icon: "check" },
   { title: "Keep learning on the same account", body: "Your student side carries on exactly as it is. Teaching is added to the account you already have, not a second one.",
-    icon: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></> },
+    icon: "user" },
 ];
 
 /* Two entries, because the first step genuinely differs and pretending
@@ -136,7 +127,7 @@ export default function SkillIntro() {
       <nav className="se-nav">
         <span className="se-brand">ShikshaCom</span>
         <button type="button" className="se-back" onClick={goBack}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          <ScribbleIcon name="chevron-left" size={14} />
           {isNewVisitor ? "Back to home" : "Back"}
         </button>
       </nav>
@@ -151,14 +142,14 @@ export default function SkillIntro() {
         {/* What Skill Dev is */}
         <section className="se-card">
           <div className="se-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <ScribbleIcon name="info" size={14} />
             What is a Skill Dev expert?
           </div>
           <div className="se-feat-grid">
             {FEATURES.map((f) => (
               <div className="se-feat" key={f.title}>
                 <div className="se-feat-ic">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
+                  <ScribbleIcon name={f.icon} size={18} />
                 </div>
                 <div>
                   <h4>{f.title}</h4>
@@ -199,7 +190,7 @@ export default function SkillIntro() {
         {/* How to start */}
         <section className="se-card">
           <div className="se-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <ScribbleIcon name="clock" size={14} />
             How to start
           </div>
           <div className="se-steps">
@@ -218,7 +209,7 @@ export default function SkillIntro() {
         {/* FAQ */}
         <section className="se-card">
           <div className="se-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <ScribbleIcon name="help" size={14} />
             Frequently asked questions
           </div>
           <div className="se-faq">

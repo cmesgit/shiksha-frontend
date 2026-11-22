@@ -6,9 +6,12 @@
  * deep-green panel, rounded top, pill CTA, four-column layout.
  * Styles: css/FooterGreen.css (all classes prefixed `ftr-`).
  */
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
+import ScribbleIcon from "./icons/ScribbleIcon";
 import logo from "../assets/Shiksha.png";
+import { REGISTERED_OFFICE_LINES } from "../config/org";
 import "../css/theme.css";
 import "../css/FooterGreen.css";
 import FooterTicker from "./ticker/FooterTicker";
@@ -34,9 +37,7 @@ const Footer = () => {
           </Link>
           <Link to="/register" className="ftr-cta">
             Start learning free
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            <ScribbleIcon name="arrow-right" />
           </Link>
         </div>
 
@@ -97,19 +98,21 @@ const Footer = () => {
               {/* The Skill Dev half of the same offer. Its absence here (and
                   in the Navbar drawer) is why the track had no public door. */}
               <li><Link to="/become-expert">Teach on Skill Dev</Link></li>
+              {/* The third provider track. Absent for the same reason Skill
+                  Dev's was, with the same consequence — see the note above. */}
+              <li><Link to="/become-counsellor">Become a Counsellor</Link></li>
             </ul>
           </div>
 
           <div className="ftr-col">
             <h4>Address</h4>
             <p>
-              House no - 1473A
-              <br />
-              Maruti Vihar
-              <br />
-              Gurgaon, Haryana
-              <br />
-              Pin - 122002
+              {REGISTERED_OFFICE_LINES.map((line, i) => (
+                <Fragment key={line}>
+                  {i > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
             </p>
             <p>
               Hualngohmun Vengchhak

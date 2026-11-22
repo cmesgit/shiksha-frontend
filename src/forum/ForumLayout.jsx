@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Outlet, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ForumProvider, useForum } from "./ForumContext";
 import HowItWorks from "./components/HowItWorks";
+import ComposeModal from "./components/ComposeModal";
 import { getTopics } from "../api/forum";
 import Navbar from "../components/Navbar";
 import TourHeaderButton from "../tour/TourHeaderButton";
+import ScribbleIcon from "../components/icons/ScribbleIcon";
+import { HeroDeco, HeroVisual } from "../components/hero/HeroLook";
+import { ForumArt } from "../components/hero/HeroArt";
 import "./forum.css";
+import "./forum-refresh.css";
 
 /* Pixel-perfect chrome ported from ShikshaCom Forum.html (fm2-* system):
    top marquee, brand header, site nav with dropdowns, page header (breadcrumb
@@ -17,10 +22,19 @@ function PageHeader() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
-  const { me } = useForum();
-  const [params] = useSearchParams();
+  const { me, requireAuth } = useForum();
+  const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get("q") || "");
   const isDash = pathname.startsWith("/forum/dashboard");
+
+  // "Share a post" opens the form as a pop-up over the forum. It is a new
+  // history entry (?compose=post), so the browser's back button closes it.
+  const openPost = () => {
+    if (requireAuth()) return;
+    const next = new URLSearchParams(params);
+    next.set("compose", "post");
+    setParams(next, { state: { composeOpened: true } });
+  };
 
   const submit = (e) => {
     e.preventDefault();
@@ -28,35 +42,41 @@ function PageHeader() {
     if (v) navigate(`/forum/search?q=${encodeURIComponent(v)}`);
   };
 
+  // The full hero (headline + calls to action) only on the forum home; every
+  // other forum page gets the same look in a compact strip so the content
+  // stays above the fold.
+  const isHome = pathname === "/forum" || pathname === "/forum/";
+  const openAsk = (mode) => { if (!requireAuth()) navigate(`/forum/ask${mode ? `?mode=${mode}` : ""}`); };
+
   return (
-    <div className="fm2-page-hd">
-      <div className="fm2-page-hd-inner">
-        <div>
-          <div style={{ font: "400 11px Poppins,sans-serif", color: "#8a9e82", marginBottom: 3 }}>
-            <span style={{ cursor: "pointer", color: "#125027" }} onClick={() => navigate("/")}>ShikshaCom</span>
-            <span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span>
-            <span style={{ cursor: "pointer", color: isDash ? "#125027" : "#4a5e3a" }} onClick={() => isDash && navigate("/forum")}>Discussion Forum</span>
-            {isDash && <><span style={{ margin: "0 5px", color: "#c8d8bc" }}>›</span><span style={{ color: "#4a5e3a" }}>Dashboard</span></>}
-          </div>
-          <h1 style={{ font: "900 20px/1 Montserrat,sans-serif", color: "#125027", margin: "0 0 3px" }}>{isDash ? "My Dashboard" : "Discussion Forum"}</h1>
-          <p style={{ font: "400 12px Poppins,sans-serif", color: "#8a9e82", margin: 0 }}>{isDash ? "Your activity, notifications, and saved discussions" : "Ask questions · share expertise · discuss any topic under the sun"}</p>
-        </div>
-        {!isDash && (
-          <form onSubmit={submit} className="fm2-hd-search">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 12, flexShrink: 0 }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search discussions, topics, people…" aria-label="Search the forum" />
-            <button type="submit">Search</button>
-          </form>
-        )}
-        {/* No notification bell here — the shared site navbar already carries
-            the global notification bell; a second one would be redundant. */}
-        {(isDash || isAuthenticated) && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: isDash ? "auto" : 0 }}>
+    <header className={`fh-hero${isHome ? "" : " compact"}`}>
+      {/* Decorative shapes borrowed from the homepage hero (dots, dashed ring,
+          gold squiggle). Purely visual. */}
+      <HeroDeco />
+
+      <div className="fh-wrap">
+        <div className="fh-top">
+          <nav className="fh-crumbs" aria-label="Breadcrumb">
+            <button type="button" onClick={() => navigate("/")}>ShikshaCom</button>
+            <span aria-hidden="true">/</span>
+            {isDash ? (
+              <>
+                <button type="button" onClick={() => navigate("/forum")}>Forum</button>
+                <span aria-hidden="true">/</span>
+                <b>Dashboard</b>
+              </>
+            ) : (
+              <b>Forum</b>
+            )}
+          </nav>
+          {/* No notification bell here — the shared site navbar already carries
+              the global notification bell; a second one would be redundant. */}
+          <div className="fh-tools">
             {/* Always-visible way back to the forum from the dashboard (the
                 sidebar Quick Links collapse on narrow screens). */}
             {isDash && (
-              <button onClick={() => navigate("/forum")} className="fm2-btn-outline" style={{ padding: "8px 14px", borderRadius: 8 }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+              <button onClick={() => navigate("/forum")} className="fh-btn fh-btn-ghost fh-btn-sm">
+                <ScribbleIcon name="arrow-left" size={15} />
                 Back to Forum
               </button>
             )}
@@ -67,16 +87,65 @@ function PageHeader() {
                 aria-label="My dashboard"
                 title="My dashboard"
                 className="fm2-hd-dash"
-                style={{ background: isDash ? "#125027" : (me?.color || "#125027") }}
+                style={{ background: isDash ? "#0B5B3E" : (me?.color || "#0B5B3E") }}
               >
                 {me?.initials || "YO"}
               </button>
             )}
+            <TourHeaderButton pathname={pathname} />
           </div>
+        </div>
+
+        <div className="fh-body">
+          <span className="fh-badge"><i />{isDash ? "Your forum activity" : "Discussion Forum"}</span>
+          {isDash ? (
+            <h1 className="fh-title"><span className="fh-lead">My dashboard</span></h1>
+          ) : isHome ? (
+            <h1 className="fh-title">
+              <span className="fh-lead">Ask anything,</span>
+              <span className="fh-punch">learn together.</span>
+            </h1>
+          ) : (
+            <h1 className="fh-title"><span className="fh-lead">Discussion Forum</span></h1>
+          )}
+          <p className="fh-sub">
+            {isDash
+              ? "Your activity, notifications, and saved discussions."
+              : "Ask questions, share what you know, and discuss any topic with learners and educators."}
+          </p>
+
+          {!isDash && (
+            <form onSubmit={submit} className="fh-search" role="search">
+              <ScribbleIcon name="search" size={17} />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search discussions, topics, people…" aria-label="Search the forum" />
+              <button type="submit">Search</button>
+            </form>
+          )}
+
+          {isHome && (
+            <div className="fh-cta-row">
+              <button onClick={() => openAsk("question")} className="fh-btn fh-btn-primary" data-tour="forum-intro.ask">
+                Ask a question
+                <ScribbleIcon name="arrow-right" size={17} />
+              </button>
+              <button onClick={openPost} className="fh-btn fh-btn-ghost">
+                Share a post
+              </button>
+              <button onClick={() => { if (!requireAuth()) navigate("/forum/answer-queue"); }} className="fh-link" data-tour="forum-intro.answer">
+                <ScribbleIcon name="edit" size={15} />
+                Answer questions
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right-hand visual, same blob + floating cards idea as the homepage
+            hero, kept abstract (skeleton lines, no fake questions). */}
+        {isHome && (
+          <HeroVisual art={<ForumArt />} />
         )}
-        <TourHeaderButton pathname={pathname} />
       </div>
-    </div>
+    </header>
   );
 }
 
@@ -150,7 +219,7 @@ function LeftSidebar() {
         <button onClick={() => setTopicOpen((o) => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "none", border: "none", cursor: "pointer", padding: "0 2px" }}>
           <span className="fm2-section-hd" style={{ marginBottom: 0 }}>Filter by Topic</span>
           <span style={{ transform: topicOpen ? "rotate(180deg)" : "none", transition: "transform .18s" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a9e82" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+            <ScribbleIcon name="chevron-down" size={13} color="#8a9e82" />
           </span>
         </button>
         {topicOpen && (
@@ -183,13 +252,28 @@ function LeftSidebar() {
 }
 
 function Shell() {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
   // The dashboard ships its own two-column layout (sidebar + content), so it
   // renders full-width instead of inside the standard 3-column forum grid.
   const isDash = pathname.startsWith("/forum/dashboard");
 
+  // Pop-up "Share a post" form (see PageHeader.openPost). Signed-out
+  // visitors never see it, even from a shared ?compose link.
+  const compose = params.get("compose") === "post" && isAuthenticated ? "post" : null;
+  const closeCompose = useCallback(() => {
+    // Opened by our button: step back, exactly like the browser's back
+    // button. Opened from a pasted link: just drop the parameter.
+    if (state?.composeOpened) { navigate(-1); return; }
+    const next = new URLSearchParams(params);
+    next.delete("compose");
+    setParams(next, { replace: true });
+  }, [state, navigate, params, setParams]);
+
   return (
-    <div style={{ minHeight: "100vh", background: "#edf2e8", fontFamily: "Poppins,sans-serif" }}>
+    <div className="fm2-shell">
       {/* Integrated site navigation (replaces the standalone fm2 top chrome) so
           the forum shares the frontend's real navbar + profile switcher. */}
       <Navbar />
@@ -207,6 +291,7 @@ function Shell() {
           </div>
         )}
       </div>
+      {compose && <ComposeModal mode={compose} onClose={closeCompose} />}
     </div>
   );
 }

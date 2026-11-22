@@ -1084,3 +1084,4 @@
   .gs-tile--strip { width: 150px; height: 90px; }
   .gs-filmstrip { height: 100px; }
 }
+.gs-guest-request-alert { align-self: center; border: 0; border-radius: 8px; background: #e7a834; color: #17383c; padding: 8px 14px; font-weight: 700; cursor: pointer; }

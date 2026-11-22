@@ -4,6 +4,7 @@ import { getDashboard } from "../../api/forum";
 import { useForum } from "../ForumContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { timeAgo, initialsOf, colorFor } from "../utils";
+import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
 /* User Dashboard — ported from Forum Dashboard.html (fd-* design).
    A bespoke two-column page (own sidebar + content) rendered full-width by
@@ -13,19 +14,15 @@ import { timeAgo, initialsOf, colorFor } from "../utils";
    sign-in prompt. The shared site navbar (top) is kept as-is. */
 
 const ICONS = {
-  question: <><circle cx="11" cy="11" r="8" /><path d="M11 8v6M8 11h6" /></>,
-  answer: <><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
-  post: <><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" /><path d="M16 6l-4-4-4 4M12 2v13" /></>,
-  bell: <><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></>,
-  save: <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />,
+  question: "help",
+  answer: "edit",
+  post: "upload",
+  bell: "bell",
+  save: "bookmark",
 };
 
-function Ic({ name, color, size = 16, sw = 2 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
-      {ICONS[name]}
-    </svg>
-  );
+function Ic({ name, color, size = 16 }) {
+  return <ScribbleIcon name={ICONS[name]} size={size} color={color} />;
 }
 
 // Card style palette per stat, matching the design's coloured chips.

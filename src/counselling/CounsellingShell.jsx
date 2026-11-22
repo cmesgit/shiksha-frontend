@@ -22,32 +22,50 @@ export const STEPS = [
 // directory. Read here rather than threaded through every call site
 // (ProfileWizard, MatchesPage, CounsellorPage, ...) as a `step` prop
 // concern instead of a page concern.
-export default function CounsellingShell({ crumb = "", step = null, children }) {
+// `nav` replaces the crumb/step rail in the sub-bar rather than stacking
+// below it: Admission Abroad's own product nav (AbroadNav) occupies this
+// row on the board, and rendering both gave /admission/abroad/countries two
+// chrome bars reading "Career Counselling" and "Admission Abroad / Country
+// guides" one above the other.
+// `bare` drops the sub-bar entirely. The Career Counselling v3 board draws
+// the landing with the site header and NOTHING between it and the hero —
+// no "Career Counselling" crumb. Every other counselling screen is a page
+// INSIDE that section and still wants the crumb, so this is opt-in per page
+// rather than a change to the shell's default.
+// `plain` drops the section's pale-green tint for a white page, which is how
+// the v3 board draws Study in India. Separate from `bare`: `bare` also removes
+// the sub-bar and swaps in the landing's cream gradient, whereas `plain` keeps
+// the breadcrumb and only changes the backdrop.
+export default function CounsellingShell({ crumb = "", step = null, nav = null, bare = false, plain = false, children }) {
   const { live: counsellorsLive } = useCounsellorsLive();
   const steps = counsellorsLive ? STEPS : STEPS.slice(0, 2);
   const stepIndex = steps.findIndex(([k]) => k === step);
   return (
-    <div className="sc-page">
-      <div className="sc-subbar">
+    <div className={`sc-page${bare ? " sc-page--bare" : ""}${plain ? " sc-page--plain" : ""}`}>
+      {!bare && <div className="sc-subbar">
         <div className="sc-subbar-in">
-          <div className="sc-crumb">
-            <Link to="/counselling">Career Counselling</Link>
-            {crumb && <span>{crumb}</span>}
-          </div>
-          {step && stepIndex !== -1 && (
-            <div className="sc-steps">
-              {steps.map(([k, label, to], i) => {
-                const cls = `sc-step${k === step ? " on" : i < stepIndex ? " done" : ""}`;
-                return to && i < stepIndex ? (
-                  <Link key={k} to={to} className={cls} style={{ textDecoration: "none" }}>{label}</Link>
-                ) : (
-                  <span key={k} className={cls}>{label}</span>
-                );
-              })}
-            </div>
+          {nav || (
+            <>
+              <div className="sc-crumb">
+                <Link to="/counselling">Career Counselling</Link>
+                {crumb && <span>{crumb}</span>}
+              </div>
+              {step && stepIndex !== -1 && (
+                <div className="sc-steps">
+                  {steps.map(([k, label, to], i) => {
+                    const cls = `sc-step${k === step ? " on" : i < stepIndex ? " done" : ""}`;
+                    return to && i < stepIndex ? (
+                      <Link key={k} to={to} className={cls} style={{ textDecoration: "none" }}>{label}</Link>
+                    ) : (
+                      <span key={k} className={cls}>{label}</span>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
-      </div>
+      </div>}
       <div className="sc-wrap">{children}</div>
     </div>
   );

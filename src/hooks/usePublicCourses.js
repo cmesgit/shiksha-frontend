@@ -124,6 +124,12 @@ function shapeClass(c, boardSlug) {
  *  working unchanged when no board is selected. */
 export const COMPETITIVE_KEY = "__competitive__";
 
+// A board-less row belongs to the Competitive axis. Keyed on `kind` rather
+// than on `board === null` alone, so a school course that is merely missing
+// its board (prod has had those) is not advertised as an exam track.
+export const isCompetitiveRow = (c) =>
+  !c?.board && !!c?.kind && c.kind !== "ACADEMIC";
+
 /** Sentinel for "every board", the option the board filter never had. */
 export const ALL_BOARDS_KEY = "__all__";
 
@@ -238,10 +244,34 @@ export function useCrossBoardMatches(boards, query, excludeSlug) {
         const boardById = new Map(boards.map((b) => [b.id, b]));
         const out = [];
         rows.forEach((c) => {
-          // Competitive courses have board = NULL and are not part of the
-          // "also matches in other boards" list by definition.
           const b = c.board ? boardById.get(c.board.id) : null;
-          if (!b || b.slug === excludeSlug || !b.has_published_courses) return;
+
+          // A board-less course — every COACHING/competitive one, NEET
+          // included — used to be dropped here "by definition", because
+          // this list was called "also matches in other boards".
+          //
+          // The consequence was the audit's headline bug. The default
+          // landing axis is All boards, which queries kind=ACADEMIC, so
+          // NEET is never in the grid; the server's ?q=NEET call DID
+          // return it, and this line threw it away. A visitor typing NEET
+          // got zero results and zero suggestions while the row sat in
+          // the response. The competitive axis is a different query that
+          // no affordance pointed them at.
+          //
+          // So they are kept, labelled by what they are. The section
+          // heading is the generic "Also matching elsewhere" now.
+          if (!b) {
+            if (!isCompetitiveRow(c) || excludeSlug === COMPETITIVE_KEY) return;
+            const cls = shapeClass(c, COMPETITIVE_KEY);
+            out.push({
+              board: { slug: COMPETITIVE_KEY, name: "Competitive exams" },
+              cls,
+              label: `${cls.title} — Competitive exams`,
+            });
+            return;
+          }
+
+          if (b.slug === excludeSlug || !b.has_published_courses) return;
           const cls = shapeClass(c, b.slug);
           const label = `${cls.title}${cls.subtitle ? ` (${cls.subtitle})` : ""}`;
           out.push({ board: b, cls, label: `${label} — ${b.name}` });

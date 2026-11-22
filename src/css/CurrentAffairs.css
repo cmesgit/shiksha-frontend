@@ -275,3 +275,64 @@
 @media (max-width: 640px) {
   .ca-wireList { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Hero look (same as the forum, blogs, Explore and quizzes). The hero header
+   comes from components/hero/heroLook.css; these rules bring the filters,
+   cards and wire below it into the same tokens. Scoped under .ca-page, so
+   the article detail page (which shares this file) is untouched.
+   ========================================================================== */
+.ca-page { background: #F7FCF9; font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; min-height: 70vh; }
+.ca-page *, .ca-page *::before, .ca-page *::after { box-sizing: border-box; }
+.ca-page .fh-search input::-webkit-search-cancel-button { display: none; }
+.ca-page .current-affairs-page { background: transparent; min-height: 0; padding: 28px 24px 64px; }
+
+/* filters: category chips, then a quiet month row */
+.ca-page .ca-filters { margin: 0 0 26px; }
+.ca-page .ca-chips { justify-content: flex-start; }
+.ca-page .ca-chip { font: 600 13px var(--sans); color: var(--brand-deep); background: #fff; border: 1px solid #CFEADB; padding: 7px 15px; }
+.ca-page .ca-chip:hover { background: var(--wash); border-color: #9FD8BC; }
+.ca-page .ca-chip--active { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--brand-2), var(--brand-deep)); }
+.ca-page .ca-filterRow { justify-content: flex-start; margin-top: 14px; }
+.ca-page .ca-monthLabel { font: 700 10.5px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.ca-page .ca-month { height: 40px; border: 1px solid var(--line); border-radius: 999px; padding: 0 16px; background: #fff; font: 500 13.5px var(--sans); color: var(--ink); }
+.ca-page .ca-month:focus { outline: none; border-color: #9FD8BC; box-shadow: 0 0 0 4px rgba(15,157,107,.12); }
+.ca-page .ca-clear { color: var(--brand-deep); font: 700 13px var(--display); border-radius: 999px; padding: 8px 14px; }
+.ca-page .ca-clear:hover { background: var(--wash); text-decoration: none; }
+
+/* cards */
+.ca-page .ca-count { text-align: left; color: var(--body); font-size: 13.5px; }
+.ca-page .ca-card { border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--sh-sm); padding: 20px 22px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+.ca-page .ca-card:hover { border-color: #BFE3D0; box-shadow: var(--sh-card); transform: translateY(-2px); }
+.ca-page .ca-cat { background: var(--wash); color: var(--brand-deep); border: 1px solid #CFEADB; border-radius: 999px; font-family: var(--sans); letter-spacing: .06em; }
+.ca-page .ca-date { color: var(--faint); }
+.ca-page .ca-cardTitle { font: 700 18px/1.4 var(--display); letter-spacing: -.015em; }
+.ca-page .ca-cardTitle a { color: var(--ink); }
+.ca-page .ca-cardTitle a:hover { color: var(--brand); }
+.ca-page .ca-summary { color: var(--body); }
+.ca-page .ca-tag { background: #F7FCF9; color: var(--body); border: 1px solid var(--line); border-radius: 999px; }
+.ca-page .read-more-link { color: var(--brand-deep); font: 700 13px var(--display); }
+.ca-page .read-more-link:hover { color: var(--brand); }
+.ca-page .ca-moreBtn, .ca-page .retry-btn { border: 1.6px solid #CFEADB; border-radius: 999px; color: var(--brand-deep); font: 700 13.5px var(--display); padding: 10px 22px; background: #fff; }
+.ca-page .ca-moreBtn:hover:not(:disabled) { background: var(--wash); border-color: var(--brand); }
+.ca-page .loading, .ca-page .empty-state { color: var(--body); font-size: 15px; }
+.ca-page .empty-state { background: #fff; border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--sh-sm); }
+
+/* news wire */
+.ca-page .ca-wire { border-top-color: var(--line); }
+.ca-page .ca-wireHead h2 { font: 800 22px var(--display); letter-spacing: -.02em; color: var(--ink); }
+.ca-page .ca-wireHead p { color: var(--body); }
+.ca-page .ca-wireCard { border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--sh-sm); overflow: hidden; background: #fff; transition: transform .18s, box-shadow .18s, border-color .18s; }
+.ca-page .ca-wireCard:hover { border-color: #BFE3D0; box-shadow: var(--sh-card); transform: translateY(-2px); }
+.ca-page .ca-wireTitle { font-family: var(--display); }
+.ca-page .ca-wireCard .ca-cat { max-width: 68%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ca-page .ca-wireCard .ca-date { white-space: nowrap; }
+.ca-page .ca-wireTitle a { color: var(--ink); }
+.ca-page .ca-wireTitle a:hover { color: var(--brand); }
+
+@media (max-width: 640px) {
+  .ca-page .current-affairs-page { padding: 18px 16px 44px; }
+  .ca-page .ca-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .ca-page .ca-chips::-webkit-scrollbar { display: none; }
+  .ca-page .ca-chip { flex: 0 0 auto; }
+}

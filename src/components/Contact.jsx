@@ -7,6 +7,8 @@ import { useHomeContent } from "../hooks/useHomeContent";
 import { sanitizeInline } from "../utils/sanitizeInline";
 import { submitContactMessage, subscribeNewsletter } from "../api/contentApi";
 import { ContactScene } from "./contact/contactArt";
+import ScribbleIcon from "./icons/ScribbleIcon";
+import { REGISTERED_OFFICE_HTML } from "../config/org";
 
 /**
  * ShikshaCom — Contact Us.
@@ -42,7 +44,8 @@ import { ContactScene } from "./contact/contactArt";
  *    screen and required for the submission to validate.
  *
  * Still hardcoded on purpose — page furniture, not content anyone edits: the
- * section headings, the "What happens next" steps, the four desks and the FAQ.
+ * section headings, the "What happens next" steps and the four desks. (The
+ * FAQ that used to close this page now lives on /faq.)
  * The CMS has no section for any of them and inventing five would be a backend
  * change this page should not smuggle in.
  */
@@ -63,34 +66,34 @@ const S = {
 
 const ICONS = {
   arrow: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.4"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    <ScribbleIcon name="arrow-right" />
   ),
   phone: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" /></svg>
+    <ScribbleIcon name="phone" />
   ),
   phoneThin: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" /></svg>
+    <ScribbleIcon name="phone" />
   ),
   mail: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m2 7 10 6 10-6" /></svg>
+    <ScribbleIcon name="mail" />
   ),
   chat: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+    <ScribbleIcon name="message" />
   ),
   chatThin: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+    <ScribbleIcon name="message" />
   ),
   clock: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+    <ScribbleIcon name="clock" />
   ),
   clockThin: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+    <ScribbleIcon name="clock" />
   ),
   globe: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.2"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" /></svg>
+    <ScribbleIcon name="globe" />
   ),
   location: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></svg>
+    <ScribbleIcon name="location" />
   ),
   building: (
     <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M3 21h18" /><path d="M5 21V8l7-5 7 5v13" /><path d="M10 21v-6h4v6" /></svg>
@@ -105,25 +108,25 @@ const ICONS = {
     <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z" /></svg>
   ),
   cap: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="m22 9-10-5L2 9l10 5z" /><path d="M6 11.5V17c0 1.5 3 3 6 3s6-1.5 6-3v-5.5" /></svg>
+    <ScribbleIcon name="graduation-cap" />
   ),
   headset: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg>
+    <ScribbleIcon name="headphones" />
   ),
   people: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+    <ScribbleIcon name="users" />
   ),
   briefcase: (
     <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
   ),
   doc: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+    <ScribbleIcon name="file-text" />
   ),
   tick: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="3"><path d="m4 12 6 6L20 6" /></svg>
+    <ScribbleIcon name="check" />
   ),
   plus: (
-    <svg viewBox="0 0 24 24" {...S} strokeWidth="2.4"><path d="M12 5v14M5 12h14" /></svg>
+    <ScribbleIcon name="plus" />
   ),
 };
 
@@ -148,7 +151,7 @@ const CARDS_DEFAULT = [
     icon: "location",
     grad: "linear-gradient(135deg,#12b47a 0%,#0B5B3E 100%)",
     title: "Head Office",
-    body: "House No. 1473A<br>Maruti Vihar<br>Gurgaon, Haryana – 122002",
+    body: REGISTERED_OFFICE_HTML,
     note: "",
   },
   {
@@ -267,29 +270,6 @@ const DESKS = [
       { glyph: "clock", label: "You will hear back", value: "Within two weeks" },
     ],
     cta: { label: "Send your CV", href: `mailto:${CONTACT_EMAIL}` },
-  },
-];
-
-const FAQS = [
-  {
-    q: "How quickly will someone reply to my message?",
-    a: "Messages sent Monday to Saturday are answered within one working day, and usually the same day if they arrive before the afternoon. Anything sent on a Sunday or a public holiday is picked up the next working morning.",
-  },
-  {
-    q: "I am already enrolled and cannot access my course. What do I do?",
-    a: "Write to the Student Support desk with the email address you enrolled with and the name of the course. Access issues are treated as priority and are normally restored the same day.",
-  },
-  {
-    q: "Can I visit one of your offices in person?",
-    a: "Yes, both the Gurgaon head office and the Aizawl regional office welcome visitors between 9:30 AM and 6:30 PM on working days. Please call ahead so the right person is available when you arrive.",
-  },
-  {
-    q: "Do you help schools and institutions, not just individual students?",
-    a: "We do. Schools, NGOs and district programmes can work with us on bulk licences, teacher training and co-branded course tracks. The Partnerships tab above has the direct line for that team.",
-  },
-  {
-    q: "Which languages can I write to you in?",
-    a: "English and Hindi are handled by every desk. Mizo is supported by the Aizawl regional office, so questions in Mizo are best sent to the Mizoram numbers listed above.",
   },
 ];
 
@@ -440,7 +420,7 @@ function useHeaderOffset(rootRef) {
  * bearing. React owns `className` on these nodes and rewrites it whenever its
  * value changes — so a `.cp-in` added imperatively here is wiped the instant
  * anything re-renders the element with a different class string. The FAQ items
- * do exactly that on every toggle (`cp-qa cp-rv` -> `cp-qa cp-rv cp-open`), and
+ * this page used to have did exactly that on every toggle, and
  * because the card never leaves the viewport the observer never fires again to
  * put it back. The visible result was the whole card going to opacity 0 the
  * moment you opened it. React does not manage `data-rv`, so it survives.
@@ -497,47 +477,6 @@ function InfoCard({ card, delay }) {
   );
 }
 
-function FaqItem({ item, index, open, onToggle }) {
-  const answerRef = useRef(null);
-  const [height, setHeight] = useState(0);
-
-  /* max-height has to be a real number for the .35s transition to animate; a
-     ResizeObserver keeps it right if the text rewraps (a phone rotating while
-     the answer is open would otherwise clip it). */
-  useEffect(() => {
-    const el = answerRef.current;
-    if (!el || !open) return undefined;
-    const measure = () => setHeight(el.scrollHeight);
-    measure();
-    if (!("ResizeObserver" in window)) return undefined;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el.firstElementChild || el);
-    return () => ro.disconnect();
-  }, [open]);
-
-  return (
-    <div className={`cp-qa cp-rv${open ? " cp-open" : ""}`}>
-      <button
-        className="cp-qa-q"
-        type="button"
-        aria-expanded={open}
-        aria-controls={`cpa${index}`}
-        onClick={onToggle}
-      >
-        <span>{item.q}</span>
-        <span className="cp-qa-ic">{ICONS.plus}</span>
-      </button>
-      <div
-        className="cp-qa-a"
-        id={`cpa${index}`}
-        ref={answerRef}
-        style={{ maxHeight: open ? `${height}px` : 0 }}
-      >
-        <p>{item.a}</p>
-      </div>
-    </div>
-  );
-}
 
 /* ==========================================================================
    The message form
@@ -767,7 +706,6 @@ export default function Contact() {
   const rootRef = useRef(null);
   const { block, items } = useHomeContent("contact_hero");
   const [tab, setTab] = useState(0);
-  const [openFaq, setOpenFaq] = useState(null);
   const tabRefs = useRef([]);
 
   const heroEyebrow = homeField("contact_hero", block, "eyebrow");
@@ -1000,28 +938,8 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* ============================= 5 · FAQ ============================= */}
-      <section className="cp-sec cp-soft">
-        <div className="cp-wrap">
-          <div className="cp-head cp-rv">
-            <span className="cp-eyebrow"><u>Questions</u></span>
-            <h2>Before you <span className="cp-em">write in</span></h2>
-            <p>A few things people ask us most often — the answer may already be here.</p>
-          </div>
-
-          <div className="cp-faq">
-            {FAQS.map((item, i) => (
-              <FaqItem
-                key={item.q}
-                item={item}
-                index={i}
-                open={openFaq === i}
-                onToggle={() => setOpenFaq((cur) => (cur === i ? null : i))}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* The "Before you write in" questions moved to the FAQ page (/faq),
+          which now has a "Contacting us" group: content/contactFaqs.js. */}
 
       {/* ========================= 6 · NEWSLETTER CTA ========================= */}
       <section className="cp-sec" style={{ paddingTop: "clamp(30px,4vw,54px)" }}>
