@@ -1,368 +1,520 @@
-/* Minimal flat illustrations for the hero's right side (forum,
-   blogs, Explore). Pure inline SVG in the brand palette: no faces, simple
-   shapes, so they stay light and read well at any size. Decorative only. */
+/* Flat poster illustrations for the page heroes (blogs, Explore, current
+   affairs, quizzes, forum). Pure inline SVG, decorative only. */
 
-const C = {
-  brand: "#0F9D6B",
-  brand2: "#12B47A",
-  deep: "#0B5B3E",
-  wash: "#EAF7F0",
-  wash2: "#D8F0E4",
-  line: "#CFEADB",
-  gold: "#FFB21D",
-  ink: "#0C2620",
-  white: "#FFFFFF",
-  skin1: "#E9B994",
-  skin2: "#B57A52",
-  skin3: "#8A5536",
-};
-
-// A standing figure with its feet on y=300, centred on x. `arm` is an
-// optional path for a raised/gesturing arm; the other arm hangs down.
-function Person({ x, skin, shirt, pants, hair, arm, armSide = 1, hand, hang = true }) {
-  const down = armSide === 1 ? -1 : 1; // the hanging arm is on the other side
-  return (
-    <g>
-      <rect x={x - 14} y={222} width={12} height={76} rx={6} fill={pants} />
-      <rect x={x + 2} y={222} width={12} height={76} rx={6} fill={pants} />
-      <rect x={x - 18} y={293} width={17} height={8} rx={4} fill={C.ink} />
-      <rect x={x + 1} y={293} width={17} height={8} rx={4} fill={C.ink} />
-      <rect x={x - 5} y={132} width={10} height={18} rx={3} fill={skin} />
-      <rect x={x - 25} y={146} width={50} height={88} rx={22} fill={shirt} />
-      {/* hanging arm */}
-      {hang && <path d={`M${x + 21 * down} 160 C${x + 29 * down} 186 ${x + 29 * down} 204 ${x + 25 * down} 220`} stroke={shirt} strokeWidth={12} strokeLinecap="round" fill="none" />}
-      {hang && <circle cx={x + 25 * down} cy={224} r={6} fill={skin} />}
-      {/* gesturing arm */}
-      {arm && <path d={arm} stroke={shirt} strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" fill="none" />}
-      {hand && <circle cx={hand[0]} cy={hand[1]} r={6} fill={skin} />}
-      <circle cx={x} cy={120} r={18} fill={skin} />
-      <path d={`M${x - 19} 122 C${x - 22} 96 ${x + 22} 96 ${x + 19} 122 C${x + 12} 111 ${x - 6} 109 ${x - 19} 122Z`} fill={hair} />
-    </g>
-  );
-}
-
-function Ground() {
-  return <ellipse cx="210" cy="304" rx="172" ry="11" fill={C.wash2} />;
-}
-
-function Plant({ x }) {
-  return (
-    <g>
-      <path d={`M${x} 270 C${x - 22} 250 ${x - 20} 226 ${x - 4} 214 C${x - 2} 236 ${x + 2} 252 ${x} 270Z`} fill={C.brand} />
-      <path d={`M${x} 270 C${x + 20} 254 ${x + 24} 232 ${x + 10} 220 C${x + 6} 240 ${x + 2} 254 ${x} 270Z`} fill={C.brand2} />
-      <path d={`M${x - 14} 268 h28 l-4 34 h-20z`} fill={C.gold} />
-    </g>
-  );
-}
-
-function Lines({ x, y, widths, color = C.line, gap = 12 }) {
-  return widths.map((w, i) => <rect key={i} x={x} y={y + i * gap} width={w} height={6} rx={3} fill={color} />);
-}
-
-/* Forum: two people in conversation, a question bubble and an answer bubble. */
-export function ForumArt() {
-  return (
-    <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <Ground />
-      {/* question bubble */}
-      <g>
-        <rect x="118" y="34" width="112" height="70" rx="20" fill={C.brand} />
-        <path d="M146 102 l-6 20 l22 -18z" fill={C.brand} />
-        <text x="174" y="82" textAnchor="middle" fontFamily="Plus Jakarta Sans, system-ui, sans-serif" fontWeight="800" fontSize="40" fill={C.white}>?</text>
-      </g>
-      {/* answer bubble */}
-      <g>
-        <rect x="214" y="104" width="128" height="62" rx="18" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <path d="M304 164 l10 20 l4 -22z" fill={C.white} stroke={C.line} strokeWidth="2" strokeLinejoin="round" />
-        <rect x="300" y="160" width="24" height="6" fill={C.white} />
-        <circle cx="236" cy="128" r="9" fill={C.wash} />
-        <path d="M231 128 l4 4 l7 -8" stroke={C.brand} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <Lines x={254} y={120} widths={[70, 52]} />
-        <Lines x={232} y={146} widths={[92]} color={C.wash2} />
-      </g>
-      <Person x={118} skin={C.skin1} shirt={C.brand} pants={C.deep} hair={C.ink}
-        arm="M137 162 C152 152 160 140 164 126" hand={[165, 122]} />
-      <Person x={318} skin={C.skin3} shirt={C.gold} pants={C.ink} hair={C.ink} armSide={-1}
-        arm="M298 164 C288 176 286 188 292 198" hand={[294, 201]} />
-      {/* phone in the second person's hand */}
-      <rect x="284" y="190" width="16" height="24" rx="4" fill={C.deep} />
-      <Plant x={380} />
-      <circle cx="70" cy="70" r="6" fill={C.gold} />
-      <circle cx="372" cy="62" r="4" fill={C.brand2} />
-    </svg>
-  );
-}
-
-/* Blogs: in the airy flat style of stock "story" illustrations: lots of
-   white, near-white backdrop panels, flat grey clouds, a picket fence and
-   soft bushes, one tall slim character in charcoal and brand green, and
-   light-green props. A student with a backpack, hand on chin, reads a big
-   blog board while an idea lights up above. */
-const S = {
-  dark: "#263238", g: C.brand, gDark: "#0B7F56", tint: "#D5F1E3", tint2: "#8ED8B5",
-  skin: "#C98B6B", shade: "#A86E52", panel: "#FCFCFC", line: "#F0F0F0", grey: "#EBEBEB",
-  frame: "#50595E",
-};
-
-function FlatCloud({ x, y, s = 1 }) {
-  return (
-    <path transform={`translate(${x} ${y}) scale(${s})`}
-      d="M0 16 c0 -6 5 -10 11 -9 c2 -7 9 -11 16 -9 c6 2 9 7 9 11 c5 -1 10 3 10 7z" fill={S.grey} />
-  );
-}
-
-function PostRow({ y, w }) {
-  return (
-    <g>
-      <rect x="246" y={y} width="40" height="32" rx="3" fill={S.tint} />
-      <circle cx="277" cy={y + 9} r="3.5" fill={C.white} />
-      <path d={`M250 ${y + 28} l10 -11 l7 6 l5 -4 l10 9z`} fill={C.white} />
-      <rect x="294" y={y + 2} width={w} height="6" rx="1.5" fill={S.tint2} />
-      <rect x="294" y={y + 13} width="56" height="4" rx="1.5" fill={S.tint} />
-      <rect x="294" y={y + 21} width="56" height="4" rx="1.5" fill={S.tint} />
-      <rect x="294" y={y + 29} width="34" height="4" rx="1.5" fill={S.tint} />
-    </g>
-  );
-}
-
+/* Blogs: flat poster look (solid colour field, chunky rounded shapes, hard
+   offset shadows) showing a blog page in a browser with a cat peeking over. */
 export function BlogsArt() {
-  const posts = [168, 186, 204, 222, 240, 258, 384];
+  const sidebar = [
+    { y: 88, c: "#EE6E02" },
+    { y: 136, c: "#4BB15F" },
+    { y: 184, c: "#EA3949" },
+  ];
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      {/* backdrop */}
-      <rect x="40" y="18" width="170" height="236" rx="8" fill={S.panel} stroke={S.line} strokeWidth="1.5" />
-      <rect x="216" y="18" width="170" height="236" rx="8" fill={S.panel} stroke={S.line} strokeWidth="1.5" />
-      <circle cx="226" cy="150" r="40" fill="#F5F5F5" />
-      <FlatCloud x={58} y={118} s={1.1} />
-      <FlatCloud x={150} y={40} s={.8} />
-      <FlatCloud x={322} y={30} />
-      <FlatCloud x={60} y={186} s={.8} />
-      {/* picket fence */}
-      <g fill={S.grey}>
-        {posts.map((x) => <path key={x} d={`M${x} 296 V228 l4 -6 l4 6 V296z`} />)}
-        <rect x="160" y="238" width="236" height="5" />
-      </g>
-      {/* bushes */}
-      <path d="M44 296 C42 262 66 252 82 262 C90 234 128 232 138 258 C152 248 176 260 176 296Z" fill={S.line} />
-      <path d="M330 296 C330 274 350 266 362 274 C370 258 396 262 396 296Z" fill={S.line} />
-      {/* ground */}
-      <path d="M26 296 H398" stroke={S.line} strokeWidth="1.5" />
-      <ellipse cx="214" cy="302" rx="168" ry="7" fill="#F2F2F2" />
+      <defs>
+        <clipPath id="blogs-cover"><rect x="62" y="88" width="150" height="88" rx="12" /></clipPath>
+      </defs>
 
-      {/* blog board, standing on the floor */}
-      <g>
-        <rect x="230" y="60" width="140" height="232" rx="10" fill={S.frame} />
-        <rect x="238" y="70" width="124" height="214" rx="4" fill={C.white} />
-        <rect x="276" y="52" width="48" height="16" rx="4" fill={S.g} />
-        <rect x="284" y="56" width="32" height="5" rx="2.5" fill={S.tint2} />
-        <path d="M294 52 a6 6 0 0 1 12 0" fill={S.g} />
-        <rect x="246" y="82" width="82" height="9" rx="1.5" fill={S.tint} />
-        <PostRow y={102} w={44} />
-        <PostRow y={148} w={50} />
-        <PostRow y={194} w={38} />
-        <rect x="246" y="250" width="58" height="16" rx="8" fill="none" stroke={S.g} strokeWidth="2" />
-        <rect x="257" y="256" width="36" height="4" rx="2" fill={S.tint2} />
-      </g>
-      {/* plant */}
-      <g>
-        <path d="M392 262 C380 240 382 220 390 208 C394 228 396 244 392 262Z" fill="#E0E0E0" />
-        <path d="M394 262 C404 246 408 230 402 218 C398 234 394 248 394 262Z" fill={S.grey} />
-        <path d="M391 236 l-2 -14 M396 244 l3 -14" stroke={C.white} strokeWidth="1.2" />
-        <path d="M380 260 h26 l-4 36 h-18z" fill={S.grey} />
-      </g>
+      {/* solid poster field + floor shadow */}
+      <rect x="6" y="6" width="408" height="308" rx="22" fill="#6CC5A4" />
+      <rect x="26" y="278" width="368" height="10" rx="5" fill="#000" opacity=".18" />
 
-      {/* idea: bulb with an outlined starburst */}
-      <g transform="translate(176 46)">
-        <path d="M0 -30 L5 -20 L15 -26 L14 -15 L26 -15 L19 -6 L29 1 L18 5 L23 16 L12 13 L10 25 L2 17 L-6 26 L-8 14 L-20 18 L-15 7 L-27 2 L-17 -5 L-24 -15 L-12 -15 L-14 -27 L-4 -20Z"
-          fill="none" stroke={S.tint2} strokeWidth="1.6" strokeLinejoin="round" />
-        <circle r="12" fill={S.tint2} />
-        <path d="M-5 9 h10 v7 h-10z" fill="#E0E0E0" />
-        <path d="M-3 18 h6" stroke={S.dark} strokeWidth="3" strokeLinecap="round" />
-        <path d="M-7 -1 a7 7 0 0 1 5 -6" stroke={C.white} strokeWidth="2" strokeLinecap="round" fill="none" />
-      </g>
+      {/* the cat, peeking over the top edge */}
+      <path d="M210 26L220 26L215 15.5Z" fill="#2A2538" />
+      <path d="M238 26L248 26L243 15.5Z" fill="#2A2538" />
+      <rect x="206" y="22" width="46" height="26" rx="13" fill="#2A2538" />
+      <path d="M217 33a4 4 0 0 0 8 0z" fill="#fff" />
+      <path d="M233 33a4 4 0 0 0 8 0z" fill="#fff" />
+      <path d="M219.4 33a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
+      <path d="M235.4 33a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
+      <path d="M300 150C336 150 340 118 322 100" fill="none" stroke="#2A2538" strokeWidth="7" strokeLinecap="round" />
 
-      {/* student */}
-      <g>
-        {/* backpack, behind */}
-        <rect x="100" y="104" width="15" height="50" rx="6" fill={S.gDark} />
-        {/* legs */}
-        <path d="M112 160 L132 162 L125 282 L113 282Z" fill={S.g} />
-        <path d="M127 160 L144 160 L170 276 L158 280Z" fill={S.g} />
-        <path d="M136 172 l12 50 l-11 -36z" fill={S.gDark} opacity=".6" />
-        <rect x="112" y="278" width="14" height="6" fill={S.dark} />
-        <rect x="156" y="273" width="14" height="6" fill={S.dark} transform="rotate(-14 163 276)" />
-        <path d="M114 285 h10 v1 l4 8 h-20 a4 4 0 0 1 6 -9z" fill={S.dark} />
-        <path d="M160 282 l10 -3 l9 5 l0 2 l-19 5 a3 3 0 0 1 0 -9z" fill={S.dark} />
-        {/* tee */}
-        <path d="M110 104 Q114 98 124 98 L134 98 Q144 99 147 106 L151 122 L144 124 L143 162 L112 162 L112 124 L106 122Z" fill={S.dark} />
-        <path d="M121 98 q7 7 14 0" stroke={C.white} strokeWidth="2.5" fill="none" />
-        {/* straps */}
-        <path d="M116 100 L114 148 M140 100 L143 140" stroke={S.g} strokeWidth="5" strokeLinecap="round" />
-        <path d="M114 128 H143" stroke={S.g} strokeWidth="3.5" />
-        {/* arm holding a book at the hip */}
-        <path d="M108 122 L103 146 L112 156" stroke={S.skin} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <g transform="rotate(-10 112 160)">
-          <rect x="100" y="146" width="24" height="30" rx="2" fill={S.gDark} />
-          <rect x="102" y="148" width="3" height="26" fill={C.white} opacity=".5" />
+      {/* hard grey shadow of the browser window */}
+      <rect x="86" y="44" width="250" height="226" rx="18" fill="#C5C7C8" />
+
+      {/* browser window */}
+      <rect x="50" y="44" width="250" height="226" rx="18" fill="#F2FBFF" />
+      <rect x="60" y="54" width="230" height="22" rx="10" fill="#E8F1F4" />
+      <circle cx="74" cy="65" r="3.5" fill="#EA3949" />
+      <circle cx="86" cy="65" r="3.5" fill="#FCB900" />
+      <circle cx="98" cy="65" r="3.5" fill="#4BB15F" />
+      <rect x="112" y="59" width="112" height="12" rx="6" fill="#D9DDDF" />
+      <rect x="120" y="63.5" width="44" height="3" rx="1.5" fill="#fff" opacity=".8" />
+      <rect x="244" y="60" width="14" height="10" rx="2" fill="#D9DDDF" />
+      <rect x="258" y="60" width="2" height="10" fill="#C2C4C6" />
+      <circle cx="274" cy="65" r="5.5" fill="#D9DDDF" />
+
+      {/* cat paws on the window edge */}
+      <ellipse cx="214" cy="46" rx="8" ry="5" fill="#2A2538" />
+      <ellipse cx="244" cy="46" rx="8" ry="5" fill="#2A2538" />
+
+      {/* cover picture */}
+      <rect x="62" y="88" width="150" height="88" rx="12" fill="#6E6D71" />
+      <g clipPath="url(#blogs-cover)">
+        <circle cx="176" cy="114" r="15" fill="#FCB900" />
+        <path d="M62 176V150C80 128 98 130 116 146C132 120 156 118 176 150L212 176Z" fill="#387D45" />
+        <path d="M62 176V162C86 148 108 152 130 164C154 150 184 152 212 164V176Z" fill="#4BB15F" />
+        <path d="M70 176L138 88H152L84 176Z" fill="#fff" opacity=".15" />
+        <path d="M110 176L162 108V122L126 176Z" fill="#fff" opacity=".15" />
+      </g>
+      <rect x="62" y="88" width="150" height="88" rx="12" fill="none" stroke="#E5EBEE" strokeWidth="3" />
+
+      {/* post title + text */}
+      <rect x="62" y="188" width="118" height="10" rx="5" fill="#EE6E02" />
+      <rect x="62" y="206" width="150" height="5" rx="2.5" fill="#D4D8DA" />
+      <rect x="62" y="216" width="128" height="5" rx="2.5" fill="#D4D8DA" />
+      <rect x="62" y="226" width="96" height="5" rx="2.5" fill="#D4D8DA" />
+      <rect x="62" y="244" width="64" height="20" rx="10" fill="#387D45" />
+      <rect x="62" y="241" width="64" height="20" rx="10" fill="#4BB15F" />
+      <path d="M82 251h22m-6-5l6 5-6 5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* more posts */}
+      {sidebar.map((p) => (
+        <g key={p.y}>
+          <rect x="224" y={p.y} width="66" height="40" rx="9" fill="#E8F1F4" />
+          <rect x="231" y={p.y + 7} width="26" height="26" rx="6" fill={p.c} />
+          <rect x="263" y={p.y + 10} width="22" height="5" rx="2.5" fill="#C2C4C6" />
+          <rect x="263" y={p.y + 19} width="16" height="4" rx="2" fill="#D4D8DA" />
+          <rect x="263" y={p.y + 27} width="19" height="4" rx="2" fill="#D4D8DA" />
         </g>
-        {/* neck + head */}
-        <rect x="123" y="90" width="9" height="11" fill={S.shade} />
-        <ellipse cx="128" cy="80" rx="12" ry="15" fill={S.skin} />
-        <ellipse cx="117" cy="82" rx="3.5" ry="5" fill={S.shade} />
-        <path d="M139 79 q4 4 -1 7" fill={S.skin} />
-        <ellipse cx="134" cy="78" rx="1.6" ry="2.2" fill={S.dark} />
-        <path d="M131 72 q3 -2 6 0" stroke={S.dark} strokeWidth="1.6" fill="none" strokeLinecap="round" />
-        <path d="M131 89 h5" stroke={S.shade} strokeWidth="1.6" strokeLinecap="round" />
-        {/* curly hair */}
-        <g fill={S.dark}>
-          <circle cx="118" cy="68" r="8" />
-          <circle cx="126" cy="63" r="8" />
-          <circle cx="135" cy="64" r="7" />
-          <circle cx="141" cy="69" r="4.5" />
-          <circle cx="113" cy="76" r="6" />
-          <circle cx="112" cy="85" r="4.5" />
-          <path d="M112 70 L121 70 L119 90 L110 88Z" />
-        </g>
-        {/* arm up to the chin, thinking */}
-        <path d="M144 108 L151 122" stroke={S.dark} strokeWidth="11" strokeLinecap="round" />
-        <path d="M151 124 L156 138 L141 94" stroke={S.skin} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <ellipse cx="139" cy="91" rx="5.5" ry="5" fill={S.skin} />
+      ))}
+      <circle cx="240" cy="247" r="4.5" fill="#EE6E02" />
+      <circle cx="257" cy="247" r="4.5" fill="#D9DDDF" />
+      <circle cx="274" cy="247" r="4.5" fill="#D9DDDF" />
+
+      {/* floating comment, like and bookmark */}
+      <rect x="333" y="70" width="76" height="44" rx="12" fill="#C5C7C8" />
+      <path d="M338 114H352L336 128Z" fill="#C5C7C8" />
+      <rect x="326" y="70" width="76" height="44" rx="12" fill="#F2FBFF" />
+      <path d="M331 114H345L329 128Z" fill="#F2FBFF" />
+      <circle cx="346" cy="92" r="4.5" fill="#EE6E02" />
+      <circle cx="364" cy="92" r="4.5" fill="#4BB15F" />
+      <circle cx="382" cy="92" r="4.5" fill="#EA3949" />
+
+      <circle cx="355" cy="170" r="22" fill="#C5C7C8" />
+      <circle cx="349" cy="170" r="22" fill="#EA3949" />
+      <path d="M349 180l-10-10a6 6 0 0 1 10-7a6 6 0 0 1 10 7z" fill="#fff" />
+
+      <path d="M384 148h22v48l-11-9-11 9z" fill="#D59800" />
+      <path d="M380 148h22v48l-11-9-11 9z" fill="#FCB900" />
+
+      <g transform="rotate(-18 362 238)">
+        <rect x="326" y="230" width="9" height="13" rx="3" fill="#EA3949" />
+        <rect x="335" y="230" width="50" height="13" rx="2" fill="#F8A11E" />
+        <rect x="335" y="236" width="50" height="2.5" fill="#EE6D02" />
+        <path d="M385 230V243L399 236.5Z" fill="#F7EAEA" />
+        <path d="M394.6 234.4L399 236.5L394.6 238.6Z" fill="#2A2538" />
       </g>
     </svg>
   );
 }
 
-/* Explore: a document shelf and a person holding up a found paper. */
+/* Explore: flat poster look (same family as the blogs art). A library
+   bookcase of books, files and papers, a big magnifier, and a cat on top. */
 export function ExploreArt() {
+  const rowA = [[90, 12, 38, "#EE6E02"], [103, 10, 44, "#4BB15F"], [114, 14, 34, "#EA3949"], [129, 10, 46, "#FCB900"], [140, 12, 40, "#387D45"], [184, 14, 42, "#6E6D71"], [199, 10, 36, "#EE6E02"], [210, 16, 44, "#4BB15F"], [227, 12, 38, "#EA3949"]];
+  const rowB = [[144, 12, 40, "#4BB15F"], [158, 10, 34, "#EE6E02"], [170, 14, 44, "#EA3949"], [186, 10, 38, "#FCB900"]];
+  const rowC = [[142, 12, 36, "#EA3949"], [156, 10, 42, "#FCB900"], [168, 14, 34, "#6E6D71"]];
+  const spine = (b, bottom) => (
+    <g key={`${b[0]}-${bottom}`}>
+      <rect x={b[0]} y={bottom - b[2]} width={b[1]} height={b[2]} rx="2" fill={b[3]} />
+      <rect x={b[0] + 2} y={bottom - b[2] + 6} width={b[1] - 4} height="3" rx="1.5" fill="#fff" opacity=".6" />
+    </g>
+  );
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <Ground />
-      {/* shelf */}
-      <g>
-        <rect x="46" y="70" width="150" height="230" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <rect x="58" y="142" width="126" height="6" rx="3" fill={C.wash2} />
-        <rect x="58" y="214" width="126" height="6" rx="3" fill={C.wash2} />
-        {/* row 1 */}
-        <rect x="66" y="92" width="18" height="50" rx="4" fill={C.brand} />
-        <rect x="88" y="100" width="16" height="42" rx="4" fill={C.gold} />
-        <rect x="108" y="88" width="20" height="54" rx="4" fill={C.deep} />
-        <rect x="134" y="104" width="40" height="38" rx="6" fill={C.wash} stroke={C.line} strokeWidth="2" />
-        {/* row 2 */}
-        <rect x="66" y="168" width="44" height="46" rx="6" fill={C.wash} stroke={C.line} strokeWidth="2" />
-        <rect x="116" y="162" width="18" height="52" rx="4" fill={C.brand2} />
-        <rect x="138" y="172" width="16" height="42" rx="4" fill={C.deep} />
-        <rect x="158" y="166" width="16" height="48" rx="4" fill={C.gold} />
-        {/* row 3 */}
-        <rect x="66" y="236" width="16" height="52" rx="4" fill={C.gold} />
-        <rect x="86" y="244" width="20" height="44" rx="4" fill={C.brand} />
-        <rect x="112" y="240" width="62" height="48" rx="6" fill={C.wash} stroke={C.line} strokeWidth="2" />
+      <defs>
+        <clipPath id="explore-lens"><circle cx="350" cy="128" r="23" /></clipPath>
+      </defs>
+
+      {/* poster field + floor shadow */}
+      <rect x="6" y="6" width="408" height="308" rx="22" fill="#6CC5A4" />
+      <rect x="30" y="272" width="360" height="10" rx="5" fill="#000" opacity=".18" />
+
+      {/* sparkles */}
+      <g fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" opacity=".9">
+        <path d="M300 38v10M295 43h10" />
+        <path d="M40 90v8M36 94h8" />
+        <path d="M398 200v8M394 204h8" />
       </g>
-      {/* paper being held up above the head */}
-      <g transform="translate(0 -44)">
-        <path d="M262 52 h52 l18 18 v64 a8 8 0 0 1 -8 8 h-62 a8 8 0 0 1 -8 -8 v-74 a8 8 0 0 1 8 -8z" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <path d="M314 52 v12 a6 6 0 0 0 6 6 h12" fill={C.wash} stroke={C.line} strokeWidth="2" strokeLinejoin="round" />
-        <rect x="268" y="76" width="30" height="8" rx="4" fill={C.brand} />
-        <Lines x={268} y={94} widths={[52, 40, 46]} />
+
+      {/* cat peeking over the bookcase */}
+      <g transform="translate(-62 8)">
+        <path d="M210 26L220 26L215 15.5Z" fill="#2A2538" />
+        <path d="M238 26L248 26L243 15.5Z" fill="#2A2538" />
+        <rect x="206" y="22" width="46" height="26" rx="13" fill="#2A2538" />
+        <path d="M217 33a4 4 0 0 0 8 0z" fill="#fff" />
+        <path d="M233 33a4 4 0 0 0 8 0z" fill="#fff" />
+        <path d="M219.4 33a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
+        <path d="M235.4 33a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
       </g>
-      <Person x={300} skin={C.skin1} shirt={C.deep} pants={C.ink} hair="#3A2A1E" hang={false}
-        arm="M281 164 C268 140 266 116 270 100" hand={[270, 97]} />
-      <path d="M319 164 C332 140 334 116 330 100" stroke={C.deep} strokeWidth="12" strokeLinecap="round" fill="none" />
-      <circle cx="330" cy="97" r="6" fill={C.skin1} />
-      {/* magnifier */}
-      <g>
-        <circle cx="368" cy="214" r="18" fill={C.wash} stroke={C.brand} strokeWidth="6" />
-        <path d="M381 228 l16 16" stroke={C.brand} strokeWidth="8" strokeLinecap="round" />
+
+      {/* bookcase: hard grey shadow, body, base band */}
+      <path d="M104 262a8 8 0 0 0 8 8H286a8 8 0 0 0 8-8V68a16 16 0 0 0-16-16H120a16 16 0 0 0-16 16Z" fill="#C5C7C8" />
+      <path d="M70 262a8 8 0 0 0 8 8H252a8 8 0 0 0 8-8V68a16 16 0 0 0-16-16H86a16 16 0 0 0-16 16Z" fill="#F2FBFF" />
+      <path d="M70 250H260V262a8 8 0 0 1-8 8H78a8 8 0 0 1-8-8z" fill="#E8F1F4" />
+      <rect x="140" y="256" width="50" height="8" rx="3" fill="#D4D8DA" />
+
+      {/* cat paws on the top edge */}
+      <ellipse cx="152" cy="54" rx="8" ry="5" fill="#2A2538" />
+      <ellipse cx="182" cy="54.5" rx="8" ry="5" fill="#2A2538" />
+
+      {/* inside of the bookcase */}
+      <rect x="82" y="64" width="166" height="178" rx="6" fill="#E8F1F4" />
+      <rect x="82" y="64" width="166" height="6" fill="#DAE5E9" />
+      <rect x="82" y="126" width="166" height="6" fill="#DAE5E9" />
+      <rect x="82" y="188" width="166" height="6" fill="#DAE5E9" />
+      <rect x="82" y="120" width="166" height="6" fill="#D9DDDF" />
+      <rect x="82" y="182" width="166" height="6" fill="#D9DDDF" />
+      <rect x="82" y="242" width="166" height="6" fill="#D9DDDF" />
+
+      {/* top shelf */}
+      {rowA.map((b) => spine(b, 120))}
+      <g transform="rotate(16 168 120)">{spine([156, 12, 38, "#FCB900"], 120)}</g>
+
+      {/* middle shelf */}
+      <rect x="90" y="172" width="44" height="10" rx="2" fill="#EA3949" />
+      <rect x="93" y="163" width="38" height="9" rx="2" fill="#FCB900" />
+      <rect x="91" y="155" width="42" height="8" rx="2" fill="#4BB15F" />
+      {rowB.map((b) => spine(b, 182))}
+      <rect x="224" y="174" width="4" height="8" fill="#C2C4C6" />
+      <rect x="214" y="180" width="24" height="3" rx="1.5" fill="#C2C4C6" />
+      <circle cx="226" cy="160" r="15" fill="#4BB15F" />
+      <path d="M212 156C218 150 224 154 226 160C228 166 234 166 240 162" fill="none" stroke="#387D45" strokeWidth="3" strokeLinecap="round" />
+      <path d="M216 150a14 14 0 0 1 12-6" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".5" />
+
+      {/* bottom shelf */}
+      <rect x="90" y="204" width="22" height="38" rx="3" fill="#EE6E02" />
+      <rect x="94" y="210" width="14" height="10" rx="2" fill="#fff" opacity=".85" />
+      <rect x="116" y="204" width="22" height="38" rx="3" fill="#4BB15F" />
+      <rect x="120" y="210" width="14" height="10" rx="2" fill="#fff" opacity=".85" />
+      {rowC.map((b) => spine(b, 242))}
+      <rect x="190" y="236" width="50" height="6" rx="2" fill="#fff" />
+      <rect x="192" y="230" width="46" height="6" rx="2" fill="#F7EAEA" />
+      <rect x="191" y="224" width="48" height="6" rx="2" fill="#fff" />
+      <rect x="193" y="218" width="44" height="6" rx="2" fill="#F7EAEA" />
+
+      {/* floating document card, top right */}
+      <rect x="327" y="46" width="76" height="40" rx="10" fill="#C5C7C8" />
+      <rect x="322" y="46" width="76" height="40" rx="10" fill="#F2FBFF" />
+      <rect x="330" y="55" width="22" height="22" rx="6" fill="#EA3949" />
+      <path d="M336 66l4 4 7-8" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="358" y="57" width="32" height="5" rx="2.5" fill="#C2C4C6" />
+      <rect x="358" y="66" width="22" height="4" rx="2" fill="#D4D8DA" />
+      <rect x="358" y="74" width="28" height="4" rx="2" fill="#D4D8DA" />
+
+      {/* big magnifier */}
+      <circle cx="355" cy="128" r="33" fill="#C5C7C8" />
+      <circle cx="350" cy="128" r="33" fill="#FCB900" />
+      <circle cx="350" cy="128" r="25" fill="#F2FBFF" />
+      <g clipPath="url(#explore-lens)">
+        <rect x="334" y="112" width="30" height="38" rx="4" fill="#fff" stroke="#D4D8DA" strokeWidth="1.5" />
+        <rect x="339" y="118" width="14" height="5" rx="2.5" fill="#EE6E02" />
+        <rect x="339" y="128" width="20" height="3.5" rx="1.75" fill="#D4D8DA" />
+        <rect x="339" y="135" width="16" height="3.5" rx="1.75" fill="#D4D8DA" />
+        <rect x="339" y="142" width="19" height="3.5" rx="1.75" fill="#D4D8DA" />
+        <path d="M326 150L366 108H378L338 152Z" fill="#6CC5A4" opacity=".16" />
       </g>
-      <circle cx="226" cy="40" r="6" fill={C.gold} />
-      <circle cx="386" cy="90" r="4" fill={C.brand2} />
+      <path d="M374 152l20 24" stroke="#C55602" strokeWidth="12" strokeLinecap="round" />
+      <path d="M373 151l20 24" stroke="#EE6E02" strokeWidth="9" strokeLinecap="round" />
+
+      {/* stack of papers on the floor */}
+      <rect x="336" y="262" width="68" height="8" rx="3" fill="#EE6E02" />
+      <rect x="334" y="254" width="64" height="8" rx="3" fill="#fff" />
+      <rect x="338" y="246" width="60" height="8" rx="3" fill="#F7EAEA" />
+      <path d="M342 250.5h24" stroke="#C2C4C6" strokeWidth="2" strokeLinecap="round" />
+
+      {/* potted plant */}
+      <path d="M36 246C28 232 28 220 36 208C44 220 44 232 36 246Z" fill="#387D45" />
+      <path d="M36 246C46 236 54 230 62 232C58 242 48 248 36 246Z" fill="#4BB15F" />
+      <path d="M36 246C26 238 20 232 12 236C16 244 26 248 36 246Z" fill="#4BB15F" />
+      <rect x="22" y="246" width="30" height="24" rx="4" fill="#EE6E02" />
+      <rect x="44" y="246" width="8" height="24" fill="#C55602" />
     </svg>
   );
 }
 
-/* Current affairs: a reader with the day's paper, a calendar and a globe. */
+/* ---- Poster family (shared by the Blogs / Explore / Current affairs / Quiz /
+   Forum heroes): solid mint field, chunky rounded shapes, hard
+   grey offset shadows, and a cat peeking over the main object. ---- */
+function PosterField() {
+  return (
+    <>
+      <rect x="6" y="6" width="408" height="308" rx="22" fill="#6CC5A4" />
+      <rect x="30" y="272" width="360" height="10" rx="5" fill="#000" opacity=".18" />
+    </>
+  );
+}
+
+/* (x, y) is the centre of the edge the cat peeks over. Head goes behind the
+   object, paws on top of it. */
+function PosterCatHead({ x, y }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M-19 -18L-9 -18L-14 -28.5Z" fill="#2A2538" />
+      <path d="M9 -18L19 -18L14 -28.5Z" fill="#2A2538" />
+      <rect x="-23" y="-22" width="46" height="26" rx="13" fill="#2A2538" />
+      <path d="M-12 -11a4 4 0 0 0 8 0z" fill="#fff" />
+      <path d="M4 -11a4 4 0 0 0 8 0z" fill="#fff" />
+      <path d="M-9.6 -11a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
+      <path d="M6.4 -11a1.6 1.6 0 0 0 3.2 0z" fill="#111" />
+    </g>
+  );
+}
+
+function PosterCatPaws({ x, y }) {
+  return (
+    <g transform={`translate(${x} ${y})`} fill="#2A2538">
+      <ellipse cx="-15" cy="2" rx="8" ry="5" />
+      <ellipse cx="15" cy="2.5" rx="8" ry="5" />
+    </g>
+  );
+}
+
+function PosterSparkles({ at }) {
+  return (
+    <g fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" opacity=".9">
+      {at.map(([x, y]) => <path key={`${x}-${y}`} d={`M${x} ${y - 5}v10M${x - 5} ${y}h10`} />)}
+    </g>
+  );
+}
+
+/* Current affairs: a big newspaper board, wall clock, calendar and globe. */
 export function CurrentAffairsArt() {
+  const cols = [98, 160, 222];
+  const widths = [52, 56, 44, 56, 48, 34];
+  const skyline = [[104, 136, 14, 30], [120, 126, 16, 40], [138, 140, 12, 26], [152, 130, 18, 36], [172, 144, 14, 22], [188, 134, 14, 32]];
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <Ground />
+      <defs>
+        <clipPath id="ca-photo"><rect x="98" y="100" width="104" height="66" rx="7" /></clipPath>
+      </defs>
+      <PosterField />
+      <PosterSparkles at={[[300, 40], [40, 100], [400, 200]]} />
+
+      <PosterCatHead x={189} y={46} />
+
+      {/* newspaper board */}
+      <rect x="114" y="46" width="210" height="226" rx="14" fill="#C5C7C8" />
+      <rect x="84" y="46" width="210" height="226" rx="14" fill="#F2FBFF" />
+      <rect x="98" y="60" width="182" height="24" rx="7" fill="#2A2538" />
+      <rect x="130" y="68" width="118" height="8" rx="4" fill="#fff" />
+      <circle cx="110" cy="72" r="3" fill="#FCB900" />
+      <circle cx="268" cy="72" r="3" fill="#FCB900" />
+      <rect x="98" y="89" width="60" height="4" rx="2" fill="#C2C4C6" />
+      <rect x="220" y="89" width="60" height="4" rx="2" fill="#C2C4C6" />
+
+      <rect x="98" y="100" width="104" height="66" rx="7" fill="#F8A11E" />
+      <g clipPath="url(#ca-photo)">
+        <circle cx="176" cy="120" r="11" fill="#FCB900" />
+        {skyline.map(([x, y, w, h]) => <rect key={x} x={x} y={y} width={w} height={h} fill="#2A2538" />)}
+        <path d="M108 142h4M108 150h4M124 134h4M124 142h4M124 150h4M156 138h4M156 146h4M192 142h4M192 150h4" stroke="#FCB900" strokeWidth="3" />
+        <path d="M104 166L146 100H158L116 166Z" fill="#fff" opacity=".15" />
+      </g>
+      <rect x="210" y="102" width="70" height="8" rx="4" fill="#EE6E02" />
+      {[70, 62, 70, 56, 66, 40].map((w, i) => <rect key={i} x="210" y={116 + i * 8.6} width={w} height="4" rx="2" fill="#D4D8DA" />)}
+
+      <rect x="98" y="174" width="160" height="10" rx="5" fill="#EE6E02" />
+      <rect x="157" y="190" width="1.5" height="54" fill="#E1E6E8" />
+      <rect x="219" y="190" width="1.5" height="54" fill="#E1E6E8" />
+      {cols.map((x) => widths.map((w, i) => <rect key={`${x}-${i}`} x={x} y={192 + i * 9} width={w} height="4" rx="2" fill="#D4D8DA" />))}
+      <path d="M84 252H294V258a14 14 0 0 1-14 14H98a14 14 0 0 1-14-14z" fill="#EE6E02" />
+      <rect x="100" y="260" width="62" height="5" rx="2.5" fill="#fff" opacity=".85" />
+      <rect x="172" y="260" width="40" height="5" rx="2.5" fill="#fff" opacity=".85" />
+      <circle cx="274" cy="262" r="4" fill="#fff" />
+
+      <PosterCatPaws x={174} y={46} />
+      <PosterCatPaws x={204} y={46} />
+
+      {/* wall clock */}
+      <circle cx="361" cy="100" r="30" fill="#C5C7C8" />
+      <circle cx="356" cy="100" r="30" fill="#FCB900" />
+      <circle cx="356" cy="100" r="24" fill="#F2FBFF" />
+      <path d="M356 80v5M356 115v5M336 100h5M371 100h5" stroke="#C2C4C6" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M356 100V87" stroke="#2A2538" strokeWidth="3" strokeLinecap="round" />
+      <path d="M356 100L367 106" stroke="#EA3949" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="356" cy="100" r="3" fill="#2A2538" />
+
       {/* calendar */}
-      <g>
-        <rect x="46" y="58" width="128" height="116" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <path d="M46 74 a16 16 0 0 1 16 -16 h96 a16 16 0 0 1 16 16 v12 h-128z" fill={C.brand} />
-        <rect x="74" y="48" width="8" height="20" rx="4" fill={C.deep} />
-        <rect x="138" y="48" width="8" height="20" rx="4" fill={C.deep} />
-        {[0, 1, 2].map((r) => [0, 1, 2, 3].map((c) => (
-          <rect key={`${r}-${c}`} x={62 + c * 26} y={100 + r * 22} width="16" height="12" rx="4"
-            fill={r === 1 && c === 2 ? C.gold : C.wash2} />
-        )))}
-      </g>
-      {/* globe */}
-      <g>
-        <circle cx="352" cy="78" r="30" fill={C.wash} stroke={C.brand} strokeWidth="4" />
-        <ellipse cx="352" cy="78" rx="13" ry="30" fill="none" stroke={C.brand} strokeWidth="3" />
-        <path d="M322 78 h60 M327 62 h50 M327 94 h50" stroke={C.brand} strokeWidth="3" strokeLinecap="round" />
-      </g>
-      <Person x={250} skin={C.skin2} shirt={C.gold} pants={C.deep} hair={C.ink} hang={false}
-        arm="M230 166 C216 176 212 186 214 196" />
-      <path d="M270 166 C284 176 288 186 286 196" stroke={C.gold} strokeWidth="12" strokeLinecap="round" fill="none" />
-      {/* newspaper held in front */}
-      <g>
-        <rect x="198" y="166" width="104" height="74" rx="8" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <rect x="210" y="178" width="56" height="9" rx="4.5" fill={C.deep} />
-        <rect x="210" y="196" width="30" height="30" rx="5" fill={C.wash2} />
-        <Lines x={248} y={196} widths={[42, 34, 40]} gap={11} />
-        <rect x="274" y="178" width="16" height="9" rx="4.5" fill={C.gold} />
-      </g>
-      <circle cx="214" cy="198" r="6" fill={C.skin2} />
-      <circle cx="286" cy="198" r="6" fill={C.skin2} />
-      <Plant x={92} />
-      <circle cx="214" cy="60" r="6" fill={C.gold} />
-      <circle cx="388" cy="200" r="4" fill={C.brand2} />
+      <rect x="331" y="146" width="64" height="64" rx="10" fill="#C5C7C8" />
+      <rect x="326" y="146" width="64" height="64" rx="10" fill="#F2FBFF" />
+      <path d="M326 156a10 10 0 0 1 10-10H380a10 10 0 0 1 10 10V164H326z" fill="#EA3949" />
+      <rect x="337" y="140" width="4" height="12" rx="2" fill="#2A2538" />
+      <rect x="375" y="140" width="4" height="12" rx="2" fill="#2A2538" />
+      {[172, 184, 196].map((y) => [336, 348, 360, 372].map((x) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width="8" height="7" rx="2" fill={x === 360 && y === 184 ? "#EE6E02" : "#D9DDDF"} />
+      )))}
+
+      {/* globe on the floor */}
+      <path d="M352 260v8" stroke="#C2C4C6" strokeWidth="4" />
+      <rect x="340" y="266" width="24" height="5" rx="2.5" fill="#C2C4C6" />
+      <circle cx="352" cy="242" r="19" fill="#4BB15F" />
+      <path d="M337 238C344 232 350 238 352 244C354 250 360 250 367 246" fill="none" stroke="#387D45" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M342 230a19 19 0 0 1 14-8" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" opacity=".5" />
+
+      {/* mug */}
+      <path d="M28 230q-4-6 0-10t0-8M38 230q-4-6 0-10t0-8" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity=".85" />
+      <path d="M46 248h4a6 6 0 0 1 0 14h-4" fill="none" stroke="#F2FBFF" strokeWidth="4" />
+      <rect x="18" y="238" width="30" height="32" rx="7" fill="#F2FBFF" />
+      <rect x="42" y="238" width="6" height="32" fill="#E5EBEE" />
+      <rect x="18" y="250" width="30" height="5" fill="#EE6E02" />
     </svg>
   );
 }
 
-/* Quizzes: a learner pointing at a quiz card, with a stopwatch and a trophy. */
+/* Quizzes: a big multiple-choice card, stopwatch and trophy. */
 export function QuizArt() {
+  const rows = [
+    { y: 110, state: "idle" },
+    { y: 146, state: "right" },
+    { y: 182, state: "wrong" },
+    { y: 218, state: "idle" },
+  ];
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <Ground />
+      <PosterField />
+      <PosterSparkles at={[[300, 40], [38, 220], [400, 150]]} />
+
+      <PosterCatHead x={175} y={46} />
+
       {/* quiz card */}
-      <g>
-        <rect x="232" y="44" width="146" height="178" rx="18" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <rect x="252" y="64" width="64" height="9" rx="4.5" fill={C.deep} />
-        <rect x="252" y="80" width="96" height="6" rx="3" fill={C.line} />
-        {[0, 1, 2].map((i) => {
-          const y = 104 + i * 30;
-          const on = i === 0;
-          return (
-            <g key={i}>
-              <rect x="248" y={y - 4} width="114" height="24" rx="12" fill={on ? C.wash : C.white} stroke={on ? C.brand : C.line} strokeWidth="2" />
-              <circle cx="262" cy={y + 8} r="6" fill={on ? C.brand : C.white} stroke={on ? C.brand : C.line} strokeWidth="2" />
-              {on && <path d={`M259 ${y + 8} l2.5 2.5 l4.5 -5`} stroke={C.white} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
-              <rect x="276" y={y + 5} width={on ? 64 : 52 - i * 6} height="6" rx="3" fill={on ? C.brand : C.line} />
-            </g>
-          );
-        })}
-        <rect x="270" y="192" width="70" height="18" rx="9" fill={C.brand} />
-      </g>
+      <rect x="100" y="46" width="210" height="226" rx="16" fill="#C5C7C8" />
+      <rect x="70" y="46" width="210" height="226" rx="16" fill="#F2FBFF" />
+      <rect x="84" y="60" width="182" height="40" rx="11" fill="#EE6E02" />
+      <circle cx="104" cy="80" r="11" fill="#FCB900" />
+      <path d="M100.5 77a3.8 3.8 0 1 1 6 3c-1.8 1-2 1.8-2 3" fill="none" stroke="#2A2538" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="104.4" cy="88" r="1.5" fill="#2A2538" />
+      <rect x="124" y="72" width="120" height="6" rx="3" fill="#fff" />
+      <rect x="124" y="84" width="84" height="6" rx="3" fill="#fff" opacity=".8" />
+
+      {rows.map((r) => {
+        const right = r.state === "right";
+        const wrong = r.state === "wrong";
+        return (
+          <g key={r.y}>
+            <rect x="84" y={r.y} width="182" height="28" rx="9" fill={right ? "#4BB15F" : wrong ? "#F7D9DC" : "#E8F1F4"} />
+            <circle cx="101" cy={r.y + 14} r="7" fill={right ? "#fff" : wrong ? "#EA3949" : "#fff"} stroke={right || wrong ? "none" : "#C2C4C6"} strokeWidth="2" />
+            {right && <path d="M97.5 124.5l2.8 3 5-6" transform={`translate(0 ${r.y - 110})`} fill="none" stroke="#4BB15F" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />}
+            {wrong && <path d="M98.5 195.5l5 5M103.5 195.5l-5 5" transform={`translate(0 ${r.y - 182})`} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />}
+            <rect x="118" y={r.y + 8} width="96" height="4.5" rx="2.25" fill={right ? "#fff" : wrong ? "#E79AA2" : "#C2C4C6"} />
+            <rect x="118" y={r.y + 16} width="62" height="4" rx="2" fill={right ? "#fff" : wrong ? "#EBB6BC" : "#D4D8DA"} opacity={right ? 0.7 : 1} />
+          </g>
+        );
+      })}
+      <rect x="84" y="256" width="182" height="6" rx="3" fill="#D9DDDF" />
+      <rect x="84" y="256" width="112" height="6" rx="3" fill="#EE6E02" />
+
+      <PosterCatPaws x={160} y={46} />
+      <PosterCatPaws x={190} y={46} />
+
       {/* stopwatch */}
-      <g>
-        <rect x="62" y="52" width="16" height="8" rx="3" fill={C.deep} />
-        <circle cx="70" cy="88" r="26" fill={C.white} stroke={C.brand} strokeWidth="5" />
-        <path d="M70 88 V72 M70 88 l10 8" stroke={C.deep} strokeWidth="4" strokeLinecap="round" />
-        <circle cx="70" cy="88" r="3.5" fill={C.gold} />
-      </g>
-      <Person x={160} skin={C.skin1} shirt={C.brand} pants={C.ink} hair="#3A2A1E"
-        arm="M179 162 C196 152 210 144 226 136" hand={[228, 134]} />
+      <circle cx="361" cy="100" r="28" fill="#C5C7C8" />
+      <rect x="351" y="64" width="10" height="8" rx="2" fill="#2A2538" />
+      <circle cx="356" cy="100" r="28" fill="#EA3949" />
+      <circle cx="356" cy="100" r="21" fill="#F2FBFF" />
+      <path d="M356 100V82A18 18 0 0 1 372 91Z" fill="#FCB900" />
+      <path d="M356 100L366 90" stroke="#2A2538" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="356" cy="100" r="3" fill="#2A2538" />
+
       {/* trophy */}
-      <g>
-        <path d="M352 244 h36 v8 a18 18 0 0 1 -36 0z" fill={C.gold} />
-        <path d="M352 250 h-8 a8 8 0 0 0 8 10 M388 250 h8 a8 8 0 0 1 -8 10" stroke={C.gold} strokeWidth="4" fill="none" strokeLinecap="round" />
-        <rect x="366" y="268" width="8" height="18" fill={C.gold} />
-        <rect x="356" y="284" width="28" height="10" rx="4" fill={C.deep} />
+      <g transform="translate(5 0)">
+        <path d="M338 150h40v18a20 20 0 0 1-40 0z" fill="#C5C7C8" />
+        <rect x="354" y="188" width="8" height="14" fill="#C5C7C8" />
+        <rect x="342" y="200" width="32" height="9" rx="3" fill="#C5C7C8" />
       </g>
-      <circle cx="200" cy="54" r="6" fill={C.gold} />
-      <circle cx="44" cy="210" r="4" fill={C.brand2} />
+      <path d="M338 158c-14 0-14 18 0 18M378 158c14 0 14 18 0 18" fill="none" stroke="#D59800" strokeWidth="5" strokeLinecap="round" />
+      <path d="M338 150h40v18a20 20 0 0 1-40 0z" fill="#FCB900" />
+      <rect x="354" y="188" width="8" height="14" fill="#D59800" />
+      <rect x="342" y="200" width="32" height="9" rx="3" fill="#FCB900" />
+      <path d="M358 158l3 6 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1z" fill="#fff" />
+
+      {/* pencil on the floor */}
+      <rect x="338" y="256" width="8" height="10" rx="3" fill="#EA3949" />
+      <rect x="346" y="256" width="44" height="10" rx="2" fill="#F8A11E" />
+      <rect x="346" y="261" width="44" height="2.5" fill="#EE6D02" />
+      <path d="M390 256V266L402 261Z" fill="#F7EAEA" />
+      <path d="M398.5 259V263L402 261Z" fill="#2A2538" />
+
+      {/* idea bulb */}
+      <path d="M38 128l-8-6M38 118v-8M48 128l8-6" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity=".85" />
+      <circle cx="38" cy="150" r="15" fill="#FCB900" />
+      <rect x="31" y="163" width="14" height="8" rx="2.5" fill="#F2FBFF" />
+      <path d="M32 152l3 5 3-7 3 7 3-5" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* Forum: a question bubble, an answer bubble, reactions and a few members. */
+export function ForumArt() {
+  const people = [
+    { x: 44, skin: "#E0A98A", hair: "#2A2538", shirt: "#EE6E02" },
+    { x: 82, skin: "#B96F4B", hair: "#2A2538", shirt: "#FCB900" },
+    { x: 120, skin: "#F2C2B0", hair: "#6B4A3A", shirt: "#EA3949" },
+  ];
+  return (
+    <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
+      <PosterField />
+      <PosterSparkles at={[[300, 40], [30, 90], [400, 230]]} />
+
+      <PosterCatHead x={161} y={54} />
+
+      {/* question bubble */}
+      <g fill="#C5C7C8" transform="translate(22 0)">
+        <rect x="60" y="54" width="202" height="112" rx="24" />
+        <path d="M84 160L84 194L118 160Z" />
+      </g>
+      <rect x="60" y="54" width="202" height="112" rx="24" fill="#F2FBFF" />
+      <path d="M84 160L84 194L118 160Z" fill="#F2FBFF" />
+      <PosterCatPaws x={146} y={54} />
+      <PosterCatPaws x={176} y={54} />
+      <circle cx="96" cy="92" r="17" fill="#FCB900" />
+      <circle cx="96" cy="88" r="6" fill="#fff" />
+      <path d="M85 106a11 9 0 0 1 22 0z" fill="#fff" />
+      <rect x="122" y="80" width="96" height="9" rx="4.5" fill="#EE6E02" />
+      <rect x="122" y="96" width="112" height="5" rx="2.5" fill="#D4D8DA" />
+      <rect x="122" y="106" width="88" height="5" rx="2.5" fill="#D4D8DA" />
+      <rect x="78" y="128" width="46" height="18" rx="9" fill="#E8F1F4" />
+      <circle cx="89" cy="137" r="3.5" fill="#4BB15F" />
+      <rect x="128" y="128" width="46" height="18" rx="9" fill="#E8F1F4" />
+      <circle cx="139" cy="137" r="3.5" fill="#EE6E02" />
+      <circle cx="250" cy="64" r="16" fill="#EA3949" />
+      <path d="M245.5 61a4.5 4.5 0 1 1 7 3.6c-2 1.2-2.5 2-2.5 3.6" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="250.2" cy="74" r="1.9" fill="#fff" />
+
+      {/* answer bubble */}
+      <g fill="#C5C7C8" transform="translate(8 0)">
+        <rect x="150" y="180" width="222" height="72" rx="22" />
+        <path d="M338 246L350 270L312 246Z" />
+      </g>
+      <rect x="150" y="176" width="222" height="76" rx="22" fill="#4BB15F" />
+      <path d="M338 246L350 270L312 246Z" fill="#4BB15F" />
+      <circle cx="182" cy="214" r="16" fill="#fff" />
+      <path d="M175 214l5 5 9-10" fill="none" stroke="#4BB15F" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="208" y="198" width="124" height="8" rx="4" fill="#fff" />
+      <rect x="208" y="212" width="140" height="5" rx="2.5" fill="#fff" opacity=".75" />
+      <rect x="208" y="222" width="98" height="5" rx="2.5" fill="#fff" opacity=".75" />
+
+      {/* reactions */}
+      <circle cx="341" cy="96" r="22" fill="#C5C7C8" />
+      <circle cx="336" cy="96" r="22" fill="#EA3949" />
+      <path d="M336 106l-10-10a6 6 0 0 1 10-7a6 6 0 0 1 10 7z" fill="#fff" />
+      <rect x="301" y="132" width="80" height="32" rx="14" fill="#C5C7C8" />
+      <path d="M316 164H330L314 176Z" fill="#C5C7C8" />
+      <rect x="296" y="132" width="80" height="32" rx="14" fill="#F2FBFF" />
+      <path d="M311 164H325L309 176Z" fill="#F2FBFF" />
+      <circle cx="318" cy="148" r="4" fill="#EE6E02" />
+      <circle cx="336" cy="148" r="4" fill="#4BB15F" />
+      <circle cx="354" cy="148" r="4" fill="#EA3949" />
+
+      {/* members */}
+      {people.map((p) => (
+        <g key={p.x}>
+          <path d={`M${p.x - 20} 270a20 20 0 0 1 40 0z`} fill={p.shirt} />
+          <rect x={p.x - 4} y="246" width="8" height="8" fill={p.skin} />
+          <circle cx={p.x} cy="238" r="13" fill={p.skin} />
+          <path d={`M${p.x - 13} 238a13 13 0 0 1 26 0Q${p.x} 230 ${p.x - 13} 238z`} fill={p.hair} />
+        </g>
+      ))}
     </svg>
   );
 }
