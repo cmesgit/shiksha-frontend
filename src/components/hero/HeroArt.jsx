@@ -93,66 +93,80 @@ export function ForumArt() {
   );
 }
 
-/* Blogs: a study desk, not a figure. An open laptop showing an article
-   (picture, title, lines, a bookmark), a second article card floating
-   behind it, a lit bulb for "clearer", books with a pencil and a mug. */
+/* Blogs: a geometric poster (flat, hard-edged shapes; cream, coral, deep
+   green ink and tan; a zigzag horizon, a dotted arc, rising bubbles and
+   ringed "eyes"). An open book dives past the horizon with pages flaring
+   like flames and a quill writing on it; below the line a lightbulb sits
+   in a coral sea of ideas. */
+const P = { cream: "#FBF3E4", coral: "#E4572E", ink: "#0E3A2C", tan: "#D9AE84", page: "#F1E2C8" };
+const ZIGZAG = (() => {
+  let d = "M24 210";
+  for (let x = 24, i = 0; x < 396; x += 18, i++) d += ` L${x + 18} ${i % 2 ? 210 : 190}`;
+  return `${d} V312 H24Z`;
+})();
+
 export function BlogsArt() {
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <Ground />
-      {/* back article card, tilted */}
-      <g transform="rotate(-8 120 96)">
-        <rect x="62" y="44" width="118" height="104" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <rect x="76" y="58" width="90" height="38" rx="9" fill={C.wash} />
-        <circle cx="146" cy="70" r="7" fill={C.gold} />
-        <path d="M76 96 l24 -22 l18 16 l12 -10 l36 16z" fill={C.brand2} opacity=".55" />
-        <rect x="76" y="106" width="58" height="7" rx="3.5" fill={C.deep} />
-        <Lines x={76} y={120} widths={[90, 64]} gap={10} />
-      </g>
-      {/* lightbulb */}
-      <g transform="translate(338 70)">
-        <path d="M-26 -6 h-10 M26 -6 h10 M0 -40 v-10 M-19 -27 l-7 -7 M19 -27 l7 -7" stroke={C.gold} strokeWidth="4" strokeLinecap="round" />
-        <path d="M0 -26 a20 20 0 0 1 12 36 v6 h-24 v-6 a20 20 0 0 1 12 -36z" fill={C.gold} />
-        <rect x="-11" y="18" width="22" height="7" rx="3" fill={C.deep} />
-        <rect x="-8" y="27" width="16" height="5" rx="2.5" fill={C.deep} opacity=".7" />
-        <path d="M-7 -8 a9 9 0 0 1 8 -8" stroke={C.white} strokeWidth="3" strokeLinecap="round" fill="none" opacity=".8" />
-      </g>
-      {/* laptop */}
-      <g>
-        <rect x="128" y="124" width="184" height="138" rx="14" fill={C.deep} />
-        <rect x="138" y="134" width="164" height="118" rx="8" fill={C.white} />
-        {/* article on screen */}
-        <rect x="150" y="146" width="140" height="44" rx="8" fill={C.wash2} />
-        <circle cx="270" cy="160" r="7" fill={C.gold} />
-        <path d="M150 190 l32 -26 l22 18 l14 -10 l40 18z" fill={C.brand} opacity=".7" />
-        <path d="M274 134 v26 l7 -6 l7 6 v-26z" fill={C.gold} />
-        <rect x="150" y="200" width="84" height="8" rx="4" fill={C.deep} />
-        <Lines x={150} y={215} widths={[132, 118, 74]} gap={11} />
-        <path d="M108 262 h224 l-12 18 a8 8 0 0 1 -7 4 h-186 a8 8 0 0 1 -7 -4z" fill={C.brand} />
-        <rect x="196" y="266" width="48" height="5" rx="2.5" fill={C.deep} opacity=".35" />
-      </g>
-      {/* books + pencil */}
-      <g>
-        <rect x="34" y="276" width="70" height="24" rx="6" fill={C.gold} />
-        <rect x="42" y="254" width="58" height="22" rx="6" fill={C.brand2} />
-        <rect x="44" y="284" width="26" height="4" rx="2" fill={C.white} opacity=".55" />
-        <rect x="50" y="262" width="22" height="4" rx="2" fill={C.white} opacity=".55" />
-        <g transform="rotate(-14 70 246)">
-          <rect x="40" y="242" width="54" height="9" rx="2" fill={C.deep} />
-          <path d="M94 242 l10 4.5 l-10 4.5z" fill="#F4D7B5" />
-          <rect x="40" y="242" width="8" height="9" fill={C.line} />
+      <defs>
+        <clipPath id="blogs-poster">
+          <rect x="24" y="8" width="372" height="304" rx="28" />
+        </clipPath>
+      </defs>
+      {/* card shadow */}
+      <rect x="32" y="16" width="372" height="304" rx="28" fill={P.ink} opacity=".1" />
+      <g clipPath="url(#blogs-poster)">
+        <rect x="24" y="8" width="372" height="304" fill={P.cream} />
+        {/* tan sun with a cream ring, cut by the top edge */}
+        <circle cx="96" cy="30" r="66" fill={P.tan} />
+        <circle cx="96" cy="30" r="52" fill="none" stroke={P.cream} strokeWidth="5" />
+        {/* the coral sea and its zigzag horizon */}
+        <path d={ZIGZAG} fill={P.coral} />
+        {/* dotted arc falling into the sea, ending in a ring */}
+        <path d="M300 34 C366 70 372 160 326 214" fill="none" stroke={P.ink} strokeWidth="3.2" strokeLinecap="round" strokeDasharray="0 9" />
+        <circle cx="320" cy="224" r="10" fill="none" stroke={P.tan} strokeWidth="2.5" />
+        {/* bubbles rising */}
+        <circle cx="282" cy="250" r="6" fill={P.cream} />
+        <circle cx="270" cy="270" r="3" fill={P.cream} />
+        <circle cx="306" cy="276" r="9" fill={P.cream} />
+        <circle cx="290" cy="298" r="4" fill={P.cream} />
+        {/* lightbulb on the sea floor */}
+        <g>
+          <path d="M92 236 h-14 M168 236 h14 M130 194 v-12 M102 208 l-9 -9 M158 208 l9 -9" stroke={P.cream} strokeWidth="4" strokeLinecap="round" />
+          <circle cx="130" cy="236" r="28" fill={P.ink} />
+          <path d="M112 254 L148 254 L142 278 L118 278Z" fill={P.ink} />
+          <rect x="118" y="282" width="24" height="10" rx="2" fill={P.ink} />
+          <path d="M118 262 h24 M119 270 h22" stroke={P.cream} strokeWidth="3" />
+          <path d="M114 232 a16 16 0 0 1 14 -14" stroke={P.cream} strokeWidth="5" strokeLinecap="round" fill="none" />
+          <path d="M122 254 L130 238 L138 254" stroke={P.coral} strokeWidth="4" strokeLinejoin="round" fill="none" />
+        </g>
+        {/* the book, diving */}
+        <g transform="translate(212 124) rotate(-24)">
+          {/* pages flaring like flames */}
+          <path d="M-112 -46 L-162 -112 L-104 -76 L-118 -146 L-70 -72 L-58 -132 L-30 -46Z" fill={P.coral} />
+          <path d="M-96 -48 L-120 -96 L-82 -70 L-84 -112 L-54 -58Z" fill={P.tan} />
+          {/* cover */}
+          <path d="M-122 -50 L0 -38 L120 -58 L128 48 L0 64 L-128 52Z" fill={P.ink} />
+          {/* pages */}
+          <path d="M-108 -40 L-5 -29 L-5 52 L-112 42Z" fill={P.cream} />
+          <path d="M5 -29 L106 -46 L112 38 L5 52Z" fill={P.page} />
+          <path d="M-6 -40 L0 -46 L6 -40 L6 56 L0 62 L-6 56Z" fill={P.ink} />
+          {/* text as hard bars */}
+          <path d="M-94 -24 L-20 -16 M-94 -10 L-20 -2 M-96 4 L-44 9 M-96 18 L-20 25" stroke={P.ink} strokeWidth="5" />
+          {/* ringed medallion on the right page */}
+          <circle cx="58" cy="2" r="22" fill={P.coral} />
+          <circle cx="58" cy="2" r="15" fill={P.cream} />
+          <circle cx="58" cy="2" r="10" fill={P.tan} />
+          <circle cx="58" cy="2" r="4.5" fill={P.ink} />
+          {/* quill writing on the right page */}
+          <path d="M68 6 L90 -30 L90 -16 L108 -46 L136 -60 L130 -32 L114 -26 L122 -16 L86 16Z" fill={P.coral} />
+          <path d="M76 10 L126 -54" stroke={P.ink} strokeWidth="3" strokeLinecap="round" />
+          <path d="M62 14 L72 4 L80 14 L70 24Z" fill={P.tan} />
+          <path d="M66 20 L74 12" stroke={P.ink} strokeWidth="2" />
+          {/* bookmark ribbon hanging below */}
+          <path d="M-60 46 L-46 47 L-44 92 L-52 84 L-60 92Z" fill={P.coral} />
         </g>
       </g>
-      {/* mug */}
-      <g>
-        <path d="M346 254 h40 v34 a10 10 0 0 1 -10 10 h-20 a10 10 0 0 1 -10 -10z" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <path d="M386 262 h6 a9 9 0 0 1 0 18 h-6" stroke={C.line} strokeWidth="5" fill="none" />
-        <rect x="346" y="266" width="40" height="8" fill={C.brand} />
-        <path d="M358 244 c-5 -7 5 -10 0 -18 M372 244 c-5 -7 5 -10 0 -18" stroke={C.line} strokeWidth="3" strokeLinecap="round" fill="none" />
-      </g>
-      <circle cx="214" cy="84" r="6" fill={C.gold} />
-      <circle cx="40" cy="196" r="4" fill={C.brand2} />
-      <circle cx="392" cy="166" r="4" fill={C.brand} />
     </svg>
   );
 }
