@@ -1,4 +1,4 @@
-/* Minimal flat "corporate" illustrations for the hero's right side (forum,
+/* Minimal flat illustrations for the hero's right side (forum,
    blogs, Explore). Pure inline SVG in the brand palette: no faces, simple
    shapes, so they stay light and read well at any size. Decorative only. */
 
@@ -93,42 +93,66 @@ export function ForumArt() {
   );
 }
 
-/* Blogs: a reader with an open book beside a stack of books and a note card. */
+/* Blogs: a study desk, not a figure. An open laptop showing an article
+   (picture, title, lines, a bookmark), a second article card floating
+   behind it, a lit bulb for "clearer", books with a pencil and a mug. */
 export function BlogsArt() {
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
       <Ground />
-      {/* stack of books */}
-      <g>
-        <rect x="58" y="272" width="118" height="28" rx="6" fill={C.deep} />
-        <rect x="70" y="244" width="100" height="28" rx="6" fill={C.gold} />
-        <rect x="62" y="216" width="108" height="28" rx="6" fill={C.brand} />
-        <rect x="76" y="190" width="88" height="26" rx="6" fill={C.wash2} stroke={C.line} strokeWidth="2" />
-        <rect x="70" y="282" width="40" height="5" rx="2.5" fill={C.white} opacity=".5" />
-        <rect x="82" y="254" width="34" height="5" rx="2.5" fill={C.white} opacity=".6" />
-        <rect x="74" y="226" width="44" height="5" rx="2.5" fill={C.white} opacity=".5" />
-        <rect x="88" y="200" width="30" height="5" rx="2.5" fill={C.brand} opacity=".5" />
+      {/* back article card, tilted */}
+      <g transform="rotate(-8 120 96)">
+        <rect x="62" y="44" width="118" height="104" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
+        <rect x="76" y="58" width="90" height="38" rx="9" fill={C.wash} />
+        <circle cx="146" cy="70" r="7" fill={C.gold} />
+        <path d="M76 96 l24 -22 l18 16 l12 -10 l36 16z" fill={C.brand2} opacity=".55" />
+        <rect x="76" y="106" width="58" height="7" rx="3.5" fill={C.deep} />
+        <Lines x={76} y={120} widths={[90, 64]} gap={10} />
       </g>
-      {/* note card */}
-      <g>
-        <rect x="232" y="36" width="122" height="84" rx="16" fill={C.white} stroke={C.line} strokeWidth="2" />
-        <rect x="250" y="54" width="36" height="8" rx="4" fill={C.brand} />
-        <Lines x={250} y={72} widths={[84, 70, 48]} />
-        <path d="M336 96 l14 -14 l6 6 l-14 14 h-6z" fill={C.gold} />
+      {/* lightbulb */}
+      <g transform="translate(338 70)">
+        <path d="M-26 -6 h-10 M26 -6 h10 M0 -40 v-10 M-19 -27 l-7 -7 M19 -27 l7 -7" stroke={C.gold} strokeWidth="4" strokeLinecap="round" />
+        <path d="M0 -26 a20 20 0 0 1 12 36 v6 h-24 v-6 a20 20 0 0 1 12 -36z" fill={C.gold} />
+        <rect x="-11" y="18" width="22" height="7" rx="3" fill={C.deep} />
+        <rect x="-8" y="27" width="16" height="5" rx="2.5" fill={C.deep} opacity=".7" />
+        <path d="M-7 -8 a9 9 0 0 1 8 -8" stroke={C.white} strokeWidth="3" strokeLinecap="round" fill="none" opacity=".8" />
       </g>
-      <Person x={262} skin={C.skin2} shirt={C.brand} pants={C.deep} hair={C.ink} armSide={-1} hang={false}
-        arm="M242 166 C228 176 226 184 232 192" hand={[234, 192]} />
-      {/* second arm up to the book */}
-      <path d="M282 166 C294 176 294 184 288 192" stroke={C.brand} strokeWidth="12" strokeLinecap="round" fill="none" />
-      {/* open book held in front */}
+      {/* laptop */}
       <g>
-        <path d="M222 178 C238 172 252 172 262 180 V212 C252 204 238 204 222 210Z" fill={C.white} stroke={C.line} strokeWidth="2" strokeLinejoin="round" />
-        <path d="M302 178 C286 172 272 172 262 180 V212 C272 204 286 204 302 210Z" fill={C.wash} stroke={C.line} strokeWidth="2" strokeLinejoin="round" />
-        <path d="M230 186 h22 M230 194 h18 M272 186 h22 M276 194 h18" stroke={C.line} strokeWidth="3" strokeLinecap="round" />
+        <rect x="128" y="124" width="184" height="138" rx="14" fill={C.deep} />
+        <rect x="138" y="134" width="164" height="118" rx="8" fill={C.white} />
+        {/* article on screen */}
+        <rect x="150" y="146" width="140" height="44" rx="8" fill={C.wash2} />
+        <circle cx="270" cy="160" r="7" fill={C.gold} />
+        <path d="M150 190 l32 -26 l22 18 l14 -10 l40 18z" fill={C.brand} opacity=".7" />
+        <path d="M274 134 v26 l7 -6 l7 6 v-26z" fill={C.gold} />
+        <rect x="150" y="200" width="84" height="8" rx="4" fill={C.deep} />
+        <Lines x={150} y={215} widths={[132, 118, 74]} gap={11} />
+        <path d="M108 262 h224 l-12 18 a8 8 0 0 1 -7 4 h-186 a8 8 0 0 1 -7 -4z" fill={C.brand} />
+        <rect x="196" y="266" width="48" height="5" rx="2.5" fill={C.deep} opacity=".35" />
       </g>
-      <Plant x={372} />
-      <circle cx="198" cy="58" r="6" fill={C.gold} />
-      <circle cx="60" cy="150" r="4" fill={C.brand2} />
+      {/* books + pencil */}
+      <g>
+        <rect x="34" y="276" width="70" height="24" rx="6" fill={C.gold} />
+        <rect x="42" y="254" width="58" height="22" rx="6" fill={C.brand2} />
+        <rect x="44" y="284" width="26" height="4" rx="2" fill={C.white} opacity=".55" />
+        <rect x="50" y="262" width="22" height="4" rx="2" fill={C.white} opacity=".55" />
+        <g transform="rotate(-14 70 246)">
+          <rect x="40" y="242" width="54" height="9" rx="2" fill={C.deep} />
+          <path d="M94 242 l10 4.5 l-10 4.5z" fill="#F4D7B5" />
+          <rect x="40" y="242" width="8" height="9" fill={C.line} />
+        </g>
+      </g>
+      {/* mug */}
+      <g>
+        <path d="M346 254 h40 v34 a10 10 0 0 1 -10 10 h-20 a10 10 0 0 1 -10 -10z" fill={C.white} stroke={C.line} strokeWidth="2" />
+        <path d="M386 262 h6 a9 9 0 0 1 0 18 h-6" stroke={C.line} strokeWidth="5" fill="none" />
+        <rect x="346" y="266" width="40" height="8" fill={C.brand} />
+        <path d="M358 244 c-5 -7 5 -10 0 -18 M372 244 c-5 -7 5 -10 0 -18" stroke={C.line} strokeWidth="3" strokeLinecap="round" fill="none" />
+      </g>
+      <circle cx="214" cy="84" r="6" fill={C.gold} />
+      <circle cx="40" cy="196" r="4" fill={C.brand2} />
+      <circle cx="392" cy="166" r="4" fill={C.brand} />
     </svg>
   );
 }
