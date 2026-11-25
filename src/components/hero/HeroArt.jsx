@@ -93,80 +93,118 @@ export function ForumArt() {
   );
 }
 
-/* Blogs: a geometric poster (flat, hard-edged shapes; in the site palette:
-   mint, brand green, deep green and gold; a zigzag horizon, a dotted
-   arc, rising bubbles and
-   ringed "eyes"). An open book dives past the horizon with pages flaring
-   like flames and a quill writing on it; below the line a lightbulb sits
-   in a green sea of ideas. */
-const P = { light: "#F3FAF6", brand: C.brand, deep: C.deep, gold: C.gold, sun: "#FFD98A", page: C.wash2, white: C.white };
-const ZIGZAG = (() => {
-  let d = "M24 210";
-  for (let x = 24, i = 0; x < 396; x += 18, i++) d += ` L${x + 18} ${i % 2 ? 210 : 190}`;
-  return `${d} V312 H24Z`;
-})();
+/* Blogs: a soft flat scene — pale grey backdrop panels, a window, clouds
+   and bushes, with the brand green kept for the subject. A student holding
+   a book points up at a big blog board (article rows with picture tiles),
+   an idea bulb lighting up above them. */
+const B = {
+  grey: "#F1F3F2", grey2: "#E6EAE8", grey3: "#D5DCD9", frame: "#455A64",
+  dark: "#263238", tile: "#DDF3E7", skin: "#B97A57",
+};
+
+function Cloud({ x, y, s = 1 }) {
+  return (
+    <path transform={`translate(${x} ${y}) scale(${s})`}
+      d="M0 14 a10 10 0 0 1 12 -10 a14 14 0 0 1 26 2 a9 9 0 0 1 10 8z" fill={B.grey2} />
+  );
+}
+
+function Row({ y, title }) {
+  return (
+    <g>
+      <rect x="222" y={y} width="40" height="32" rx="5" fill={B.tile} />
+      <circle cx="252" cy={y + 9} r="4" fill={C.gold} />
+      <path d={`M226 ${y + 28} l11 -12 l8 7 l6 -5 l9 10z`} fill={C.brand} opacity=".75" />
+      <rect x="272" y={y + 3} width={title} height="6" rx="3" fill={C.brand} />
+      <rect x="272" y={y + 14} width="74" height="5" rx="2.5" fill={B.grey2} />
+      <rect x="272" y={y + 24} width="56" height="5" rx="2.5" fill={B.grey2} />
+    </g>
+  );
+}
 
 export function BlogsArt() {
   return (
     <svg viewBox="0 0 420 320" role="presentation" aria-hidden="true">
-      <defs>
-        <clipPath id="blogs-poster">
-          <rect x="24" y="8" width="372" height="304" rx="28" />
-        </clipPath>
-      </defs>
-      {/* card shadow */}
-      <rect x="32" y="16" width="372" height="304" rx="28" fill={P.deep} opacity=".1" />
-      <g clipPath="url(#blogs-poster)">
-        <rect x="24" y="8" width="372" height="304" fill={P.light} />
-        {/* gold sun with a mint ring, cut by the top edge */}
-        <circle cx="96" cy="30" r="66" fill={P.sun} />
-        <circle cx="96" cy="30" r="52" fill="none" stroke={P.light} strokeWidth="5" />
-        {/* the green sea and its zigzag horizon */}
-        <path d={ZIGZAG} fill={P.brand} />
-        {/* dotted arc falling into the sea, ending in a ring */}
-        <path d="M300 34 C366 70 372 160 326 214" fill="none" stroke={P.deep} strokeWidth="3.2" strokeLinecap="round" strokeDasharray="0 9" />
-        <circle cx="320" cy="224" r="10" fill="none" stroke={P.gold} strokeWidth="2.5" />
-        {/* bubbles rising */}
-        <circle cx="282" cy="250" r="6" fill={P.white} />
-        <circle cx="270" cy="270" r="3" fill={P.white} />
-        <circle cx="306" cy="276" r="9" fill={P.white} />
-        <circle cx="290" cy="298" r="4" fill={P.white} />
-        {/* lightbulb on the sea floor */}
-        <g>
-          <path d="M92 236 h-14 M168 236 h14 M130 194 v-12 M102 208 l-9 -9 M158 208 l9 -9" stroke={P.light} strokeWidth="4" strokeLinecap="round" />
-          <circle cx="130" cy="236" r="28" fill={P.gold} />
-          <path d="M112 254 L148 254 L142 278 L118 278Z" fill={P.deep} />
-          <rect x="118" y="282" width="24" height="10" rx="2" fill={P.deep} />
-          <path d="M118 262 h24 M119 270 h22" stroke={P.light} strokeWidth="3" />
-          <path d="M114 232 a16 16 0 0 1 14 -14" stroke={P.white} strokeWidth="5" strokeLinecap="round" fill="none" />
-          <path d="M122 254 L130 238 L138 254" stroke={P.deep} strokeWidth="4" strokeLinejoin="round" fill="none" />
+      {/* backdrop panels, window, clouds */}
+      <rect x="34" y="26" width="168" height="226" rx="10" fill="#FAFBFB" stroke={B.grey} strokeWidth="2" />
+      <rect x="214" y="26" width="172" height="226" rx="10" fill="#FAFBFB" stroke={B.grey} strokeWidth="2" />
+      <g stroke={B.grey2} strokeWidth="5" fill="none">
+        <rect x="56" y="52" width="96" height="88" />
+        <path d="M104 52 v88 M56 96 h96" />
+      </g>
+      <path d="M66 130 l26 -70 M80 130 l18 -48" stroke={B.grey} strokeWidth="5" />
+      <Cloud x={322} y={36} s={1.1} />
+      <Cloud x={160} y={170} s={.8} />
+      <Cloud x={46} y={196} />
+      {/* ground and bushes */}
+      <circle cx="74" cy="282" r="34" fill={B.grey} />
+      <circle cx="110" cy="272" r="40" fill={B.grey} />
+      <circle cx="372" cy="284" r="30" fill={B.grey} />
+      <path d="M24 296 H396" stroke={B.grey2} strokeWidth="2" />
+      <ellipse cx="214" cy="302" rx="176" ry="9" fill={B.grey} />
+      {/* plant */}
+      <g>
+        <path d="M386 254 C372 236 374 214 384 202 C388 222 390 238 386 254Z" fill={B.grey3} />
+        <path d="M388 254 C400 240 404 222 398 210 C392 226 388 240 388 254Z" fill={B.grey2} />
+        <path d="M374 252 h26 l-4 44 h-18z" fill={B.grey2} />
+      </g>
+      {/* blog board */}
+      <g>
+        <rect x="200" y="58" width="168" height="236" rx="12" fill={B.frame} />
+        <rect x="210" y="70" width="148" height="214" rx="6" fill={C.white} />
+        <rect x="258" y="48" width="52" height="18" rx="6" fill={C.brand} />
+        <circle cx="284" cy="46" r="7" fill={C.brand} />
+        <circle cx="284" cy="46" r="3" fill={C.white} />
+        <circle cx="224" cy="84" r="3" fill={B.grey3} />
+        <circle cx="234" cy="84" r="3" fill={B.grey3} />
+        <circle cx="244" cy="84" r="3" fill={B.grey3} />
+        <rect x="222" y="96" width="98" height="10" rx="5" fill={B.tile} />
+        <Row y={118} title={60} />
+        <Row y={166} title={48} />
+        <Row y={214} title={66} />
+        <rect x="222" y="260" width="54" height="14" rx="7" fill={C.brand} />
+        <rect x="230" y="265" width="38" height="4" rx="2" fill={C.white} opacity=".85" />
+      </g>
+      {/* idea bulb with rays */}
+      <g transform="translate(156 72)">
+        <path d="M0 -36 v8 M-26 -26 l6 6 M26 -26 l-6 6 M-36 0 h8 M36 0 h-8" stroke={C.brand2} strokeWidth="3" strokeLinecap="round" opacity=".6" />
+        <circle r="18" fill={C.brand} />
+        <path d="M-8 14 h16 v10 h-16z" fill={B.grey3} />
+        <path d="M-6 28 h12" stroke={B.dark} strokeWidth="4" strokeLinecap="round" />
+        <path d="M-4 14 v-8 a4 4 0 0 1 8 0 v8" stroke={C.white} strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        <path d="M-10 -4 a11 11 0 0 1 8 -9" stroke={C.white} strokeWidth="3" strokeLinecap="round" fill="none" opacity=".7" />
+      </g>
+      {/* student */}
+      <g>
+        {/* legs */}
+        <path d="M106 206 L100 288 L113 288 L122 212Z" fill={B.dark} />
+        <path d="M122 206 L136 286 L149 283 L138 206Z" fill={B.dark} />
+        <rect x="99" y="282" width="15" height="6" fill={C.brand} />
+        <rect x="134" y="279" width="15" height="6" fill={C.brand} transform="rotate(-8 141 282)" />
+        <path d="M98 288 h17 v6 h-21 a4 4 0 0 1 4 -6z" fill={B.dark} />
+        <path d="M136 286 l14 -3 l2 6 l-18 4 a4 4 0 0 1 2 -7z" fill={B.dark} />
+        {/* torso */}
+        <path d="M100 146 C100 138 110 134 122 134 C134 134 142 138 142 146 L144 212 L100 212Z" fill={C.brand} />
+        <path d="M114 135 L122 146 L130 135Z" fill={C.white} />
+        <rect x="117" y="124" width="10" height="13" rx="3" fill={B.skin} />
+        {/* raised arm, pointing at the board */}
+        <path d="M138 146 L156 132" stroke={C.brand} strokeWidth="13" strokeLinecap="round" />
+        <path d="M156 132 L176 112" stroke={B.skin} strokeWidth="9" strokeLinecap="round" />
+        <circle cx="178" cy="109" r="6" fill={B.skin} />
+        <path d="M180 106 l10 -8" stroke={B.skin} strokeWidth="4" strokeLinecap="round" />
+        {/* other arm holding a book */}
+        <path d="M104 148 L98 176" stroke={C.brand} strokeWidth="13" strokeLinecap="round" />
+        <path d="M98 176 L114 186" stroke={B.skin} strokeWidth="9" strokeLinecap="round" />
+        <g transform="rotate(-12 116 184)">
+          <rect x="104" y="172" width="30" height="22" rx="3" fill={C.deep} />
+          <rect x="106" y="174" width="4" height="18" fill={C.white} opacity=".5" />
         </g>
-        {/* the book, diving */}
-        <g transform="translate(212 124) rotate(-24)">
-          {/* pages flaring like flames */}
-          <path d="M-112 -46 L-162 -112 L-104 -76 L-118 -146 L-70 -72 L-58 -132 L-30 -46Z" fill={P.brand} />
-          <path d="M-96 -48 L-120 -96 L-82 -70 L-84 -112 L-54 -58Z" fill={P.gold} />
-          {/* cover */}
-          <path d="M-122 -50 L0 -38 L120 -58 L128 48 L0 64 L-128 52Z" fill={P.deep} />
-          {/* pages */}
-          <path d="M-108 -40 L-5 -29 L-5 52 L-112 42Z" fill={P.white} />
-          <path d="M5 -29 L106 -46 L112 38 L5 52Z" fill={P.page} />
-          <path d="M-6 -40 L0 -46 L6 -40 L6 56 L0 62 L-6 56Z" fill={P.deep} />
-          {/* text as hard bars */}
-          <path d="M-94 -24 L-20 -16 M-94 -10 L-20 -2 M-96 4 L-44 9 M-96 18 L-20 25" stroke={P.deep} strokeWidth="5" />
-          {/* ringed medallion on the right page */}
-          <circle cx="58" cy="2" r="22" fill={P.brand} />
-          <circle cx="58" cy="2" r="15" fill={P.white} />
-          <circle cx="58" cy="2" r="10" fill={P.gold} />
-          <circle cx="58" cy="2" r="4.5" fill={P.deep} />
-          {/* quill writing on the right page */}
-          <path d="M68 6 L90 -30 L90 -16 L108 -46 L136 -60 L130 -32 L114 -26 L122 -16 L86 16Z" fill={P.brand} />
-          <path d="M76 10 L126 -54" stroke={P.deep} strokeWidth="3" strokeLinecap="round" />
-          <path d="M62 14 L72 4 L80 14 L70 24Z" fill={P.gold} />
-          <path d="M66 20 L74 12" stroke={P.deep} strokeWidth="2" />
-          {/* bookmark ribbon hanging below */}
-          <path d="M-60 46 L-46 47 L-44 92 L-52 84 L-60 92Z" fill={P.gold} />
-        </g>
+        <circle cx="116" cy="186" r="5" fill={B.skin} />
+        {/* head */}
+        <circle cx="123" cy="112" r="15" fill={B.skin} />
+        <path d="M107 114 C102 92 130 86 140 102 C134 99 124 99 118 104 C116 108 114 112 113 120Z" fill={B.dark} />
+        <circle cx="131" cy="111" r="1.8" fill={B.dark} />
+        <path d="M127 119 q4 3 8 0" stroke={B.dark} strokeWidth="1.8" fill="none" strokeLinecap="round" />
       </g>
     </svg>
   );
