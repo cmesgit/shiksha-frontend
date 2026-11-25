@@ -93,12 +93,13 @@ export function ForumArt() {
   );
 }
 
-/* Blogs: a geometric poster (flat, hard-edged shapes; cream, coral, deep
-   green ink and tan; a zigzag horizon, a dotted arc, rising bubbles and
+/* Blogs: a geometric poster (flat, hard-edged shapes; in the site palette:
+   mint, brand green, deep green and gold; a zigzag horizon, a dotted
+   arc, rising bubbles and
    ringed "eyes"). An open book dives past the horizon with pages flaring
    like flames and a quill writing on it; below the line a lightbulb sits
-   in a coral sea of ideas. */
-const P = { cream: "#FBF3E4", coral: "#E4572E", ink: "#0E3A2C", tan: "#D9AE84", page: "#F1E2C8" };
+   in a green sea of ideas. */
+const P = { light: "#F3FAF6", brand: C.brand, deep: C.deep, gold: C.gold, sun: "#FFD98A", page: C.wash2, white: C.white };
 const ZIGZAG = (() => {
   let d = "M24 210";
   for (let x = 24, i = 0; x < 396; x += 18, i++) d += ` L${x + 18} ${i % 2 ? 210 : 190}`;
@@ -114,57 +115,57 @@ export function BlogsArt() {
         </clipPath>
       </defs>
       {/* card shadow */}
-      <rect x="32" y="16" width="372" height="304" rx="28" fill={P.ink} opacity=".1" />
+      <rect x="32" y="16" width="372" height="304" rx="28" fill={P.deep} opacity=".1" />
       <g clipPath="url(#blogs-poster)">
-        <rect x="24" y="8" width="372" height="304" fill={P.cream} />
-        {/* tan sun with a cream ring, cut by the top edge */}
-        <circle cx="96" cy="30" r="66" fill={P.tan} />
-        <circle cx="96" cy="30" r="52" fill="none" stroke={P.cream} strokeWidth="5" />
-        {/* the coral sea and its zigzag horizon */}
-        <path d={ZIGZAG} fill={P.coral} />
+        <rect x="24" y="8" width="372" height="304" fill={P.light} />
+        {/* gold sun with a mint ring, cut by the top edge */}
+        <circle cx="96" cy="30" r="66" fill={P.sun} />
+        <circle cx="96" cy="30" r="52" fill="none" stroke={P.light} strokeWidth="5" />
+        {/* the green sea and its zigzag horizon */}
+        <path d={ZIGZAG} fill={P.brand} />
         {/* dotted arc falling into the sea, ending in a ring */}
-        <path d="M300 34 C366 70 372 160 326 214" fill="none" stroke={P.ink} strokeWidth="3.2" strokeLinecap="round" strokeDasharray="0 9" />
-        <circle cx="320" cy="224" r="10" fill="none" stroke={P.tan} strokeWidth="2.5" />
+        <path d="M300 34 C366 70 372 160 326 214" fill="none" stroke={P.deep} strokeWidth="3.2" strokeLinecap="round" strokeDasharray="0 9" />
+        <circle cx="320" cy="224" r="10" fill="none" stroke={P.gold} strokeWidth="2.5" />
         {/* bubbles rising */}
-        <circle cx="282" cy="250" r="6" fill={P.cream} />
-        <circle cx="270" cy="270" r="3" fill={P.cream} />
-        <circle cx="306" cy="276" r="9" fill={P.cream} />
-        <circle cx="290" cy="298" r="4" fill={P.cream} />
+        <circle cx="282" cy="250" r="6" fill={P.white} />
+        <circle cx="270" cy="270" r="3" fill={P.white} />
+        <circle cx="306" cy="276" r="9" fill={P.white} />
+        <circle cx="290" cy="298" r="4" fill={P.white} />
         {/* lightbulb on the sea floor */}
         <g>
-          <path d="M92 236 h-14 M168 236 h14 M130 194 v-12 M102 208 l-9 -9 M158 208 l9 -9" stroke={P.cream} strokeWidth="4" strokeLinecap="round" />
-          <circle cx="130" cy="236" r="28" fill={P.ink} />
-          <path d="M112 254 L148 254 L142 278 L118 278Z" fill={P.ink} />
-          <rect x="118" y="282" width="24" height="10" rx="2" fill={P.ink} />
-          <path d="M118 262 h24 M119 270 h22" stroke={P.cream} strokeWidth="3" />
-          <path d="M114 232 a16 16 0 0 1 14 -14" stroke={P.cream} strokeWidth="5" strokeLinecap="round" fill="none" />
-          <path d="M122 254 L130 238 L138 254" stroke={P.coral} strokeWidth="4" strokeLinejoin="round" fill="none" />
+          <path d="M92 236 h-14 M168 236 h14 M130 194 v-12 M102 208 l-9 -9 M158 208 l9 -9" stroke={P.light} strokeWidth="4" strokeLinecap="round" />
+          <circle cx="130" cy="236" r="28" fill={P.gold} />
+          <path d="M112 254 L148 254 L142 278 L118 278Z" fill={P.deep} />
+          <rect x="118" y="282" width="24" height="10" rx="2" fill={P.deep} />
+          <path d="M118 262 h24 M119 270 h22" stroke={P.light} strokeWidth="3" />
+          <path d="M114 232 a16 16 0 0 1 14 -14" stroke={P.white} strokeWidth="5" strokeLinecap="round" fill="none" />
+          <path d="M122 254 L130 238 L138 254" stroke={P.deep} strokeWidth="4" strokeLinejoin="round" fill="none" />
         </g>
         {/* the book, diving */}
         <g transform="translate(212 124) rotate(-24)">
           {/* pages flaring like flames */}
-          <path d="M-112 -46 L-162 -112 L-104 -76 L-118 -146 L-70 -72 L-58 -132 L-30 -46Z" fill={P.coral} />
-          <path d="M-96 -48 L-120 -96 L-82 -70 L-84 -112 L-54 -58Z" fill={P.tan} />
+          <path d="M-112 -46 L-162 -112 L-104 -76 L-118 -146 L-70 -72 L-58 -132 L-30 -46Z" fill={P.brand} />
+          <path d="M-96 -48 L-120 -96 L-82 -70 L-84 -112 L-54 -58Z" fill={P.gold} />
           {/* cover */}
-          <path d="M-122 -50 L0 -38 L120 -58 L128 48 L0 64 L-128 52Z" fill={P.ink} />
+          <path d="M-122 -50 L0 -38 L120 -58 L128 48 L0 64 L-128 52Z" fill={P.deep} />
           {/* pages */}
-          <path d="M-108 -40 L-5 -29 L-5 52 L-112 42Z" fill={P.cream} />
+          <path d="M-108 -40 L-5 -29 L-5 52 L-112 42Z" fill={P.white} />
           <path d="M5 -29 L106 -46 L112 38 L5 52Z" fill={P.page} />
-          <path d="M-6 -40 L0 -46 L6 -40 L6 56 L0 62 L-6 56Z" fill={P.ink} />
+          <path d="M-6 -40 L0 -46 L6 -40 L6 56 L0 62 L-6 56Z" fill={P.deep} />
           {/* text as hard bars */}
-          <path d="M-94 -24 L-20 -16 M-94 -10 L-20 -2 M-96 4 L-44 9 M-96 18 L-20 25" stroke={P.ink} strokeWidth="5" />
+          <path d="M-94 -24 L-20 -16 M-94 -10 L-20 -2 M-96 4 L-44 9 M-96 18 L-20 25" stroke={P.deep} strokeWidth="5" />
           {/* ringed medallion on the right page */}
-          <circle cx="58" cy="2" r="22" fill={P.coral} />
-          <circle cx="58" cy="2" r="15" fill={P.cream} />
-          <circle cx="58" cy="2" r="10" fill={P.tan} />
-          <circle cx="58" cy="2" r="4.5" fill={P.ink} />
+          <circle cx="58" cy="2" r="22" fill={P.brand} />
+          <circle cx="58" cy="2" r="15" fill={P.white} />
+          <circle cx="58" cy="2" r="10" fill={P.gold} />
+          <circle cx="58" cy="2" r="4.5" fill={P.deep} />
           {/* quill writing on the right page */}
-          <path d="M68 6 L90 -30 L90 -16 L108 -46 L136 -60 L130 -32 L114 -26 L122 -16 L86 16Z" fill={P.coral} />
-          <path d="M76 10 L126 -54" stroke={P.ink} strokeWidth="3" strokeLinecap="round" />
-          <path d="M62 14 L72 4 L80 14 L70 24Z" fill={P.tan} />
-          <path d="M66 20 L74 12" stroke={P.ink} strokeWidth="2" />
+          <path d="M68 6 L90 -30 L90 -16 L108 -46 L136 -60 L130 -32 L114 -26 L122 -16 L86 16Z" fill={P.brand} />
+          <path d="M76 10 L126 -54" stroke={P.deep} strokeWidth="3" strokeLinecap="round" />
+          <path d="M62 14 L72 4 L80 14 L70 24Z" fill={P.gold} />
+          <path d="M66 20 L74 12" stroke={P.deep} strokeWidth="2" />
           {/* bookmark ribbon hanging below */}
-          <path d="M-60 46 L-46 47 L-44 92 L-52 84 L-60 92Z" fill={P.coral} />
+          <path d="M-60 46 L-46 47 L-44 92 L-52 84 L-60 92Z" fill={P.gold} />
         </g>
       </g>
     </svg>
