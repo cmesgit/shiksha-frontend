@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /live/room/
+Disallow: /live/guest/
+
+Sitemap: https://www.shikshacom.com/sitemap.xml

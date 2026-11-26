@@ -172,7 +172,7 @@ const CARDS_DEFAULT = [
     icon: "phone",
     grad: "linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)",
     title: "Phone",
-    body: "+0124-4255138 (Haryana)<br>+0389-2300225 (Mizoram)<br>+91 3893570403 (Mizoram)",
+    body: "+91 124-4255138 (Haryana)<br>+91 389-2300225 (Mizoram)<br>+91 3893570403 (Mizoram)",
     note: "",
   },
 ];
@@ -230,7 +230,7 @@ const DESKS = [
     body: "Choosing between Class 10 and Class 12 tracks, board coverage, batch timings, fees or the free guest preview — this team walks you through it before you enrol.",
     rows: [
       { glyph: "mail", label: "Email", value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-      { glyph: "phone", label: "Phone", value: "+0124-4255138", href: "tel:+911244255138" },
+      { glyph: "phone", label: "Phone", value: "+91 124-4255138", href: "tel:+911244255138" },
       { glyph: "clock", label: "Hours", value: "Mon–Sat · 9:30 AM – 6:30 PM" },
     ],
     cta: { label: "Ask about a course", href: "#cp-message" },
@@ -242,7 +242,7 @@ const DESKS = [
     body: "Already enrolled? Login trouble, missing recordings, payment receipts, doubt sessions or switching a batch — bring it here and we will sort it out.",
     rows: [
       { glyph: "mail", label: "Email", value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-      { glyph: "phone", label: "Phone", value: "+0389-2300225", href: "tel:+913892300225" },
+      { glyph: "phone", label: "Phone", value: "+91 389-2300225", href: "tel:+913892300225" },
       { glyph: "chat", label: "Response time", value: "Same day on working days" },
     ],
     cta: { label: "Report an issue", href: "#cp-message" },
@@ -297,7 +297,7 @@ function withBreaks(text) {
 
 const EMAIL_RE = /[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+/;
 /* Digits, spaces and hyphens only — deliberately NOT `(` or `)`, or
-   "+0124-4255138 (Haryana)" would swallow the region into the phone number.
+   "+91 124-4255138 (Haryana)" would swallow the region into the phone number.
    It must also END on a digit: an open-ended `[\d\s-]{5,}` takes the separating
    space with it, and the remainder then renders as "…4255138(Haryana)" with the
    space eaten. Caught in the browser, not by any assertion. */

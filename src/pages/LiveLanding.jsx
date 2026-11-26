@@ -197,7 +197,8 @@ export default function LiveLanding() {
           </div>
 
           <div className="live-hero-art">
-            <div className="live-mock">
+            <div className="live-mock" aria-label="Sample preview of a live room">
+              <span className="live-mock-sample">Sample preview</span>
               <div className="live-mock-grid">
                 <div className="live-mock-tile live-mock-tile-host">
                   <div className="live-mock-avatar">D</div>
@@ -279,7 +280,7 @@ export default function LiveLanding() {
             </div>
             <div>
               <div className="live-limits-value">Share a code</div>
-              <div className="live-limits-sub">signed-in people can join</div>
+              <div className="live-limits-sub">anyone with the code can join, after host approval</div>
             </div>
             <div>
               <div className="live-limits-value">Timed room</div>
