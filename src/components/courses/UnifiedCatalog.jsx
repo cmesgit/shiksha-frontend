@@ -200,10 +200,10 @@ function toCatalogCard(cls, board, hideKindLabel) {
     image: cls.image,
     gradient: thumbGradient(cls),
     icon: <ThumbIcon subtitle={cls.subtitle} />,
-    // Academic classes get a generated banner in the site's illustration
-    // style (one look, varied by stream and class); it replaces the uploaded
-    // photo and the gradient on these cards. Other cards are unchanged.
-    banner: cls.classLevel ? <CourseBanner subtitle={cls.subtitle} classLevel={cls.classLevel} /> : null,
+    // Academic classes without an admin-uploaded thumbnail get a generated
+    // banner in the site's illustration style. When an admin has uploaded a
+    // course image, that image is shown instead.
+    banner: cls.classLevel && !cls.image ? <CourseBanner subtitle={cls.subtitle} classLevel={cls.classLevel} /> : null,
     // Real class_level -> a "Class 8" ribbon; falls back to the admin-set
     // `badge` only when class_level isn't present.
     ribbon: cls.classLevel ? `Class ${cls.classLevel}` : cls.badge,
