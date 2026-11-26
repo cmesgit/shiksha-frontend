@@ -505,6 +505,8 @@ const BlogDetail = ({ locale = "en" }) => {
           gap: "10px",
         }}
       >
+        {!showTopButton && (
+        <Fragment>
         <button
           onClick={() => navigate("/blogs")}
           onMouseEnter={() => setHoveredBtn("back")}
@@ -562,6 +564,8 @@ const BlogDetail = ({ locale = "en" }) => {
               </button>
             ))}
           </div>
+        )}
+        </Fragment>
         )}
 
         {showTopButton && (

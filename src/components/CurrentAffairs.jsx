@@ -135,7 +135,13 @@ const CurrentAffairs = () => {
   // nine on mount, so matching here is both cheaper and more honest than
   // asking the CMS a question the wire can't answer.
   const wireShown = useMemo(() => {
-    let rows = wire;
+    const seenUrls = new Set();
+    let rows = wire.filter((a) => {
+      if (!a.url) return true;
+      if (seenUrls.has(a.url)) return false;
+      seenUrls.add(a.url);
+      return true;
+    });
     const needle = queryTerm.toLowerCase();
     if (needle) {
       rows = rows.filter((a) =>
@@ -338,7 +344,7 @@ const CurrentAffairs = () => {
                   <img
                     className="ca-wireImg"
                     src={a.image}
-                    alt=""
+                    alt={a.title || ""}
                     loading="lazy"
                     /* A dead image host would otherwise leave a broken-image
                        glyph in the middle of the card. */

@@ -104,6 +104,12 @@ export async function deleteThread(threadId) {
   return res.data;
 }
 
+export async function updateThread(threadId, payload) {
+  // payload: { title, body, tags }
+  const res = await api.put(`/forum/threads/${threadId}/`, payload);
+  return res.data;
+}
+
 export async function toggleSave(threadId) {
   const res = await api.post(`/forum/threads/${threadId}/save/`);
   return res.data; // { saved }

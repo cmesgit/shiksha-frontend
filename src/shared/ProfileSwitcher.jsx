@@ -157,7 +157,7 @@ function ResetPinModal({ profile, onConfirm, onCancel, loading, error }) {
         <h3 className="ps-modal__title">{profile.display_name}</h3>
         <p className="ps-modal__sub">Reset PIN with your account password</p>
         <div className="ps-pw-wrap">
-          <input ref={ref} className="ps-pw-input" inputMode="numeric" maxLength={6}
+          <input ref={ref} className="ps-pw-input" type="password" inputMode="numeric" maxLength={6}
             placeholder="New 4–6 digit PIN" value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} />
         </div>

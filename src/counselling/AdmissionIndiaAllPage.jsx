@@ -183,10 +183,12 @@ function AdmissionIndiaAllPageInner() {
   const listFor = (k) => (k === "stream" ? streams : k === "exam" ? exams : k === "state" ? states : types);
 
   return (
-    <CounsellingShell crumb=" / Admission in India">
+    <CounsellingShell crumb={q.trim() ? " / Admission in India / All institutions" : " / Admission in India"}>
       <div className="ai-hero ab-hero">
         <span className="ab-badge">Admissions 2026–27 · NIRF 2025</span>
-        <h1 className="sc-h1">Admission in <em>India</em></h1>
+        <h1 className="sc-h1">
+          {q.trim() ? <>Results for “<em>{q.trim()}</em>”</> : <>Admission in <em>India</em></>}
+        </h1>
         <p className="ab-sub">
           Profiles, courses, entrance exams and official websites for all {NIRF_980.length}
           {" "}NIRF 2025-ranked universities, colleges and institutes.

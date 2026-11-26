@@ -743,6 +743,14 @@ const Navbar = () => {
   const goSearch = () => {
     const q = query.trim();
     closeAll();
+    if (location.pathname.startsWith("/blogs")) {
+      navigate(q ? `/blogs?q=${encodeURIComponent(q)}` : "/blogs");
+      return;
+    }
+    if (location.pathname.startsWith("/admission/india")) {
+      navigate(q ? `/admission/india/all?q=${encodeURIComponent(q)}` : "/admission/india/all");
+      return;
+    }
     navigate("/courses", {
       state: { resetCourses: Date.now(), searchQuery: q },
     });

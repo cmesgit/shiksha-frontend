@@ -15,6 +15,7 @@
  *   - this week   -> `open_slots_week` is a count, not a flag.
  * `rating` also arrives as a STRING (DRF DecimalField), so it needs Number().
  */
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MIN_REVIEWS } from "./RatingStars";
 import { MODE_TEXT } from "./directoryOptions";
@@ -57,6 +58,7 @@ function Stars({ value }) {
 }
 
 export default function TeacherCard({ expert: e, onPlayIntro }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const pal      = paletteFor(e.id || "");
   const verified = Array.isArray(e.badges) && e.badges.includes("Verified");
   const rating   = e.rating == null ? 0 : Number(e.rating);
@@ -88,8 +90,8 @@ export default function TeacherCard({ expert: e, onPlayIntro }) {
     >
       <div className="sk-tcard__id">
         <span className="sk-ava" style={{ "--sk-t": pal.t, "--sk-c": pal.c }}>
-          {e.img
-            ? <img src={e.img} alt="" loading="lazy" />
+          {e.img && !imgFailed
+            ? <img src={e.img} alt="" loading="lazy" onError={() => setImgFailed(true)} />
             : <b aria-hidden="true">{initial(e.name)}</b>}
           <span className="sk-ava__ring" aria-hidden="true" />
           {/* Only ever rendered when the URL is non-null, which the serializer

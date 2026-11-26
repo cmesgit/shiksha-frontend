@@ -84,6 +84,18 @@ const PATH_TITLE_TO_CAREER = {
   "Humanities & Social Sciences": null,
 };
 
+// Case-insensitive index onto the three lookup tables above — built once.
+// A URL slug (/counselling/careers/engineering) and a seeded name typed back
+// from a form don't reliably arrive in the exact stored case, and an exact
+// Set.has()/`in` match 404s on anything but a perfect case match.
+const DETAIL_KEYS_BY_LOWER = new Map([...DETAIL_KEYS].map((k) => [k.toLowerCase(), k]));
+const SPEC_TO_CAREER_BY_LOWER = new Map(
+  Object.entries(SPEC_TO_CAREER).map(([k, v]) => [k.toLowerCase(), v])
+);
+const PATH_TITLE_TO_CAREER_BY_LOWER = new Map(
+  Object.entries(PATH_TITLE_TO_CAREER).map(([k, v]) => [k.toLowerCase(), v])
+);
+
 /**
  * Resolve any name we might hold — a seeded Specialization name, a
  * careerPath path title, or an already-canonical content key — to a
@@ -92,9 +104,10 @@ const PATH_TITLE_TO_CAREER = {
 export function toCareerKey(name) {
   if (!name) return null;
   const raw = String(name).trim();
-  if (DETAIL_KEYS.has(raw)) return raw;                     // already canonical
-  if (raw in SPEC_TO_CAREER) return SPEC_TO_CAREER[raw];    // seeded vocabulary
-  if (raw in PATH_TITLE_TO_CAREER) return PATH_TITLE_TO_CAREER[raw];
+  const lower = raw.toLowerCase();
+  if (DETAIL_KEYS_BY_LOWER.has(lower)) return DETAIL_KEYS_BY_LOWER.get(lower); // already canonical
+  if (SPEC_TO_CAREER_BY_LOWER.has(lower)) return SPEC_TO_CAREER_BY_LOWER.get(lower); // seeded vocabulary
+  if (PATH_TITLE_TO_CAREER_BY_LOWER.has(lower)) return PATH_TITLE_TO_CAREER_BY_LOWER.get(lower);
   return null;
 }
 

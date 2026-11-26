@@ -52,7 +52,7 @@ export default function DocumentPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const store = useExplore();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [data, setData] = useState(null);
   const [toast, setToast] = useState("");
   const [report, setReport] = useState(null); // {reason, detail} | null
@@ -115,6 +115,9 @@ export default function DocumentPage() {
   const accent = meta.color || "#125027";
   const saved = store.isSaved(doc.id);
   const following = doc.author && store.isFollowing(doc.author.id);
+  // doc.author.id is actually the author's username (see contributor_badge) —
+  // compare against the signed-in user's username, not a numeric id.
+  const isOwnDoc = !!user?.username && doc.author && user.username === doc.author.username;
   // The SET's size, not the first file's — the title block describes the
   // whole set. Backfilled rows carry 0, so this is 0 until they are filled
   // in and the line is hidden rather than claiming "0 B".
@@ -134,6 +137,7 @@ export default function DocumentPage() {
       nav(`/login?next=${encodeURIComponent(back)}`);
       return;
     }
+    if (isOwnDoc) { flash("You can't like your own upload"); return; }
     setLikeBusy(true);
     const prev = { liked, likes };
     const next = !liked;
@@ -401,7 +405,8 @@ export default function DocumentPage() {
               </button>
               <div className="exp-railgrid">
                 {/* The functional half of the like pair. */}
-                <button className={`exp-iconbtn${liked ? " on" : ""}`} onClick={onLike} disabled={likeBusy}>
+                <button className={`exp-iconbtn${liked ? " on" : ""}`} onClick={onLike} disabled={likeBusy || isOwnDoc}
+                  title={isOwnDoc ? "You can't like your own upload" : undefined}>
                   <ScribbleIcon name="heart" filled={liked} aria-hidden="true" /> {liked ? "Liked" : "Like"}
                 </button>
                 <button className={`exp-iconbtn${saved ? " on" : ""}`} onClick={() => store.toggleSave(doc.id)}>
@@ -442,11 +447,13 @@ export default function DocumentPage() {
                 {/* Not in the design, kept on purpose: following is a live
                     feature the My Library "Following" tab reads, and this is
                     the only place on a document where you can start. */}
+                {!isOwnDoc && (
                 <button
                   className={`exp-btn ${following ? "exp-btn-ghost" : "exp-btn-primary"} exp-railbtn`}
                   style={{ marginTop: 8 }}
                   onClick={() => store.toggleFollow(doc.author.id)}
                 >{following ? <><ScribbleIcon name="check" aria-hidden="true" /> Following</> : <><ScribbleIcon name="plus" aria-hidden="true" /> Follow</>}</button>
+                )}
               </div>
             )}
 

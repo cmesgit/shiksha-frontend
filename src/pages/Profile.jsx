@@ -320,7 +320,7 @@ export default function Profile() {
                   <button className="profileHeader__nameClear" onClick={() => setEditName("")}>×</button>
                 </div>
               ) : (
-                <h2 className="profileHeader__name">{studentInfo?.name}</h2>
+                <h1 className="profileHeader__name">{studentInfo?.name}</h1>
               )}
 
               {metaBits.length > 0 && (

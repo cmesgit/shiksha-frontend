@@ -1663,6 +1663,29 @@ function ResultView({ player, timeUp, filter, onFilter, onRetake, onClose }) {
   );
 }
 
+/* An active attempt lived only in React state — refreshing the tab (or the
+   browser restoring the page from bfcache after a crash) wiped every answer
+   with zero warning. Mirrored into sessionStorage on every change, so a
+   reload restores exactly where the learner left off; cleared once the
+   attempt is submitted, since there is nothing left to protect. */
+const QUIZ_ATTEMPT_STORAGE_KEY = "qz_active_attempt_v1";
+
+function readStoredAttempt() {
+  try {
+    const raw = window.sessionStorage.getItem(QUIZ_ATTEMPT_STORAGE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    if (!saved || saved.submitted || !saved.quiz?.questions?.length) return null;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
+function clearStoredAttempt() {
+  try { window.sessionStorage.removeItem(QUIZ_ATTEMPT_STORAGE_KEY); } catch { /* unavailable */ }
+}
+
 /* ==========================================================================
    Component
    ========================================================================== */
@@ -1709,7 +1732,7 @@ export default function QuizHub() {
   const [busy, setBusy] = useState(false);
 
   /* ---- player state. `null` when the overlay is closed. ---- */
-  const [player, setPlayer] = useState(null);
+  const [player, setPlayer] = useState(readStoredAttempt);
   const [railOpen, setRailOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("all");
@@ -1750,9 +1773,17 @@ export default function QuizHub() {
      deps change, and the three signed-in panels mount only once the summary
      arrives — later than everything else on the page. Without it they are
      never observed, so they never get the `in` class: the rings sit at 0%
-     and the chart bars render at zero height over perfectly good data. */
+     and the chart bars render at zero height over perfectly good data.
+
+     Keyed on row identity (slugs joined), not `visible.length` — a filter
+     switch that lands on a set with the SAME card count as before never
+     changed this dep, so the IntersectionObserver was never re-run and the
+     newly-mounted `.qz-rv` cards stayed stuck at opacity:0 (see
+     SkillBrowsePage's identical `revealKey` pattern and its own comment
+     warning about this exact bug). */
+  const visibleKey = visible.map((v) => v.slug).join("|");
   useRevealOnScroll(rootRef, reduceMotion, [
-    visible.length, player?.quiz.id, player?.submitted, summary,
+    visibleKey, player?.quiz.id, player?.submitted, summary,
   ]);
   useHeroAnimation(rootRef, reduceMotion);
 
@@ -2062,6 +2093,44 @@ export default function QuizHub() {
   }, [player?.i, player?.quiz.id, player?.submitted]);
 
   useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = 0; }, [player?.i, player?.submitted]);
+
+  /* Mirror the live attempt into sessionStorage (see readStoredAttempt above)
+     and drop it once there is nothing left to protect. */
+  useEffect(() => {
+    if (!player || player.submitted) { clearStoredAttempt(); return; }
+    try { window.sessionStorage.setItem(QUIZ_ATTEMPT_STORAGE_KEY, JSON.stringify(player)); }
+    catch { /* storage full/unavailable — the attempt still lives in React state */ }
+  }, [player]);
+
+  /* Warn before a full page unload (refresh, close, back/forward out of the
+     SPA) while an attempt is live — the native "leave site?" prompt is the
+     only one a beforeunload handler is allowed to show. */
+  useEffect(() => {
+    if (!player || player.submitted) return undefined;
+    const onBeforeUnload = (e) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [player, player?.submitted]);
+
+  /* Header nav links (Courses, Blogs, Collab, …) are regular React Router
+     <Link>s rendered outside this component, so they can't be disabled from
+     here — but every one of them still renders a real <a href>. Intercept
+     any in-app link click at the document level while an attempt is live and
+     confirm before letting it through, same guard as the in-quiz exit button. */
+  useEffect(() => {
+    if (!player || player.submitted) return undefined;
+    const onClickCapture = (e) => {
+      const link = e.target.closest?.("a[href]");
+      if (!link || !rootRef.current || rootRef.current.contains(link)) return;
+      if (link.target === "_blank" || link.href.startsWith("mailto:") || link.href.startsWith("tel:")) return;
+      if (!window.confirm("Leave this attempt? Your answers will not be saved.")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    document.addEventListener("click", onClickCapture, true);
+    return () => document.removeEventListener("click", onClickCapture, true);
+  }, [player, player?.submitted]);
 
   const goTo = useCallback((i) => {
     setPlayer((p) => (!p || i < 0 || i >= p.quiz.count ? p : { ...p, i }));

@@ -108,6 +108,7 @@
   background: #fff;
 }
 .vf-row-main { flex: 1 1 260px; min-width: 0; }
+.vf-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .vf-row h3, .vf-spec h3 {
   font: 700 17px Montserrat, sans-serif;
   color: var(--forest);
@@ -141,6 +142,10 @@
   cursor: pointer;
 }
 .vf-cta:hover, .vf-send:hover { background: #0b3d1e; }
+.vf-cta:disabled { background: #cfdbd3; color: #7b8a81; cursor: not-allowed; }
+.vf-cta.vf-danger { background: #fff; color: var(--vf-bad-fg); border: 1px solid var(--vf-bad-bg); }
+.vf-cta.vf-danger:hover { background: var(--vf-bad-bg); }
+.vf-cta.vf-danger:disabled { background: #fff; color: var(--muted); border-color: var(--line); }
 .vf-send { width: 100%; margin-top: 14px; }
 .vf-send:disabled { background: #cfdbd3; color: #7b8a81; cursor: not-allowed; }
 

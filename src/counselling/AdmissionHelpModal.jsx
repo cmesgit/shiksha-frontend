@@ -166,6 +166,7 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
             <label className="ahm-field">
               <span>Full name <i aria-hidden="true">*</i></span>
               <input ref={firstFieldRef} value={name} onChange={(e) => setName(e.target.value)}
+                     type="text" autoComplete="name"
                      className={errors.name ? "ahm-err" : ""} />
               {errors.name && <small className="ahm-errtx">Please tell us your name.</small>}
             </label>
@@ -174,6 +175,7 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
               <span>Mobile number <i aria-hidden="true">*</i></span>
               <input value={mobile} onChange={(e) => setMobile(e.target.value)}
                      placeholder="10-digit Indian mobile" inputMode="numeric"
+                     type="text" autoComplete="tel"
                      className={errors.mobile ? "ahm-err" : ""} />
               <small className="ahm-hint">
                 We'll only use this to call you about {domain === "india" ? "admissions" : "study abroad admissions"}.
@@ -191,13 +193,13 @@ export default function AdmissionHelpModal({ open, onClose, title, subtitle, def
             {domain !== "india" && (
               <label className="ahm-field">
                 <span>Preferred country</span>
-                <input value={country} onChange={(e) => setCountry(e.target.value)} />
+                <input value={country} onChange={(e) => setCountry(e.target.value)} type="text" />
               </label>
             )}
 
             <label className="ahm-field">
               <span>{domain === "india" ? "Course you're interested in" : "Course / study level"}</span>
-              <input value={course} onChange={(e) => setCourse(e.target.value)}
+              <input value={course} onChange={(e) => setCourse(e.target.value)} type="text"
                      placeholder={domain === "india" ? "e.g. B.Tech Computer Science" : "e.g. MS Computer Science"} />
             </label>
 

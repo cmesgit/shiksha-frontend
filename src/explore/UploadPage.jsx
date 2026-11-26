@@ -100,6 +100,17 @@ function TagPicker({ tree, tags, onAdd, onRemove }) {
         maxLength={120}
         placeholder="Type a subject or branch, e.g. Hydrology"
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          e.preventDefault();
+          if (matches.length > 0) { onAdd(matches[0]); setQuery(""); }
+          else if (exact) {
+            onAdd(first
+              ? { field: first.field, subject: first.subject, branch: query.trim() }
+              : { field: "", subject: query.trim(), branch: "" });
+            setQuery("");
+          }
+        }}
       />
 
       {matches.length > 0 && (

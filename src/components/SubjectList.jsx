@@ -265,6 +265,8 @@ const SubjectList = ({ course, boardGroup, board, selectedClass, onBack, onEnrol
                         <button
                           type="button"
                           className="course-accordion__header"
+                          aria-expanded={isOpen}
+                          aria-controls={`course-accordion-body-${index}`}
                           onClick={() => setExpandedIndex(isOpen ? null : index)}
                         >
                           <span className="course-accordion__left">
@@ -282,7 +284,7 @@ const SubjectList = ({ course, boardGroup, board, selectedClass, onBack, onEnrol
                         </button>
 
                         {isOpen && (
-                          <div className="course-accordion__body">
+                          <div className="course-accordion__body" id={`course-accordion-body-${index}`}>
                             <p className="course-accordion__textbook">
                               Textbook: {topic.textbook}
                             </p>

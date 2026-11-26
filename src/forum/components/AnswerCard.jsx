@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForum } from "../ForumContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { normAuthor, timeAgo } from "../utils";
 import { toggleCommentUpvote } from "../../api/forum";
 
@@ -10,6 +11,8 @@ import { toggleCommentUpvote } from "../../api/forum";
 export default function AnswerCard({ answer, canAccept, onAccept, onDelete }) {
   const navigate = useNavigate();
   const { openReport, showToast, requireAuth } = useForum();
+  const { user } = useAuth();
+  const isOwnAnswer = !!user?.username && user.username === answer.author_username;
   const [up, setUp] = useState(!!answer.user_has_upvoted);
   const [ups, setUps] = useState(answer.upvote_count || 0);
   const [menu, setMenu] = useState(false);
@@ -24,6 +27,7 @@ export default function AnswerCard({ answer, canAccept, onAccept, onDelete }) {
 
   const doUpvote = async () => {
     if (requireAuth()) return;
+    if (isOwnAnswer) { showToast("You can't upvote your own answer"); return; }
     setUp((v) => !v); setUps((n) => n + (up ? -1 : 1));
     try { const res = await toggleCommentUpvote(answer.id); setUp(res.upvoted); setUps(res.upvote_count); }
     catch { setUp(up); setUps(answer.upvote_count || 0); }
@@ -48,8 +52,8 @@ export default function AnswerCard({ answer, canAccept, onAccept, onDelete }) {
       <div style={{ font: "400 14px/1.8 Poppins,sans-serif", color: "#2b3a2b", whiteSpace: "pre-line", marginBottom: 12 }}>{answer.content}</div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: "1px solid #e4edd8" }}>
-        <div className={`fm2-vote-pill${up ? " on" : ""}`}>
-          <button onClick={doUpvote} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", color: "inherit", font: "700 12px Poppins,sans-serif", padding: "6px 11px" }}>
+        <div className={`fm2-vote-pill${up ? " on" : ""}`} title={isOwnAnswer ? "You can't upvote your own answer" : undefined}>
+          <button onClick={doUpvote} disabled={isOwnAnswer} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: isOwnAnswer ? "not-allowed" : "pointer", color: "inherit", opacity: isOwnAnswer ? 0.5 : 1, font: "700 12px Poppins,sans-serif", padding: "6px 11px" }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill={up ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
             Upvote · {ups}
           </button>

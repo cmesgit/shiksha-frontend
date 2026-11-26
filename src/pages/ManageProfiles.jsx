@@ -164,7 +164,7 @@ function ProfileForm({ initial, isCreate, onSave, onCancel, saving, error }) {
 
       {isCreate && (
         <Field label="PIN (optional, 4–6 digits)">
-          <input inputMode="numeric" maxLength={6} value={form.pin || ""}
+          <input type="password" inputMode="numeric" maxLength={6} value={form.pin || ""}
             onChange={e => set("pin", e.target.value.replace(/\D/g, ""))}
             placeholder="Leave blank for no PIN" style={{ letterSpacing: "0.25em" }} />
         </Field>
@@ -205,7 +205,7 @@ function PinModal({ profile, onSave, onCancel, saving, error }) {
 
       {mode !== "remove" && (
         <Field label="New PIN (4–6 digits)">
-          <input inputMode="numeric" maxLength={6} value={pin}
+          <input type="password" inputMode="numeric" maxLength={6} value={pin}
             onChange={e => setPin(e.target.value.replace(/\D/g, ""))}
             style={{ letterSpacing: "0.25em" }} autoFocus />
         </Field>

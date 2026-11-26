@@ -31,6 +31,10 @@ function readStored() {
 
 export function AbroadCompareProvider({ children }) {
   const [ids, setIds] = useState(readStored);
+  // A 4th tap used to fail with zero toast/alert/disabled-state — the button
+  // just sat there saying "+ Add to compare" with nothing happening, so a
+  // learner had no way to tell "it didn't work" from "it's slow."
+  const [capMessage, setCapMessage] = useState("");
 
   useEffect(() => {
     try {
@@ -41,17 +45,23 @@ export function AbroadCompareProvider({ children }) {
     }
   }, [ids]);
 
+  useEffect(() => {
+    if (!capMessage) return undefined;
+    const t = setTimeout(() => setCapMessage(""), 2600);
+    return () => clearTimeout(t);
+  }, [capMessage]);
+
   const inCompare = useCallback((id) => ids.includes(id), [ids]);
 
   const toggle = useCallback((id) => {
-    setIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        // Silently caps at 3 rather than rejecting the 4th tap — the board's
-        // own bar never showed a 4th chip to remove, so there is no "full"
-        // state to design an error for.
-        : prev.length >= MAX_COMPARE ? prev : [...prev, id]
-    );
+    setIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= MAX_COMPARE) {
+        setCapMessage(`You can only compare up to ${MAX_COMPARE} universities at a time — remove one first.`);
+        return prev;
+      }
+      return [...prev, id];
+    });
   }, []);
 
   const remove = useCallback((id) => setIds((prev) => prev.filter((x) => x !== id)), []);
@@ -60,6 +70,14 @@ export function AbroadCompareProvider({ children }) {
   return (
     <CompareContext.Provider value={{ ids, inCompare, toggle, remove, clear, max: MAX_COMPARE }}>
       {children}
+      {capMessage && (
+        <div role="status" style={{
+          position: "fixed", left: "50%", bottom: 24, transform: "translateX(-50%)",
+          background: "#14201a", color: "#fff", padding: "10px 18px", borderRadius: 10,
+          font: "600 13px 'Poppins', sans-serif", boxShadow: "0 8px 24px rgba(0,0,0,.25)",
+          zIndex: 9999, maxWidth: "min(420px, 90vw)", textAlign: "center",
+        }}>{capMessage}</div>
+      )}
     </CompareContext.Provider>
   );
 }

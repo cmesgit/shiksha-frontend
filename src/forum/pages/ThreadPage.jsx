@@ -6,6 +6,7 @@ import { useForum } from "../ForumContext";
 import PostAttachments from "../components/PostAttachments";
 import AnswerCard from "../components/AnswerCard";
 import CommentThread from "../components/CommentThread";
+import EditQuestionModal from "../components/EditQuestionModal";
 import { normAuthor, timeAgo } from "../utils";
 import ScribbleIcon from "../../components/icons/ScribbleIcon";
 
@@ -24,6 +25,7 @@ export default function ThreadPage() {
   const [answerOpen, setAnswerOpen] = useState(false);
   const [answerDraft, setAnswerDraft] = useState("");
   const [commentDraft, setCommentDraft] = useState("");
+  const [editOpen, setEditOpen] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -64,7 +66,10 @@ export default function ThreadPage() {
     catch { showToast("Could not add reply"); }
   };
   const onAccept = async (replyId) => { try { await acceptAnswer(q.id, replyId); load(); } catch { showToast("Could not update"); } };
-  const onDelete = async () => { try { await deleteThread(q.id); showToast("Deleted"); navigate("/forum"); } catch { showToast("Could not delete"); } };
+  const onDelete = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete this question?")) return;
+    try { await deleteThread(q.id); showToast("Deleted"); navigate("/forum"); } catch { showToast("Could not delete"); }
+  };
   const share = () => { try { navigator.clipboard?.writeText(window.location.href); } catch { /* */ } showToast("Link copied to clipboard"); };
 
   const sortTab = (id2, label) => (
@@ -101,14 +106,17 @@ export default function ThreadPage() {
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
             <button onClick={() => toggleFollowQuestion(q.id)} className={following ? "fm2-btn-green" : "fm2-btn-outline"} style={{ padding: "7px 14px" }}>{following ? "✓ Following" : "Follow"}</button>
+            {!isOwner && (
             <button onClick={() => openReport("question", q.id)} style={{ display: "flex", alignItems: "center", gap: 7, background: "none", border: "1.5px solid #f0c8c0", borderRadius: 8, padding: "7px 14px", font: "700 13px Poppins,sans-serif", color: "#b03020", cursor: "pointer" }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
               Report
             </button>
+            )}
             <button onClick={share} className="fm2-btn-outline" style={{ padding: "7px 14px" }}>
               <ScribbleIcon name="share" size={13} />
               Share
             </button>
+            {isOwner && <button onClick={() => setEditOpen(true)} className="fm2-btn-ghost" style={{ padding: "7px 12px", color: "#125027" }}>Edit</button>}
             {isOwner && <button onClick={onDelete} className="fm2-btn-ghost" style={{ padding: "7px 12px", color: "#b03020" }}>Delete</button>}
           </div>
         </div>
@@ -152,6 +160,14 @@ export default function ThreadPage() {
         </div>
         <CommentThread comments={q.comments || []} onReply={onReply} />
       </div>
+
+      {editOpen && (
+        <EditQuestionModal
+          thread={q}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => { setEditOpen(false); showToast("Changes saved"); load(); }}
+        />
+      )}
     </div>
   );
 }

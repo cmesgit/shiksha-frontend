@@ -20,7 +20,7 @@
 .sc-crumb { font: 600 12.5px 'Poppins', sans-serif; color: rgba(20,32,26,.55); white-space: nowrap }
 .sc-crumb a { color: #125027; text-decoration: none; font-weight: 700 }
 .sc-crumb span { color: rgba(20,32,26,.5); font-weight: 500; white-space: nowrap }
-.sc-steps { margin-left: auto; display: flex; align-items: center; gap: 6px }
+.sc-steps { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100% }
 .sc-step { font: 600 10.5px 'Poppins', sans-serif; color: rgba(20,32,26,.42); padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(18,45,30,.12); white-space: nowrap }
 .sc-step.on { color: #125027; background: #ffce6d; border-color: #ffce6d; font-weight: 700 }
 .sc-step.done { color: #125027; border-color: rgba(18,80,39,.32); background: rgba(18,80,39,.05) }
@@ -326,6 +326,18 @@
 .sc-asec h3 { font: 800 15px 'Montserrat', sans-serif; color: #125027; margin: 0 0 12px }
 
 .sc-empty { text-align: center; padding: 44px 20px; color: rgba(14,28,15,.5); background: #fff; border: 1.5px dashed rgba(9,62,5,.18); border-radius: 15px; font: 500 13px 'Poppins', sans-serif }
+.cns-alert { max-width: 420px; margin: 22px auto 0; text-align: left }
+.cns-alert-title { margin: 0 0 10px; font: 700 12.5px 'Poppins', sans-serif; color: #0e1c0f }
+.cns-alert-row { display: flex; flex-wrap: wrap; gap: 8px }
+.cns-alert-row .sc-input { flex: 1 1 140px; margin-bottom: 0 }
+.cns-alert-row .sc-btn { flex: none }
+.cns-alert-consent { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font: 500 11.5px/1.5 'Poppins', sans-serif; color: rgba(14,28,15,.6); cursor: pointer; text-align: left }
+.cns-alert-consent input { margin-top: 2px; flex: none }
+.cns-alert-consent.cns-err span { color: #c2560c }
+.cns-alert-errtx { display: block; margin-top: 8px; font: 600 11.5px 'Poppins', sans-serif; color: #c2560c }
+.sc-input.cns-err { border-color: #c2560c }
+.cns-alert-done { color: #0e8a52; font-weight: 600 }
+
 .sc-error { background: rgba(179,38,30,.07); border: 1px solid rgba(179,38,30,.25); color: #b3261e; border-radius: 10px; padding: 11px 14px; font: 600 12.5px 'Poppins', sans-serif; margin-bottom: 14px }
 .sc-skel { background: linear-gradient(90deg, rgba(9,62,5,.06), rgba(9,62,5,.11), rgba(9,62,5,.06)); background-size: 200% 100%; animation: scShimmer 1.2s infinite; border-radius: 12px }
 @keyframes scShimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
@@ -1875,6 +1887,13 @@ a.ab2-tr:hover { background: rgba(27,156,133,.04) }
 .abcmp-remove:hover { text-decoration: underline }
 .abcmp-table tbody th { font: 700 12px 'Poppins', sans-serif; color: rgba(20,32,26,.55);
   text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; background: #fafaf8 }
+/* The row-label column is the only way to tell what a metric means once the
+   table scrolls horizontally on mobile (min-width:480px above forces that) —
+   pin it so it never scrolls out of view. tbody's first cell is always the
+   <th scope="row"> label (see AbroadComparePage/AdmissionIndiaComparePage);
+   it already carries its own opaque background, just needs sticky added. */
+.abcmp-table thead th:first-child { position: sticky; left: 0; z-index: 1; background: #fff }
+.abcmp-table tbody th { position: sticky; left: 0; z-index: 1 }
 
 /* Explore careers — the board's facet browser: a stream chip row, an
    interest-area rail with live counts, search, sort and 2-up cards.

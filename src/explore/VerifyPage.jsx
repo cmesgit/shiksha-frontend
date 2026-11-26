@@ -17,6 +17,7 @@ import {
   requestSpecialization, removeSpecialization, uploadNewVersion,
   verificationEnabled, isOff,
 } from "./verificationApi";
+import { deleteDocument } from "./exploreApi";
 import "./Verification.css";
 
 const TABS = [
@@ -322,31 +323,77 @@ function NewVersionButton({ setId, onDone }) {
   );
 }
 
-function MyUploads({ data, onUpload }) {
+function MyUploads({ data, onChanged }) {
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  async function handleDelete(u) {
+    if (!window.confirm(
+      `Delete "${u.title}"? It will be removed from the library. This can't be undone.`
+    )) return;
+    setDeletingId(u.id);
+    setDeleteError("");
+    try {
+      const res = await deleteDocument(u.id);
+      // Same caveat as the dashboard's delete: Bunny purge needs an account
+      // API key that isn't configured yet, so the old direct link can keep
+      // serving the file from the CDN edge cache for a while.
+      if (res && res.file_purged === false) {
+        setDeleteError(
+          `"${u.title}" was removed from the library, but the file may stay reachable ` +
+          `from its old direct link for a while. Contact an admin if it was sensitive.`
+        );
+      }
+      onChanged();
+    } catch {
+      setDeleteError(`Could not delete "${u.title}". Try again.`);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   if (!data.my_uploads.length) {
     return <div className="vf-blank"><h3>You have not uploaded anything yet</h3><p>Your uploads and their verification status appear here.</p></div>;
   }
-  return data.my_uploads.map((u) => (
-    <article key={u.id} className="vf-row vf-mine">
-      <div className="vf-row-main">
-        <p className="vf-progress">
-          <StatusPill progress={u.progress} asOwner />
-          <span>{u.progress.label}</span>
-        </p>
-        <h3>{u.title}</h3>
-        <TagChips tags={u.tags} />
-        {u.reviewer_note && (
-          <div className="vf-note-box">
-            <strong>Reviewer&apos;s note</strong>
-            <p>{u.reviewer_note}</p>
+  return (
+    <>
+      {deleteError && <p className="vf-error">{deleteError}</p>}
+      {data.my_uploads.map((u) => (
+        <article key={u.id} className="vf-row vf-mine">
+          <div className="vf-row-main">
+            <p className="vf-progress">
+              <StatusPill progress={u.progress} asOwner />
+              <span>{u.progress.label}</span>
+            </p>
+            <h3>{u.title}</h3>
+            <TagChips tags={u.tags} />
+            {u.reviewer_note && (
+              <div className="vf-note-box">
+                <strong>Reviewer&apos;s note</strong>
+                <p>{u.reviewer_note}</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {u.reviewer_note && (
-        <NewVersionButton setId={u.id} onDone={onUpload} />
-      )}
-    </article>
-  ));
+          {/* Edit and delete used to both live behind `reviewer_note`, so an
+              upload nobody had reviewed yet — the common case — could never
+              be fixed or removed from here, only from the dead DashboardPage
+              route. Both are reachable unconditionally now; the server
+              re-checks ownership on each call regardless. */}
+          <div className="vf-row-actions">
+            <NewVersionButton setId={u.id} onDone={onChanged} />
+            <button
+              type="button"
+              className="vf-cta vf-danger"
+              onClick={() => handleDelete(u)}
+              disabled={deletingId === u.id}
+            >
+              {deletingId === u.id ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </article>
+      ))}
+    </>
+  );
 }
 
 function Specializations({ data, reload }) {
@@ -550,7 +597,7 @@ export default function VerifyPage() {
               else nav(`/explore/doc/${id}`);
             }} />
           ) : tab === "uploads" ? (
-            <MyUploads data={data} onUpload={() => nav("/explore/upload")} />
+            <MyUploads data={data} onChanged={load} />
           ) : tab === "specializations" ? (
             <Specializations data={data} reload={load} />
           ) : (
